@@ -61,7 +61,7 @@ One x comes from the reference distribution P_X, the other from some other distr
 - What do you want to compare (e.g. single instance) against what (e.g. complete data distribution)
 - What do you want to measure (e.g. prediction or performance)
 - How do you want to compare the measures (e.g. difference)
-- How do you want to attribute comparison differences (e.g. Shapley)
+- How do you want to attribute comparison differences (e.g. Shapley or a simple comparison (like ICE or DPD))
 - How do you want to aggregate the comparisons across instances
 - How do you want to aggregate the comparisons across features
 
