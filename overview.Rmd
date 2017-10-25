@@ -45,7 +45,8 @@ See also implementation in sensitivity package.
 - *Weighting*: How the background data should be weighted. In LIME it is with the kernels. In shapley it is 1 for each sampled background. In shap paper it is weighted by the shap kernel. For better overview, this step could be integrated into the background sampler strategy. Disadvantage: If seperated, it is clearer in LIME that samples can be reused for each explanation. 
 - *Data generator/shuffler* (other name: instance recombination) (dpd: create multiple datasets from trainding dat, each time shuffle one variable.)
 It's a function g(x, x') that projects from the cartesian X product to X: XxX -> X 
-- *Get predictions* (always the same I guess?. only more complicated if you have some kind of adaptive sampling procedure)
+One x comes from the reference distribution P_X, the other from some other distribution (marginal distribution for permutation feature importance, normal dist with mean and var from one feature for lime) or a grid (dpd, ice) or just from one instance.  
+- *Get predictions* (always the same I guess?. only more complicated if you have some kind of adaptive sampling procedure). Or more general: measure some quantity of interest, that is likely a function of the prediction. In case of permutation feature importance it is the Performance you measure. 
 - *Fitting process  / Statistic on collected data* (LIME: linear model, pdp: avg by x-grid, shapley: avg, shap: lin mod). Apart from LIME, a lot have the formula $\hat{y}_{instance of interest} - \hat{y}_{background}$
 - *Repeat and overlay*: How often should the previous steps be repeated and overlayed? Examples: ICE (multiple runs but with different instances and instance, pdp: multiple runs with different features, aLIME: multiple runs with different instances)
 
