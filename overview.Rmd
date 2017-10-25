@@ -1,0 +1,109 @@
+---
+title: "Interpretability Framework for Machine Learning models"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Content of paper
+Modular approach of creating explanations (= feature contributions to the preditions)
+Combines LIME, shapley, local/cluster/global interpretability
+
+Notes and remarks
+- Focus on tabular data
+- Output is always $E(\hat{y} | X_{something})$
+- Is (permutation) feature importance covered by this modular system?
+- Instances of interested are always a subset of the background data (?)
+- Is weighing equivalent or similar to choosing the background data? 
+- other name: Difference-from-reference
+
+# Value of paper
+- High abstraction view of interpretability methods
+- Unification of methods
+- Explore new things that arises naturally from modular system, like explaining clusters against dataset, or instance against cluster, or instance against archetype (=single instance as well). 
+- R package
+
+# TODOs:
+- Read DeepLift paper and decide if it fits into the framework or if it even should. 
+# Moving parts for interpretation
+
+## Input: 
+- features $X$
+- outcome $y$
+- learned $\hat{f}$
+- interpretable features $X'$
+- mapping $h()$ that maps from $X'$ to $X$t
+
+
+## Modules
+See also implementation in sensitivity package. 
+- *Instance selector*: Which instances should be explained? Ranging from a single instance to cluster (or even all instances, e.g. pdp)
+- *Feature selector*: Which features should be integrated. For LIME, shap, shapley: all. For pdp, it is only one or two features at a time. This point could be omitted as well or at least not be the biggest point. Feature selector step could be omitted in the overview, since it is not important and does not really allow to find new things that arise from the modular system. 
+- *Reference sampler*: Function that returns n samples. Against which data (instances) should the prediction of selected instance be compared to? For shapley or pdp the function draws samples from the training data. For LIME it draw from the data points that are generated each feature independently with mean and variance sampling. 
+- *Weighting*: How the background data should be weighted. In LIME it is with the kernels. In shapley it is 1 for each sampled background. In shap paper it is weighted by the shap kernel. For better overview, this step could be integrated into the background sampler strategy. Disadvantage: If seperated, it is clearer in LIME that samples can be reused for each explanation. 
+- *Data generator/shuffler* (other name: instance recombination) (dpd: create multiple datasets from trainding dat, each time shuffle one variable.)
+It's a function g(x, x') that projects from the cartesian X product to X: XxX -> X 
+- *Get predictions* (always the same I guess?. only more complicated if you have some kind of adaptive sampling procedure)
+- *Fitting process  / Statistic on collected data* (LIME: linear model, pdp: avg by x-grid, shapley: avg, shap: lin mod). Apart from LIME, a lot have the formula $\hat{y}_{instance of interest} - \hat{y}_{background}$
+- *Repeat and overlay*: How often should the previous steps be repeated and overlayed? Examples: ICE (multiple runs but with different instances and instance, pdp: multiple runs with different features, aLIME: multiple runs with different instances)
+
+
+## Examples embedded in framework
+
+### LIME
+- Instance selector: Select single instance
+- Feature selector: Select X'
+- Background data selector: Select training data X_T
+- Background sampler: Sample from background mean and variance
+- Weigh by euclidean distance to instance
+- data generator: nothing?
+- predict $\hat{y}$
+- fit weighted LASSO
+### Shapley
+- Instance selector: Select single instance x_i
+- Feature selector: Select X
+- Background data selector: Select training data X_T
+- Background sampler: Sample random instances from X_T
+- Weigh with value 1
+- data generator: create frankenstein instances by combining x_i and samples from X_T
+- predict $\hat{y}$ for each sample
+- create mean diff from frankenstein instances
+
+### Partial dependence plots
+- Instance selector: select all
+- Feature selector: select one (or two) feature(s) x_j (and x_k)
+- Background data selector: select training data X_T
+- Background sampler: choose all
+- weigh with value 1
+- data generator: |x_grid| x n sized dataset, in each iteration feature x_j is forced to be a x_grid value
+- predict $\hat{y}$ for each new instance
+- average by x_grid value
+
+### Permutation feature importance 
+- Instance selector: all instances usually, but also cluster might be interesting.
+- feature selector: select one feature x_j
+- background selector: usually training data X_T (could also be a smaller set, when instance of interest smaller set)
+- Background sampler: take all
+- weight with value 1
+- data generator: generate additional $n_{perm}$ datasets with permuted feature $x_j$
+- predict $\hat{y}$
+- compare performance measure between
+
+
+
+### New things arising from modular view
+- explaining clusters against dataset
+- explaining instance against cluster
+- explaining instance against instance, e.g. archetype (=single instance as well)
+- relative feature importance, by choosing single instance and comparing feature importance against background. 
+- feature importance in cluster compared to whole datase
+- weighted feature importance measures
+- pdps are essentially a special case of shapley value. We only check the contribution for one variable and do so multiple times to get  a curve over the feature range. 
+
+
+What does not work:
+Choosing all instances in instance selector for shapley should yield estimate of zero??
+
+
