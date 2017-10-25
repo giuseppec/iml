@@ -18,15 +18,20 @@ Notes and remarks
 - Instances of interested are always a subset of the background data (?)
 - Is weighing equivalent or similar to choosing the background data? 
 - other name: Difference-from-reference
+- Checkout if you can use some bound to calculate the number of samples you need. See "Algorithmic Transparency viaQuantitative Input Influence", chapter A. Computing Power Indices. They use epsilon-delta approximation and Hoffding bound
+- Maybe the settings has to be that the quantity of interest is always between $[0,1]$. Should be doable by rescaling (e.g. $y_{star} = \frac{y_{hat} - min(\hat{y})}{max(\hat{y}) - min(\hat{y})}$
 
 # Value of paper
 - High abstraction view of interpretability methods
 - Unification of methods
 - Explore new things that arises naturally from modular system, like explaining clusters against dataset, or instance against cluster, or instance against archetype (=single instance as well). 
 - R package
+- Extend "Algorithmic Transparency viaQuantitative Input Influence" by allowing numerical features, showing how it is the same as ICE / PermImp / ..., discovering more use cases (cluster vs complete data etc.)
 
 # TODOs:
 - Read DeepLift paper and decide if it fits into the framework or if it even should. 
+- List interesting quantities of interest (probability for class, probability for own class, numerical prediction, Performance, Group differences (e.g. men and women). 
+- 
 # Moving parts for interpretation
 
 ## Input: 
@@ -47,11 +52,18 @@ See also implementation in sensitivity package and paper: Algorithmic Transparen
 - *Weighting*: How the background data should be weighted. In LIME it is with the kernels. In shapley it is 1 for each sampled background. In shap paper it is weighted by the shap kernel. For better overview, this step could be integrated into the background sampler strategy. Disadvantage: If seperated, it is clearer in LIME that samples can be reused for each explanation. 
 - *Data generator/shuffler* (other name: instance recombination) (dpd: create multiple datasets from trainding dat, each time shuffle one variable.)
 It's a function g(x, x') that projects from the cartesian X product to X: XxX -> X 
-One x comes from the reference distribution P_X, the other from some other distribution (marginal distribution for permutation feature importance, normal dist with mean and var from one feature for lime) or a grid (dpd, ice) or just from one instance.  
+One x comes from the reference distribution P_X, the other from some other distribution (marginal distribution for permutation feature importance, normal dist with mean and var from one feature for lime) or a grid (dpd, ice) or just from one instance.  Break the association between features. For ICE and PDP: Force grid. For Permuation importance: force shuffle of one variable. 
 - *Get predictions* (always the same I guess?. only more complicated if you have some kind of adaptive sampling procedure). Or more general: measure some quantity of interest, that is likely a function of the prediction. In case of permutation feature importance it is the Performance you measure. 
 - *Fitting process  / Statistic on collected data* (LIME: linear model, pdp: avg by x-grid, shapley: avg, shap: lin mod). Apart from LIME, a lot have the formula $\hat{y}_{instance of interest} - \hat{y}_{background}$
 - *Repeat and overlay*: How often should the previous steps be repeated and overlayed? Examples: ICE (multiple runs but with different instances and instance, pdp: multiple runs with different features, aLIME: multiple runs with different instances)
 
+## How to do comparisons using this framework
+- What do you want to compare (e.g. single instance) against what (e.g. complete data distribution)
+- What do you want to measure (e.g. prediction or performance)
+- How do you want to compare the measures (e.g. difference)
+- How do you want to attribute comparison differences (e.g. Shapley)
+- How do you want to aggregate the comparisons across instances
+- How do you want to aggregate the comparisons across features
 
 ## Examples embedded in framework
 
@@ -106,6 +118,9 @@ One x comes from the reference distribution P_X, the other from some other distr
 - They don't compare it with dpd, ice, pimp and so on
 - They don't show what it extends to (except of course for their own things they use in the transparency report. 
 - They only talk about categorical features, I will generalize it towards numerical features. also ordinal?
+- They write: "A thorough exploration of other points in this design space remains an important direction for future work.". See als next chapter: New things that arise from modular view. So I am basically doing what they suggest. 
+- Their notation sucks. I will do it better with usual notation from statistics field. 
+- What's weird in their paper: They use shapley only for their "Set QII" which involves the influence of multiple variables. But they don't use shapley for a single variable. 
 
 ## New things arising from modular view
 - explaining clusters against dataset
