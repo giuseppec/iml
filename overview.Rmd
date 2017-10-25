@@ -38,10 +38,12 @@ Notes and remarks
 
 
 ## Modules
-See also implementation in sensitivity package. 
+See also implementation in sensitivity package and paper: Algorithmic Transparency viaQuantitative Input Influence
+- Quantity of interest, e.g. performance, prediction, probability for certain class
+- Difference measure for comparing quantity of interest before and after intervention 
 - *Instance selector*: Which instances should be explained? Ranging from a single instance to cluster (or even all instances, e.g. pdp)
 - *Feature selector*: Which features should be integrated. For LIME, shap, shapley: all. For pdp, it is only one or two features at a time. This point could be omitted as well or at least not be the biggest point. Feature selector step could be omitted in the overview, since it is not important and does not really allow to find new things that arise from the modular system. 
-- *Reference sampler*: Function that returns n samples. Against which data (instances) should the prediction of selected instance be compared to? For shapley or pdp the function draws samples from the training data. For LIME it draw from the data points that are generated each feature independently with mean and variance sampling. 
+- *Reference/background/intervention sampler*: Function that returns n samples. Against which data (instances) should the prediction of selected instance be compared to? For shapley or pdp the function draws samples from the training data. For LIME it draw from the data points that are generated each feature independently with mean and variance sampling. This sampling can also be seen as doing an intervention on this variable. 
 - *Weighting*: How the background data should be weighted. In LIME it is with the kernels. In shapley it is 1 for each sampled background. In shap paper it is weighted by the shap kernel. For better overview, this step could be integrated into the background sampler strategy. Disadvantage: If seperated, it is clearer in LIME that samples can be reused for each explanation. 
 - *Data generator/shuffler* (other name: instance recombination) (dpd: create multiple datasets from trainding dat, each time shuffle one variable.)
 It's a function g(x, x') that projects from the cartesian X product to X: XxX -> X 
@@ -92,9 +94,20 @@ One x comes from the reference distribution P_X, the other from some other distr
 - predict $\hat{y}$
 - compare performance measure between
 
+### PIMP?
+
+### Sobol index?
 
 
-### New things arising from modular view
+## Similar papers 
+
+### "Algorithmic Transparency viaQuantitative Input Influence"
+- Follows exactly this framework. Actually is kind of this framework, but not written down properly and not shown that it's all the same scheme. 
+- They don't compare it with dpd, ice, pimp and so on
+- They don't show what it extends to (except of course for their own things they use in the transparency report. 
+- They only talk about categorical features, I will generalize it towards numerical features. also ordinal?
+
+## New things arising from modular view
 - explaining clusters against dataset
 - explaining instance against cluster
 - explaining instance against instance, e.g. archetype (=single instance as well)
