@@ -8,33 +8,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Content of paper
-Modular approach of creating explanations (= feature contributions to the preditions)
+Modular approach of creating explanations (= feature contributions to the preditions and variable importance)
 Combines LIME, shapley, local/cluster/global interpretability
 
 Notes and remarks
+
 - Focus on tabular data
-- Output is always $E(\hat{y} | X_{something})$
-- Is (permutation) feature importance covered by this modular system?
+- Output is often $E(\hat{y} | X_{something})$
+- Is (permutation) feature importance covered by this modular system? => Yes it should be
 - Instances of interested are always a subset of the background data (?)
-- Is weighing equivalent or similar to choosing the background data? 
+- Is weighing equivalent or similar to choosing the background data?
 - other name: Difference-from-reference
-- Checkout if you can use some bound to calculate the number of samples you need. See "Algorithmic Transparency viaQuantitative Input Influence", chapter A. Computing Power Indices. They use epsilon-delta approximation and Hoffding bound
+- Checkout if you can use some bound to calculate the number of samples you need. See "Algorithmic Transparency viaQuantitative Input Influence", chapter A. Computing Power Indices. They use epsilon-delta approximation and Hoeffding bound. https://en.wikipedia.org/wiki/Hoeffding%27s_inequality. If you can squeeze the quantity of interest between interval $[0,1]$ you can use the Hoeffding bound.
 - Maybe the settings has to be that the quantity of interest is always between $[0,1]$. Should be doable by rescaling (e.g. $y_{star} = \frac{y_{hat} - min(\hat{y})}{max(\hat{y}) - min(\hat{y})}$
+- Basically always working with expected values (E(.)), but sometimes this collapses to single point, for example in ICE
+- The interventions require to have some marginal distribution, which almost makes it a bayesian approach. Maybe you could frame it as Bayesian approach. Intervention = using prior of one feature, which might be estimated from the marginal distribution of a feature for example. Posterior distribution has no meaning though, right?
 
 # Value of paper
 - High abstraction view of interpretability methods
 - Unification of methods
-- Explore new things that arises naturally from modular system, like explaining clusters against dataset, or instance against cluster, or instance against archetype (=single instance as well). 
+- Explore new things that arises naturally from modular system, like explaining clusters against dataset, or instance against cluster, or instance against archetype (=single instance as well).
 - R package
 - Extend "Algorithmic Transparency viaQuantitative Input Influence" by allowing numerical features, showing how it is the same as ICE / PermImp / ..., discovering more use cases (cluster vs complete data etc.)
+- By showing the similarity between the algos and they all go through the same predict(someX), results can be memoised and reused. The framework will make it more efficient when you want to have multiple iml analyses.
 
 # TODOs:
-- Read DeepLift paper and decide if it fits into the framework or if it even should. 
-- List interesting quantities of interest (probability for class, probability for own class, numerical prediction, Performance, Group differences (e.g. men and women). 
-- 
+- Read DeepLift paper and decide if it fits into the framework or if it even should.
+- List interesting quantities of interest (probability for class, probability for own class, numerical prediction, Performance, Group differences (e.g. men and women).
+
 # Moving parts for interpretation
 
-## Input: 
+## Input:
 - features $X$
 - outcome $y$
 - learned $\hat{f}$
@@ -44,17 +48,20 @@ Notes and remarks
 
 ## Modules
 See also implementation in sensitivity package and paper: Algorithmic Transparency viaQuantitative Input Influence
+
 - Quantity of interest, e.g. performance, prediction, probability for certain class
-- Difference measure for comparing quantity of interest before and after intervention 
+- Difference measure for comparing quantity of interest before and after intervention
 - *Instance selector*: Which instances should be explained? Ranging from a single instance to cluster (or even all instances, e.g. pdp)
-- *Feature selector*: Which features should be integrated. For LIME, shap, shapley: all. For pdp, it is only one or two features at a time. This point could be omitted as well or at least not be the biggest point. Feature selector step could be omitted in the overview, since it is not important and does not really allow to find new things that arise from the modular system. 
-- *Reference/background/intervention sampler*: Function that returns n samples. Against which data (instances) should the prediction of selected instance be compared to? For shapley or pdp the function draws samples from the training data. For LIME it draw from the data points that are generated each feature independently with mean and variance sampling. This sampling can also be seen as doing an intervention on this variable. 
-- *Weighting*: How the background data should be weighted. In LIME it is with the kernels. In shapley it is 1 for each sampled background. In shap paper it is weighted by the shap kernel. For better overview, this step could be integrated into the background sampler strategy. Disadvantage: If seperated, it is clearer in LIME that samples can be reused for each explanation. 
-- *Data generator/shuffler* (other name: instance recombination) (dpd: create multiple datasets from trainding dat, each time shuffle one variable.)
-It's a function g(x, x') that projects from the cartesian X product to X: XxX -> X 
-One x comes from the reference distribution P_X, the other from some other distribution (marginal distribution for permutation feature importance, normal dist with mean and var from one feature for lime) or a grid (dpd, ice) or just from one instance.  Break the association between features. For ICE and PDP: Force grid. For Permuation importance: force shuffle of one variable. 
-- *Get predictions* (always the same I guess?. only more complicated if you have some kind of adaptive sampling procedure). Or more general: measure some quantity of interest, that is likely a function of the prediction. In case of permutation feature importance it is the Performance you measure. 
+- *Feature selector*: Which features should be integrated. For LIME, shap, shapley: all. For pdp, it is only one or two features at a time. This point could be omitted as well or at least not be the biggest point. Feature selector step could be omitted in the overview, since it is not important and does not really allow to find new things that arise from the modular system.
+- *Quantity of interest* What shall be compared? DPD, ICE, LIME, Shapley, Shap: Predicted value. Feature Importance: Performance. Sobol/Shapley for var: Variance
+- *Reference/background/intervention sampler*: Function that returns n samples. Against which data (instances) should the prediction of selected instance be compared to? For shapley or pdp the function draws samples from the training data. For LIME it draw from the data points that are generated each feature independently with mean and variance sampling. This sampling can also be seen as doing an intervention on this variable. For ICE it is not clear, whether the single lines are generated from the background sampler or a selected X.interest: Those are different point of views. If you want ICE for specific datapoint, no data generator needed. If you are only interested in the distribution of lines, you would just use the data generator.  
+- *Weighting*: How the background data should be weighted. In LIME it is with the kernels. In shapley it is 1 for each sampled background. In shap paper it is weighted by the shap kernel. For better overview, this step could be integrated into the background sampler strategy. Disadvantage: If seperated, it is clearer in LIME that samples can be reused for each explanation.
+- *Intervention* (dpd: create multiple datasets from trainding dat, each time shuffle one variable.)
+It's a function g(x, x') that projects from the cartesian X product to X: XxX -> X
+One x comes from the reference distribution P_X, the other from some other distribution (marginal distribution for permutation feature importance, normal dist with mean and var from one feature for lime) or a grid (dpd, ice) or just from one instance.  Break the association between features. For ICE and PDP: Force grid. For Permuation importance: force shuffle of one variable.
+- *Get predictions* (always the same I guess?. only more complicated if you have some kind of adaptive sampling procedure). Or more general: measure some quantity of interest, that is likely a function of the prediction. In case of permutation feature importance it is the Performance you measure.
 - *Fitting process  / Statistic on collected data* (LIME: linear model, pdp: avg by x-grid, shapley: avg, shap: lin mod). Apart from LIME, a lot have the formula $\hat{y}_{instance of interest} - \hat{y}_{background}$
+- *Attribution method*: How changes in the quantity of interest are attributed to features (in case multiple features are possibly involved). For shapley, shap: shapley value attribution. For LIME it means fitting a linear model. ICE, PDP, permutation feature importance it is not necessary, because only one variable was focused. For permutation feature importance
 - *Repeat and overlay*: How often should the previous steps be repeated and overlayed? Examples: ICE (multiple runs but with different instances and instance, pdp: multiple runs with different features, aLIME: multiple runs with different instances)
 
 ## How to do comparisons using this framework
@@ -76,6 +83,7 @@ One x comes from the reference distribution P_X, the other from some other distr
 - data generator: nothing?
 - predict $\hat{y}$
 - fit weighted LASSO
+
 ### Shapley
 - Instance selector: Select single instance x_i
 - Feature selector: Select X
@@ -96,7 +104,7 @@ One x comes from the reference distribution P_X, the other from some other distr
 - predict $\hat{y}$ for each new instance
 - average by x_grid value
 
-### Permutation feature importance 
+### Permutation feature importance
 - Instance selector: all instances usually, but also cluster might be interesting.
 - feature selector: select one feature x_j
 - background selector: usually training data X_T (could also be a smaller set, when instance of interest smaller set)
@@ -111,28 +119,27 @@ One x comes from the reference distribution P_X, the other from some other distr
 ### Sobol index?
 
 
-## Similar papers 
+## Similar papers
 
 ### "Algorithmic Transparency viaQuantitative Input Influence"
-- Follows exactly this framework. Actually is kind of this framework, but not written down properly and not shown that it's all the same scheme. 
+- Follows exactly this framework. Actually is kind of this framework, but not written down properly and not shown that it's all the same scheme.
 - They don't compare it with dpd, ice, pimp and so on
-- They don't show what it extends to (except of course for their own things they use in the transparency report. 
+- They don't show what it extends to (except of course for their own things they use in the transparency report.
 - They only talk about categorical features, I will generalize it towards numerical features. also ordinal?
-- They write: "A thorough exploration of other points in this design space remains an important direction for future work.". See als next chapter: New things that arise from modular view. So I am basically doing what they suggest. 
-- Their notation sucks. I will do it better with usual notation from statistics field. 
-- What's weird in their paper: They use shapley only for their "Set QII" which involves the influence of multiple variables. But they don't use shapley for a single variable. 
+- They write: "A thorough exploration of other points in this design space remains an important direction for future work.". See als next chapter: New things that arise from modular view. So I am basically doing what they suggest.
+- Their notation sucks. I will do it better with usual notation from statistics field.
+- What's weird in their paper: They use shapley only for their "Set QII" which involves the influence of multiple variables. But they don't use shapley for a single variable.
 
 ## New things arising from modular view
 - explaining clusters against dataset
 - explaining instance against cluster
 - explaining instance against instance, e.g. archetype (=single instance as well)
-- relative feature importance, by choosing single instance and comparing feature importance against background. 
+- relative feature importance, by choosing single instance and comparing feature importance against background.
 - feature importance in cluster compared to whole datase
 - weighted feature importance measures
-- pdps are essentially a special case of shapley value. We only check the contribution for one variable and do so multiple times to get  a curve over the feature range. 
+- pdps are essentially a special case of shapley value. We only check the contribution for one variable and do so multiple times to get  a curve over the feature range.
+- permutation feature importance for whole dataset with shapley value: value = performance with all vars minus performance with only mean prediction. attribute performance gains with shapley value, by pertubing
 
 
 What does not work:
 Choosing all instances in instance selector for shapley should yield estimate of zero??
-
-

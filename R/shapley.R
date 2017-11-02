@@ -49,13 +49,13 @@ shapley = function(instance.x, f, dat, n.runs=100){
     
   }) %>% data.table::rbindlist()
   dat.with.k = data.frame(runs[,1:(ncol(runs)/2)])
-  dat.without.k = data.frame(runs[,(ncol(runs)/2):ncol(runs)])
+  dat.without.k = data.frame(runs[,(ncol(runs)/2 + 1):ncol(runs)])
   
   # given by the outcome of the two lapply
   res.frame = data.table::data.table(feature = rep(feature.names, times = n.runs), 
                                      run = rep(1:n.runs, each = n.features))
-  res.frame$predictions.with.k = predict.fun(dat.with.k)
-  res.frame$predictions.without.k = predict.fun(dat.without.k)
+  res.frame$predictions.with.k = f(dat.with.k)
+  res.frame$predictions.without.k = f(dat.without.k)
   res.frame$pred.diff = res.frame$predictions.with.k - res.frame$predictions.without.k
   #res.frame[,list(shapley.value = mean(pred.diff)),by=feature]
   res.frame
