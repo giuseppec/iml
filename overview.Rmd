@@ -3,6 +3,9 @@ title: "Interpretability Framework for Machine Learning models"
 output: html_document
 ---
 
+
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -11,7 +14,11 @@ knitr::opts_chunk$set(echo = TRUE)
 Modular approach of creating explanations (= feature contributions to the preditions and variable importance)
 Combines LIME, shapley, local/cluster/global interpretability
 
-Notes and remarks
+# Possible paper titles:
+Machine learning interpretability as an intervention framework. 
+An intervention-based framework for model-agnostic interpretability methods. 
+
+# Notes and remarks
 
 - Focus on tabular data
 - Output is often $E(\hat{y} | X_{something})$
