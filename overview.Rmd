@@ -23,6 +23,7 @@ Notes and remarks
 - Maybe the settings has to be that the quantity of interest is always between $[0,1]$. Should be doable by rescaling (e.g. $y_{star} = \frac{y_{hat} - min(\hat{y})}{max(\hat{y}) - min(\hat{y})}$
 - Basically always working with expected values (E(.)), but sometimes this collapses to single point, for example in ICE
 - The interventions require to have some marginal distribution, which almost makes it a bayesian approach. Maybe you could frame it as Bayesian approach. Intervention = using prior of one feature, which might be estimated from the marginal distribution of a feature for example. Posterior distribution has no meaning though, right?
+- Confidence intervals can be introduced by all measurements by repeating the procedure framework, which ultimately yields bootstrapped results for the quantity of interest, depending on your generate.data.fun. 
 
 # Value of paper
 - High abstraction view of interpretability methods
@@ -35,6 +36,9 @@ Notes and remarks
 # TODOs:
 - Read DeepLift paper and decide if it fits into the framework or if it even should.
 - List interesting quantities of interest (probability for class, probability for own class, numerical prediction, Performance, Group differences (e.g. men and women).
+- Demonstrate how to switch between local and global explanations within the framework
+- Demonstrate how to differentiate between feature effects and feature importance within the framework.
+- 
 
 # Moving parts for interpretation
 

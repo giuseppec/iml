@@ -9,6 +9,7 @@ X = iris[-which(names(iris) == 'Species')]
 y = iris$Species
 
 
+background = X
 
 ## Generate the task
 task = makeClassifTask(data = iris, target = "Species")
@@ -43,9 +44,9 @@ explain = function(f, generate.fun, intervene, aggregate, display = id, weight.s
   X.intervention = intervene(generate.fun, ...)
   ## predict 
   y.hat = f(X = X.intervention)
-  w = weight.samples(X.intervention, x.interest)
+  w = weight.samples(X.intervention, ...)
   ## aggregate
-  res = aggregate(X=X.intervention, y.hat = y.hat,...)
+  res = aggregate(X=X.intervention, y.hat = y.hat, w = w,...)
   ## explain
   display(res)
 }
@@ -93,6 +94,22 @@ res =  explain(f=f, generate=generate.permimp, intervene=intervene.permimp,
 res
 
 
+## Sobol (first order)
+res =  explain(f=f, generate=generate.sobol, intervene=intervene.sobol, 
+               aggregate = aggregate.sobol.first, n = 500)
+res
+## compare with sensitivty implementation
+sensitivity::sobol(f, X1 = generate.sobol(n), X2=generate.sobol(n), order=1)
+
+
+## Sobol (total)
+res =  explain(f=f, generate=generate.sobol, intervene=intervene.sobol, 
+               aggregate = aggregate.sobol.total, n = 1500)
+res
+n=100
+soboljansen(f, X1 = generate.sobol(n), X2=generate.sobol(n))
+
+soboljansen(f, X1 = generate.sobol(n), X2=generate.sobol(n))
 
 
 
