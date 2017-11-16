@@ -3,6 +3,9 @@ title: "Interpretability Framework for Machine Learning models"
 output: html_document
 ---
 
+
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -15,7 +18,11 @@ Combines method that dont require refitting of the machine learning model and th
 
 ![](framework.jpg)
 
-Notes and remarks
+# Possible paper titles:
+Machine learning interpretability as an intervention framework. 
+An intervention-based framework for model-agnostic interpretability methods. 
+
+# Notes and remarks
 
 - Focus on tabular data
 - Output is often $E(\hat{y} | X_{something})$. Basically always working with expected values (E(.)), but sometimes this collapses to single point, for example in ICE
