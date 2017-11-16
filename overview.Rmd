@@ -8,8 +8,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Content of paper
-Modular approach of creating explanations (= feature contributions to the preditions and variable importance)
-Combines LIME, shapley, local/cluster/global interpretability
+Modular approach of creating explanations (= feature contributions prediction, feature importance and surrogate models)
+Combines LIME, shapley, local/cluster/global interpretability. 
+Combines method that dont require refitting of the machine learning model and that work with input, output of ML model. 
 
 
 ![](framework.jpg)
@@ -17,22 +18,32 @@ Combines LIME, shapley, local/cluster/global interpretability
 Notes and remarks
 
 - Focus on tabular data
-- Output is often $E(\hat{y} | X_{something})$
-- Is (permutation) feature importance covered by this modular system? => Yes it should be
-- Instances of interested are always a subset of the background data (?)
-- Is weighing equivalent or similar to choosing the background data?
-- other name: Difference-from-reference
-- Checkout if you can use some bound to calculate the number of samples you need. See "Algorithmic Transparency viaQuantitative Input Influence", chapter A. Computing Power Indices. They use epsilon-delta approximation and Hoeffding bound. https://en.wikipedia.org/wiki/Hoeffding%27s_inequality. If you can squeeze the quantity of interest between interval $[0,1]$ you can use the Hoeffding bound.
-- Maybe the settings has to be that the quantity of interest is always between $[0,1]$. Should be doable by rescaling (e.g. $y_{star} = \frac{y_{hat} - min(\hat{y})}{max(\hat{y}) - min(\hat{y})}$
-- Basically always working with expected values (E(.)), but sometimes this collapses to single point, for example in ICE
+- Output is often $E(\hat{y} | X_{something})$. Basically always working with expected values (E(.)), but sometimes this collapses to single point, for example in ICE
+- Checkout if you can use some bound to calculate the number of samples you need. See "Algorithmic Transparency viaQuantitative Input Influence", chapter A. Computing Power Indices. They use epsilon-delta approximation and Hoeffding bound. https://en.wikipedia.org/wiki/Hoeffding%27s_inequality. If you can squeeze the quantity of interest between interval $[0,1]$ you can use the Hoeffding bound. Maybe the settings has to be that the quantity of interest is always between $[0,1]$. Should be doable by rescaling (e.g. $y_{star} = \frac{y_{hat} - min(\hat{y})}{max(\hat{y}) - min(\hat{y})}$
 - The interventions require to have some marginal distribution, which almost makes it a bayesian approach. Maybe you could frame it as Bayesian approach. Intervention = using prior of one feature, which might be estimated from the marginal distribution of a feature for example. Posterior distribution has no meaning though, right?
 - Confidence intervals can be introduced by all measurements by repeating the procedure framework, which ultimately yields bootstrapped results for the quantity of interest, depending on your generate.data.fun. 
-- The outcome of the interpretability method is, so far, always one number (or plot) per feature. Maybe this is useful for formulating and simplyfying the framework the framework. 
+- The outcome of the interpretability method is, so far, always one number (or plot) per feature. Maybe this is useful for formulating and simplyfying the framework. 
 - All methods work with marginal and or conditional expectations. ICE: conditional. PDP: marginal. Difference also to sensitivity and uncerntainty analysis approaches: They often are not defined with distribution of input variables in mind and use grid/random/pseudo-random input. 
 - PDPs can be seen from the functional Anova view: $f_{x_u}(x) = \int_{x_{-u}}(f(x) - f(\emptyset))dx_{-u} = \int_{x_{-u}}(f(x))dx_{-u} - \mu$, where $\mu = \bar{f}(x)$ (the mean prediction over the data). PDPs are the same, but without the $\mu$ constant. This is another argument that the framework aggregation function does something like Q(b  efore after intervention) - Q(after intervention).
 - When you want to evaluate the f(x) and get one number, you have to decide for each feature, if you want to condition on it (= fix to value) or if you want to marginalise it (= average over distribution for the feature). 
 - Iml framework is using Monte Carlo A lot
-
+- There are 3 types of interpretability methods, and a method can have more than one type:
+  - Feature importance: Ranks features. Example permutation feature importance. Makes use of interventions. Aggregation usually single number per feature. 
+  - Feature effects: Summarises how feature contribute to prediction. Example: PDp, Shapley. Makes use of interventions, aggregation either conditional on feature grid or one number per feature. 
+  - Surrogate models: Fit an interpretable model on black box. Example: LIME(, Shap?). Makes no use of intervention. Makes use of weights. Aggregation is a model fit. 
+- common among all methods: the resulting aggregation is always per feature. only outlier: surrogate models, when model is not a linear combiniation of features (for example a tree). 
+- Within the framework, the features change between different modes:
+  - conditioned feature: The f() is conditioned on certain values of the feature
+  - marginalised feature: f() is marginalised over the feature. Usually done via Monte carlo
+  - interventioned feature: The feature receives an intervention before it goes into f(). Then usually in a conditioned way. 
+  - Examples:
+    - ICE: Condition on all features of instance of interest, excluding the feature of interest. Intervene on feature of interest. 
+    - PDP: Marginalise all features, excluding feature of interest. Intervene and condition on feature of interest. 
+    - Shapley: In each loop: Condition on "players in the room" (=intervention?), marginalise over players not in the room. Then exclude  feature of interest from players in the room and do the same. Calculate the difference
+    - LIME: Doesnt really fit these steps. 
+    - Permutation feature importance: Marginalise over all features after intervening on feature of interest. - Feature importance: Quantity of interest is either performance or variance of model
+- Feature effects: Quantity of interest is $\hat(y)$
+- Surrogate models: Quantity of interest is: g, where g is from class of interpretable models and fidel to f?
 
 
 # Value of paper

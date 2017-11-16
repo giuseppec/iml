@@ -36,6 +36,14 @@ id = function(X, ...){
   X
 }
 
+get.generate.fun.mc = function(dat){
+  function(n, ...){
+    background[sample(1:nrow(background), size = n, replace = TRUE), ]
+  }
+}
+
+generate.mc = get.generate.fun.mc(background)
+
 explain = function(f, generate.fun, intervene, aggregate, display = id, weight.samples = weight.samples.generic,  ...){
   ## intervention
   ## Maybe generate.fun should not be called within intervene, but before. Then it is easier to generalise 
@@ -52,24 +60,19 @@ explain = function(f, generate.fun, intervene, aggregate, display = id, weight.s
 }
 
 ## PDP
-res = explain(f=f, generate=generate.pdp, intervene=intervene.pdp, 
+res = explain(f=f, generate=generate.mc, intervene=intervene.pdp, 
               aggregate = aggregate.pdp, display = display.pdp, feature.index = 4, grid.size = 50, n = 1000)
 print(res)
 
 ## ICE
-res = explain(f=f, generate=generate.pdp, intervene=intervene.ice, 
+res = explain(f=f, generate=generate.mc, intervene=intervene.ice, 
               aggregate = aggregate.ice, display = display.ice, feature.index = 4, grid.size = 20, n = 1000)
 print(res)
 
 ## ICE, centered
-res = explain(f=f, generate=generate.ice, intervene=intervene.ice, 
+res = explain(f=f, generate=generate.mc, intervene=intervene.ice, 
               aggregate = aggregate.ice.centered, display = display.ice, feature.index = 4, grid.size = 20, n = 1000, anchor = 0)
 
-print(res)
-
-## ICE with shapley
-res = explain(f=f, generate=generate.pdp, intervene=intervene.ice, 
-              aggregate = aggregate.shapley, display = display.ice, feature.index = 4, grid.size = 20, n = 1000)
 print(res)
 
 ## LIME
@@ -83,27 +86,27 @@ print(res)
 
 
 ## Shapley
-res =  explain(f=f, generate=generate.shapley, intervene=intervene.shapley, 
+res =  explain(f=f, generate=generate.mc, intervene=intervene.shapley, 
                aggregate = aggregate.shapley, x.interest = background[i,], n = 100)
 res
 
 
 ## Permutation feature importance 
-res =  explain(f=f, generate=generate.permimp, intervene=intervene.permimp, 
+res =  explain(f=f, generate=generate.mc, intervene=intervene.permimp, 
                aggregate = aggregate.permimp, n = 1000, y=(y=='virginica'), feature.index=4)
 res
 
 
 ## Sobol (first order)
-res =  explain(f=f, generate=generate.sobol, intervene=intervene.sobol, 
+res =  explain(f=f, generate=generate.mc, intervene=intervene.sobol, 
                aggregate = aggregate.sobol.first, n = 500)
 res
 ## compare with sensitivty implementation
-sensitivity::sobol(f, X1 = generate.sobol(n), X2=generate.sobol(n), order=1)
+sensitivity::sobol(f, X1 = generate.mc(n), X2=generate.mc(n), order=1)
 
 
 ## Sobol (total)
-res =  explain(f=f, generate=generate.sobol, intervene=intervene.sobol, 
+res =  explain(f=f, generate=generate.mc, intervene=intervene.sobol, 
                aggregate = aggregate.sobol.total, n = 1500)
 res
 n=100
@@ -112,5 +115,13 @@ soboljansen(f, X1 = generate.sobol(n), X2=generate.sobol(n))
 soboljansen(f, X1 = generate.sobol(n), X2=generate.sobol(n))
 
 
+
+
+
+## tree surrogate model, centered
+res = explain(f=f, generate=generate.mc, intervene=intervene.lime, 
+              aggregate = aggregate.surrogate, display = display.surrogate)
+
+print(res)
 
 

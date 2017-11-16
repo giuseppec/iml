@@ -1,6 +1,3 @@
-generate.sobol = function(n, ...){
-  background[sample(1:nrow(background), size = n, replace = TRUE), ]
-}
 
 intervene.sobol = function(generate.fun, feature.index, grid.size = 10, n = 100, x.interest, ...){
   X1 = generate.fun(n)

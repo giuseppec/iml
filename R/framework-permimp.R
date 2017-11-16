@@ -1,7 +1,3 @@
-generate.permimp = function(n){
-  background
-}
-
 intervene.permimp = function(generate.fun, feature.index, n = 100, ...){
   X = generate.fun(n=n)
   X.inter = X

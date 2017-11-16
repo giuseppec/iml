@@ -1,8 +1,3 @@
-generate.pdp = function(n, ...){
-  background[sample(1:nrow(background), size = n, replace = TRUE), ]
-}
-
-
 intervene.pdp = function(generate.fun, feature.index, grid.size = 10, n=100, ...){
   X = generate.fun(grid.size * n)
   grid = seq(from = min(X[feature.index]), to = max(X[feature.index]), length.out = grid.size)

@@ -1,7 +1,3 @@
-generate.shapley = function(n){
-  background[sample(1:nrow(background), size = n, replace = TRUE), ]
-}
-
 intervene.shapley = function(generate.fun, feature.index, grid.size = 10, n = 100, x.interest){
   X = generate.fun(n)
   n.features = ncol(X)
