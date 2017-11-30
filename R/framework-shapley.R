@@ -1,3 +1,11 @@
+## TODO: instead having an outer loop over features,
+##       loop over features within each coalition, like the ApproShapley algorithms.
+##       Additionally make sure to not calculate things twice, because  it's always
+##       the difference of coalition of features with and without feature j.
+##       see Song, E., & Nelson, B. L. (2016). Shapley Effects for Global Sensitivity Analysis : Theory and Computation ∗, 4, 1060–1083.
+## TODO: Get some inspiration form the sensitivity package.
+
+
 intervene.shapley = function(generate.fun, feature.index, grid.size = 10, n = 100, x.interest){
   X = generate.fun(n)
   n.features = ncol(X)
@@ -9,23 +17,23 @@ intervene.shapley = function(generate.fun, feature.index, grid.size = 10, n = 10
     # randomly choose sample instance from X
     sample.instance.shuffled = X[sample(1:nrow(X), 1), new.feature.order]
     x.interest.shuffled = x.interest[new.feature.order]
-    
+
     lapply(1:n.features, function(k){
       k.at.index = which(new.feature.order == k)
       instance.with.k = x.interest.shuffled
       if(k.at.index < ncol(x.interest)){
-        instance.with.k[(k.at.index + 1):ncol(instance.with.k)] = 
+        instance.with.k[(k.at.index + 1):ncol(instance.with.k)] =
           sample.instance.shuffled[(k.at.index + 1):ncol(instance.with.k)]
       }
       instance.without.k = instance.with.k
       instance.without.k[k.at.index] = sample.instance.shuffled[k.at.index]
       cbind(instance.with.k[feature.names], instance.without.k[feature.names])
     }) %>% data.table::rbindlist()
-    
+
   }) %>% data.table::rbindlist()
   dat.with.k = data.frame(runs[,1:(ncol(runs)/2)])
   dat.without.k = data.frame(runs[,(ncol(runs)/2 + 1):ncol(runs)])
-  
+
   rbind(dat.with.k, dat.without.k)
 }
 
@@ -38,11 +46,3 @@ aggregate.shapley = function(X, w=NULL, y.hat, n, ...){
   )
   agg.df %>% group_by(features) %>% summarise(phi = mean(y.hat.with.k - y.hat.without.k))
 }
-
-
-
-
-
-
-
-

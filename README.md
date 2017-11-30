@@ -4,12 +4,6 @@ output: html_document
 ---
 
 
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 # Content of paper
 Modular approach of creating explanations (= feature contributions prediction, feature importance and surrogate models)
 Combines LIME, shapley, local/cluster/global interpretability. 

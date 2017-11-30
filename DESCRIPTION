@@ -1,0 +1,9 @@
+Package: iml
+Type: Package
+Title: Methods for interpretable machine learning
+Version: 0.1
+Date: 2017-11-30
+Author: Christoph Molnar
+Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
+Description: Model-agnostic interpretability methods for machine learning models.
+License: MIT

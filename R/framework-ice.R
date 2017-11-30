@@ -1,5 +1,3 @@
-
-
 intervene.ice = function(generate.fun, feature.index, grid.size = 10, n = 100, ...){
   n = min(nrow(background), n)
   X = generate.fun(n)

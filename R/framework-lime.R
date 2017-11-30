@@ -1,5 +1,3 @@
-
-
 generate.lime = function(n){
   features.mean = colMeans(background)
   features.sd = apply(background, 2, sd)
