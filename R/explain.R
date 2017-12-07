@@ -13,7 +13,9 @@ explain = function(f, generate.fun, intervene, aggregate, display = id, weight.s
   display(res)
 }
 
-
+## TODO: add parameter_list for initiation of Experiment, which contains experiment type specific parameters (e.g. grid_size for partial dependence plots)
+## Or maybe it makes sense to have subclasses for each interpretability method that inherits from Experiment and has additional parameters
+## TODO: Move most parameters to private()
 Experiment = R6Class("Experiment", 
   public = list(
     name = NULL, 
@@ -22,9 +24,15 @@ Experiment = R6Class("Experiment",
     intervene = NULL, 
     aggregate = NULL, 
     display = NULL, 
-    weight.samples = NULL
-    , 
-    initialize = function(name, f, sampler, intervene, aggregate, display, weight.samples){
+    weight.samples = NULL, 
+    Q = NULL,
+    Q.results = NULL,
+    X.design = NULL,
+    results = NULL,
+    ## TODO: Only allow name, f and sampler here. The others should have setter and getter. 
+    ##       Then it will be easier to create subclasses like pdp.experiment. Alternative: In subclasses use: 
+    ##      super$initialize if possible
+    initialize = function(name, f, sampler, intervene, aggregate, display, weight.samples, Q=function(x){x}){
       self$name = name
       self$f = f
       self$sampler = sampler
@@ -32,19 +40,44 @@ Experiment = R6Class("Experiment",
       self$aggregate = aggregate
       self$display = display
       self$weight.samples = weight.samples
+      self$Q = Q
     },
     conduct = function(...){
       # DESIGN experiment
-      X.design = self$intervene(self$sampler, ...)
+      self$X.design = self$intervene(self$sampler, ...)
       # EXECUTE experiment
-      y.hat = self$f(X = X.design)
-      w = self$weight.samples(X.design, ...)
+      self$Q.results = self$Q(self$f(X = self$X.design))
+      w = self$weight.samples(self$X.design, ...)
       # AGGREGATE measurments
-      res = self$aggregate(X=X.design, y.hat = y.hat, w = w, ...)
-      # PRESENT
-      self$display(res)
+      self$results = self$aggregate(X=self$X.design, y.hat = self$Q.results, w = w, ...)
+      self
+    }, 
+    present = function(){
+      self$display(self$results)
     }
   )
 )
+
+
+
+
+Interpretation = R6Class("Interpretation", 
+  public = list(
+    experiments = NULL,
+    initialize = function(experiments){
+      self$experiments = experiments
+    }, 
+    conduct = function(){
+      self$experiments = lapply(self$experiments, function(x){
+        x$conduct()
+      })
+    }
+  )
+)
+
+
+
+
+
 
 

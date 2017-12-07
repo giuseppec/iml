@@ -16,5 +16,20 @@ display.pdp = function(res){
   ggplot(res) + geom_line(aes_string(x = names(res)[1], y = names(res[2])))
 }
 
+## TODO: Think about moving functions into class directly
 
+
+PDP = R6Class('PDP', inherit = Experiment,
+  public = list(
+    n = NULL, 
+    grid.size = NULL, 
+    feature.index = NULL,
+    initialize = function(f, sampler, feature.index, grid.size=10, n=100){
+      super$initialize('PDP', f, sampler, intervene.pdp, aggregate = aggregate.pdp, display.pdp, id, id)
+      self$grid.size = grid.size
+      self$n = n
+      feature.index = feature.index
+    }
+  )
+)
 

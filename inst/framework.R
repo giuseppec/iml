@@ -36,8 +36,11 @@ res = iml::explain(f=f, generate=generate.mc, intervene=intervene.pdp,
               aggregate = aggregate.pdp, display = display.pdp, feature.index = 4, grid.size = 50, n = 1000)
 print(res)
 
-pdp = Experiment$new('pdp', f, generate.mc, intervene.pdp, aggregate.pdp, display.pdp, weight.samples = weight.samples.generic)
-pdp$conduct(feature.index = 4, grid.size = 5, n = 100)
+pdp = PDP$new(f = f, sampler = generate.mc, feature.index = 4)
+pdp$conduct(, grid.size = 5, n = 100)$present()
+
+
+
 
 
 ## ICE
