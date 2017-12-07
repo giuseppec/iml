@@ -12,3 +12,39 @@ explain = function(f, generate.fun, intervene, aggregate, display = id, weight.s
   ## explain
   display(res)
 }
+
+
+Experiment = R6Class("Experiment", 
+  public = list(
+    name = NULL, 
+    f = NULL, 
+    sampler = NULL, 
+    intervene = NULL, 
+    aggregate = NULL, 
+    display = NULL, 
+    weight.samples = NULL
+    , 
+    initialize = function(name, f, sampler, intervene, aggregate, display, weight.samples){
+      self$name = name
+      self$f = f
+      self$sampler = sampler
+      self$intervene = intervene
+      self$aggregate = aggregate
+      self$display = display
+      self$weight.samples = weight.samples
+    },
+    conduct = function(...){
+      # DESIGN experiment
+      X.design = self$intervene(self$sampler, ...)
+      # EXECUTE experiment
+      y.hat = self$f(X = X.design)
+      w = self$weight.samples(X.design, ...)
+      # AGGREGATE measurments
+      res = self$aggregate(X=X.design, y.hat = y.hat, w = w, ...)
+      # PRESENT
+      self$display(res)
+    }
+  )
+)
+
+

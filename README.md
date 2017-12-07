@@ -4,11 +4,12 @@ output: html_document
 ---
 
 
-# Content of paper
-Modular approach of creating explanations (= feature contributions prediction, feature importance and surrogate models)
-Combines LIME, shapley, local/cluster/global interpretability. 
-Combines method that dont require refitting of the machine learning model and that work with input, output of ML model. 
+# Content of framework
+Modular approach of creating model-agnostic interpretations of machine learning models, like feature importances, feature effects and surrogate models. 
+The framework covers permutation feature importance, partial dependence plots, LIME, etc. 
+The framework works for any method that analysis input / output pairs of a function $\hat{f}(X)$
 
+Goal: R package and later JSS paper
 
 ![](framework.jpg)
 
@@ -16,9 +17,85 @@ Combines method that dont require refitting of the machine learning model and th
 Machine learning interpretability as an intervention framework. 
 An intervention-based framework for model-agnostic interpretability methods. 
 
+
+# Core class: "Experiment"
+Claim: Any model-agnostic measure can be computed using an "Experiment" framework. 
+An experiment is initialised by the machine learning model $\hat{f}$ and data $X$.
+Following steps are executed: 
+
+1. DESIGN: Create an experimental design 
+    1. SAMPLE data based on $X$. 
+    1. Do an INTERVENTION on the data. ($X \rightarrow X^*$)
+    1. Choose QUANTITY of interest Q (often $\hat{y}$ itself)
+1. EXECUTE: Predict $\hat{y}^*$ from $X^*$ with $\hat{f}$ and compute $Q$. ($X^* \rightarrow \hat{y}^*$  and $\hat{y}^* \rightarrow Q$)
+1. ANALYSE: Aggregate the quantity of interest Q. ($X^*, Q \rightarrow \text{summary}$)
+1. PRESENT: Visualise or print analysis. 
+
+Optional in ANALYSE step: Map features to interpretable features.
+
+
+## Examples
+
+### Partial dependence plots (for one feature)
+1. DESIGN
+    1. sample from $X$
+    1. intervention: replicate $X$ $length(grid)$ times,replace $x_j$ with value from grid in each replica
+    1. Q is simply $\hat{y}$
+1. EXECUTE: Predict
+1. ANALYSE: Average Q by unique $x_j$ value
+1. PRESENT: Plot curve
+
+
+### LIME
+1. DESIGN
+    1. sample $X^*$ from $X$ (in the weird mean, std. way)
+    1. no intervention
+    1. Q is simply $\hat{y}$
+1. EXECUTE: Predict
+1. ANALYSE: Estimated weighted Lasso on $\hat{y}^* \sim X^*$ 
+1. PRESENT: Visualise $\mathbf{\beta}$
+
+
+### Shapley for causal effect attribution for one instance
+1. DESIGN
+    1. sample $X^*$ from $X$
+    1. INTERVENTION: Recombine samples and instance of interest
+    1. Q is difference in prediction with and without feature $Q = \hat{y} - \hat{y}_{X_{-j}}$
+1. EXECUTE: Predict
+1. ANALYSE: Average Q per feature
+1. PRESENT: Visualise Q per feature
+
+
+### Permutation feature importance (for one feature)
+1. DESIGN
+    1. sample $X^*$ from $X$
+    1. INTERVENTION: Shuffle $x_j$
+    1. Q is difference in performance
+1. EXECUTE: Predict
+1. ANALYSE: Average Q
+1. PRESENT: Visualise Q
+
+### Global surrogate models
+1. DESIGN
+    1. sample $X^*$ from $X$
+    1. INTERVENTION: None
+    1. $Q = \hat{y}$
+1. EXECUTE: Predict
+1. ANALYSE: Fit interpretable model, e.g. decision tree
+1. PRESENT: Visualise or print interpretable model
+
+
+# Core class: Interpretation()
+
+An interpretation object can hold multiple experiments. 
+The common elements of the experiments are the model and the data sampler. 
+The interpreter can memoise the predictions of the black box model to improve computational speed. 
+
+
+
 # Notes and remarks
 
-- Focus on tabular data
+- Focus is on tabular data
 - Output is often $E(\hat{y} | X_{something})$. Basically always working with expected values (E(.)), but sometimes this collapses to single point, for example in ICE
 - Checkout if you can use some bound to calculate the number of samples you need. See "Algorithmic Transparency viaQuantitative Input Influence", chapter A. Computing Power Indices. They use epsilon-delta approximation and Hoeffding bound. https://en.wikipedia.org/wiki/Hoeffding%27s_inequality. If you can squeeze the quantity of interest between interval $[0,1]$ you can use the Hoeffding bound. Maybe the settings has to be that the quantity of interest is always between $[0,1]$. Should be doable by rescaling (e.g. $y_{star} = \frac{y_{hat} - min(\hat{y})}{max(\hat{y}) - min(\hat{y})}$
 - The interventions require to have some marginal distribution, which almost makes it a bayesian approach. Maybe you could frame it as Bayesian approach. Intervention = using prior of one feature, which might be estimated from the marginal distribution of a feature for example. Posterior distribution has no meaning though, right?
@@ -47,7 +124,7 @@ An intervention-based framework for model-agnostic interpretability methods.
 - Surrogate models: Quantity of interest is: g, where g is from class of interpretable models and fidel to f?
 
 
-# Value of paper
+# Value of package and paper
 - High abstraction view of interpretability methods
 - Unification of methods
 - Explore new things that arises naturally from modular system, like explaining clusters against dataset, or instance against cluster, or instance against archetype (=single instance as well).
@@ -60,16 +137,7 @@ An intervention-based framework for model-agnostic interpretability methods.
 - List interesting quantities of interest (probability for class, probability for own class, numerical prediction, Performance, Group differences (e.g. men and women).
 - Demonstrate how to switch between local and global explanations within the framework
 - Demonstrate how to differentiate between feature effects and feature importance within the framework.
-- 
 
-# Moving parts for interpretation
-
-## Input:
-- features $X$
-- outcome $y$
-- learned $\hat{f}$
-- interpretable features $X'$
-- mapping $h()$ that maps from $X'$ to $X$t
 
 
 ## Modules
@@ -97,53 +165,6 @@ One x comes from the reference distribution P_X, the other from some other distr
 - How do you want to attribute comparison differences (e.g. Shapley or a simple comparison (like ICE or DPD))
 - How do you want to aggregate the comparisons across instances
 - How do you want to aggregate the comparisons across features
-
-## Examples embedded in framework
-
-### LIME
-- Instance selector: Select single instance
-- Feature selector: Select X'
-- Background data selector: Select training data X_T
-- Background sampler: Sample from background mean and variance
-- Weigh by euclidean distance to instance
-- data generator: nothing?
-- predict $\hat{y}$
-- fit weighted LASSO
-
-### Shapley
-- Instance selector: Select single instance x_i
-- Feature selector: Select X
-- Background data selector: Select training data X_T
-- Background sampler: Sample random instances from X_T
-- Weigh with value 1
-- data generator: create frankenstein instances by combining x_i and samples from X_T
-- predict $\hat{y}$ for each sample
-- create mean diff from frankenstein instances
-
-### Partial dependence plots
-- Instance selector: select all
-- Feature selector: select one (or two) feature(s) x_j (and x_k)
-- Background data selector: select training data X_T
-- Background sampler: choose all
-- weigh with value 1
-- data generator: |x_grid| x n sized dataset, in each iteration feature x_j is forced to be a x_grid value
-- predict $\hat{y}$ for each new instance
-- average by x_grid value
-
-### Permutation feature importance
-- Instance selector: all instances usually, but also cluster might be interesting.
-- feature selector: select one feature x_j
-- background selector: usually training data X_T (could also be a smaller set, when instance of interest smaller set)
-- Background sampler: take all
-- weight with value 1
-- data generator: generate additional $n_{perm}$ datasets with permuted feature $x_j$
-- predict $\hat{y}$
-- compare performance measure between
-
-### PIMP?
-
-### Sobol index?
-
 
 ## Similar papers
 
