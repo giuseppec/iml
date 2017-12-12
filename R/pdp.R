@@ -13,7 +13,7 @@ PDP = R6Class('PDP',
       self$X[sample(1:nrow(self$X), size = self$n, replace = TRUE), ]
     },
     intervene = function(){
-      X.design = do.call("rbind", replicate(self$n, self$X.sample, simplify = FALSE))
+      X.design = data.frame(data.table::rbindlist(lapply(1:self$grid.size, function(x){self$X.sample})))
       grid = seq(from = min(self$X.sample[self$feature.index]), to = max(self$X.sample[self$feature.index]), length.out = self$grid.size)
       X.design[self$feature.index] = rep(grid, each = self$n)
       X.design

@@ -1,35 +1,3 @@
-intervene.ice = function(generate.fun, feature.index, grid.size = 10, n = 100, ...){
-  n = min(nrow(background), n)
-  X = generate.fun(n)
-  X = data.frame(data.table::rbindlist(lapply(1:grid.size, function(x){X})))
-  grid = seq(from = min(X[feature.index]), to = max(X[feature.index]), length.out = grid.size)
-  # The intervention
-  X[feature.index] = rep(grid, each = n)
-  X
-}
-
-
-
-
-aggregate.ice.centered = function(X, y.hat, feature.index, anchor, ...){
-  X.aggregated = aggregate.ice(X=X, y.hat=y.hat, feature.index = feature.index, ...)
-  anchor.closest = X[which.min((X[,feature.index] - anchor)), feature.index][1]
-  X.anchor = aggregate.ice(X = X[X[feature.index] == anchor.closest,], 
-    y.hat = y.hat[X[feature.index] == anchor.closest], 
-    feature.index = feature.index)
-  X.anchor$y.hat.anchor = X.anchor$y.hat
-  X.anchor$y.hat = NULL
-  X.aggregated = left_join(X.aggregated, X.anchor, by = 'group')
-  X.aggregated$y.hat = X.aggregated$y.hat -  X.aggregated$y.hat.anchor 
-  X.aggregated
-}
-
-
-
-
-
-
-
 ICE = R6Class('ICE', 
   inherit = PDP, 
   public = list(
@@ -42,6 +10,33 @@ ICE = R6Class('ICE',
     }, 
     display = function(){
       ggplot(self$results) + geom_line(aes_string(x = names(self$results)[1], y = 'y.hat', group = 'group'))
+    }
+  )
+)
+
+
+ICE.centered = R6Class('ICE.centered', 
+  inherit = ICE, 
+  public = list(
+    anchor = NULL,
+    aggregate = function(){
+      X.aggregated = super$aggregate()
+      X.aggregated.anchor = X.aggregated[X.aggregated[1] == self$anchor, c('y.hat', 'group')]
+      names(X.aggregated.anchor) = c('anchor', 'group')
+      X.aggregated = left_join(X.aggregated, X.aggregated.anchor, by = 'group')
+      X.aggregated$y.hat = X.aggregated$y.hat - X.aggregated$anchor
+      X.aggregated$anchor = NULL
+      X.aggregated
+    },
+    intervene = function(){
+      X.design = super$intervene()
+      X.design.anchor = self$X.sample
+      X.design.anchor[self$feature.index] = self$anchor
+      rbind(X.design, X.design.anchor)
+    },
+    initialize = function(anchor, ...){
+      self$anchor = anchor
+      super$initialize(...)
     }
   )
 )

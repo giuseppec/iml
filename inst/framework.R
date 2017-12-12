@@ -37,9 +37,14 @@ ice = ICE$new(f = f, X=background, feature.index = 4)
 ice$conduct()$present()
 
 
+## ICE centered
+ice.c = ICE.centered$new(f = f, X=background, feature.index = 4, anchor = 1.5)
+ice.c$conduct()$present()
+
 ## ICE, centered
 res = iml::explain(f=f, generate=generate.mc, intervene=intervene.ice, 
-              aggregate = aggregate.ice.centered, display = display.ice, feature.index = 4, grid.size = 20, n = 1000, anchor = 0)
+              aggregate = aggregate.ice.centered, display = display.ice, feature.index = 4, 
+  grid.size = 20, n = 1000, anchor = 0)
 
 print(res)
 
