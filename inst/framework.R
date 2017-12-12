@@ -28,25 +28,14 @@ f = function(X){
 }
 
 
-generate.mc = get.generate.fun.mc(background)
-
-
 ## PDP
-res = iml::explain(f=f, generate=generate.mc, intervene=intervene.pdp, 
-              aggregate = aggregate.pdp, display = display.pdp, feature.index = 4, grid.size = 50, n = 1000)
-print(res)
-
-pdp = PDP$new(f = f, sampler = generate.mc, feature.index = 4)
-pdp$conduct(, grid.size = 5, n = 100)$present()
-
-
-
-
+pdp = PDP$new(f = f, X=background, feature.index = 4)
+pdp$conduct()$present()
 
 ## ICE
-res = iml::explain(f=f, generate=generate.mc, intervene=intervene.ice, 
-              aggregate = aggregate.ice, display = display.ice, feature.index = 4, grid.size = 20, n = 1000)
-print(res)
+ice = ICE$new(f = f, X=background, feature.index = 4)
+ice$conduct()$present()
+
 
 ## ICE, centered
 res = iml::explain(f=f, generate=generate.mc, intervene=intervene.ice, 

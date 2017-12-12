@@ -1,34 +1,34 @@
-intervene.pdp = function(generate.fun, feature.index, grid.size = 10, n=100, ...){
-  X = generate.fun(grid.size * n)
-  grid = seq(from = min(X[feature.index]), to = max(X[feature.index]), length.out = grid.size)
-  # The intervention
-  X[feature.index] = rep(grid, times = n)
-  X
-}
-
-
-aggregate.pdp = function(X, w=NULL, y.hat, feature.index, ...){
-  X$y.hat = y.hat
-  X %>% group_by_at(feature.index) %>% summarise(y.hat = mean(y.hat))
-}
-
-display.pdp = function(res){
-  ggplot(res) + geom_line(aes_string(x = names(res)[1], y = names(res[2])))
-}
-
-## TODO: Think about moving functions into class directly
-
-
-PDP = R6Class('PDP', inherit = Experiment,
+PDP = R6Class('PDP', 
+  inherit = Experiment,
   public = list(
     n = NULL, 
     grid.size = NULL, 
     feature.index = NULL,
-    initialize = function(f, sampler, feature.index, grid.size=10, n=100){
-      super$initialize('PDP', f, sampler, intervene.pdp, aggregate = aggregate.pdp, display.pdp, id, id)
+    X = NULL,
+    aggregate = function(){
+      self$X.design['y.hat']= self$Q.results
+      self$X.design %>% group_by_at(self$feature.index) %>% summarise(y.hat = mean(y.hat))
+    },
+    sampler = function(){
+      self$X[sample(1:nrow(self$X), size = self$n, replace = TRUE), ]
+    },
+    intervene = function(){
+      X.design = do.call("rbind", replicate(self$n, self$X.sample, simplify = FALSE))
+      grid = seq(from = min(self$X.sample[self$feature.index]), to = max(self$X.sample[self$feature.index]), length.out = self$grid.size)
+      X.design[self$feature.index] = rep(grid, each = self$n)
+      X.design
+    }, 
+    display = function(){
+      ggplot(self$results) + geom_line(aes_string(x = names(self$results)[1], y = names(self$results[2])))
+    },
+
+    initialize = function(f, X, feature.index, grid.size=10, n=100){
+      self$name = 'PDP'
       self$grid.size = grid.size
       self$n = n
-      feature.index = feature.index
+      self$feature.index = feature.index
+      self$f = f
+      self$X = X
     }
   )
 )

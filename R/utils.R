@@ -4,7 +4,7 @@ weight.samples.generic = function(X, ...){
 
 
 
-id = function(X, ...){
+ident = function(X, ...){
   X
 }
 
