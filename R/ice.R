@@ -8,8 +8,8 @@ ICE = R6Class('ICE',
       X.results$group = X.id
       X.results
     }, 
-    display = function(){
-      ggplot(self$results) + geom_line(aes_string(x = names(self$results)[1], y = 'y.hat', group = 'group'))
+    plot = function(){
+      ggplot(private$results) + geom_line(aes_string(x = names(private$results)[1], y = 'y.hat', group = 'group'))
     }
   )
 )

@@ -2,15 +2,31 @@
 ## Extracting tree-structured representations of trained neural networks. 
 ## Advances in Neural Information Processing Systems, 8, 24–30. 
 ## Retrieved from citeseer.ist.psu.edu/craven96extracting.html
-aggregate.surrogate = function(X, w=NULL, y.hat, n, ...){
-  df = data.frame(y.hat = y.hat)
-  df = cbind(y.hat, X)
-  partykit::ctree(y.hat ~ ., data = df)
-}
+TreeSurrogate = R6Class('TreeSurrogate', 
+  inherit = Experiment,
+  public = list(
+    intervene = function(){self$X.sample},
+    plot = function(){
+      plot(private$results)
+    }, 
+    aggregate = function(){
+      dat = cbind(y.hat = self$Q.results, self$X.design)
+      print(head(dat))
+      partykit::ctree(y.hat ~ ., data = dat)
+    },
+    initialize = function(f, X, sample.size=100){
+      self$sample.size = sample.size
+      self$f = f
+      self$X = X
+    }
+  )
+)
 
-display.surrogate = function(res){
-  plot(res)
-}
+
+
+
+
+
 
 
 

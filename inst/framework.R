@@ -10,9 +10,6 @@ library('iml')
 X = iris[-which(names(iris) == 'Species')]
 y = iris$Species
 
-
-background = X
-
 ## Generate the task
 task = makeClassifTask(data = iris, target = "Species")
 
@@ -29,70 +26,52 @@ f = function(X){
 
 
 ## PDP
-pdp = PDP$new(f = f, X=background, feature.index = 4)
-pdp$conduct()$present()
+pdp = PDP$new(f = f, X=X, feature.index = 4)
+pdp$conduct()$plot()
+
 
 ## ICE
-ice = ICE$new(f = f, X=background, feature.index = 4)
-ice$conduct()$present()
+ice = ICE$new(f = f, X=X, feature.index = 4)
+ice$conduct()$plot()
 
 
 ## ICE centered
-ice.c = ICE.centered$new(f = f, X=background, feature.index = 4, anchor = 1.5)
-ice.c$conduct()$present()
+ice.c = ICE.centered$new(f = f, X=X, feature.index = 4, anchor = 1.5)
+ice.c$conduct()$plot()
 
-## ICE, centered
-res = iml::explain(f=f, generate=generate.mc, intervene=intervene.ice, 
-              aggregate = aggregate.ice.centered, display = display.ice, feature.index = 4, 
-  grid.size = 20, n = 1000, anchor = 0)
-
-print(res)
 
 ## LIME
 i = 120
 x.interest = background[i,]
 
-res =  iml::explain(f=f, generate=generate.lime, intervene=intervene.lime, 
-               aggregate= aggregate.lime, display = display.lime, 
-               x.interest = x.interest, weight.samples = weight.samples.lime)
-print(res)
+lime = LIME$new(f, background, x.interest, 1000)
+lime$conduct()$summary()
+
+lime$set.new.x(background[i+1,])
+lime$conduct()$print()
 
 
 ## Shapley
-res =  iml::explain(f=f, generate=generate.mc, intervene=intervene.shapley, 
-               aggregate = aggregate.shapley, x.interest = background[i,], n = 100)
-res
+shapley = Shapley$new(f, background, x.interest, 100)
+shapley$conduct()
+shapley$data()
 
-
-## Permutation feature importance 
-res =  iml::explain(f=f, generate=generate.mc, intervene=intervene.permimp, 
-               aggregate = aggregate.permimp, n = 1000, y=(y=='virginica'), feature.index=4)
-res
+## Permutation feature importance
+permimp = PermImp$new(f, background, feature.index = 4, y=(y=='virginica'))
+permimp$conduct()$data()
 
 
 ## Sobol (first order)
-res =  iml::explain(f=f, generate=generate.mc, intervene=intervene.sobol, 
-               aggregate = aggregate.sobol.first, n = 500)
-res
-## compare with sensitivty implementation
-sensitivity::sobol(f, X1 = generate.mc(n), X2=generate.mc(n), order=1)
-
+sobol = Sobol$new(f, X, sample.size = 10000)
+sobol$conduct()$data()
+sensitivity::soboljansen(f, X1 = sobol$X.sample$X1, X2=sobol$X.sample$X2)
 
 ## Sobol (total)
-res =  iml::explain(f=f, generate=generate.mc, intervene=intervene.sobol, 
-               aggregate = aggregate.sobol.total, n = 1500)
-res
-n=100
-soboljansen(f, X1 = generate.sobol(n), X2=generate.sobol(n))
-
-soboljansen(f, X1 = generate.sobol(n), X2=generate.sobol(n))
+sobol = Sobol$new(f, X, sample.size = 1000, type = 'total')
+sobol$conduct()$data()
 
 
 
 ## tree surrogate model, centered
-res = iml::explain(f=f, generate=generate.mc, intervene=intervene.lime, 
-              aggregate = aggregate.surrogate, display = display.surrogate)
-
-print(res)
-
-
+trees = TreeSurrogate$new(f, X)
+trees$conduct()$plot()

@@ -1,33 +1,44 @@
-generate.lime = function(n){
-  features.mean = colMeans(background)
-  features.sd = apply(background, 2, sd)
-  n.features = length(features.mean)
-  random.features = matrix(rnorm(n =  n * n.features), ncol = n.features)
-  new.samples = data.frame(t(apply(random.features, 1, function(x) {x * features.sd + features.mean})))
-  new.samples
-}
-
-
-weight.samples.lime = function(X, x.interest){
-  apply(X, 1, function(x){
-    1/sqrt(sum((x - x.interest)^2))
-  })
-}
-
-
-intervene.lime = function(generate.fun, feature.index, n = 100, ...){
-  generate.fun(n=n)
-}
-
-
-aggregate.lime = function(X, w=NULL, y.hat, n, ...){
-  lm(y.hat ~ as.matrix(X), weights = w)
-}
-
-display.lime = function(res){
-  summary(res)
-}
-
+LIME = R6Class('LIME', 
+  inherit = Experiment,
+  public = list(
+    x.interest = NULL,
+    aggregate = function(){
+      lm(self$Q.results ~ as.matrix(self$X.design), weights = self$w)
+    },
+    sampler = function(){
+      features.mean = colMeans(self$X)
+      features.sd = apply(self$X, 2, sd)
+      n.features = length(features.mean)
+      random.features = matrix(rnorm(n =  self$sample.size * n.features), ncol = n.features)
+      new.samples = data.frame(t(apply(random.features, 1, function(x) {x * features.sd + features.mean})))
+      new.samples
+    },
+    intervene = function(){
+      return(self$X.sample)
+    }, 
+    summary = function(){
+      summary(private$results)
+    },
+    print = function(){self$summary()},
+    weight.samples = function(){
+      apply(self$X.design, 1, function(x){
+        1/sqrt(sum((x - self$x.interest)^2))
+      })
+    },
+    set.new.x = function(x.interest){
+      self$x.interest = x.interest
+      private$finished = FALSE
+      private$results = NULL
+    },
+    initialize = function(f, X, x.interest, sample.size=100){
+      self$name = 'LIME'
+      self$sample.size = sample.size
+      self$f = f
+      self$X = X
+      self$x.interest = x.interest
+    }
+  )
+)
 
 
 

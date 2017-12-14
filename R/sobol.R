@@ -1,41 +1,49 @@
+Sobol = R6Class('Sobol', 
+  inherit = Experiment,
+  public = list(
+    type = NULL, 
+    sampler = function(){
+      list(X1 = super$sampler(), X2 = super$sampler())
+    },
+    intervene = function(){
+      n.features = ncol(self$X)
+      feature.names = colnames(self$X)
+      # The intervention
+      Ab = lapply(1:n.features, function(feature.index){
+        A = self$X.sample$X1
+        A[,feature.index] = self$X.sample$X2[feature.index]
+        A
+      }) %>% data.table::rbindlist()
+      rbind(self$X.sample$X1, self$X.sample$X2, Ab)
+    },
+    plot = function(){
+      plot(private$results)
+    }, 
+    aggregate = function(){
+      y.hat.A = self$Q.results[1:self$sample.size]
+      y.hat.B = self$Q.results[(self$sample.size+1):(2*self$sample.size)]
+      Ab.index = (2*self$sample.size + 1):nrow(self$X.design)
+      var.y = var(y.hat.A)
+      lapply(1:ncol(X), function(i){
+        y.hat.Ab.by.feature = matrix(self$Q.results[Ab.index], nrow = self$sample.size)
+        if(self$type == 'first'){
+          S_i = (1/self$sample.size) * sum(y.hat.B * (y.hat.Ab.by.feature[,i] - y.hat.A))
+        } else {
+          S_i = (1/(2*self$sample.size)) * sum((y.hat.Ab.by.feature[,i] - y.hat.A)^2)
+        }
+        S_i / var.y
+        
+      })
+    },
+    initialize = function(f, X, sample.size = 100, type = 'first'){
+      self$f = f
+      self$X = X
+      self$sample.size = sample.size
+      self$type = type
+    }
+  )
+)
 
-intervene.sobol = function(generate.fun, feature.index, grid.size = 10, n = 100, x.interest, ...){
-  X1 = generate.fun(n)
-  X2 = generate.fun(n)
-  
-  n.features = ncol(X)
-  feature.names = colnames(X)
-  
-  # The intervention
-  Ab = lapply(1:n.features, function(feature.index){
-    A = X1
-    A[,feature.index] = X2[feature.index]
-    A
-  }) %>% data.table::rbindlist()
-  rbind(X1, X2, Ab)
-}
 
 
-aggregate.sobol.first = function(X, y.hat, n, w=NULL,...){
-  y.hat.A = y.hat[1:n]
-  y.hat.B = y.hat[(n+1):(2*n)]
-  Ab.index = (2*n + 1):nrow(X)
-  var.y = var(y.hat.A)
-  lapply(1:ncol(X), function(i){
-    y.hat.Ab.by.feature = matrix(y.hat[Ab.index], nrow = n)
-    S_i = (1/n) * sum(y.hat.B * (y.hat.Ab.by.feature[,i] - y.hat.A))
-    S_i/ var.y
-  })
-}
 
-aggregate.sobol.total = function(X, y.hat, n, w=NULL,...){
-  y.hat.A = y.hat[1:n]
-  y.hat.B = y.hat[(n+1):(2*n)]
-  Ab.index = (2*n + 1):nrow(X)
-  var.y = var(y.hat.A)
-  lapply(1:ncol(X), function(i){
-    y.hat.Ab.by.feature = matrix(y.hat[Ab.index], nrow = n)
-    S_i = (1/(2*n)) * sum((y.hat.Ab.by.feature[,i] - y.hat.A)^2)
-    S_i / var.y
-  })
-}

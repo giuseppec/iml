@@ -3,46 +3,46 @@
 ## TODO: Move most parameters to private()
 Experiment = R6Class("Experiment", 
   public = list(
-    name = NULL, 
+    name = 'Experiment', 
+    X = NULL,
+    sample.size = 100,
+    sampler = function(){
+      replace = self$sample.size > nrow(self$X)
+      self$X[sample(1:nrow(self$X), size = self$sample.size, replace = replace), ]
+    }, 
+    X.sample = NULL,
+    intervene = function(){self$X.sample},
+    X.design = NULL,
     f = NULL, 
-    sampler = function(x){x}, 
-    intervene = function(x){x},
-    aggregate = function(x){x}, 
-    display = function(x){print(x)}, 
-    weight.samples = function(x){1}, 
     Q = function(x){x},
     Q.results = NULL,
-    X.design = NULL,
-    results = NULL,
-    X.sample = NULL,
-    m = NULL,
-    ## TODO: Only allow name, f and sampler here. The others should have setter and getter. 
-    ##       Then it will be easier to create subclasses like pdp.experiment. Alternative: In subclasses use: 
-    ##      super$initialize if possible
-    initialize = function(name, f, sampler, aggregate, display, weight.samples, Q=function(x){x}, m=1000){
-      self$name = name
+    weight.samples = function(){1}, 
+    aggregate = function(){cbind(self$X.design, self$Q.results)}, 
+    initialize = function(f, X){
       self$f = f
-      self$sampler = sampler
-      self$aggregate = aggregate
-      self$display = display
-      self$weight.samples = weight.samples
-      self$Q = Q
-      self$m = m
+      self$X = X
     },
     conduct = function(...){
-      # DESIGN experiment
-      self$X.sample = self$sampler()
-      self$X.design = self$intervene()
-      # EXECUTE experiment
-      self$Q.results = self$Q(self$f(self$X.design))
-      w = self$weight.samples()
-      # AGGREGATE measurments
-      self$results = self$aggregate()
+      if(!private$finished){
+        # DESIGN experiment
+        self$X.sample = self$sampler()
+        self$X.design = self$intervene()
+        # EXECUTE experiment
+        self$Q.results = self$Q(self$f(self$X.design))
+        w = self$weight.samples()
+        # AGGREGATE measurments
+        private$results = self$aggregate()
+        private$finished = TRUE
+      }
       self
     }, 
-    present = function(){
-      self$display()
+    data = function(){
+      private$results
     }
+  ), 
+  private = list(
+    results = NULL, 
+    finished = FALSE
   )
 )
 

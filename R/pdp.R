@@ -18,8 +18,8 @@ PDP = R6Class('PDP',
       X.design[self$feature.index] = rep(grid, each = self$n)
       X.design
     }, 
-    display = function(){
-      ggplot(self$results) + geom_line(aes_string(x = names(self$results)[1], y = names(self$results[2])))
+    plot = function(){
+      ggplot(private$results) + geom_line(aes_string(x = names(private$results)[1], y = names(private$results[2])))
     },
 
     initialize = function(f, X, feature.index, grid.size=10, n=100){
