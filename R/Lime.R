@@ -1,7 +1,7 @@
 LIME = R6Class('LIME', 
   inherit = Experiment,
   public = list(
-    x.interest = NULL,
+    x.interest = NULL, 
     aggregate = function(){
       lm(self$Q.results ~ as.matrix(self$X.design), weights = self$w)
     },
@@ -25,17 +25,17 @@ LIME = R6Class('LIME',
         1/sqrt(sum((x - self$x.interest)^2))
       })
     },
-    set.new.x = function(x.interest){
-      self$x.interest = x.interest
-      private$finished = FALSE
-      private$results = NULL
-    },
-    initialize = function(f, X, x.interest, sample.size=100){
-      self$name = 'LIME'
+    initialize = function(f, X, sample.size=100){
       self$sample.size = sample.size
       self$f = f
       self$X = X
+    }
+  ), 
+  active = list(
+    x = function(x.interest){
       self$x.interest = x.interest
+      private$finished = FALSE
+      private$results = NULL
     }
   )
 )

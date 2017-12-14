@@ -3,7 +3,6 @@
 ## TODO: Move most parameters to private()
 Experiment = R6Class("Experiment", 
   public = list(
-    name = 'Experiment', 
     X = NULL,
     sample.size = 100,
     sampler = function(){

@@ -42,22 +42,23 @@ ice.c$conduct()$plot()
 
 ## LIME
 i = 120
-x.interest = background[i,]
+x.interest = X[i,]
 
-lime = LIME$new(f, background, x.interest, 1000)
+lime = LIME$new(f, X,  1000)
+lime$x <- x.interest
 lime$conduct()$summary()
 
-lime$set.new.x(background[i+1,])
+lime$x <- X[i+1,]
 lime$conduct()$print()
 
 
 ## Shapley
-shapley = Shapley$new(f, background, x.interest, 100)
+shapley = Shapley$new(f, X, x.interest, 100)
 shapley$conduct()
 shapley$data()
 
 ## Permutation feature importance
-permimp = PermImp$new(f, background, feature.index = 4, y=(y=='virginica'))
+permimp = PermImp$new(f, X, feature.index = 4, y=(y=='virginica'))
 permimp$conduct()$data()
 
 

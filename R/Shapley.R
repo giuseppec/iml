@@ -54,7 +54,6 @@ Shapley = R6Class('Shapley',
       self$results
     },
     initialize = function(f, X, x.interest, sample.size=100){
-      self$name = 'LIME'
       self$sample.size = sample.size
       self$f = f
       self$X = X

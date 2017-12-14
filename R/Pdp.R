@@ -6,8 +6,9 @@ PDP = R6Class('PDP',
     feature.index = NULL,
     X = NULL,
     aggregate = function(){
-      self$X.design['y.hat']= self$Q.results
-      self$X.design %>% group_by_at(self$feature.index) %>% summarise(y.hat = mean(y.hat))
+      results = X.design
+      results['y.hat']= self$Q.results
+      results %>% group_by_at(self$feature.index) %>% summarise(y.hat = mean(y.hat))
     },
     sampler = function(){
       self$X[sample(1:nrow(self$X), size = self$n, replace = TRUE), ]
