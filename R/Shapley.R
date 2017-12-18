@@ -10,15 +10,14 @@ Shapley = R6Class('Shapley',
     x.interest = NULL,
     aggregate = function(){
       agg.df = data.frame(
-        y.hat.with.k = self$Q.results[1:(length(self$Q.results)/2)],
-        y.hat.without.k = self$Q.results[(length(self$Q.results)/2 + 1):length(self$Q.results)],
+        y.hat.with.k = private$Q.results[1:(length(private$Q.results)/2)],
+        y.hat.without.k = private$Q.results[(length(private$Q.results)/2 + 1):length(private$Q.results)],
         features = rep(colnames(self$X.design), times = self$sample.size)
       )
       agg.df %>% group_by(features) %>% summarise(phi = mean(y.hat.with.k - y.hat.without.k))
     },
     intervene = function(){
       n.features = ncol(self$X.sample)
-      feature.names = colnames(self$X.sample)
       # The intervention
       runs = lapply(1:self$sample.size, function(m){
         # randomly order features
@@ -36,7 +35,7 @@ Shapley = R6Class('Shapley',
           }
           instance.without.k = instance.with.k
           instance.without.k[k.at.index] = sample.instance.shuffled[k.at.index]
-          cbind(instance.with.k[feature.names], instance.without.k[feature.names])
+          cbind(instance.with.k[private$feature.names], instance.without.k[private$feature.names])
         }) %>% data.table::rbindlist()
         
       }) %>% data.table::rbindlist()
@@ -54,9 +53,8 @@ Shapley = R6Class('Shapley',
       self$results
     },
     initialize = function(f, X, x.interest, sample.size=100){
+      super$initialize(f, X)
       self$sample.size = sample.size
-      self$f = f
-      self$X = X
       self$x.interest = x.interest
     }
   )

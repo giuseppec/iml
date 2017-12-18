@@ -25,20 +25,42 @@ f = function(X){
 }
 
 
+
+# data('Boston', package  = 'MASS')
+# 
+# X = Boston[-which(names(Boston) == 'medv')]
+# y = Boston$medv
+# 
+# ## Generate the task
+# task = makeRegrTask(data = Boston, target = "medv")
+# 
+# ## Generate the learner
+# lrn = makeLearner("regr.randomForest")
+# 
+# ## Train the learner
+# mod = train(lrn, task)
+# 
+# f = function(X){
+#   predict(mod, newdata = X)$data$response
+# }
+
+
+
 ## PDP
-pdp = PDP$new(f = f, X=X, feature.index = 4)
-pdp$conduct()$plot()
+pdp = PDP$new(f = f, X=X, feature.index = 3)
+pdp$plot()
 
 
 ## ICE
-ice = ICE$new(f = f, X=X, feature.index = 4)
-ice$conduct()$plot()
+ice = ICE$new(f = f, X=X, feature.index = 3)
+ice$plot()
+ice$data()
 
 
 ## ICE centered
-ice.c = ICE.centered$new(f = f, X=X, feature.index = 4, anchor = 1.5)
-ice.c$conduct()$plot()
-
+ice.c = ICE.centered$new(f = f, X=X, feature.index = 3, anchor = 0)
+ice.c$plot()
+ice.c$data()
 
 ## LIME
 i = 120
@@ -46,33 +68,34 @@ x.interest = X[i,]
 
 lime = LIME$new(f, X,  1000)
 lime$x <- x.interest
-lime$conduct()$summary()
+lime$run()$summary()
 
 lime$x <- X[i+1,]
-lime$conduct()$print()
+lime$run()$print()
 
 
 ## Shapley
 shapley = Shapley$new(f, X, x.interest, 100)
-shapley$conduct()
+shapley$run()
 shapley$data()
 
 ## Permutation feature importance
 permimp = PermImp$new(f, X, feature.index = 4, y=(y=='virginica'))
-permimp$conduct()$data()
-
+permimp$plot()
+permimp$data()
+permimp$run(force=TRUE)$data()
 
 ## Sobol (first order)
 sobol = Sobol$new(f, X, sample.size = 10000)
-sobol$conduct()$data()
+sobol$data()
 sensitivity::soboljansen(f, X1 = sobol$X.sample$X1, X2=sobol$X.sample$X2)
 
 ## Sobol (total)
-sobol = Sobol$new(f, X, sample.size = 1000, type = 'total')
-sobol$conduct()$data()
-
+sobol = Sobol$new(f, X, sample.size = 100000, type = 'total')
+sobol$data()
+sobol$plot()
 
 
 ## tree surrogate model, centered
-trees = TreeSurrogate$new(f, X)
-trees$conduct()$plot()
+tree = TreeSurrogate$new(f, X)
+tree$plot()

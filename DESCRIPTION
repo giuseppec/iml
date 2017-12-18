@@ -6,5 +6,6 @@ Date: 2017-11-30
 Author: Christoph Molnar
 Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
 Description: Model-agnostic interpretability methods for machine learning models.
-Depends: R6
+Depends: R6,
+         checkmate
 License: MIT

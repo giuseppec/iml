@@ -1,9 +1,20 @@
+# TODO: Implement for classification
+# TODO: Implement selection of k features
+# TODO: Implement generate.plot function
 LIME = R6Class('LIME', 
   inherit = Experiment,
   public = list(
     x.interest = NULL, 
+    k = NULL,
+    model = NULL,
+    predict = function(X=self$X){
+      predict(self$model, newdata=X)
+    },
     aggregate = function(){
-      lm(self$Q.results ~ as.matrix(self$X.design), weights = self$w)
+      best.param = cv.glmnet(x = as.matrix(self$X.design), y = private$Q.results, w=self$weight.samples())
+      mod.best = glmnet(x = as.matrix(self$X.design), y = private$Q.results, w=self$weight.samples(), lambda = best.param$lambda.1se)
+      self$model = mod.best
+      mod.best
     },
     sampler = function(){
       features.mean = colMeans(self$X)
@@ -17,7 +28,7 @@ LIME = R6Class('LIME',
       return(self$X.sample)
     }, 
     summary = function(){
-      summary(private$results)
+      coef(private$results)
     },
     print = function(){self$summary()},
     weight.samples = function(){
@@ -25,17 +36,17 @@ LIME = R6Class('LIME',
         1/sqrt(sum((x - self$x.interest)^2))
       })
     },
-    initialize = function(f, X, sample.size=100){
+    initialize = function(f, X, sample.size=100, k = 3){
+      if(!require('glmnet')){stop('Please install glmnet')}
+      super$initialize(f, X)
       self$sample.size = sample.size
-      self$f = f
-      self$X = X
+      self$k = k
     }
   ), 
   active = list(
     x = function(x.interest){
       self$x.interest = x.interest
-      private$finished = FALSE
-      private$results = NULL
+      private$flush()
     }
   )
 )

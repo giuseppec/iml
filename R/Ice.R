@@ -4,11 +4,12 @@ ICE = R6Class('ICE',
     aggregate = function(){
       X.id = apply(self$X.design, 1, function(x) digest(x[-self$feature.index]))
       X.results = self$X.design[self$feature.index]
-      X.results$y.hat = self$Q.results
+      X.results$y.hat = private$Q.results
       X.results$group = X.id
       X.results
-    }, 
-    plot = function(){
+    }), 
+  private = list(
+    generate.plot = function(){
       ggplot(private$results) + geom_line(aes_string(x = names(private$results)[1], y = 'y.hat', group = 'group'))
     }
   )
