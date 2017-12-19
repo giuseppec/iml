@@ -1,4 +1,9 @@
 
+
+perm.imp = function(f, X, y, feature.index){
+  PermImp$new(f=f, X=X, y=y, feature.index=feature.index)
+}
+
 ## TODO: Extend to multiple features. Either within this class or as a new class. 
 ## TODO: Use different performance function for regression
 ## TODO: performance function as a parameter in intialize
@@ -29,7 +34,7 @@ PermImp = R6Class('PermImp',
       self$y = y
       self$feature.index = feature.index
     }
-  ), 
+  ),
   private = list(
     generate.plot = function(){
       ggplot(private$results) + geom_bar(aes(x = feature, y = performance), stat='identity')

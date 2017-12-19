@@ -1,3 +1,10 @@
+sobol = function(f, X, sample.size = 100, type = 'first'){
+  Sobol$new(f=f, X=X, sample.size = sample.size, type = type)
+}
+
+
+
+
 Sobol = R6Class('Sobol', 
   inherit = Experiment,
   public = list(
@@ -31,6 +38,9 @@ Sobol = R6Class('Sobol',
         S_i / var.y
       }) 
       data.frame(value = unlist(res), feature = private$feature.names)
+    },
+    print = function(){
+      print(self$data())
     },
     initialize = function(f, X, sample.size = 100, type = 'first'){
       super$initialize(f, X)

@@ -1,3 +1,9 @@
+
+
+ice = function(f, X, feature, grid.size=10, sample.size=100){
+  ICE$new(f = f, X=X, feature = feature, grid.size = grid.size, sample.size = sample.size)
+}
+
 ICE = R6Class('ICE', 
   inherit = PDP, 
   public = list(
@@ -17,6 +23,9 @@ ICE = R6Class('ICE',
   )
 )
 
+ice.c = function(f, X, feature, anchor = 0, grid.size=10, sample.size=100){
+  ICE.centered$new(f = f, X=X, anchor = anchor, feature = feature, grid.size = grid.size, sample.size = sample.size)
+}
 
 #' @param anchor The value for the centering of the plot. Numeric for numeric features, and the level name for factors. 
 ICE.centered = R6Class('ICE.centered', 

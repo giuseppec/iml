@@ -1,8 +1,8 @@
 
 
 
-generate.pdp  = function(f, X, feature, grid.size=10, sample.size=100){
-  PDP$new(f = f, X=X, feature = feature, grid.size = grid.size, sample.size = sample.size)
+pdp  = function(f, X, feature, grid.size=10, sample.size=100){
+  PDP$new(f=f, X=X, feature = feature, grid.size = grid.size, sample.size = sample.size)
 }
 
 
@@ -35,7 +35,7 @@ PDP = R6Class('PDP',
       X.design[self$feature.index] = rep(grid, each = nrow(self$X.sample))
       X.design
     }, 
-    initialize = function(f, X, feature, grid.size=10, sample.size=100){
+    initialize = function(f, X, feature, grid.size, sample.size){
       super$initialize(f, X)
       self$sample.size = sample.size
       self$feature.index = feature

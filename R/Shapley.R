@@ -1,3 +1,8 @@
+
+shapley = function(f, X, x.interest, sample.size=100){
+  Shapley$new(f=f, X=X, x.interest=x.interest, sample.size=sample.size)
+}
+
 ## TODO: instead having an outer loop over features,
 ##       loop over features within each coalition, like the ApproShapley algorithms.
 ##       Additionally make sure to not calculate things twice, because  it's always
@@ -44,18 +49,21 @@ Shapley = R6Class('Shapley',
       
       rbind(dat.with.k, dat.without.k)
     }, 
-    set.new.x = function(x.interest){
-      self$x.interest = x.interest
-      private$finished = FALSE
-      private$results = NULL
+    print = function(){
+      self$run()
+      print(self$data())
     },
-    summary = function(){
-      self$results
-    },
-    initialize = function(f, X, x.interest, sample.size=100){
+    initialize = function(f, X, x.interest, sample.size){
       super$initialize(f, X)
       self$sample.size = sample.size
       self$x.interest = x.interest
+    }
+  ), 
+  active = list(
+    x = function(x.interest){
+      self$x.interest = x.interest
+      private$flush()
+      self
     }
   )
 )

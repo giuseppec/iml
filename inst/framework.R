@@ -45,67 +45,94 @@ f = function(X){
 }
 
 
-
+plot(Titanic)
 ## PDP
-pdp1 = generate.pdp(f = f, X=X, feature = 4)
+pdp(f = f, X=X, feature = 4)  
+
+
+pdp1 = pdp(f = f, X=X, feature = 4)  
 pdp1$plot() + scale_y_continuous(limits = c(0, NA))
+
+
 pdp1$feature = 5
 pdp1$plot() 
 
 ## ICE
-ice = ICE$new(f = f, X=X, feature = 4)
-ice$plot()
-ice$data()
-ice$feature = 1
-ice$plot()
+
+ice(f = f, X=X, feature = 4)
+
+ice1 = ice(f = f, X=X, feature = 4)
+ice1$plot()
+ice1$data()
+ice1$feature = 1
+ice1$plot()
 
 ## ICE centered
-ice.c = ICE.centered$new(f = f, X=X, feature = 1, anchor = 0)
-ice.c$plot()
-ice.c$data()
-ice.c$feature = 2
-ice.c$plot()
-ice.c$anchor = 50
-ice.c$plot()
+ice.c(f = f, X=X, feature = 1, anchor = 0)
+
+
+
+ice1.c = ice.c(f = f, X=X, feature = 1, anchor = 10)
+ice1.c$plot()
+ice1.c$data()
+ice1.c$feature = 2
+ice1.c$plot()
+ice1.c$anchor = 50
+ice1.c$plot()
 
 
 
 ## LIME
+
 i = 120
 x.interest = X[i,]
 
-lime = LIME$new(f, X,  1000)
-lime$x <- x.interest
-lime$data()
-lime$run()$summary()
+lime(f, X,  1000, x.interest=x.interest)
 
-lime$x <- X[i+1,]
-lime$run()$print()
+lime1 = lime(f, X,  1000)
+lime1$x <- x.interest
+lime1$data()
+lime1$run()$summary()
+
+lime1$x <- X[i+1,]
+lime1$run()$print()
 
 
 ## Shapley
-shapley = Shapley$new(f, X, x.interest, 100)
-shapley$run()
-shapley$data()
+shapley(f, X, x.interest, 100)
+shapley1 = shapley(f, X, x.interest, 100)
+
+shapley1
+
+shapley1$x = X[i+2,]
+shapley1
 
 ## Permutation feature importance
-#permimp = PermImp$new(f, X, feature.index = 4, y=(y=='virginica'))
-permimp = PermImp$new(f, X, feature.index = 4, y=y)
+perm.imp(f, X, feature.index = 4, y=(y=='virginica'))
+perm.imp(f, X, feature.index = 4, y=y)
+
+permimp = perm.imp(f, X, feature.index = 4, y=y)
+#permimp = perm.imp(f, X, feature.index = 4, y=(y=='virginica'))
+
 permimp$plot()
 permimp$data()
 permimp$run(force=TRUE)$data()
 
 ## Sobol (first order)
-sobol = Sobol$new(f, X, sample.size = 10000)
-sobol$data()
-sensitivity::soboljansen(f, X1 = sobol$X.sample$X1, X2=sobol$X.sample$X2)
+sobol(f, X, sample.size = 10000)
+sobol1 = sobol(f, X, sample.size = 10000)
+sobol1$data()
+sensitivity::soboljansen(f, X1 = sobol1$X.sample$X1, X2=sobol1$X.sample$X2)
 
 ## Sobol (total)
-sobol = Sobol$new(f, X, sample.size = 100000, type = 'total')
-sobol$data()
-sobol$plot()
+sobol(f, X, sample.size = 100000, type = 'total')
+sobol2 = sobol(f, X, sample.size = 100000, type = 'total')
+
+sobol2$data()
+sobol2$plot()
 
 
 ## tree surrogate model, centered
-tree = TreeSurrogate$new(f, X)
+tree.surrogate(f, X, 10000)
+tree = tree.surrogate(f, X)
 tree$plot()

@@ -19,7 +19,7 @@ Experiment = R6Class("Experiment",
     plot = function(){
       self$run()
       private$plot.data = private$generate.plot()
-      if(!is.null(private$plot.data)) {private$plot.data} else {warning('no plot data generated')}
+      if(!is.null(private$plot.data)) {return(private$plot.data)} else {warning('no plot data generated')}
     },
     initialize = function(f, X){
       assertDataFrame(X, all.missing = FALSE)
@@ -45,6 +45,9 @@ Experiment = R6Class("Experiment",
     data = function(){
       self$run()
       private$results
+    }, 
+    print = function(){
+      print(self$plot())
     }
   ), 
   private = list(

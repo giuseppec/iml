@@ -1,3 +1,9 @@
+lime = function(f, X, sample.size=100, k = 3, x.interest = NULL){
+  LIME$new(f=f, X=X, sample.size=sample.size, k = k, x.interest = x.interest)
+}
+
+
+
 # TODO: Implement for classification
 # TODO: Implement selection of k features
 # TODO: Implement generate.plot function
@@ -32,17 +38,21 @@ LIME = R6Class('LIME',
     summary = function(){
       coef(private$results)
     },
-    print = function(){self$summary()},
+    print = function(){
+      self$run()
+      print(self$summary())
+    },
     weight.samples = function(){
       apply(self$X.design, 1, function(x){
         1/sqrt(sum((x - self$x.interest)^2))
       })
     },
-    initialize = function(f, X, sample.size=100, k = 3){
+    initialize = function(f, X, sample.size, k, x.interest){
       if(!require('glmnet')){stop('Please install glmnet')}
       super$initialize(f, X)
       self$sample.size = sample.size
       self$k = k
+      self$x.interest = x.interest
     }
   ), 
   active = list(

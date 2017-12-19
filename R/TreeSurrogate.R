@@ -1,3 +1,8 @@
+
+tree.surrogate = function(f, X, sample.size=100){
+  TreeSurrogate$new(f=f, X=X, sample.size=sample.size)
+}
+
 ## Craven, M. W., & Shavlik, J. W. (1996). 
 ## Extracting tree-structured representations of trained neural networks. 
 ## Advances in Neural Information Processing Systems, 8, 24–30. 
@@ -16,7 +21,7 @@ TreeSurrogate = R6Class('TreeSurrogate',
       self$run()
       plot(private$results)
     },
-    initialize = function(f, X, sample.size=100){
+    initialize = function(f, X, sample.size){
       super$initialize(f, X)
       self$sample.size = sample.size
     }
