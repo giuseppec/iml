@@ -1,6 +1,7 @@
 
 ## TODO: Extend to multiple features. Either within this class or as a new class. 
-
+## TODO: Use different performance function for regression
+## TODO: performance function as a parameter in intialize
 PermImp = R6Class('PermImp', 
   inherit = Experiment,
   public = list(

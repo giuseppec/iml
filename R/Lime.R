@@ -1,6 +1,8 @@
 # TODO: Implement for classification
 # TODO: Implement selection of k features
 # TODO: Implement generate.plot function
+# TODO: Implement full LIME
+# TODO: Allow categorical feature (sampler has to be changed also)
 LIME = R6Class('LIME', 
   inherit = Experiment,
   public = list(
