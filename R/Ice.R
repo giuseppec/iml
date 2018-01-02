@@ -4,8 +4,8 @@ ice = function(f, X, feature, grid.size=10, sample.size=100){
   ICE$new(f = f, X=X, feature = feature, grid.size = grid.size, sample.size = sample.size)
 }
 
-ICE = R6Class('ICE', 
-  inherit = PDP, 
+ICE = R6Class('ICE',
+  inherit = PDP,
   public = list(
     aggregate = function(){
       X.id = apply(self$X.design, 1, function(x) digest(x[-self$feature.index]))
@@ -13,23 +13,23 @@ ICE = R6Class('ICE',
       X.results$y.hat = private$Q.results
       X.results$group = X.id
       X.results
-    }), 
+    }),
   private = list(
     generate.plot = function(){
-      p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = 'y.hat', group = 'group')) 
+      p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = 'y.hat', group = 'group'))
       if(self$feature.type == 'numerical') p + geom_line()
       else if (self$feature.type == 'categorical') p + geom_line(alpha = 0.2) + geom_point()
     }
   )
 )
 
+#' @param anchor The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
 ice.c = function(f, X, feature, anchor = 0, grid.size=10, sample.size=100){
   ICE.centered$new(f = f, X=X, anchor = anchor, feature = feature, grid.size = grid.size, sample.size = sample.size)
 }
 
-#' @param anchor The value for the centering of the plot. Numeric for numeric features, and the level name for factors. 
-ICE.centered = R6Class('ICE.centered', 
-  inherit = ICE, 
+ICE.centered = R6Class('ICE.centered',
+  inherit = ICE,
   public = list(
     anchor.value = NULL,
     aggregate = function(){
@@ -51,7 +51,7 @@ ICE.centered = R6Class('ICE.centered',
       self$anchor.value = anchor
       super$initialize(...)
     }
-  ), 
+  ),
   active = list(
     anchor = function(anchor){
       self$anchor.value = anchor

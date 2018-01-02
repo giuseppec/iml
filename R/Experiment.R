@@ -1,21 +1,19 @@
-## TODO: add parameter_list for initiation of Experiment, which contains experiment type specific parameters (e.g. grid_size for partial dependence plots)
-## Or maybe it makes sense to have subclasses for each interpretability method that inherits from Experiment and has additional parameters
 ## TODO: Move most parameters to private()
-Experiment = R6Class("Experiment", 
+Experiment = R6Class("Experiment",
   public = list(
     X = NULL,
     sample.size = 100,
     sampler = function(){
       replace = self$sample.size > nrow(self$X)
       self$X[sample(1:nrow(self$X), size = self$sample.size, replace = replace), ]
-    }, 
+    },
     X.sample = NULL,
     intervene = function(){self$X.sample},
     X.design = NULL,
     f = NULL, 
     Q = function(x){x},
-    weight.samples = function(){1}, 
-    aggregate = function(){cbind(self$X.design, private$Q.results)}, 
+    weight.samples = function(){1},
+    aggregate = function(){cbind(self$X.design, private$Q.results)},
     plot = function(){
       self$run()
       private$plot.data = private$generate.plot()
@@ -41,18 +39,18 @@ Experiment = R6Class("Experiment",
         private$finished = TRUE
       }
       self
-    }, 
+    },
     data = function(){
       self$run()
       private$results
-    }, 
+    },
     print = function(){
       print(self$plot())
     }
-  ), 
+  ),
   private = list(
-    results = NULL, 
-    finished = FALSE, 
+    results = NULL,
+    finished = FALSE,
     Q.results = NULL,
     plot.data = NULL,
     generate.plot = function(){NULL},
@@ -71,11 +69,3 @@ Experiment = R6Class("Experiment",
 
 # TODO: Implement repeated experiment class
 RepeatedExperiment = R6Class()
-
-
-
-
-
-
-
-

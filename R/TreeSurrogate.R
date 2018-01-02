@@ -3,12 +3,12 @@ tree.surrogate = function(f, X, sample.size=100){
   TreeSurrogate$new(f=f, X=X, sample.size=sample.size)
 }
 
-## Craven, M. W., & Shavlik, J. W. (1996). 
-## Extracting tree-structured representations of trained neural networks. 
-## Advances in Neural Information Processing Systems, 8, 24–30. 
+## Craven, M. W., & Shavlik, J. W. (1996).
+## Extracting tree-structured representations of trained neural networks.
+## Advances in Neural Information Processing Systems, 8, 24–30.
 ## Retrieved from citeseer.ist.psu.edu/craven96extracting.html
 # TODO: Implement/search plot funciton with ggplot or overwrite Experiment$plot()
-TreeSurrogate = R6Class('TreeSurrogate', 
+TreeSurrogate = R6Class('TreeSurrogate',
   inherit = Experiment,
   public = list(
     intervene = function(){self$X.sample},
@@ -25,19 +25,10 @@ TreeSurrogate = R6Class('TreeSurrogate',
       super$initialize(f, X)
       self$sample.size = sample.size
     }
-  ), 
+  ),
   private = list(
     plot.generate = function(){
       plot(private$results)
     }
   )
 )
-
-
-
-
-
-
-
-
-

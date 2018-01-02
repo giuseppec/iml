@@ -39,6 +39,12 @@ PermImp = R6Class('PermImp',
     generate.plot = function(){
       ggplot(private$results) + geom_bar(aes(x = feature, y = performance), stat='identity')
     }
+  ), 
+  active = list(
+    feature = function(feature.index){
+      self$feature.index = feature.index
+      private$flush()
+    }
   )
 )
 
