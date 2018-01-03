@@ -26,8 +26,6 @@ TreeSurrogate = R6Class('TreeSurrogate',
     }
   ),
   private = list(
-    plot.generate = function(){
-      plot(private$results)
-    }
+
   )
 )
