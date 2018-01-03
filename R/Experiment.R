@@ -47,14 +47,23 @@ Experiment = R6Class("Experiment",
     }
   ),
   private = list(
+    # The aggregated results of the experiment
     results = NULL,
+    # Flag if the experiment is finished
     finished = FALSE,
+    # The quantity of interest from black box model prediction
     Q.results = NULL,
+    # The data need for plotting of results
     plot.data = NULL,
+    # Function to generate the plot
     generate.plot = function(){NULL},
+    # Feature names of X
     feature.names = NULL,
+    # The sampling object for sampling from X
     sampler = NULL,
+    # The data.frame with samples from X
     sample.x = NULL, 
+    # Removes experiment results as preparation for running experiment again
     flush = function(){
       self$X.sample = NULL
       self$X.design = NULL
