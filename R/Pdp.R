@@ -36,7 +36,7 @@ PDP = R6Class('PDP',
       super$initialize(f, X)
       self$sample.size = sample.size
       self$feature.index = feature
-      self$feature.type = get.feature.type(self$X[[self$feature.index]])
+      self$feature.type = get.feature.type(class(self$X[[self$feature.index]]))
       private$grid.size.numerical = grid.size
       private$set.grid.size()
     }
@@ -57,7 +57,7 @@ PDP = R6Class('PDP',
     feature = function(feature){
       private$flush()
       self$feature.index = feature
-      self$feature.type = get.feature.type(self$X[[self$feature.index]])
+      self$feature.type = private$sampler$feature.types[self$feature.index]
       private$set.grid.size()
     }
   )
