@@ -39,7 +39,7 @@ Sobol = R6Class('Sobol',
     print = function(){
       print(self$data())
     },
-    initialize = function(f, X, sample.size = 100, type = 'first'){
+    initialize = function(f, X, sample.size, type){
       super$initialize(f, X)
       self$sample.size = sample.size
       self$type = type
