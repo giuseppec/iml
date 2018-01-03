@@ -21,8 +21,10 @@ LIME = R6Class('LIME',
       predict(self$model, newdata=X)
     },
     aggregate = function(){
-      best.param = cv.glmnet(x = as.matrix(self$X.design), y = private$Q.results, w=self$weight.samples())
-      mod.best = glmnet(x = as.matrix(self$X.design), y = private$Q.results, w=self$weight.samples(), lambda = best.param$lambda.1se)
+      mmat = model.matrix(private$Q.results ~ ., data = self$X.design)
+      best.param = cv.glmnet(x = mmat, y = private$Q.results, w=self$weight.samples())
+      mod.best = glmnet(x = mmat, y = private$Q.results, w=self$weight.samples(), 
+        lambda = best.param$lambda.1se)
       self$model = mod.best
       mod.best
     },
