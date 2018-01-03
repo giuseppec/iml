@@ -5,12 +5,11 @@ lime = function(f, X, sample.size=100, k = 3, x.interest = NULL){
 
 
 # TODO: Implement for classification
-# TODO: Implement selection of k features
 # TODO: Implement generate.plot function
-# TODO: Implement full LIME
 # TODO: Allow categorical feature (sampler has to be changed also)
-# Differences to original LIME: Sample directly from data, not from weird normal distribution per feature
-# 
+# Differences to original LIME: 
+# - Sample directly from data, not from weird normal distribution per feature
+# - Best k features are chosen by Lasso path
 LIME = R6Class('LIME', 
   inherit = Experiment,
   public = list(

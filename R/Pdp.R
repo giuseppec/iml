@@ -6,7 +6,6 @@ pdp  = function(f, X, feature, grid.size=10, sample.size=100){
 }
 
 
-# TODO: Allow categorical features
 # TODO: Allow multiclass
 PDP = R6Class('PDP', 
   inherit = Experiment,
