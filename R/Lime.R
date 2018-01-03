@@ -20,23 +20,21 @@ LIME = R6Class('LIME',
     predict = function(X=self$X){
       predict(self$model, newdata=X)
     },
+    get.Q = function(){
+      private$Q.results
+    },
     aggregate = function(){
       mmat = model.matrix(private$Q.results ~ ., data = self$X.design)
-      best.param = cv.glmnet(x = mmat, y = private$Q.results, w=self$weight.samples())
-      mod.best = glmnet(x = mmat, y = private$Q.results, w=self$weight.samples(), 
-        lambda = best.param$lambda.1se)
-      self$model = mod.best
-      mod.best
+      res = glmnet(x = mmat, y = private$Q.results, w = self$weight.samples())
+      best.index = max(which(res$df == self$k))
+      res$beta[, best.index]
     },
     intervene = function(){
       return(self$X.sample)
     }, 
-    summary = function(){
-      coef(private$results)
-    },
     print = function(){
       self$run()
-      print(self$summary())
+      print(private$results)
     },
     weight.samples = function(){
       require('gower')
