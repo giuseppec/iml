@@ -28,6 +28,7 @@ f = function(X){
 
 data('Boston', package  = 'MASS')
 Boston$chas = factor(Boston$chas, levels = c(0,1), labels = c('a', 'b'))
+Boston$rad = factor(Boston$rad)
 X = Boston[-which(names(Boston) == 'medv')]
 y = Boston$medv
 
@@ -45,14 +46,18 @@ f = function(X){
 }
 
 
-plot(Titanic)
 ## PDP
-pdp(f = f, X=X, feature = 4)  
+pdp(f = f, X=X, feature = c(9, 2))  
+pdp(f = f, X=X, feature = c(9, 4))  
 
 
-pdp1 = pdp(f = f, X=X, feature = 4)  
-pdp1$plot() + scale_y_continuous(limits = c(0, NA))
 
+pdp1 = pdp(f = f, X=X, feature = c(9,4), grid.size  = 10)  
+plot(pdp1) 
+pdp1$grid.size
+
+pdp1$plot()
+plot(pdp1)
 
 pdp1$feature = 5
 pdp1$plot() 

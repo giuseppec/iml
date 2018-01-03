@@ -32,7 +32,7 @@ Experiment = R6Class("Experiment",
         # EXECUTE experiment
         private$Q.results = self$Q(self$f(self$X.design))
         w = self$weight.samples()
-        # AGGREGATE measurments
+        # AGGREGATE measurements
         private$results = self$aggregate()
         private$finished = TRUE
       }
