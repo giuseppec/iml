@@ -9,9 +9,6 @@ Sobol = R6Class('Sobol',
   inherit = Experiment,
   public = list(
     type = NULL, 
-    sampler = function(){
-      list(X1 = super$sampler(), X2 = super$sampler())
-    },
     intervene = function(){
       n.features = ncol(self$X)
       feature.names = colnames(self$X)
@@ -46,6 +43,9 @@ Sobol = R6Class('Sobol',
       super$initialize(f, X)
       self$sample.size = sample.size
       self$type = type
+      private$sample.x = function(size){
+        list(X1 = private$sampler$sample(size), X2 = private$sampler$sample(size))
+      }
     }
   )
 )

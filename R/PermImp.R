@@ -12,9 +12,6 @@ PermImp = R6Class('PermImp',
   public = list(
     y = NULL,
     feature.index = NULL,
-    sampler = function(){
-      self$X
-    },
     intervene = function(){
       X.inter = self$X.sample
       X.inter[self$feature.index] = X.inter[sample(1:nrow(self$X.sample)), self$feature.index]
@@ -33,6 +30,7 @@ PermImp = R6Class('PermImp',
       super$initialize(f, X)
       self$y = y
       self$feature.index = feature.index
+      private$sample.x = private$sampler$get.x
     }
   ),
   private = list(

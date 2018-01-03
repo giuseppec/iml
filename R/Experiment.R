@@ -3,10 +3,6 @@ Experiment = R6Class("Experiment",
   public = list(
     X = NULL,
     sample.size = 100,
-    sampler = function(){
-      replace = self$sample.size > nrow(self$X)
-      self$X[sample(1:nrow(self$X), size = self$sample.size, replace = replace), ]
-    },
     X.sample = NULL,
     intervene = function(){self$X.sample},
     X.design = NULL,
@@ -24,12 +20,14 @@ Experiment = R6Class("Experiment",
       self$f = f
       self$X = X
       private$feature.names = colnames(X)
+      private$sampler = DataSampler$new(X)
+      private$sample.x = private$sampler$sample
     },
     run = function(force = FALSE, ...){
       if(force) private$flush()
       if(!private$finished){
         # DESIGN experiment
-        self$X.sample = self$sampler()
+        self$X.sample = private$sample.x(self$sample.size)
         self$X.design = self$intervene()
         # EXECUTE experiment
         private$Q.results = self$Q(self$f(self$X.design))
@@ -55,6 +53,8 @@ Experiment = R6Class("Experiment",
     plot.data = NULL,
     generate.plot = function(){NULL},
     feature.names = NULL,
+    sampler = NULL,
+    sample.x = NULL, 
     flush = function(){
       self$X.sample = NULL
       self$X.design = NULL

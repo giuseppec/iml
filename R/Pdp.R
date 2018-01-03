@@ -21,9 +21,6 @@ PDP = R6Class('PDP',
         group_by_at(self$feature.index) %>% 
         summarise(y.hat = mean(y.hat))
     },
-    sampler = function(){
-      self$X[sample(1:nrow(self$X), size = self$sample.size, replace = TRUE), ]
-    },
     intervene = function(){
       X.design = data.frame(data.table::rbindlist(lapply(1:self$grid.size, function(x){self$X.sample})))
       if(self$feature.type == 'numerical'){

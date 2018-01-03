@@ -9,6 +9,8 @@ lime = function(f, X, sample.size=100, k = 3, x.interest = NULL){
 # TODO: Implement generate.plot function
 # TODO: Implement full LIME
 # TODO: Allow categorical feature (sampler has to be changed also)
+# Differences to original LIME: Sample directly from data, not from weird normal distribution per feature
+# 
 LIME = R6Class('LIME', 
   inherit = Experiment,
   public = list(
@@ -24,14 +26,6 @@ LIME = R6Class('LIME',
       self$model = mod.best
       mod.best
     },
-    sampler = function(){
-      features.mean = colMeans(self$X)
-      features.sd = apply(self$X, 2, sd)
-      n.features = length(features.mean)
-      random.features = matrix(rnorm(n =  self$sample.size * n.features), ncol = n.features)
-      new.samples = data.frame(t(apply(random.features, 1, function(x) {x * features.sd + features.mean})))
-      new.samples
-    },
     intervene = function(){
       return(self$X.sample)
     }, 
@@ -43,9 +37,8 @@ LIME = R6Class('LIME',
       print(self$summary())
     },
     weight.samples = function(){
-      apply(self$X.design, 1, function(x){
-        1/sqrt(sum((x - self$x.interest)^2))
-      })
+      require('gower')
+      gower_dist(self$X.design, self$x.interest)
     },
     initialize = function(f, X, sample.size, k, x.interest){
       if(!require('glmnet')){stop('Please install glmnet')}
