@@ -19,12 +19,20 @@ lrn = makeLearner("classif.randomForest", predict.type = 'prob')
 ## Train the learner
 mod = train(lrn, task)
 
-f = function(X){
+f.res = function(X){
   res = predict(mod, newdata = X)
-  getPredictionProbabilities(res)[,3]
+  getPredictionProbabilities(res)
 }
 
+f = function(X){
+  f.res(X)[,3]
+}
 
+x = prediction.model(mod, class = 3)
+
+p =  x$predict(X[10:20,])
+p
+x
 
 data('Boston', package  = 'MASS')
 Boston$chas = factor(Boston$chas, levels = c(0,1), labels = c('a', 'b'))
@@ -46,7 +54,12 @@ f = function(X){
 }
 
 
+
+
+
 ## PDP
+pdp(f = x$predict, X=X, feature = c(1, 2))  
+
 pdp(f = f, X=X, feature = c(9, 2))  
 pdp(f = f, X=X, feature = c(9, 4))  
 
