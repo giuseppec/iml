@@ -25,11 +25,18 @@ f.res = function(X){
 }
 
 f = function(X){
-  f.res(X)[,3]
+  f.res(X)[,2]
 }
 
-x = prediction.model(mod, class = 3)
+x = prediction.model(f.res, multi.class = TRUE)
+p =  x$predict(X[10:20,])
+p
 
+x = prediction.model(f.res, class = 1)
+p =  x$predict(X[10:20,])
+p
+
+x = prediction.model(mod, class = 1)
 p =  x$predict(X[10:20,])
 p
 x
