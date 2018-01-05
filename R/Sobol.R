@@ -1,5 +1,5 @@
-sobol = function(f, X, sample.size = 100, type = 'first'){
-  Sobol$new(f=f, X=X, sample.size = sample.size, type = type)
+sobol = function(object, X, sample.size = 100, type = 'first', class = NULL, multi.class = FALSE){
+  Sobol$new(object = object, X=X, sample.size = sample.size, type = type, class = class, multi.class = multi.class)
 }
 
 
@@ -39,8 +39,9 @@ Sobol = R6Class('Sobol',
     print = function(){
       print(self$data())
     },
-    initialize = function(f, X, sample.size, type){
-      super$initialize(f, X)
+    initialize = function(object, X, sample.size, type, class, multi.class){
+      if(multi.class) stop('multi.class not supported yet for sobol')
+      super$initialize(object, X, class, multi.class)
       self$sample.size = sample.size
       self$type = type
       private$sample.x = function(size){

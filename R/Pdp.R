@@ -1,8 +1,10 @@
 
 
 
-pdp  = function(f, X, feature, grid.size = 10, sample.size=100){
-  PDP$new(f=f, X=X, feature = feature, grid.size = grid.size, sample.size = sample.size)
+pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL, multi.class=FALSE){
+  PDP$new(object = object, X = X, feature = feature, grid.size = grid.size, 
+    sample.size = sample.size, 
+    class = class, multi.class = multi.class)
 }
 
 
@@ -18,6 +20,8 @@ PDP = R6Class('PDP',
     feature.type= NULL,
     aggregate = function(){
       results = self$X.design
+      # extend here for multi.class by checking dim of Q.results. 
+      # if multi.class, melt cbind(results, Q.results) and add class column
       results['y.hat']= private$Q.results
       if(self$n.features == 1){
         results = results %>% 
@@ -43,19 +47,23 @@ PDP = R6Class('PDP',
       }
       X.design
     }, 
-    initialize = function(f, X, feature, grid.size, sample.size){
+    initialize = function(object, X, feature, grid.size, sample.size, class, multi.class){
       assert_numeric(feature, lower=1, upper=ncol(X), min.len=1, max.len=2)
-      assert_false(length(feature == 2) & (feature[1] == feature[2]))
-      super$initialize(f, X)
+      if(length(feature)==2) assert_false(feature[1] == feature[2])
+      if(multi.class) stop('partial dependence plot does not support multi class yet')
+      
+      super$initialize(object, X, class=class, multi.class = multi.class)
       self$sample.size = sample.size
       self$feature.index = feature
       self$n.features = length(feature)
       self$feature.type = private$sampler$feature.types[self$feature.index]
       self$feature.names = names(X)[feature]
       private$set.grid.size(grid.size)
+      private$grid.size.original = grid.size
     }
   ), 
   private = list(
+    grid.size.original = NULL,
     generate.plot = function(){
       if(self$n.features == 1){
         p = ggplot(private$results, 
@@ -77,6 +85,7 @@ PDP = R6Class('PDP',
               group = categorical.feature, color = categorical.feature))
         }
       }
+      ## Add facetting here if there  is a "facet.class" column in output
     }, 
     set.grid.size = function(size){
       self$grid.size = numeric(length=self$n.features)
@@ -103,7 +112,7 @@ PDP = R6Class('PDP',
       private$flush()
       self$feature.index = feature
       self$feature.type = private$sampler$feature.types[self$feature.index]
-      private$set.grid.size()
+      private$set.grid.size(private$grid.size.original)
     }
   )
 )

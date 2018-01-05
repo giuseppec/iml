@@ -6,7 +6,7 @@ Experiment = R6Class("Experiment",
     X.sample = NULL,
     intervene = function(){self$X.sample},
     X.design = NULL,
-    f = NULL, 
+    predictor = NULL, 
     Q = function(x){x},
     weight.samples = function(){1},
     aggregate = function(){cbind(self$X.design, private$Q.results)},
@@ -15,9 +15,9 @@ Experiment = R6Class("Experiment",
       private$plot.data = private$generate.plot()
       if(!is.null(private$plot.data)) {return(private$plot.data)} else {warning('no plot data generated')}
     },
-    initialize = function(f, X){
+    initialize = function(object, X, class, multi.class){
       assertDataFrame(X, all.missing = FALSE)
-      self$f = f
+      self$predictor = Prediction$new(object, class,multi.class)
       self$X = X
       private$feature.names = colnames(X)
       private$sampler = DataSampler$new(X)
@@ -30,7 +30,7 @@ Experiment = R6Class("Experiment",
         self$X.sample = private$sample.x(self$sample.size)
         self$X.design = self$intervene()
         # EXECUTE experiment
-        private$Q.results = self$Q(self$f(self$X.design))
+        private$Q.results = self$Q(self$predictor$predict(self$X.design))
         w = self$weight.samples()
         # AGGREGATE measurements
         private$results = self$aggregate()

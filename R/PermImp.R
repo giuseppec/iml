@@ -1,7 +1,7 @@
 
 
-perm.imp = function(f, X, y, feature.index){
-  PermImp$new(f=f, X=X, y=y, feature.index=feature.index)
+perm.imp = function(object, X, y, feature.index, class=NULL, multi.class=FALSE){
+  PermImp$new(object = object, X=X, y=y, feature.index=feature.index, class = class, multi.class = FALSE)
 }
 
 ## TODO: Extend to multiple features. Either within this class or as a new class. 
@@ -27,8 +27,10 @@ PermImp = R6Class('PermImp',
         performance(private$Q.results[(length(private$Q.results)/2 + 1):length(private$Q.results)], self$y)
       data.frame(performance = pp, feature = private$feature.names[self$feature.index])
     },
-    initialize = function(f, X, y, feature.index){
-      super$initialize(f, X)
+    initialize = function(object, X, y, feature.index, class, multi.class){
+      ## TODO: Add check that nrow(X) the same as length(y) or nrow(y)
+      if(multi.class) stop("multi.class not supported yet for permutation feature importance")
+      super$initialize(object, X, class, multi.class)
       self$y = y
       self$feature.index = feature.index
       private$sample.x = private$sampler$get.x

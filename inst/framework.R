@@ -1,5 +1,3 @@
-# framework-shapley
-
 library('mlr')
 library('dplyr')
 library('ggplot2')
@@ -25,7 +23,7 @@ f.res = function(X){
 }
 
 f = function(X){
-  f.res(X)[,2]
+  f.res(X)[,1]
 }
 
 x = prediction.model(f.res, multi.class = TRUE)
@@ -65,10 +63,10 @@ f = function(X){
 
 
 ## PDP
-pdp(f = x$predict, X=X, feature = c(1, 2))  
+pdp(object = mod, X=X, feature = c(1, 2))  
 
-pdp(f = f, X=X, feature = c(9, 2))  
-pdp(f = f, X=X, feature = c(9, 4))  
+pdp(mod, X=X, feature = c(9, 2))  
+pdp(mod, X=X, feature = c(9, 4))  
 
 
 
@@ -84,10 +82,11 @@ pdp1$plot()
 
 ## ICE
 
-ice(f = f, X=X, feature = 4)
+ice(object = mod, X=X, feature = 4)
 
-ice1 = ice(f = f, X=X, feature = 4)
+ice1 = ice(mod, X=X, feature = 1)
 ice1$plot()
+
 ice1$data()
 ice1$feature = 1
 ice1$plot()
@@ -97,7 +96,7 @@ ice.c(f = f, X=X, feature = 1, anchor = 0)
 
 
 
-ice1.c = ice.c(f = f, X=X, feature = 1, anchor = 10)
+ice1.c = ice(mod, X=X, feature = 1, center.at = 10)
 ice1.c$plot()
 ice1.c$data()
 ice1.c$feature = 2
@@ -112,20 +111,19 @@ ice1.c$plot()
 i = 120
 x.interest = X[i,]
 
-lime(f, X,  1000, x.interest=x.interest)
+lime(mod, X,  1000, x.interest=x.interest)
 
 lime1 = lime(f, X,  1000)
 lime1$x <- x.interest
 lime1$data()
-lime1$run()$summary()
 
 lime1$x <- X[i+1,]
-lime1$run()$print()
+lime1$run(rerun = TRUE)$print()
 
 
 ## Shapley
-shapley(f, X, x.interest, 100)
-shapley1 = shapley(f, X, x.interest, 100)
+shapley(mod, X, x.interest, 100)
+shapley1 = shapley(f, X, x.interest, 100, class=2)
 
 shapley1
 
@@ -133,10 +131,10 @@ shapley1$x = X[i+2,]
 shapley1
 
 ## Permutation feature importance
-perm.imp(f, X, feature.index = 4, y=(y=='virginica'))
-perm.imp(f, X, feature.index = 4, y=y)
+perm.imp(mod, X, feature.index = 4, y=(y=='virginica'))
+perm.imp(f, X, feature.index = 4,  y=(y=='virginica'))
 
-permimp = perm.imp(f, X, feature.index = 4, y=y)
+permimp = perm.imp(mod, X, feature.index = 4,  y=(y=='virginica'))
 #permimp = perm.imp(f, X, feature.index = 4, y=(y=='virginica'))
 
 permimp$plot()
@@ -144,7 +142,11 @@ permimp$data()
 permimp$run(force=TRUE)$data()
 
 ## Sobol (first order)
+set.seed(1)
 sobol(f, X, sample.size = 10000)
+set.seed(1)
+sobol(mod, X, sample.size = 10000)
+
 sobol1 = sobol(f, X, sample.size = 10000)
 sobol1$data()
 sensitivity::soboljansen(f, X1 = sobol1$X.sample$X1, X2=sobol1$X.sample$X2)

@@ -1,8 +1,20 @@
 
 
-ice = function(f, X, feature, grid.size=10, sample.size=100){
-  ICE$new(f = f, X=X, feature = feature, grid.size = grid.size, sample.size = sample.size)
+#' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
+ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE){
+  if(is.null(center.at)){
+    ICE$new(object = object, X = X, feature = feature, grid.size = grid.size, sample.size = sample.size, 
+      class = class, multi.class = multi.class)
+  } else {
+    ICE.centered$new(object = object, X = X, anchor = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size, 
+      class = class, multi.class = multi.class)
+  }
 }
+
+## TODO: Include centering option in ice function (if else deciding between both classes). rename anchor to center.at
+ice.c = function(object, X, feature, anchor = 0, grid.size=10, sample.size=100){
+}
+
 
 ICE = R6Class('ICE',
   inherit = PDP,
@@ -13,7 +25,12 @@ ICE = R6Class('ICE',
       X.results$y.hat = private$Q.results
       X.results$group = X.id
       X.results
-    }),
+    }, 
+    initialize = function(feature, ...){
+      assert_count(feature)
+      super$initialize(feature=feature, ...)
+    }
+  ),
   private = list(
     generate.plot = function(){
       p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = 'y.hat', group = 'group'))
@@ -23,10 +40,7 @@ ICE = R6Class('ICE',
   )
 )
 
-#' @param anchor The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
-ice.c = function(f, X, feature, anchor = 0, grid.size=10, sample.size=100){
-  ICE.centered$new(f = f, X=X, anchor = anchor, feature = feature, grid.size = grid.size, sample.size = sample.size)
-}
+
 
 ICE.centered = R6Class('ICE.centered',
   inherit = ICE,

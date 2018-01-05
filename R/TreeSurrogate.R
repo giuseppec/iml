@@ -1,6 +1,6 @@
 
-tree.surrogate = function(f, X, sample.size=100){
-  TreeSurrogate$new(f=f, X=X, sample.size=sample.size)
+tree.surrogate = function(object, X, sample.size=100, class = NULL, multi.class = FALSE){
+  TreeSurrogate$new(object = object, X=X, sample.size=sample.size, class = class, multi.class = multi.class)
 }
 
 ## Craven, M. W., & Shavlik, J. W. (1996).
@@ -8,6 +8,7 @@ tree.surrogate = function(f, X, sample.size=100){
 ## Advances in Neural Information Processing Systems, 8, 24–30.
 ## Retrieved from citeseer.ist.psu.edu/craven96extracting.html
 # TODO: Implement/search plot funciton with ggplot or overwrite Experiment$plot()
+# TODO: Implement multi.class 
 TreeSurrogate = R6Class('TreeSurrogate',
   inherit = Experiment,
   public = list(
@@ -20,8 +21,9 @@ TreeSurrogate = R6Class('TreeSurrogate',
       self$run()
       plot(private$results)
     },
-    initialize = function(f, X, sample.size){
-      super$initialize(f, X)
+    initialize = function(object, X, sample.size, class, multi.class){
+      if(multi.class){ stop('multi.class not yet supported for surrogate models')}
+      super$initialize(object, X, class, multi.class)
       self$sample.size = sample.size
     }
   ),
