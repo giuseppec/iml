@@ -1,7 +1,7 @@
 
 
 perm.imp = function(object, X, y, feature.index, class=NULL, multi.class=FALSE){
-  PermImp$new(object = object, X=X, y=y, feature.index=feature.index, class = class, multi.class = FALSE)
+  PermImp$new(object = object, X=X, y=y, feature.index=feature.index, class = class, multi.class = FALSE)$run()
 }
 
 ## TODO: Extend to multiple features. Either within this class or as a new class. 

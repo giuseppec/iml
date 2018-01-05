@@ -1,6 +1,6 @@
 
 shapley = function(object, X, x.interest, sample.size=100, class=NULL, multi.class = FALSE){
-  Shapley$new(object=object, X=X, x.interest=x.interest, sample.size=sample.size, class = class, multi.class = multi.class)
+  Shapley$new(object=object, X=X, x.interest=x.interest, sample.size=sample.size, class = class, multi.class = multi.class)$run()
 }
 
 ## TODO: instead having an outer loop over features,
@@ -9,7 +9,7 @@ shapley = function(object, X, x.interest, sample.size=100, class=NULL, multi.cla
 ##       the difference of coalition of features with and without feature j.
 ##       see Song, E., & Nelson, B. L. (2016). Shapley Effects for Global Sensitivity Analysis : Theory and Computation ∗, 4, 1060–1083.
 ## TODO: Get some inspiration form the sensitivity package.
-## TODO: Implement multi.class case
+## TODO: Implement multi.class
 Shapley = R6Class('Shapley', 
   inherit = Experiment,
   public = list(

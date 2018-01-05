@@ -12,3 +12,9 @@ get.feature.type = function(feature.class){
   stopifnot(all(feature.class %in% names(feature.types)))
   feature.types[feature.class]
 }
+
+
+
+summary.Experiment = function(obj, ...){
+  obj$summary()
+}

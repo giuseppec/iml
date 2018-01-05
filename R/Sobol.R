@@ -1,5 +1,5 @@
 sobol = function(object, X, sample.size = 100, type = 'first', class = NULL, multi.class = FALSE){
-  Sobol$new(object = object, X=X, sample.size = sample.size, type = type, class = class, multi.class = multi.class)
+  Sobol$new(object = object, X=X, sample.size = sample.size, type = type, class = class, multi.class = multi.class)$run()
 }
 
 

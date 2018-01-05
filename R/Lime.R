@@ -1,6 +1,6 @@
-lime = function(object, X, sample.size=100, k = 3, x.interest = NULL, class=NULL, multi.class=FALSE){
+lime = function(object, X, sample.size=100, k = 3, x.interest, class=NULL, multi.class=FALSE){
   LIME$new(object = object, X=X, sample.size=sample.size, k = k, x.interest = x.interest, 
-    class = class, multi.class = multi.class)
+    class = class, multi.class = multi.class)$run()
 }
 
 
