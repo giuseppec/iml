@@ -74,4 +74,78 @@ Experiment = R6Class("Experiment",
 
 
 # TODO: Implement repeated experiment class
-RepeatedExperiment = R6Class()
+# TODO: Implement option run=TRUE in Experiment
+RepeatedExperiment = R6Class('RepeatedExperiment', 
+  public = list(
+    experiments = NULL,
+    initialize = function(experiments){
+      self$experiments = experiments
+    }, 
+    run = function(){
+      self$experiments = lapply(self$experiments, function(experiment){
+        experiment$run()
+      })
+    },
+    flush = function(){
+       lapply(self$experiments, function(experiment){
+        experiment$flush()
+      })
+    }
+  ), 
+  private = list()
+)
+
+
+PermImps = R6Class('PermImps', 
+  inherit = RepeatedExperiment,
+  public = list(
+    initialize = function(predictor, sampler, y){
+      experiments = lapply(1:sampler$n.features, function(feature.index){
+        x = PermImp$new(predictor = predictor, sampler = sampler, y = y, feature.index = feature.index)
+        x
+      })
+      super$initialize(experiments)
+    }, 
+    data = function(){
+      dfs = lapply(self$experiments, function(experiment){
+        experiment$data()
+      })
+      data.table::rbindlist(dfs)
+    }
+  )
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@
 perm.imp = function(object, X, y, feature.index, class=NULL, multi.class=FALSE, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, multi.class = multi.class, ...)
-
+  
   PermImp$new(predictor = pred, sampler = samp, y=y, feature.index=feature.index)$run()
 }
 
