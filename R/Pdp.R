@@ -1,10 +1,10 @@
 
 
 
-pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL, multi.class=FALSE){
+pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL, multi.class=FALSE, ...){
   PDP$new(object = object, X = X, feature = feature, grid.size = grid.size, 
     sample.size = sample.size, 
-    class = class, multi.class = multi.class)$run()
+    class = class, multi.class = multi.class, ...)$run()
 }
 
 
@@ -47,11 +47,11 @@ PDP = R6Class('PDP',
       }
       X.design
     }, 
-    initialize = function(object, X, feature, grid.size, sample.size, class, multi.class){
+    initialize = function(object, X, feature, grid.size, sample.size, class, multi.class, ...){
       assert_numeric(feature, lower=1, upper=ncol(X), min.len=1, max.len=2)
       if(length(feature)==2) assert_false(feature[1] == feature[2])
       if(multi.class) stop('partial dependence plot does not support multi class yet')
-      super$initialize(object, X, class=class, multi.class = multi.class)
+      super$initialize(object, X, class=class, multi.class = multi.class, ...)
       self$sample.size = sample.size
       private$set.feature(feature)
       private$set.grid.size(grid.size)

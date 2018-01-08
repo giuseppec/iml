@@ -1,6 +1,6 @@
 
-shapley = function(object, X, x.interest, sample.size=100, class=NULL, multi.class = FALSE){
-  Shapley$new(object=object, X=X, x.interest=x.interest, sample.size=sample.size, class = class, multi.class = multi.class)$run()
+shapley = function(object, X, x.interest, sample.size=100, class=NULL, multi.class = FALSE, ...){
+  Shapley$new(object=object, X=X, x.interest=x.interest, sample.size=sample.size, class = class, multi.class = multi.class, ...)$run()
 }
 
 ## TODO: instead having an outer loop over features,
@@ -54,9 +54,9 @@ Shapley = R6Class('Shapley',
       self$run()
       print(self$data())
     },
-    initialize = function(object, X, x.interest, sample.size, class, multi.class){
+    initialize = function(object, X, x.interest, sample.size, class, multi.class, ...){
       if(multi.class) stop('multi.class not supported yet')
-      super$initialize(object, X, class, multi.class)
+      super$initialize(object, X, class, multi.class, ...)
       self$sample.size = sample.size
       self$x.interest = x.interest
     }

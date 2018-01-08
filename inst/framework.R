@@ -15,15 +15,14 @@ task = makeClassifTask(data = iris, target = "Species")
 lrn = makeLearner("classif.randomForest", predict.type = 'prob')
 
 ## Train the learner
-mod = train(lrn, task)
+#mod = train(lrn, task)
 mod = randomForest::randomForest(Species ~ ., data= iris)
 
-mod <- caret::train(Species ~ ., data = iris, method = "knn",
-  trControl = trainControl(method = "cv"))
+#mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = trainControl(method = "cv"))
 
 
 ## PDP
-pdp.obj = pdp(object = mod, X=X, feature = c(1, 2), class = 1)  
+pdp.obj = pdp(object = mod, X=X, feature = c(1, 2), predict.args = list(type='prob'))  
 
 plot(pdp.obj)
 plot(pdp.obj) + scale_fill_continuous(low='white', high='red')
@@ -36,12 +35,11 @@ pdp.obj$feature = 1
 pdp.obj$plot()
 
 
-pdp(mod, X, feature = 1, class = 2)$plot()
+pdp(mod, X, feature = 1, class = 1)$plot()
 
 ## ICE
-ice(object = mod, X=X, feature = 4)
-
-ice1 = ice(mod, X=X, feature = 1)
+ice(object = mod, X=X, feature = 1, predict.args = list(type='prob'), class=1)  
+ice1 = ice(mod, X=X, feature = 1, predict.args = list(type='prob'), class=NULL)  
 plot(ice1)
 
 ice1$data()

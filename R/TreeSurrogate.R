@@ -1,6 +1,6 @@
 
-tree.surrogate = function(object, X, sample.size=100, class = NULL, multi.class = FALSE){
-  TreeSurrogate$new(object = object, X=X, sample.size=sample.size, class = class, multi.class = multi.class)$run()
+tree.surrogate = function(object, X, sample.size=100, class = NULL, multi.class = FALSE, ...){
+  TreeSurrogate$new(object = object, X=X, sample.size=sample.size, class = class, multi.class = multi.class, ...)$run()
 }
 
 ## Craven, M. W., & Shavlik, J. W. (1996).
@@ -25,9 +25,9 @@ TreeSurrogate = R6Class('TreeSurrogate',
       self$run()
       summary(private$results)
     },
-    initialize = function(object, X, sample.size, class, multi.class){
+    initialize = function(object, X, sample.size, class, multi.class, ...){
       if(multi.class){ stop('multi.class not yet supported for surrogate models')}
-      super$initialize(object, X, class, multi.class)
+      super$initialize(object, X, class, multi.class, ...)
       self$sample.size = sample.size
     }
   )

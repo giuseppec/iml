@@ -2,21 +2,7 @@
 
 
 ## TODO
-# - Allow caret
-# - Allow anything with predict function
-# - Implement predict
 # - Think about subclasses for mlr/caret/predict/function
-
-# returns TRUE if object has predict function
-has.predict = function(object){
-  classes = class(object)
-  any(unlist(lapply(classes, function(x){
-    'predict' %in% attr(methods(class = x), 'info')$generic
-  })))
-}
-
-
-#test = randomForest(Species ~ ., data = iris)
 
 
 #' Get a prediction object
@@ -28,26 +14,34 @@ has.predict = function(object){
 #' @param class In case of classification, class specifies the class for which to predict the probability. 
 #' By default the first class in the prediction (first column) is chosen. 
 #' @return object of type Prediction
-prediction.model = function(object, class = NULL, multi.class=FALSE){
+prediction.model = function(object, class = NULL, multi.class=FALSE, predict.args = NULL){
   assert_logical(multi.class, len=1)
   assert_vector(class, len=1, null.ok=TRUE)
   
   # Ignore the multi.class flag if class parameter is set
   if(!is.null(class)) multi.class = FALSE
   
-  Prediction$new(object, class = class, multi.class=multi.class)
+  
+  if(inherits(object, "function")) {
+    Prediction.f$new(object = object, class = class, multi.class = multi.class)
+  } else if(inherits(object, "WrappedModel")){
+    Prediction.mlr$new(object = object, class = class, multi.class = multi.class)
+  } else if(inherits(object, 'train')){
+    Prediction.caret$new(object = object, class = class, multi.class = multi.class)
+  } else if(has.predict(object)) {
+    Prediction.S3$new(object = object, class = class, multi.class = multi.class, predict.args = predict.args)
+  } else {
+    stop(sprintf('Object of type [%s] not supported', paste(class(object), collapse = ", ")))
+  }
 }
-
-
 # For caret: extractPrediction
 # For caret: extractProb
 Prediction = R6Class("Prediction", 
   public = list(
     predict = function(newdata){
       newdata = data.frame(newdata)
-      if(self$multi.class){
-        pred = private$predict.function(newdata)
-      } else {
+      pred = private$predict.function(newdata)
+      if(!self$multi.class){
         pred = private$predict.function(newdata)
         if(self$type == 'classification'){
           pred = pred[,self$class]
@@ -60,91 +54,137 @@ Prediction = R6Class("Prediction",
     class.name = NULL, 
     type = NULL,
     initialize = function(object, class=NULL, multi.class=FALSE){
+      # if object has predict function, but not from caret or mlr, then 
+      # it is difficult to know if it's classification or regression model
+      # if class or multi.class was set, then at least we can make a guess
+      if(!is.null(class) | multi.class) self$type = 'classification'
       self$class = ifelse(is.null(class), 1, class)
       self$multi.class = multi.class
       private$object = object
-      print(class(private$object))
-      if(inherits(private$object, "function")) {
-        private$predict.function = private$predict.f
-      } else if(inherits(object, "WrappedModel")){
-        private$infer.type.mlr()
-        private$predict.function = private$predict.mlr
-      } else if(inherits(private$object, 'train')){
-        private$infer.type.caret()
-        private$predict.function = private$predict.caret
-      } else if(has.predict(object)) {
-        private$predict.function = private$predict.S3
+      private$infer.type()
+    }
+  ), 
+  private = list(
+    object = NULL
+  )
+)
+
+# For caret: extractPrediction
+# For caret: extractProb
+Prediction.mlr = R6Class("Prediction.mlr", 
+  inherit = Prediction,
+  public = list(), 
+  private = list(
+    # Automatically set task type and class name according to output
+    infer.type = function(){
+      tsk = mlr::getTaskType(private$object)
+      if(tsk == 'classif'){
+        self$type = 'classification'
+      } else if(tsk == 'regr'){
+        self$type = 'regression'
       } else {
-        stop(sprintf('Object of type [%s] not supported', paste(class(object), collapse = ", ")))
+        stop(sprintf('mlr task type <%s> not supported', tsk))
+      }
+    },
+    predict.function = function(x){
+      pred = predict(private$object, newdata = x)
+      if(self$type == 'classification') {
+        getPredictionProbabilities(pred)
+      } else {
+        getPredictionResponse(pred)
       }
     }
-      ), 
-      private = list(
-        object = NULL, 
-        predict.function = NULL,
-        # Automatically set task type and class name according to output
-        infer.type.caret = function(){
-          mtype = private$object$modelType
-          if(mtype == 'Regression'){
-            self$type = 'regression'
-          } else if (mtype == 'Classification'){
-            self$type = 'classification'
-          } else {
-            stop(sprintf('caret model type %s not supported.', mtype))
-          }
-        },
-        infer.f.type = function(pred){
-          assert_true(any(class(pred) %in% c('integer', 'numeric', 'data.frame', 'matrix')))
-          if(inherits(pred, c('data.frame', 'matrix')) && dim(pred)[2] > 1) {
-            self$type = 'classification' 
-            if(!(is.character(self$class))) self$class.name = colnames(pred)[self$class]
-          } else {
-            self$type = 'regression'
-          }
-        }, 
-        infer.type.mlr = function(){
-          tsk = mlr::getTaskType(private$object)
-          if(tsk == 'classif'){
-            self$type = 'classification'
-          } else if(tsk == 'regr'){
-            self$type = 'regression'
-          } else {
-            stop(sprintf('mlr task type <%s> not supported', tsk))
-          }
-        },
-        predict.caret = function(x){
-          if(self$type == 'classification'){
-            predict(private$object, newdata = x,  type = 'prob')
-          } else if(self$type == 'regression'){
-            predict(private$object, newdata = x)
-          } else {
-            stop(sprintf('private$type of %s not allowed.', private$type))
-          }
-        },
-        predict.S3 = function(x){
-          pred = predict(private$object, newdata = x)
-          if(is.null(self$type)) private$infer.f.type(pred)
-          pred 
-        },
-        predict.f = function(x){
-          pred = private$object(x)
-          if(is.null(self$type)) private$infer.f.type(pred)
-          pred
-        }, 
-        predict.mlr = function(x){
-          pred = predict(private$object, newdata = x)
-          if(self$type == 'classification') {
-            getPredictionProbabilities(pred)
-          } else {
-            getPredictionResponse(pred)
-          }
-        }
-      )
   )
-  
-  # For caret: extractProb
-  MultiOutputPrediction = R6Class('MultiOutputPrediction', 
-    inherit = PredictionModel)
-  
-  
-  
+)
+
+
+
+# For caret: extractPrediction
+# For caret: extractProb
+Prediction.f = R6Class("Prediction.f", 
+  inherit = Prediction,
+  public = list(), 
+  private = list(
+    ## can't infer the type before first prediction
+    infer.type = function(){},
+    infer.f.type = function(pred){
+      assert_true(any(class(pred) %in% c('integer', 'numeric', 'data.frame', 'matrix')))
+      if(inherits(pred, c('data.frame', 'matrix')) && dim(pred)[2] > 1) {
+        self$type = 'classification' 
+        if(!(is.character(self$class))) self$class.name = colnames(pred)[self$class]
+      } else {
+        self$type = 'regression'
+      }
+    }, 
+    predict.function = function(x){
+      pred = private$object(x)
+      if(is.null(self$type)) private$infer.f.type(pred)
+      pred
+    }
+  )
+)
+
+# For caret: extractPrediction
+# For caret: extractProb
+Prediction.caret = R6Class("Prediction.caret", 
+  inherit = Prediction,
+  public = list(), 
+  private = list(
+    infer.type = function(){
+      mtype = private$object$modelType
+      if(mtype == 'Regression'){
+        self$type = 'regression'
+      } else if (mtype == 'Classification'){
+        self$type = 'classification'
+      } else {
+        stop(sprintf('caret model type %s not supported.', mtype))
+      }
+    },
+    predict.function = function(x){
+      if(self$type == 'classification'){
+        predict(private$object, newdata = x,  type = 'prob')
+      } else if(self$type == 'regression'){
+        predict(private$object, newdata = x)
+      } else {
+        stop(sprintf('private$type of %s not allowed.', private$type))
+      }
+    }
+  )
+)
+
+# For caret: extractPrediction
+# For caret: extractProb
+Prediction.S3 = R6Class("Prediction.S3", 
+  inherit = Prediction.f,
+  public = list(
+    initialize = function(predict.args=NULL, ...){
+      super$initialize(...)
+      private$predict.args = predict.args
+    }
+  ), 
+  private = list(
+    predict.args = NULL,
+    infer.type = function(){},
+    predict.function = function(x){
+      predict.args = c(list(object = private$object, newdata = x), private$predict.args)
+      pred = do.call(predict, predict.args)
+      if(private$is.label.output(pred)) stop("Output seems to be class instead of probabilities. Please use the predict.args argument")
+      if(is.null(self$type)) private$infer.f.type(pred)
+      pred 
+    },
+    is.label.output = function(pred){
+      if(inherits(pred, c('character', 'factor'))) return(TRUE)
+      if(inherits(pred, c('data.frame', 'matrix')) && inherits(pred[,1], 'character')){
+        return(TRUE)
+      }
+      FALSE
+    }
+  )
+)
+
+
+# For caret: extractProb
+MultiOutputPrediction = R6Class('MultiOutputPrediction', 
+  inherit = PredictionModel)
+
+

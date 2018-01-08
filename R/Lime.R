@@ -1,6 +1,6 @@
-lime = function(object, X, sample.size=100, k = 3, x.interest, class=NULL, multi.class=FALSE){
+lime = function(object, X, sample.size=100, k = 3, x.interest, class=NULL, multi.class=FALSE, ...){
   LIME$new(object = object, X=X, sample.size=sample.size, k = k, x.interest = x.interest, 
-    class = class, multi.class = multi.class)$run()
+    class = class, multi.class = multi.class, ...)$run()
 }
 
 
@@ -41,10 +41,10 @@ LIME = R6Class('LIME',
       require('gower')
       gower_dist(self$X.design, self$x.interest)
     },
-    initialize = function(object, X, sample.size, k, x.interest, class, multi.class){
+    initialize = function(object, X, sample.size, k, x.interest, class, multi.class, ...){
       if(!require('glmnet')){stop('Please install glmnet')}
       if(multi.class) stop('multi.class not implemented yet')
-      super$initialize(object = object, X = X, class = class, multi.class = multi.class)
+      super$initialize(object = object, X = X, class = class, multi.class = multi.class, ...)
       self$sample.size = sample.size
       self$k = k
       self$x.interest = x.interest

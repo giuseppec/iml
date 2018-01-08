@@ -18,9 +18,9 @@ Experiment = R6Class("Experiment",
     summary = function(){
       summary(self$results)
     },
-    initialize = function(object, X, class, multi.class){
+    initialize = function(object, X, class, multi.class, ...){
       assertDataFrame(X, all.missing = FALSE)
-      self$predictor = Prediction$new(object, class,multi.class)
+      self$predictor = prediction.model(object, class,multi.class, ...)
       self$X = X
       private$feature.names = colnames(X)
       private$sampler = DataSampler$new(X)

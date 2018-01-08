@@ -4,13 +4,13 @@
 ## TODO: combine ICE and ICE.centered, so that active binding can be used for both. 
 ##       anchoring will then wrapped in if-clause
 #' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
-ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE){
+ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE, ...){
   if(is.null(center.at)){
     obj = ICE$new(object = object, X = X, feature = feature, grid.size = grid.size, sample.size = sample.size, 
-      class = class, multi.class = multi.class)
+      class = class, multi.class = multi.class, ...)
   } else {
     obj = ICE.centered$new(object = object, X = X, anchor = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size, 
-      class = class, multi.class = multi.class)
+      class = class, multi.class = multi.class, ...)
   }
   obj$run()
   obj
