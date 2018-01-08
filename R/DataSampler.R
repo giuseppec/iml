@@ -5,6 +5,7 @@ DataSampler  = R6Class('DataSampler',
     X = NULL,
     feature.types = NULL,
     feature.names = NULL,
+    n.features = NULL,
     w = NULL,
     sample = function(n, replace = TRUE, prob = NULL) {
       indices = sample.int(private$nrows, size = n, 
@@ -15,10 +16,12 @@ DataSampler  = R6Class('DataSampler',
       self$X
     },
     initialize = function(X, w = NULL){
+      assertDataFrame(X, all.missing = FALSE)
       self$X = X
       self$w = w
       self$feature.types = get.feature.type(unlist(lapply(X, class)))
       self$feature.names = colnames(X)
+      self$n.features = ncol(X)
       names(self$feature.types) = self$feature.names
       private$nrows = nrow(X)
     }

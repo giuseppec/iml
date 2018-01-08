@@ -2,9 +2,11 @@
 
 
 pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL, multi.class=FALSE, ...){
-  PDP$new(object = object, X = X, feature = feature, grid.size = grid.size, 
-    sample.size = sample.size, 
-    class = class, multi.class = multi.class, ...)$run()
+  samp = DataSampler$new(X)
+  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  
+  PDP$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size, 
+    sample.size = sample.size)$run()
 }
 
 
@@ -47,11 +49,11 @@ PDP = R6Class('PDP',
       }
       X.design
     }, 
-    initialize = function(object, X, feature, grid.size, sample.size, class, multi.class, ...){
+    initialize = function(predictor, sampler, feature, grid.size, sample.size){
       assert_numeric(feature, lower=1, upper=ncol(X), min.len=1, max.len=2)
       if(length(feature)==2) assert_false(feature[1] == feature[2])
-      if(multi.class) stop('partial dependence plot does not support multi class yet')
-      super$initialize(object, X, class=class, multi.class = multi.class, ...)
+      if(predictor$multi.class) stop('partial dependence plot does not support multi class yet')
+      super$initialize(predictor, sampler)
       self$sample.size = sample.size
       private$set.feature(feature)
       private$set.grid.size(grid.size)
@@ -63,8 +65,8 @@ PDP = R6Class('PDP',
     set.feature = function(feature.index){
       self$feature.index = feature.index
       self$n.features = length(feature.index)
-      self$feature.type = private$sampler$feature.types[self$feature.index]
-      self$feature.names = private$sampler$feature.names[feature.index]
+      self$feature.type = self$sampler$feature.types[self$feature.index]
+      self$feature.names = self$sampler$feature.names[feature.index]
     },
     generate.plot = function(){
       if(self$n.features == 1){

@@ -1,6 +1,9 @@
 
 shapley = function(object, X, x.interest, sample.size=100, class=NULL, multi.class = FALSE, ...){
-  Shapley$new(object=object, X=X, x.interest=x.interest, sample.size=sample.size, class = class, multi.class = multi.class, ...)$run()
+  samp = DataSampler$new(X)
+  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  
+  Shapley$new(predictor = pred, sampler = samp, x.interest=x.interest, sample.size=sample.size)$run()
 }
 
 ## TODO: instead having an outer loop over features,
@@ -31,7 +34,7 @@ Shapley = R6Class('Shapley',
         # randomly choose sample instance from X
         sample.instance.shuffled = self$X.sample[sample(1:nrow(self$X.sample), 1), new.feature.order]
         x.interest.shuffled = self$x.interest[new.feature.order]
-        
+
         lapply(1:n.features, function(k){
           k.at.index = which(new.feature.order == k)
           instance.with.k = x.interest.shuffled
@@ -41,7 +44,7 @@ Shapley = R6Class('Shapley',
           }
           instance.without.k = instance.with.k
           instance.without.k[k.at.index] = sample.instance.shuffled[k.at.index]
-          cbind(instance.with.k[private$feature.names], instance.without.k[private$feature.names])
+          cbind(instance.with.k[self$sampler$feature.names], instance.without.k[self$sampler$feature.names])
         }) %>% data.table::rbindlist()
         
       }) %>% data.table::rbindlist()
@@ -54,9 +57,9 @@ Shapley = R6Class('Shapley',
       self$run()
       print(self$data())
     },
-    initialize = function(object, X, x.interest, sample.size, class, multi.class, ...){
-      if(multi.class) stop('multi.class not supported yet')
-      super$initialize(object, X, class, multi.class, ...)
+    initialize = function(predictor, sampler, x.interest, sample.size){
+      if(predictor$multi.class) stop('multi.class not supported yet')
+      super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$x.interest = x.interest
     }

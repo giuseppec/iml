@@ -1,5 +1,8 @@
 sobol = function(object, X, sample.size = 100, type = 'first', class = NULL, multi.class = FALSE, ...){
-  Sobol$new(object = object, X=X, sample.size = sample.size, type = type, class = class, multi.class = multi.class, ...)$run()
+  samp = DataSampler$new(X)
+  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  
+  Sobol$new(predictor = pred, sampler = samp, sample.size = sample.size, type = type)$run()
 }
 
 
@@ -10,7 +13,7 @@ Sobol = R6Class('Sobol',
   public = list(
     type = NULL, 
     intervene = function(){
-      n.features = ncol(self$X)
+      n.features = self$sampler$n.features
       feature.names = colnames(self$X)
       # The intervention
       Ab = lapply(1:n.features, function(feature.index){
@@ -34,18 +37,18 @@ Sobol = R6Class('Sobol',
         }
         S_i / var.y
       }) 
-      data.frame(value = unlist(res), feature = private$feature.names)
+      data.frame(value = unlist(res), feature = self$sampler$feature.names)
     },
     print = function(){
       print(self$data())
     },
-    initialize = function(object, X, sample.size, type, class, multi.class, ...){
-      if(multi.class) stop('multi.class not supported yet for sobol')
-      super$initialize(object, X, class, multi.class, ...)
+    initialize = function(predictor, sampler, sample.size, type){
+      if(predictor$multi.class) stop('multi.class not supported yet for sobol')
+      super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$type = type
       private$sample.x = function(size){
-        list(X1 = private$sampler$sample(size), X2 = private$sampler$sample(size))
+        list(X1 = self$sampler$sample(size), X2 = self$sampler$sample(size))
       }
     }
   )

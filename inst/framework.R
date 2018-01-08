@@ -61,9 +61,9 @@ plot(ice1)
 i = 120
 x.interest = X[i,]
 
-lime(mod, X,  1000, x.interest=x.interest)
+lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
 
-lime1 = lime(mod, X,  1000, x.interest=x.interest)
+lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
 lime1$x <- x.interest
 lime1$data()
 
@@ -72,25 +72,25 @@ lime1$run(rerun = TRUE)$print()
 
 
 ## Shapley
-shapley(mod, X, x.interest, 100)
-shapley1 = shapley(mod, X, x.interest, 100, class=2)
+shapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'))
+shapley1 = shapley(mod, X, x.interest, 100, class=2, predict.args = list(type = 'prob'))
 shapley1$x = X[i+2,]
 shapley1
 
 ## Permutation feature importance
-perm.imp(mod, X, feature.index = 4, y=(y=='virginica'))$data()
-perm.imp(mod, X, feature.index = 1,  y=(y=='virginica'))$data()
+perm.imp(mod, X, feature.index = 4, y=(y=='virginica'), predict.args = list(type = 'prob'))$data()
+perm.imp(mod, X, feature.index = 1,  y=(y=='virginica'), predict.args = list(type = 'prob'))$data()
 
 
 
 ## Sobol (first order)
-sobol(mod, X, sample.size = 10000)
+sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'))
 
 ## Sobol (total)
-sobol(mod, X, sample.size = 100000, type = 'total')
+sobol(mod, X, sample.size = 1000, type = 'total', predict.args = list(type = 'prob'))
 
 
 
 ## tree surrogate model, centered
-tree = tree.surrogate(mod, X, 10000)
+tree = tree.surrogate(mod, X, 10000, predict.args = list(type = 'prob'))
 summary(tree)

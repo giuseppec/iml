@@ -5,12 +5,13 @@
 ##       anchoring will then wrapped in if-clause
 #' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
 ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE, ...){
+  samp = DataSampler$new(X)
+  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  
   if(is.null(center.at)){
-    obj = ICE$new(object = object, X = X, feature = feature, grid.size = grid.size, sample.size = sample.size, 
-      class = class, multi.class = multi.class, ...)
+    obj = ICE$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size, sample.size = sample.size)
   } else {
-    obj = ICE.centered$new(object = object, X = X, anchor = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size, 
-      class = class, multi.class = multi.class, ...)
+    obj = ICE.centered$new(predictor = pred, sampler = samp, anchor = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size)
   }
   obj$run()
   obj

@@ -1,12 +1,13 @@
 ## TODO: Move most parameters to private()
 Experiment = R6Class("Experiment",
   public = list(
-    X = NULL,
     sample.size = 100,
     X.sample = NULL,
     intervene = function(){self$X.sample},
     X.design = NULL,
     predictor = NULL, 
+    # The sampling object for sampling from X
+    sampler = NULL,
     Q = function(x){x},
     weight.samples = function(){1},
     aggregate = function(){cbind(self$X.design, private$Q.results)},
@@ -18,13 +19,12 @@ Experiment = R6Class("Experiment",
     summary = function(){
       summary(self$results)
     },
-    initialize = function(object, X, class, multi.class, ...){
-      assertDataFrame(X, all.missing = FALSE)
-      self$predictor = prediction.model(object, class,multi.class, ...)
-      self$X = X
-      private$feature.names = colnames(X)
-      private$sampler = DataSampler$new(X)
-      private$sample.x = private$sampler$sample
+    initialize = function(predictor, sampler){
+      assert_class(predictor, 'Prediction')
+      assert_class(sampler, 'DataSampler')
+      self$predictor = predictor
+      self$sampler = sampler
+      private$sample.x = self$sampler$sample
     },
     run = function(force = FALSE, ...){
       if(force) private$flush()
@@ -58,10 +58,8 @@ Experiment = R6Class("Experiment",
     generate.plot = function(){NULL},
     # Feature names of X
     feature.names = NULL,
-    # The sampling object for sampling from X
-    sampler = NULL,
-    # The data.frame with samples from X
-    sample.x = NULL, 
+    # Wrapper for sampler
+    sample.x = NULL,
     # Removes experiment results as preparation for running experiment again
     flush = function(){
       self$X.sample = NULL

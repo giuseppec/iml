@@ -1,7 +1,10 @@
 
 
 perm.imp = function(object, X, y, feature.index, class=NULL, multi.class=FALSE, ...){
-  PermImp$new(object = object, X=X, y=y, feature.index=feature.index, class = class, multi.class = FALSE, ...)$run()
+  samp = DataSampler$new(X)
+  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+
+  PermImp$new(predictor = pred, sampler = samp, y=y, feature.index=feature.index)$run()
 }
 
 ## TODO: Extend to multiple features. Either within this class or as a new class. 
@@ -25,15 +28,15 @@ PermImp = R6Class('PermImp',
       }
       pp = performance(private$Q.results[1:(length(private$Q.results)/2)], self$y) - 
         performance(private$Q.results[(length(private$Q.results)/2 + 1):length(private$Q.results)], self$y)
-      data.frame(performance = pp, feature = private$feature.names[self$feature.index])
+      data.frame(performance = pp, feature = self$sampler$feature.names[self$feature.index])
     },
-    initialize = function(object, X, y, feature.index, class, multi.class, ...){
+    initialize = function(predictor, sampler, feature.index, y){
       ## TODO: Add check that nrow(X) the same as length(y) or nrow(y)
-      if(multi.class) stop("multi.class not supported yet for permutation feature importance")
-      super$initialize(object, X, class, multi.class, ...)
+      if(predictor$multi.class) stop("multi.class not supported yet for permutation feature importance")
+      super$initialize(predictor = predictor, sampler = sampler)
       self$y = y
       self$feature.index = feature.index
-      private$sample.x = private$sampler$get.x
+      private$sample.x = self$sampler$get.x
     }
   ),
   private = list(
