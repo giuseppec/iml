@@ -16,6 +16,11 @@ lrn = makeLearner("classif.randomForest", predict.type = 'prob')
 
 ## Train the learner
 mod = train(lrn, task)
+mod = randomForest::randomForest(Species ~ ., data= iris)
+
+mod <- caret::train(Species ~ ., data = iris, method = "knn",
+  trControl = trainControl(method = "cv"))
+
 
 ## PDP
 pdp.obj = pdp(object = mod, X=X, feature = c(1, 2), class = 1)  
@@ -70,7 +75,7 @@ lime1$run(rerun = TRUE)$print()
 
 ## Shapley
 shapley(mod, X, x.interest, 100)
-shapley1 = shapley(f, X, x.interest, 100, class=2)
+shapley1 = shapley(mod, X, x.interest, 100, class=2)
 shapley1$x = X[i+2,]
 shapley1
 
