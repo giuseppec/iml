@@ -15,7 +15,7 @@ TreeSurrogate = R6Class('TreeSurrogate',
     intervene = function(){self$X.sample},
     aggregate = function(){
       dat = cbind(y.hat = private$Q.results, self$X.design)
-      partykit::ctree(y.hat ~ ., data = dat)
+      rpart::rpart(y.hat ~ ., data = dat)
     },
     plot = function(){
       self$run()
