@@ -23,7 +23,8 @@ mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::
 
 
 ## PDP
-pdp.obj = pdp(object = mod, X=X, feature = c(1, 2), predict.args = list(type='prob'))  
+pdp.obj = pdp(object = mod, X=X, feature = c(1,4), predict.args = list(type='prob'), multi.class = TRUE)  
+
 
 plot(pdp.obj)
 plot(pdp.obj) + scale_fill_continuous(low='white', high='red')

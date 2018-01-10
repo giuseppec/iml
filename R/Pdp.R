@@ -21,19 +21,20 @@ PDP = R6Class('PDP',
     n.features = NULL, 
     feature.type= NULL,
     aggregate = function(){
-      results = self$X.design
-      # extend here for multi.class by checking dim of Q.results. 
-      # if multi.class, melt cbind(results, Q.results) and add class column
-      results['y.hat']= private$Q.results
-      if(self$n.features == 1){
-        results = results %>% 
-          group_by_at(self$feature.index[1]) %>% 
-          summarise(y.hat = mean(y.hat))
-      } else if(self$n.features == 2){
-        results = results %>% 
-          group_by_at(.vars = c(self$feature.index[1], self$feature.index[2])) %>% 
-          summarise(y.hat = mean(y.hat)) %>% data.frame
-      } 
+      results = self$X.design[self$feature.index]
+      
+      if(self$predictor$multi.class){
+        y.hat.names = colnames(private$Q.results)
+        results = cbind(results, private$Q.results)
+        results = tidyr::gather(results, key = "class.name", value = "y.hat", one_of(y.hat.names))
+      } else {
+        results['y.hat']= private$Q.results
+        results['class.name'] = 1
+      }
+      results = results %>% 
+        group_by_at(self$feature.names) %>% 
+        group_by(class.name, add = TRUE) %>%
+        summarise(y.hat = mean(y.hat)) %>% data.frame
       results 
     },
     intervene = function(){
@@ -52,7 +53,7 @@ PDP = R6Class('PDP',
     initialize = function(predictor, sampler, feature, grid.size, sample.size){
       assert_numeric(feature, lower=1, upper=ncol(X), min.len=1, max.len=2)
       if(length(feature)==2) assert_false(feature[1] == feature[2])
-      if(predictor$multi.class) stop('partial dependence plot does not support multi class yet')
+      #if(predictor$multi.class) stop('partial dependence plot does not support multi class yet')
       super$initialize(predictor, sampler)
       self$sample.size = sample.size
       private$set.feature(feature)
@@ -70,26 +71,29 @@ PDP = R6Class('PDP',
     },
     generate.plot = function(){
       if(self$n.features == 1){
-        p = ggplot(private$results, 
-          mapping = aes_string(x = names(private$results)[1], 
-            y = names(private$results[2]))) 
-        if(self$feature.type == 'numerical') p + geom_path() 
-        else if (self$feature.type == 'categorical') p + geom_point()
+        p = ggplot(private$results, mapping = aes_string(x = self$feature.names,"y.hat"))
+        if(self$feature.type == 'numerical') p = p + geom_path() 
+        else if (self$feature.type == 'categorical') p = p + geom_point()
       } else if (self$n.features == 2){
         if(all(self$feature.type %in% 'numerical') | all(self$feature.type %in% 'categorical')) {
-          ggplot(private$results) + 
-            geom_tile(aes_string(x = names(private$results)[1], 
-              y = names(private$results)[2], 
-              fill = names(private$results)[3]))
+          p = ggplot(private$results) + 
+            geom_tile(aes_string(x = self$feature.names[1], 
+              y = self$feature.names[2], 
+              fill = "y.hat"))
         } else {
           categorical.feature = self$feature.names[self$feature.type=='categorical']
           numerical.feature = setdiff(self$feature.names, categorical.feature)
-          ggplot(private$results) + 
-            geom_line(aes_string(x = numerical.feature, y = names(private$results)[3], 
+          p = ggplot(private$results) + 
+            geom_line(aes_string(x = numerical.feature, y = "y.hat", 
               group = categorical.feature, color = categorical.feature))
         }
       }
       ## Add facetting here if there  is a "facet.class" column in output
+      if(self$predictor$multi.class){
+        p + facet_wrap("class.name")
+      } else {
+        p
+      }
     }, 
     set.grid.size = function(size){
       self$grid.size = numeric(length=self$n.features)
