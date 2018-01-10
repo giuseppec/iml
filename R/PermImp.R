@@ -1,13 +1,34 @@
 
 
-perm.imp = function(object, X, y, feature.index, class=NULL, multi.class=FALSE, ...){
+perm.imp = function(object, X, y, class=NULL, multi.class=FALSE, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, multi.class = multi.class, ...)
   
-  PermImp$new(predictor = pred, sampler = samp, y=y, feature.index=feature.index)$run()
+  PermImps$new(predictor = pred, sampler = samp, y=y)$run()
 }
 
-## TODO: Extend to multiple features. Either within this class or as a new class. 
+
+PermImps = R6Class('PermImps', 
+  inherit = RepeatedExperiment,
+  public = list(
+    initialize = function(predictor, sampler, y){
+      experiments = lapply(1:sampler$n.features, function(feature.index){
+        x = PermImp$new(predictor = predictor, sampler = sampler, y = y, feature.index = feature.index)
+        x
+      })
+      super$initialize(experiments)
+    }, 
+    plot = function(){
+      plt.data = self$results
+      # Order features in descending order for plot
+      plt.data.order = order(plt.data$performance)
+      plt.data$feature = factor(plt.data$feature, levels = plt.data$feature[plt.data.order])
+      ggplot(plt.data) + geom_point(aes(x = performance, y = feature))
+    }
+  )
+)
+
+
 ## TODO: Use different performance function for regression
 ## TODO: performance function as a parameter in intialize
 ## TODO: implement random sampling instead of whole x
@@ -51,8 +72,6 @@ PermImp = R6Class('PermImp',
     }
   )
 )
-
-
 
 
 

@@ -34,7 +34,6 @@ Experiment = R6Class("Experiment",
         self$X.design = self$intervene()
         # EXECUTE experiment
         private$Q.results = self$Q(self$predictor$predict(self$X.design))
-        w = self$weight.samples()
         # AGGREGATE measurements
         private$results = self$aggregate()
         private$finished = TRUE
@@ -73,38 +72,27 @@ Experiment = R6Class("Experiment",
 
 
 
-# TODO: Implement repeated experiment class
-# TODO: Implement option run=TRUE in Experiment
 RepeatedExperiment = R6Class('RepeatedExperiment', 
   public = list(
     experiments = NULL,
+    results = NULL,
     initialize = function(experiments){
       self$experiments = experiments
     }, 
-    run = function(){
-      self$experiments = lapply(self$experiments, function(experiment){
-        experiment$run()
-      })
+    run = function(force = FALSE){
+      if(!private$finished){
+        self$experiments = lapply(self$experiments, function(experiment){
+          experiment$run(force = force)
+        })
+        self$results = self$data()
+        private$finished = TRUE
+      }
+      self
     },
     flush = function(){
-       lapply(self$experiments, function(experiment){
+      lapply(self$experiments, function(experiment){
         experiment$flush()
       })
-    }
-  ), 
-  private = list()
-)
-
-
-PermImps = R6Class('PermImps', 
-  inherit = RepeatedExperiment,
-  public = list(
-    initialize = function(predictor, sampler, y){
-      experiments = lapply(1:sampler$n.features, function(feature.index){
-        x = PermImp$new(predictor = predictor, sampler = sampler, y = y, feature.index = feature.index)
-        x
-      })
-      super$initialize(experiments)
     }, 
     data = function(){
       dfs = lapply(self$experiments, function(experiment){
@@ -112,8 +100,14 @@ PermImps = R6Class('PermImps',
       })
       data.table::rbindlist(dfs)
     }
+  ), 
+  private = list(
+    finished = FALSE
   )
 )
+
+
+
 
 
 

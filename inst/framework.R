@@ -3,6 +3,7 @@ library('dplyr')
 library('ggplot2')
 library('digest')
 library('iml')
+library('caret')
 
 
 X = iris[-which(names(iris) == 'Species')]
@@ -18,7 +19,7 @@ lrn = makeLearner("classif.randomForest", predict.type = 'prob')
 #mod = train(lrn, task)
 mod = randomForest::randomForest(Species ~ ., data= iris)
 
-mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = trainControl(method = "cv"))
+mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::trainControl(method = "cv"))
 
 
 ## PDP
@@ -78,18 +79,11 @@ shapley1$x = X[i+2,]
 shapley1
 
 ## Permutation feature importance
-perm.imp(mod, X, feature.index = 4, y=(y=='virginica'), predict.args = list(type = 'prob'))$data()
-perm.imp(mod, X, feature.index = 1,  y=(y=='virginica'), predict.args = list(type = 'prob'))$data()
+perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$data()
+perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$plot()
 
 
-## Multiple features
-sampler = DataSampler$new(X)
-predictor = prediction.model(mod, class = 1, multi.class = FALSE)
-PermImps$new(predictor, sampler, y=(y=='virginica'))
-x = PermImps$new(predictor, sampler, y=(y=='virginica'))
-x$run()
 
-x$data()
 
 ## Sobol (first order)
 sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'))
