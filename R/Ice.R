@@ -26,7 +26,16 @@ ICE = R6Class('ICE',
     aggregate = function(){
       X.id = apply(self$X.design, 1, function(x) digest(x[-self$feature.index]))
       X.results = self$X.design[self$feature.index]
-      X.results$y.hat = private$Q.results
+      
+      if(self$predictor$multi.class){
+        y.hat.names = colnames(private$Q.results)
+        X.results = cbind(X.results, private$Q.results)
+        X.results = tidyr::gather(X.results, key = "class.name", value = "y.hat", one_of(y.hat.names))
+      } else {
+       X.results['y.hat']= private$Q.results
+       X.results['class.name'] = 1
+      }
+      
       X.results$group = X.id
       X.results
     }, 
@@ -38,14 +47,20 @@ ICE = R6Class('ICE',
   private = list(
     generate.plot = function(){
       p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = 'y.hat', group = 'group'))
-      if(self$feature.type == 'numerical') p + geom_line()
-      else if (self$feature.type == 'categorical') p + geom_line(alpha = 0.2) + geom_point()
+      if(self$feature.type == 'numerical') p = p + geom_path()
+      else if (self$feature.type == 'categorical') p = p + geom_path(alpha = 0.2) + geom_point()
+      
+      if(self$predictor$multi.class){
+        p + facet_wrap("class.name")
+      } else {
+        p
+      }
     }
   )
 )
 
 
-
+## TODO: Integrate in the ICE class
 ICE.centered = R6Class('ICE.centered',
   inherit = ICE,
   public = list(

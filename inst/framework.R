@@ -40,8 +40,8 @@ pdp.obj$plot()
 pdp(mod, X, feature = 1, class = 1)$plot()
 
 ## ICE
-ice(object = mod, X=X, feature = 1, predict.args = list(type='prob'), class=1)  
-ice1 = ice(mod, X=X, feature = 1, predict.args = list(type='prob'), class=NULL)  
+ice(object = mod, X=X, feature = 2, predict.args = list(type='prob'), multi.class = FALSE)$plot()  
+ice1 = ice(mod, X=X, feature = 2, predict.args = list(type='prob'), multi.class = TRUE)  
 plot(ice1)
 
 ice1$data()
@@ -49,7 +49,7 @@ ice1$feature = 3
 ice1$plot()
 
 ## ICE centered
-ice(mod, X=X, feature = 1, center.at = 4)$plot()
+ice(mod, X=X, feature = 1, center.at = 4, multi.class = FALSE, class=3)$plot()
 
 
 ice1 = ice(mod, X=X, feature = 1, center.at = 4)

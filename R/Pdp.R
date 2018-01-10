@@ -9,8 +9,6 @@ pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,
     sample.size = sample.size)$run()
 }
 
-
-# TODO: Allow multiclass
 # TODO: Allow empty grid size, where grid points are drawn from X. 
 PDP = R6Class('PDP', 
   inherit = Experiment,
@@ -88,7 +86,6 @@ PDP = R6Class('PDP',
               group = categorical.feature, color = categorical.feature))
         }
       }
-      ## Add facetting here if there  is a "facet.class" column in output
       if(self$predictor$multi.class){
         p + facet_wrap("class.name")
       } else {
