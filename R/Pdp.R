@@ -37,12 +37,15 @@ PDP = R6Class('PDP',
     },
     intervene = function(){
       grid = private$get.1D.grid(1)
-      X.design = data.frame(data.table::rbindlist(lapply(1:length(grid), function(x){self$X.sample})))
+      
+      private$X.design.ids = rep(1:nrow(self$X.sample), times = length(grid))
+      X.design = self$X.sample[private$X.design.ids,]
       X.design[self$feature.index[1]] = rep(grid, each = nrow(self$X.sample))
       
       if(self$n.features == 2) {
-        grid = private$get.1D.grid(2)
-        X.design2 = data.frame(data.table::rbindlist(lapply(1:length(grid), function(x){X.design})))
+        grid2 = private$get.1D.grid(2)
+        private$X.design.ids = rep(private$X.design.ids, times = length(grid))
+        X.design2 = X.design[rep(1:nrow(X.design), times = length(grid)), ]
         X.design2[self$feature.index[2]] = rep(grid, each = nrow(X.design))
         return(X.design2)
       }
@@ -60,6 +63,7 @@ PDP = R6Class('PDP',
     }
   ), 
   private = list(
+    X.design.ids = NULL, 
     grid.size.original = NULL,
     set.feature = function(feature.index){
       self$feature.index = feature.index

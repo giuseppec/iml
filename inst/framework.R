@@ -23,7 +23,7 @@ mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::
 
 
 ## PDP
-pdp.obj = pdp(object = mod, X=X, feature = c(1,4), predict.args = list(type='prob'), multi.class = TRUE)  
+pdp.obj = pdp(object = mod, X=X, feature = c(1,3), predict.args = list(type='prob'), multi.class = TRUE)  
 
 
 plot(pdp.obj)
@@ -40,7 +40,8 @@ pdp.obj$plot()
 pdp(mod, X, feature = 1, class = 1)$plot()
 
 ## ICE
-ice(object = mod, X=X, feature = 2, predict.args = list(type='prob'), multi.class = FALSE)$plot()  
+ice(object = mod, X=X, feature = 4, predict.args = list(type='prob'), multi.class = TRUE)$plot()  
+
 ice1 = ice(mod, X=X, feature = 2, predict.args = list(type='prob'), multi.class = TRUE)  
 plot(ice1)
 
@@ -49,10 +50,12 @@ ice1$feature = 3
 ice1$plot()
 
 ## ICE centered
-ice(mod, X=X, feature = 1, center.at = 4, multi.class = FALSE, class=3)$plot()
+ice1 = ice(mod, X=X, feature = 1, center.at = 4, multi.class = TRUE)
+ice1$plot()
 
 
-ice1 = ice(mod, X=X, feature = 1, center.at = 4)
+ice1 = ice(mod, X=X, feature = 1, center.at = 4, class = 2)
+plot(ice1)
 ice1$center.at = 10
 plot(ice1)
 

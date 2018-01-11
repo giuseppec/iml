@@ -24,9 +24,9 @@ ICE = R6Class('ICE',
   inherit = PDP,
   public = list(
     aggregate = function(){
-      X.id = apply(self$X.design, 1, function(x) digest(x[-self$feature.index]))
+      X.id = private$X.design.ids
       X.results = self$X.design[self$feature.index]
-      
+      X.results$group = X.id
       if(self$predictor$multi.class){
         y.hat.names = colnames(private$Q.results)
         X.results = cbind(X.results, private$Q.results)
@@ -36,7 +36,6 @@ ICE = R6Class('ICE',
        X.results['class.name'] = 1
       }
       
-      X.results$group = X.id
       X.results
     }, 
     initialize = function(feature, ...){
@@ -47,8 +46,8 @@ ICE = R6Class('ICE',
   private = list(
     generate.plot = function(){
       p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = 'y.hat', group = 'group'))
-      if(self$feature.type == 'numerical') p = p + geom_path()
-      else if (self$feature.type == 'categorical') p = p + geom_path(alpha = 0.2) + geom_point()
+      if(self$feature.type == 'numerical') p = p + geom_line()
+      else if (self$feature.type == 'categorical') p = p + geom_line(alpha = 0.2) + geom_point()
       
       if(self$predictor$multi.class){
         p + facet_wrap("class.name")
@@ -67,17 +66,18 @@ ICE.centered = R6Class('ICE.centered',
     anchor.value = NULL,
     aggregate = function(){
       X.aggregated = super$aggregate()
-      X.aggregated.anchor = X.aggregated[X.aggregated[1] == self$anchor.value, c('y.hat', 'group')]
-      names(X.aggregated.anchor) = c('anchor', 'group')
-      X.aggregated = left_join(X.aggregated, X.aggregated.anchor, by = 'group')
-      X.aggregated$y.hat = X.aggregated$y.hat - X.aggregated$anchor
-      X.aggregated$anchor = NULL
+      X.aggregated.anchor = X.aggregated[X.aggregated[self$feature.names] == self$anchor.value, c('y.hat', 'group', 'class.name')]
+      names(X.aggregated.anchor) = c('anchor.yhat', 'group', 'class.name')
+      X.aggregated = left_join(X.aggregated, X.aggregated.anchor, by = c('group', 'class.name'))
+      X.aggregated$y.hat = X.aggregated$y.hat - X.aggregated$anchor.yhat
+      X.aggregated$anchor.yhat = NULL
       X.aggregated
     },
     intervene = function(){
       X.design = super$intervene()
       X.design.anchor = self$X.sample
       X.design.anchor[self$feature.index] = self$anchor.value
+      private$X.design.ids = c(private$X.design.ids, 1:nrow(self$X.sample))
       rbind(X.design, X.design.anchor)
     },
     initialize = function(anchor, ...){
