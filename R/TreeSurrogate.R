@@ -29,9 +29,9 @@ TreeSurrogate = R6Class('TreeSurrogate',
       summary(private$results)
     },
     initialize = function(predictor, sampler, sample.size){
-      if(predictor$multi.class){ stop('multi.class not yet supported for surrogate models')}
       super$initialize(predictor, sampler)
       self$sample.size = sample.size
+      if(self$predictor$multi.class) private$predict = self$predictor$predict.class
     }
   )
 )

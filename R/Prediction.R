@@ -49,6 +49,12 @@ Prediction = R6Class("Prediction",
       }
       pred    
     },
+    predict.class = function(newdata){
+      stopifnot(self$multi.class)
+      pred = self$predict(newdata)
+      classes = colnames(pred)
+      classes[apply(pred, 1, which.max)]
+    },
     multi.class = NULL,
     class = NULL,
     class.name = NULL, 

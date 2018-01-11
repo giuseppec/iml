@@ -98,5 +98,5 @@ sobol(mod, X, sample.size = 1000, type = 'total', predict.args = list(type = 'pr
 
 
 ## tree surrogate model, centered
-tree = tree.surrogate(mod, X, 10000, predict.args = list(type = 'prob'))
+tree = tree.surrogate(mod, X, 10000, predict.args = list(type = 'prob'), multi.class = TRUE)
 summary(tree)

@@ -23,17 +23,19 @@ Experiment = R6Class("Experiment",
       assert_class(predictor, 'Prediction')
       assert_class(sampler, 'DataSampler')
       self$predictor = predictor
+      private$predict = predictor$predict
       self$sampler = sampler
       private$sample.x = self$sampler$sample
     },
     run = function(force = FALSE, ...){
       if(force) private$flush()
       if(!private$finished){
+        
         # DESIGN experiment
         self$X.sample = private$sample.x(self$sample.size)
         self$X.design = self$intervene()
         # EXECUTE experiment
-        private$Q.results = self$Q(self$predictor$predict(self$X.design))
+        private$Q.results = self$Q(private$predict(self$X.design))
         # AGGREGATE measurements
         private$results = self$aggregate()
         private$finished = TRUE
@@ -66,7 +68,8 @@ Experiment = R6Class("Experiment",
       private$Q.results = NULL
       private$results = NULL
       private$finished = FALSE
-    }
+    }, 
+    predict = NULL
   )
 )
 
