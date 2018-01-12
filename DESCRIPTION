@@ -9,3 +9,5 @@ Description: Model-agnostic interpretability methods for machine learning models
 Depends: R6,
          checkmate
 License: MIT
+Roxygen: list(wrap = FALSE)
+RoxygenNote: 6.0.1

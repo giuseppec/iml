@@ -1,6 +1,17 @@
 
 
-
+#' Partial Dependence Plot
+#' 
+#' Fits a partial dependence function on an arbitrary machine learning model
+#' 
+#' @template args_experiment_wrap
+#' @template arg_feature
+#' @template arg_grid.size 
+#' @template arg_sample.size
+#' @return PDP object
+#' @examples
+#' 
+#' @export
 pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL, multi.class=FALSE, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, multi.class = multi.class, ...)

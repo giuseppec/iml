@@ -1,9 +1,22 @@
-
-
-
 ## TODO: combine ICE and ICE.centered, so that active binding can be used for both. 
 ##       anchoring will then wrapped in if-clause
+
+
+
+
+#' Individual conditional expectations (ICE)
+#' 
+#' Fits and plots individual conditional expectation function on an arbitrary machine learning model
+#' 
+#' @template args_experiment_wrap
+#' @template arg_feature
+#' @template arg_grid.size 
+#' @template arg_sample.size
 #' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
+#' @return PDP object
+#' @examples
+#' 
+#' @export
 ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, multi.class = multi.class, ...)
