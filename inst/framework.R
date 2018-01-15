@@ -92,6 +92,7 @@ perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$plot()
 ## Sobol (first order)
 sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'))
 
+
 ## Sobol (total)
 sobol(mod, X, sample.size = 1000, type = 'total', predict.args = list(type = 'prob'))
 

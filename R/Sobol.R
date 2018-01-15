@@ -24,12 +24,12 @@ Sobol = R6Class('Sobol',
       rbind(self$X.sample$X1, self$X.sample$X2, Ab)
     },
     aggregate = function(){
-      y.hat.A = private$Q.results[1:self$sample.size]
-      y.hat.B = private$Q.results[(self$sample.size+1):(2*self$sample.size)]
+      y.hat.A = private$Q.results[1:self$sample.size,1]
+      y.hat.B = private$Q.results[(self$sample.size+1):(2*self$sample.size),1]
       Ab.index = (2*self$sample.size + 1):nrow(self$X.design)
       var.y = var(y.hat.A)
       res = lapply(1:ncol(X), function(i){
-        y.hat.Ab.by.feature = matrix(private$Q.results[Ab.index], nrow = self$sample.size)
+        y.hat.Ab.by.feature = matrix(private$Q.results[Ab.index,1], nrow = self$sample.size)
         if(self$type == 'first'){
           S_i = (1/self$sample.size) * sum(y.hat.B * (y.hat.Ab.by.feature[,i] - y.hat.A))
         } else {
