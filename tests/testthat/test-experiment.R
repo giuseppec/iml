@@ -8,13 +8,24 @@ test_that('Experiments work',{
     unlist(x[1] + x[2])
   }
   X = data.frame(a = c(1,2,3), b = c(2,3,4))
-  e = Experiment$new(f=f, X=X)
-  e$run()
+  ds = DataSampler$new(X)
+  pred = Prediction.f$new(f)
+  e = Experiment$new(pred, ds)
+  set.seed(1)
+  dat = e$run()$data()
   
-  e2 = e$clone()$run()
+  set.seed(2)
+  dat3 = e$run(force=TRUE)$data()
   
-  # Rerunning experiment does not change the experiment
-  expect_equal(e, e2)
-  expect_false(isTRUE(all.equal(e, e$clone()$run(force=TRUE))))
-}
-)
+  
+  # Rerunning experiment with same seeddoes not change the results
+  set.seed(1)
+  dat2 = e$run(force=TRUE)$data()
+  expect_equal(dat, dat2)
+  # Different with different seed
+  set.seed(1)
+  dat2 = e$run(force=TRUE)$data()
+  expect_false(isTRUE(all.equal(dat, dat3)))
+})
+  
+  

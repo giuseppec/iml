@@ -34,20 +34,21 @@ prediction.model = function(object, class = NULL, multi.class=FALSE, predict.arg
     stop(sprintf('Object of type [%s] not supported', paste(class(object), collapse = ", ")))
   }
 }
-# For caret: extractPrediction
-# For caret: extractProb
+
+
+
 Prediction = R6Class("Prediction", 
   public = list(
     predict = function(newdata){
       newdata = data.frame(newdata)
-      pred = private$predict.function(newdata)
+      prediction = private$predict.function(newdata)
       if(!self$multi.class){
-        pred = private$predict.function(newdata)
+        prediction = private$predict.function(newdata)
         if(self$type == 'classification'){
-          pred = pred[,self$class]
+          prediction = prediction[,self$class]
         } 
       }
-      pred    
+      data.frame(prediction)
     },
     predict.class = function(newdata){
       stopifnot(self$multi.class)
@@ -57,7 +58,6 @@ Prediction = R6Class("Prediction",
     },
     multi.class = NULL,
     class = NULL,
-    class.name = NULL, 
     type = NULL,
     initialize = function(object, class=NULL, multi.class=FALSE){
       # if object has predict function, but not from caret or mlr, then 
@@ -117,7 +117,6 @@ Prediction.f = R6Class("Prediction.f",
       assert_true(any(class(pred) %in% c('integer', 'numeric', 'data.frame', 'matrix')))
       if(inherits(pred, c('data.frame', 'matrix')) && dim(pred)[2] > 1) {
         self$type = 'classification' 
-        if(!(is.character(self$class))) self$class.name = colnames(pred)[self$class]
       } else {
         self$type = 'regression'
       }
@@ -174,7 +173,7 @@ Prediction.S3 = R6Class("Prediction.S3",
     predict.function = function(x){
       predict.args = c(list(object = private$object, newdata = x), private$predict.args)
       pred = do.call(predict, predict.args)
-      if(private$is.label.output(pred)) stop("Output seems to be class instead of probabilities. Please use the predict.args argument")
+      if(private$is.label.output(pred)) stop("Output seems to be class instead of probabilities. Please use the predict.args argument.")
       if(is.null(self$type)) private$infer.f.type(pred)
       pred 
     },
@@ -189,8 +188,5 @@ Prediction.S3 = R6Class("Prediction.S3",
 )
 
 
-# For caret: extractProb
-MultiOutputPrediction = R6Class('MultiOutputPrediction', 
-  inherit = PredictionModel)
 
 

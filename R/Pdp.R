@@ -47,14 +47,14 @@ PDP = R6Class('PDP',
       results 
     },
     intervene = function(){
-      grid = private$get.1D.grid(1)
+      grid = get.1D.grid(self$X.sample[self$feature.index[1]], self$feature.type[1], self$grid.size[1])
       
       private$X.design.ids = rep(1:nrow(self$X.sample), times = length(grid))
       X.design = self$X.sample[private$X.design.ids,]
       X.design[self$feature.index[1]] = rep(grid, each = nrow(self$X.sample))
       
       if(self$n.features == 2) {
-        grid2 = private$get.1D.grid(2)
+        grid2 = get.1D.grid(self$X.sample[self$feature.index[2]], self$feature.type[2], self$grid.size[2])
         private$X.design.ids = rep(private$X.design.ids, times = length(grid))
         X.design2 = X.design[rep(1:nrow(X.design), times = length(grid)), ]
         X.design2[self$feature.index[2]] = rep(grid, each = nrow(X.design))
@@ -65,7 +65,6 @@ PDP = R6Class('PDP',
     initialize = function(predictor, sampler, feature, grid.size, sample.size){
       assert_numeric(feature, lower=1, upper=ncol(X), min.len=1, max.len=2)
       if(length(feature)==2) assert_false(feature[1] == feature[2])
-      #if(predictor$multi.class) stop('partial dependence plot does not support multi class yet')
       super$initialize(predictor, sampler)
       self$sample.size = sample.size
       private$set.feature(feature)
@@ -102,10 +101,9 @@ PDP = R6Class('PDP',
         }
       }
       if(self$predictor$multi.class){
-        p + facet_wrap("class.name")
-      } else {
-        p
-      }
+        p = p + facet_wrap("class.name")
+      } 
+      p
     }, 
     set.grid.size = function(size){
       self$grid.size = numeric(length=self$n.features)
@@ -116,15 +114,6 @@ PDP = R6Class('PDP',
     set.grid.size.single = function(size, feature.number){
       self$grid.size[feature.number] = ifelse(self$feature.type[feature.number] == 'numerical', 
         size, unique(self$X[[self$feature.index[feature.number]]]))
-    }, 
-    get.1D.grid = function(feature.number){
-      if(self$feature.type[feature.number] == 'numerical'){
-        grid = seq(from = min(self$X.sample[self$feature.index[feature.number]]), 
-          to = max(self$X.sample[self$feature.index[feature.number]]), 
-          length.out = self$grid.size[feature.number])
-      } else if(self$feature.type[feature.number] == 'categorical') {
-        grid = unique(self$X[[self$feature.index[feature.number]]])
-      }
     }
   ), 
   active = list(
@@ -135,4 +124,24 @@ PDP = R6Class('PDP',
     }
   )
 )
+
+
+## TODO:document
+## TODO: Write test
+
+get.1D.grid = function(feature, feature.type, grid.size){
+  if(feature.type == 'numerical'){
+    grid = seq(from = min(feature), 
+      to = max(feature), 
+      length.out = grid.size)
+  } else if(feature.type == 'categorical') {
+    grid = unique(feature)
+  }
+}
+
+
+
+
+
+
 
