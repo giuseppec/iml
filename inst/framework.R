@@ -72,12 +72,12 @@ x.interest = X[i,]
 lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
 
 lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
-lime1$x <- x.interest
-lime1$data()
+dat = lime1$data()
+
+ggplot(dat) + geom_point(aes(y = effect, x = feature)) + coord_flip() 
 
 lime1$x <- X[i+1,]
-lime1$run(rerun = TRUE)$print()
-
+lime1
 
 ## Shapley
 shapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'))

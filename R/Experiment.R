@@ -27,6 +27,9 @@ Experiment = R6Class("Experiment",
       self$sampler = sampler
       private$sample.x = self$sampler$sample
     },
+    data = function(){
+      self$
+    },
     run = function(force = FALSE, ...){
       if(force) private$flush()
       if(!private$finished){

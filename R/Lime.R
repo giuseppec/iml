@@ -30,9 +30,14 @@ LIME = R6Class('LIME',
       mmat = model.matrix(private$Q.results ~ ., data = self$X.design)
       res = glmnet(x = mmat, y = private$Q.results, w = self$weight.samples())
       best.index = max(which(res$df == self$k))
-      res$beta[, best.index]
+      res = data.frame(beta = res$beta[, best.index])
+      res$x = mmat[1,]
+      res$effect = res$beta * res$x
+      res$feature = colnames(mmat)
+      res
     },
     intervene = function(){
+      self$X.sample = rbind(self$x.interest, self$X.sample)
       return(self$X.sample)
     }, 
     print = function(){
@@ -45,13 +50,18 @@ LIME = R6Class('LIME',
     },
     initialize = function(predictor, sampler, sample.size, k, x.interest, class, multi.class, ...){
       if(!require('glmnet')){stop('Please install glmnet')}
-      if(predictor$multi.class) stop('multi.class not implemented yet')
+      if(predictor$multi.class) stop('multi.class not supported yet. Please choose a class')
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$k = k
       self$x.interest = x.interest
     }
-  ), 
+  ),
+  private = list(
+    generate.plot = function(){
+      ggplot(private$results) + geom_point(aes(y = effect, x = feature)) + coord_flip() 
+    }
+  ),
   active = list(
     x = function(x.interest){
       self$x.interest = x.interest
