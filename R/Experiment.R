@@ -28,7 +28,7 @@ Experiment = R6Class("Experiment",
       private$sample.x = self$sampler$sample
     },
     data = function(){
-      self$
+      private$results
     },
     run = function(force = FALSE, ...){
       if(force) private$flush()
@@ -44,9 +44,6 @@ Experiment = R6Class("Experiment",
         private$finished = TRUE
       }
       self
-    },
-    data = function(){
-      private$results
     }
   ),
   private = list(

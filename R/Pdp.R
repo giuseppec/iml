@@ -12,9 +12,9 @@
 #' @examples
 #' 
 #' @export
-pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL, multi.class=FALSE, ...){
+pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,  ...){
   samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  pred = prediction.model(object, class = class, ...)
   
   PDP$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size, 
     sample.size = sample.size)$run()
@@ -32,7 +32,7 @@ PDP = R6Class('PDP',
     aggregate = function(){
       results = self$X.design[self$feature.index]
       
-      if(self$predictor$multi.class){
+      if(ncol(private$Q.results) > 1){
         y.hat.names = colnames(private$Q.results)
         results = cbind(results, private$Q.results)
         results = tidyr::gather(results, key = "class.name", value = "y.hat", one_of(y.hat.names))
@@ -100,7 +100,7 @@ PDP = R6Class('PDP',
               group = categorical.feature, color = categorical.feature))
         }
       }
-      if(self$predictor$multi.class){
+      if(ncol(private$Q.results) > 1){
         p = p + facet_wrap("class.name")
       } 
       p

@@ -1,14 +1,12 @@
-lime = function(object, X, sample.size=100, k = 3, x.interest, class=NULL, multi.class=FALSE, ...){
+lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...){
   samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
-  
+  pred = prediction.model(object, class = class, ...)
   LIME$new(predictor = pred, sampler = samp, sample.size=sample.size, k = k, x.interest = x.interest)$run()
 }
 
 
 
 # TODO: Implement for classification
-# TODO: Implement generate.plot function
 # TODO: Implement multi.class
 # TODO: Allow categorical feature (sampler has to be changed also)
 # Differences to original LIME: 
@@ -27,8 +25,8 @@ LIME = R6Class('LIME',
       private$Q.results
     },
     aggregate = function(){
-      mmat = model.matrix(private$Q.results ~ ., data = self$X.design)
-      res = glmnet(x = mmat, y = private$Q.results, w = self$weight.samples())
+      mmat = model.matrix(unlist(private$Q.results[1]) ~ ., data = self$X.design)
+      res = glmnet(x = mmat, y = unlist(private$Q.results[1]), w = self$weight.samples())
       best.index = max(which(res$df == self$k))
       res = data.frame(beta = res$beta[, best.index])
       res$x = mmat[1,]
@@ -48,9 +46,8 @@ LIME = R6Class('LIME',
       require('gower')
       gower_dist(self$X.design, self$x.interest)
     },
-    initialize = function(predictor, sampler, sample.size, k, x.interest, class, multi.class, ...){
+    initialize = function(predictor, sampler, sample.size, k, x.interest, class, ...){
       if(!require('glmnet')){stop('Please install glmnet')}
-      if(predictor$multi.class) stop('multi.class not supported yet. Please choose a class')
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$k = k

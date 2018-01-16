@@ -1,8 +1,8 @@
   
   
-  perm.imp = function(object, X, y, class=NULL, multi.class=FALSE, ...){
+  perm.imp = function(object, X, y, class=NULL, ...){
     samp = DataSampler$new(X)
-    pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+    pred = prediction.model(object, class = class, ...)
     
     PermImps$new(predictor = pred, sampler = samp, y=y)$run()
   }
@@ -32,6 +32,7 @@
   ## TODO: Use different performance function for regression
   ## TODO: performance function as a parameter in intialize
   ## TODO: implement random sampling instead of whole x
+  ## TODO: Implement multi.class
   PermImp = R6Class('PermImp', 
     inherit = Experiment,
     public = list(
@@ -54,7 +55,6 @@
       },
       initialize = function(predictor, sampler, feature.index, y){
         ## TODO: Add check that nrow(X) the same as length(y) or nrow(y)
-        if(predictor$multi.class) stop("multi.class not supported yet for permutation feature importance")
         super$initialize(predictor = predictor, sampler = sampler)
         self$y = y
         self$feature.index = feature.index

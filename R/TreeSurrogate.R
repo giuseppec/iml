@@ -1,7 +1,7 @@
 
-tree.surrogate = function(object, X, sample.size=100, class = NULL, multi.class = FALSE, ...){
+tree.surrogate = function(object, X, sample.size=100, class = NULL, ...){
   samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  pred = prediction.model(object, class = class, ...)
   
   TreeSurrogate$new(predictor = pred, sampler = samp, sample.size=sample.size)$run()
 }
@@ -17,7 +17,14 @@ TreeSurrogate = R6Class('TreeSurrogate',
   public = list(
     intervene = function(){self$X.sample},
     aggregate = function(){
-      dat = cbind(y.hat = private$Q.results, self$X.design)
+      y.hat = private$Q.results
+      if(ncol(private$Q.results) > 1){
+        classes = colnames(y.hat)
+        y.hat  = classes[apply(y.hat, 1, which.max)]
+      } else {
+        y.hat = unlist(y.hat[1])
+      }
+      dat = cbind(y.hat = y.hat, self$X.design)
       rpart::rpart(y.hat ~ ., data = dat)
     },
     plot = function(){
@@ -31,7 +38,6 @@ TreeSurrogate = R6Class('TreeSurrogate',
     initialize = function(predictor, sampler, sample.size){
       super$initialize(predictor, sampler)
       self$sample.size = sample.size
-      if(self$predictor$multi.class) private$predict = self$predictor$predict.class
     }
   )
 )

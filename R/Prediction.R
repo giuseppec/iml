@@ -8,28 +8,19 @@
 #' Get a prediction object
 #' 
 #' @param object function, mlr WrappedObject, S3 class with predict function, or caret train object
-#' @param multi.class TRUE if object prediction is multi.class and 
-#' you want to get the probabilities for all classes, not only the first one. Defaults to FALSE. 
-#' The multi.class parameter is ignored when the class parameter is set. 
 #' @param class In case of classification, class specifies the class for which to predict the probability. 
 #' By default the first class in the prediction (first column) is chosen. 
 #' @return object of type Prediction
-prediction.model = function(object, class = NULL, multi.class=FALSE, predict.args = NULL){
-  assert_logical(multi.class, len=1)
+prediction.model = function(object, class = NULL, predict.args = NULL){
   assert_vector(class, len=1, null.ok=TRUE)
-  
-  # Ignore the multi.class flag if class parameter is set
-  if(!is.null(class)) multi.class = FALSE
-  
-  
   if(inherits(object, "function")) {
-    Prediction.f$new(object = object, class = class, multi.class = multi.class)
+    Prediction.f$new(object = object, class = class)
   } else if(inherits(object, "WrappedModel")){
-    Prediction.mlr$new(object = object, class = class, multi.class = multi.class)
+    Prediction.mlr$new(object = object, class = class)
   } else if(inherits(object, 'train')){
-    Prediction.caret$new(object = object, class = class, multi.class = multi.class)
+    Prediction.caret$new(object = object, class = class)
   } else if(has.predict(object)) {
-    Prediction.S3$new(object = object, class = class, multi.class = multi.class, predict.args = predict.args)
+    Prediction.S3$new(object = object, class = class, predict.args = predict.args)
   } else {
     stop(sprintf('Object of type [%s] not supported', paste(class(object), collapse = ", ")))
   }
@@ -42,30 +33,25 @@ Prediction = R6Class("Prediction",
     predict = function(newdata){
       newdata = data.frame(newdata)
       prediction = private$predict.function(newdata)
-      if(!self$multi.class){
-        prediction = private$predict.function(newdata)
-        if(self$type == 'classification'){
-          prediction = prediction[,self$class]
-        } 
-      }
+      if(self$type == 'classification' & !is.null(self$class)){
+        prediction = prediction[,self$class]
+      } 
       data.frame(prediction)
     },
     predict.class = function(newdata){
-      stopifnot(self$multi.class)
+      stopifnot(self$type == 'classification')
       pred = self$predict(newdata)
       classes = colnames(pred)
       classes[apply(pred, 1, which.max)]
     },
-    multi.class = NULL,
     class = NULL,
     type = NULL,
-    initialize = function(object, class=NULL, multi.class=FALSE){
+    initialize = function(object, class=NULL){
       # if object has predict function, but not from caret or mlr, then 
       # it is difficult to know if it's classification or regression model
-      # if class or multi.class was set, then at least we can make a guess
-      if(!is.null(class) | multi.class) self$type = 'classification'
-      self$class = ifelse(is.null(class), 1, class)
-      self$multi.class = multi.class
+      # if class was set, then at least we can make a guess
+      self$class = class
+      if(!is.null(class)) self$type = 'classification'
       private$object = object
       private$infer.type()
     }
@@ -86,6 +72,7 @@ Prediction.mlr = R6Class("Prediction.mlr",
       tsk = mlr::getTaskType(private$object)
       if(tsk == 'classif'){
         self$type = 'classification'
+
       } else if(tsk == 'regr'){
         self$type = 'regression'
       } else {
@@ -117,6 +104,7 @@ Prediction.f = R6Class("Prediction.f",
       assert_true(any(class(pred) %in% c('integer', 'numeric', 'data.frame', 'matrix')))
       if(inherits(pred, c('data.frame', 'matrix')) && dim(pred)[2] > 1) {
         self$type = 'classification' 
+        
       } else {
         self$type = 'regression'
       }

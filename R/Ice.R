@@ -19,7 +19,7 @@
 #' @export
 ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE, ...){
   samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  pred = prediction.model(object, class = class, ...)
   
   obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size)
   obj$run()
@@ -46,7 +46,7 @@ ICE = R6Class('ICE',
       X.id = private$X.design.ids
       X.results = self$X.design[self$feature.index]
       X.results$group = X.id
-      if(self$predictor$multi.class){
+      if(ncol(private$Q.results) > 1){
         y.hat.names = colnames(private$Q.results)
         X.results = cbind(X.results, private$Q.results)
         X.results = tidyr::gather(X.results, key = "class.name", value = "y.hat", one_of(y.hat.names))
@@ -79,7 +79,7 @@ ICE = R6Class('ICE',
       if(self$feature.type == 'numerical') p = p + geom_line()
       else if (self$feature.type == 'categorical') p = p + geom_line(alpha = 0.2) + geom_point()
       
-      if(self$predictor$multi.class){
+      if(ncol(private$Q.results) > 1){
         p + facet_wrap("class.name")
       } else {
         p

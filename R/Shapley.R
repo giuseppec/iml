@@ -1,7 +1,7 @@
 
-shapley = function(object, X, x.interest, sample.size=100, class=NULL, multi.class = FALSE, ...){
+shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
   samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  pred = prediction.model(object, class = class, ...)
   
   Shapley$new(predictor = pred, sampler = samp, x.interest=x.interest, sample.size=sample.size)$run()
 }
@@ -19,8 +19,8 @@ Shapley = R6Class('Shapley',
     x.interest = NULL,
     aggregate = function(){
       agg.df = data.frame(
-        y.hat.with.k = private$Q.results[1:(length(private$Q.results)/2)],
-        y.hat.without.k = private$Q.results[(length(private$Q.results)/2 + 1):length(private$Q.results)],
+        y.hat.with.k = private$Q.results[1:(nrow(private$Q.results)/2),1],
+        y.hat.without.k = private$Q.results[(nrow(private$Q.results)/2 + 1):nrow(private$Q.results),1],
         features = rep(colnames(self$X.design), times = self$sample.size)
       )
       agg.df %>% group_by(features) %>% summarise(phi = mean(y.hat.with.k - y.hat.without.k))
@@ -58,7 +58,6 @@ Shapley = R6Class('Shapley',
       print(self$data())
     },
     initialize = function(predictor, sampler, x.interest, sample.size){
-      if(predictor$multi.class) stop('multi.class not supported yet')
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$x.interest = x.interest

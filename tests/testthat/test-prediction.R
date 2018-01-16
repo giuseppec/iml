@@ -6,22 +6,22 @@ library('caret')
 task = mlr::makeClassifTask(data = iris, target = "Species")
 lrn = mlr::makeLearner("classif.randomForest", predict.type = 'prob')
 mod.mlr = mlr::train(lrn, task)
-predictor.mlr = prediction.model(mod.mlr, multi.class = TRUE)
+predictor.mlr = prediction.model(mod.mlr)
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
-predictor.S3 = prediction.model(mod.S3, multi.class = TRUE, predict.args = list(type='prob'))
+predictor.S3 = prediction.model(mod.S3, predict.args = list(type='prob'))
 
 # caret
 mod.caret = caret::train(Species ~ ., data = iris, method = "knn", 
   trControl = caret::trainControl(method = "cv"))
-predictor.caret = prediction.model(mod.caret, multi.class = TRUE)
+predictor.caret = prediction.model(mod.caret)
 
 # function
 mod.f = function(X){
   predict(mod.caret, newdata = X,  type = 'prob')
 }
-predictor.f = prediction.model(mod.f, multi.class = TRUE)
+predictor.f = prediction.model(mod.f)
 iris.test = iris[c(2,20, 100, 150), c('Sepal.Length', 'Sepal.Width', 'Petal.Length', 'Petal.Width')]
 prediction.f = predictor.f$predict(iris.test)
 
@@ -85,7 +85,7 @@ mod.caret = caret::train(medv ~ ., data = Boston, method = "knn",
 mod.f = function(X){
   predict(mod.caret, newdata = X)
 }
-predictor.f = prediction.model(mod.f, multi.class = TRUE)
+predictor.f = prediction.model(mod.f)
 boston.test = Boston[c(1,2,3,4), ]
 prediction.f = predictor.f$predict(boston.test)
 

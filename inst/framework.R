@@ -23,7 +23,7 @@ mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::
 
 
 ## PDP
-pdp.obj = pdp(object = mod, X=X, feature = c(1,2), multi.class = TRUE)  
+pdp.obj = pdp(object = mod, X=X, feature = c(1,2), class = 2)  
 
 pdp.obj$data()
 
@@ -40,12 +40,12 @@ pdp.obj$feature = 1
 pdp.obj$plot()
 
 
-pdp(mod, X, feature = 1, class = 1)$plot()
+pdp(mod, X, feature = 1, class = 2)$plot()
 
 ## ICE
-ice(object = mod, X=X, feature = 4, predict.args = list(type='prob'), multi.class = TRUE)$plot()  
+ice(object = mod, X=X, feature = 4, predict.args = list(type='prob'))$plot()  
 
-ice1 = ice(mod, X=X, feature = 2, predict.args = list(type='prob'), multi.class = TRUE)  
+ice1 = ice(mod, X=X, feature = 2, predict.args = list(type='prob'))  
 plot(ice1)
 
 ice1$data()
@@ -53,7 +53,7 @@ ice1$feature = 3
 ice1$plot()
 
 ## ICE centered
-ice1 = ice(mod, X=X, feature = 1, center.at = 4, multi.class = TRUE)
+ice1 = ice(mod, X=X, feature = 1, center.at = 4)
 ice1$plot()
 
 
@@ -66,10 +66,10 @@ plot(ice1)
 
 ## LIME
 
-i = 120
+i = 121
 x.interest = X[i,]
 
-lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
+lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 1)
 
 lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
 dat = lime1$data()
@@ -80,27 +80,27 @@ lime1$x <- X[i+1,]
 lime1
 
 ## Shapley
-shapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'))
-shapley1 = shapley(mod, X, x.interest, 100, class=2, predict.args = list(type = 'prob'))
+shapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'), class = 3)
+shapley1 = shapley(mod, X, x.interest, 100, class=NULL, predict.args = list(type = 'prob'))
 shapley1$x = X[i+2,]
 shapley1
 
 ## Permutation feature importance
-perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$data()
+perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'), class = 1)$data()
 perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$plot()
 
 
 
 
 ## Sobol (first order)
-sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'))
+sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'), class = 2)
 
 
 ## Sobol (total)
-sobol(mod, X, sample.size = 1000, type = 'total', predict.args = list(type = 'prob'))
+sobol(mod, X, sample.size = 1000, type = 'total', predict.args = list(type = 'prob'), class =1)
 
 
 
 ## tree surrogate model, centered
-tree = tree.surrogate(mod, X, 10000, predict.args = list(type = 'prob'), multi.class = TRUE)
+tree = tree.surrogate(mod, X, 10000, predict.args = list(type = 'prob'), class = 1)
 summary(tree)

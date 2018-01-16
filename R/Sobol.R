@@ -1,13 +1,13 @@
-sobol = function(object, X, sample.size = 100, type = 'first', class = NULL, multi.class = FALSE, ...){
+sobol = function(object, X, sample.size = 100, type = 'first', class = NULL,  ...){
   samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, multi.class = multi.class, ...)
+  pred = prediction.model(object, class = class, ...)
   
   Sobol$new(predictor = pred, sampler = samp, sample.size = sample.size, type = type)$run()
 }
 
 
 
-
+## TODO: Implement multi.class
 Sobol = R6Class('Sobol', 
   inherit = Experiment,
   public = list(
@@ -43,7 +43,6 @@ Sobol = R6Class('Sobol',
       print(self$data())
     },
     initialize = function(predictor, sampler, sample.size, type){
-      if(predictor$multi.class) stop('multi.class not supported yet for sobol')
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$type = type
