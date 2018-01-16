@@ -21,11 +21,7 @@ ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NU
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, multi.class = multi.class, ...)
   
-  if(is.null(center.at)){
-    obj = ICE$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size, sample.size = sample.size)
-  } else {
-    obj = ICE.centered$new(predictor = pred, sampler = samp, anchor = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size)
-  }
+  obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size)
   obj$run()
   obj
 }
@@ -36,6 +32,16 @@ ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NU
 ICE = R6Class('ICE',
   inherit = PDP,
   public = list(
+    intervene = function(){
+      X.design = super$intervene()
+      if(!is.null(private$anchor.value)) {
+        X.design.anchor = self$X.sample
+        X.design.anchor[self$feature.index] = private$anchor.value
+        private$X.design.ids = c(private$X.design.ids, 1:nrow(self$X.sample))
+        X.design = rbind(X.design, X.design.anchor)
+      }
+      X.design
+    },
     aggregate = function(){
       X.id = private$X.design.ids
       X.results = self$X.design[self$feature.index]
@@ -45,13 +51,24 @@ ICE = R6Class('ICE',
         X.results = cbind(X.results, private$Q.results)
         X.results = tidyr::gather(X.results, key = "class.name", value = "y.hat", one_of(y.hat.names))
       } else {
-       X.results['y.hat']= private$Q.results
-       X.results['class.name'] = 1
+        X.results['y.hat']= private$Q.results
+        X.results['class.name'] = 1
+      }
+      
+      if(!is.null(private$anchor.value)){
+        X.aggregated.anchor = X.results[X.results[self$feature.names] == private$anchor.value, c('y.hat', 'group', 'class.name')]
+        names(X.aggregated.anchor) = c('anchor.yhat', 'group', 'class.name')
+        X.results = left_join(X.results, X.aggregated.anchor, by = c('group', 'class.name'))
+        X.results$y.hat = X.results$y.hat - X.results$anchor.yhat
+        X.results$anchor.yhat = NULL
+        X.results
       }
       
       X.results
     }, 
-    initialize = function(feature, ...){
+    initialize = function(feature, anchor.value = NULL, ...){
+      assert_number(anchor.value, null.ok = TRUE)
+      private$anchor.value = anchor.value
       assert_count(feature)
       super$initialize(feature=feature, ...)
     }
@@ -67,41 +84,14 @@ ICE = R6Class('ICE',
       } else {
         p
       }
-    }
-  )
-)
-
-
-## TODO: Integrate in the ICE class
-ICE.centered = R6Class('ICE.centered',
-  inherit = ICE,
-  public = list(
-    anchor.value = NULL,
-    aggregate = function(){
-      X.aggregated = super$aggregate()
-      X.aggregated.anchor = X.aggregated[X.aggregated[self$feature.names] == self$anchor.value, c('y.hat', 'group', 'class.name')]
-      names(X.aggregated.anchor) = c('anchor.yhat', 'group', 'class.name')
-      X.aggregated = left_join(X.aggregated, X.aggregated.anchor, by = c('group', 'class.name'))
-      X.aggregated$y.hat = X.aggregated$y.hat - X.aggregated$anchor.yhat
-      X.aggregated$anchor.yhat = NULL
-      X.aggregated
-    },
-    intervene = function(){
-      X.design = super$intervene()
-      X.design.anchor = self$X.sample
-      X.design.anchor[self$feature.index] = self$anchor.value
-      private$X.design.ids = c(private$X.design.ids, 1:nrow(self$X.sample))
-      rbind(X.design, X.design.anchor)
-    },
-    initialize = function(anchor, ...){
-      self$anchor.value = anchor
-      super$initialize(...)
-    }
+    }, 
+    anchor.value = NULL
   ),
   active = list(
-    center.at = function(anchor){
-      self$anchor.value = anchor
+    center.at = function(anchor.value){
+      private$anchor.value = anchor.value
       private$flush()
     }
   )
 )
+
