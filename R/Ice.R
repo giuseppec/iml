@@ -6,12 +6,13 @@
 
 #' Individual conditional expectations (ICE)
 #' 
+#' @description 
 #' Fits and plots individual conditional expectation function on an arbitrary machine learning model
 #' 
-#' @template args_experiment_wrap
-#' @template arg_feature
-#' @template arg_grid.size 
-#' @template arg_sample.size
+#' @details 
+#' TODO
+#' 
+#' @inherit pdp
 #' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
 #' @return PDP object
 #' @examples

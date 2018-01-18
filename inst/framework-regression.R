@@ -22,6 +22,12 @@ lrn = makeLearner("regr.randomForest")
 ## Train the learner
 mod = train(lrn, task)
 
+library("randomForest")
+data("Boston", package  = "MASS")
+mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+
+
+
 f = function(X){
   predict(mod, newdata = X)$data$response
 }

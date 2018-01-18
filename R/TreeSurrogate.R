@@ -1,4 +1,7 @@
-
+#' Local models
+#' 
+#' @export
+#' @template args_experiment_wrap
 tree.surrogate = function(object, X, sample.size=100, class = NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)

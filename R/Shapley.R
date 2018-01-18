@@ -1,4 +1,8 @@
-
+#' Local models
+#' 
+#' @export
+#' @template args_experiment_wrap
+#' @template arg_feature
 shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)

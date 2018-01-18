@@ -1,3 +1,8 @@
+#' Local models
+#' 
+#' @export
+#' @template args_experiment_wrap
+#' @template arg_feature
 lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)

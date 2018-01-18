@@ -1,17 +1,86 @@
-
-
 #' Partial Dependence Plot
 #' 
-#' Fits a partial dependence function on an arbitrary machine learning model
+#' @description 
+#' \code{pdp} fits a partial dependence function on an arbitrary machine learning model. 
 #' 
+#' @details
+#' The machine learning models the relationship \eqn{y = f(X)}. We can't visualize 
+#' this learned \eqn{\hat{f}} because it is high-dimensional. But we can split it into parts:
+#' \deqn{f(X) = f_1(X_1) + \ldots + f_p(X_p) + f_{1, 2}(X_1, X_2) + \ldots + f_{p-1, p} + \ldots + f_{1\ldotsp}(X_1\ldotsX_p)}, 
+#' 
+#' And we can isolate the partial dependence of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
+#' We can even do this for higher dimensions, but a maximum of 2 features makes sense: \eqn{f_j(X_j) + f_k(X_k) + f_{jk}(X_{jk})}
+#' 
+#' The partial dependence for a feature \eqn{X_j} is estimated by spanning a grid over the feature space. 
+#' For each value of the grid, we replace in the whole dataset the \eqn{X_j}-value with the grid value, 
+#' predict the outcomes \eqn{\hat{y}} with the machine learning models and average the predictions. 
+#' This generate one point of the partial dependence curve. After doing this for the whole grid, 
+#' the outcome is a curve (or 2D plane), that then can be plotted. 
+#' 
+#' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/pdp.html
+#' 
+#' 
+#' @return 
+#' A partial dependence plot object. It is an object based on the R6 class system. 
+#' TODO: Describe object
+#' 
+#' @seealso 
+#' \code{\link{ice}} for individual conditional expectation plots. 
+#' 
+#' @references 
+#' Friedman, J.H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29: 1189–1232.#' 
 #' @template args_experiment_wrap
 #' @template arg_feature
 #' @template arg_grid.size 
 #' @template arg_sample.size
+#' 
+#' @importFrom tidyr gather
+#' @importFrom dplyr one_of group_by group_by_at summarise
+#' @import ggplot2
 #' @return PDP object
+#' @export
 #' @examples
 #' 
-#' @export
+#' # We train a random forest on the Boston dataset:
+#' library("randomForest")
+#' data("Boston", package  = "MASS")
+#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' 
+#' # Compute the partial dependence for the first feature
+#' pdp.obj = pdp(mod, Boston, feature = 1)
+#' 
+#' # Plot the results directly
+#' plot(pdp.obj)
+#' 
+#' 
+#' # Since the result is a ggplot object, you can extend it: 
+#' library("ggplot2")
+#' plot(pdp.obj) + theme_bw()
+#' 
+#' # If you want to do your own thing, just extract the data: 
+#' pdp.dat = pdp.obj$data()
+#' head(pdp.dat)
+#' 
+#' # You can reuse the pdp object for other features: 
+#' pdp.obj$feature = 2
+#' plot(pdp.obj)
+#' 
+#' # Partial dependence plots support up to two features: 
+#' pdp.obj = pdp(object = mod, X=X, feature = c(1,2))  
+#' 
+#' # Partial dependence plots also works with multiclass classification
+#' library("randomForest")
+#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' 
+#' # For some models we have to specify additional arguments for the predict function
+#' plot(pdp(mod, iris, feature = 1, predict.args = list(type = 'prob'))
+#' 
+#' #' # For multiclass classification models, you can chooe to only show one class:
+#' plot(pdp(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob'))
+#' 
+#' # Partial dependence plots support up to two features: 
+#' pdp.obj = pdp(mod, iris, feature = c(1,2), predict.args = list(type = 'prob')))  
+#' 
 pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,  ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
@@ -19,6 +88,10 @@ pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,
   PDP$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size, 
     sample.size = sample.size)$run()
 }
+
+
+
+
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
 PDP = R6Class('PDP', 
@@ -35,15 +108,14 @@ PDP = R6Class('PDP',
       if(ncol(private$Q.results) > 1){
         y.hat.names = colnames(private$Q.results)
         results = cbind(results, private$Q.results)
-        results = tidyr::gather(results, key = "class.name", value = "y.hat", one_of(y.hat.names))
+        results = gather(results, key = "class.name", value = "y.hat", one_of(y.hat.names))
       } else {
         results['y.hat']= private$Q.results
         results['class.name'] = 1
       }
-      results = results %>% 
-        group_by_at(self$feature.names) %>% 
-        group_by(class.name, add = TRUE) %>%
-        summarise(y.hat = mean(y.hat)) %>% data.frame
+      results.grouped = group_by_at(results, self$feature.names)
+      results.grouped = group_by(results.grouped, class.name, add = TRUE)
+      results = data.frame(summarise(results.grouped, y.hat = mean(y.hat)))
       results 
     },
     intervene = function(){
@@ -63,7 +135,7 @@ PDP = R6Class('PDP',
       X.design
     }, 
     initialize = function(predictor, sampler, feature, grid.size, sample.size){
-      assert_numeric(feature, lower=1, upper=ncol(X), min.len=1, max.len=2)
+      assert_numeric(feature, lower=1, upper=sampler$n.features, min.len=1, max.len=2)
       if(length(feature)==2) assert_false(feature[1] == feature[2])
       super$initialize(predictor, sampler)
       self$sample.size = sample.size

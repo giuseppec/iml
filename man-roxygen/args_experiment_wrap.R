@@ -1,8 +1,10 @@
-#'@param object 
+#' @param object 
+#'    The object is the machine learning model. Different types are allowed. 
 #'    Recommended are mlr WrappedModel and caret train object. \code{object} can also be 
 #'    a function that predicts the outcome given features or anything with an S3 predict function,
 #'    like an object from class lm.
-#'@param X
+#' @param X
 #'    data.frame with the data for the prediction model
-#'@param class In case of classification, class specifies the class for which to predict the probability. 
+#' @param class In case of classification, class specifies the class for which to predict the probability. 
 #' By default the first class in the prediction (first column) is chosen. 
+#' 
