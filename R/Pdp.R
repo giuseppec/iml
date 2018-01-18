@@ -66,20 +66,21 @@
 #' plot(pdp.obj)
 #' 
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = pdp(object = mod, X=X, feature = c(1,2))  
+#' pdp.obj = pdp(mod, Boston, feature = c(1,2))  
 #' 
 #' # Partial dependence plots also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(pdp(mod, iris, feature = 1, predict.args = list(type = 'prob'))
+#' plot(pdp(mod, iris, feature = 1, predict.args = list(type = 'prob')))
 #' 
-#' #' # For multiclass classification models, you can chooe to only show one class:
-#' plot(pdp(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob'))
+#' # For multiclass classification models, you can choose to only show one class:
+#' plot(pdp(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
 #' 
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = pdp(mod, iris, feature = c(1,2), predict.args = list(type = 'prob')))  
+#' pdp.obj = pdp(mod, iris, feature = c(1,2), predict.args = list(type = 'prob'))
+#' pdp.obj$plot()  
 #' 
 pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,  ...){
   samp = DataSampler$new(X)
