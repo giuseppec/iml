@@ -33,6 +33,12 @@ Prediction = R6Class("Prediction",
     predict = function(newdata){
       newdata = data.frame(newdata)
       prediction = private$predict.function(newdata)
+      if(self$type == 'classification' && is.null(self$classes)) {
+        self$classes = colnames(prediction)
+        if(!is.null(self$class)){
+          self$classes = self$classes[self$class]
+        }
+      }
       if(self$type == 'classification' & !is.null(self$class)){
         prediction = prediction[,self$class]
       } 
@@ -45,7 +51,12 @@ Prediction = R6Class("Prediction",
       classes[apply(pred, 1, which.max)]
     },
     class = NULL,
+    classes = NULL, 
     type = NULL,
+    print = function(){
+      cat('Prediction type:', self$type, '\n')
+      if(self$type == 'classification') cat('Classes: ', paste(self$classes, collapse = ', '))
+    },
     initialize = function(object, class=NULL){
       # if object has predict function, but not from caret or mlr, then 
       # it is difficult to know if it's classification or regression model

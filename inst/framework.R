@@ -23,8 +23,8 @@ mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::
 
 
 ## PDP
-pdp.obj = pdp(object = mod, X=X, feature = c(1,2), class = 2)  
-
+pdp.obj = pdp(object = mod, X=X, feature = c(1, 4), class = 1)  
+pdp.obj
 pdp.obj$data()
 
 plot(pdp.obj)

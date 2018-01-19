@@ -33,6 +33,19 @@ Experiment = R6Class("Experiment",
     data = function(){
       private$results
     },
+    print = function(){
+      cat("Interpretation method: ", class(self)[1], "\n")
+      self$print.parameters()
+      cat("\n\nAnalysed model: \n")
+      self$predictor$print()
+      cat("\n\nAnalysed data:\n")
+      print(self$sampler)
+      cat("\n\nHead of results:\n")
+      if(private$finished){
+        print(head(private$results))
+      }
+    },
+    print.parameters = function(){},
     run = function(force = FALSE, ...){
       if(force) private$flush()
       if(!private$finished){

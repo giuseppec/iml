@@ -43,10 +43,6 @@ LIME = R6Class('LIME',
       self$X.sample = rbind(self$x.interest, self$X.sample)
       return(self$X.sample)
     }, 
-    print = function(){
-      self$run()
-      print(private$results)
-    },
     weight.samples = function(){
       require('gower')
       gower_dist(self$X.design, self$x.interest)

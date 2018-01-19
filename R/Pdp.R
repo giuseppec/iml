@@ -20,15 +20,12 @@
 #' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/pdp.html
 #' 
 #' 
-#' @return 
-#' A partial dependence plot object. It is an object based on the R6 class system. 
-#' TODO: Describe object
-#' 
 #' @seealso 
 #' \code{\link{ice}} for individual conditional expectation plots. 
 #' 
 #' @references 
 #' Friedman, J.H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29: 1189–1232.#' 
+#' @return A partial dependence plot object
 #' @template args_experiment_wrap
 #' @template arg_feature
 #' @template arg_grid.size 
@@ -37,7 +34,6 @@
 #' @importFrom tidyr gather
 #' @importFrom dplyr one_of group_by group_by_at summarise
 #' @import ggplot2
-#' @return PDP object
 #' @export
 #' @examples
 #' 
@@ -79,7 +75,7 @@
 #' plot(pdp(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
 #' 
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = pdp(mod, iris, feature = c(1,2), predict.args = list(type = 'prob'))
+#' pdp.obj = pdp(mod, iris, feature = c(1,3), predict.args = list(type = 'prob'))
 #' pdp.obj$plot()  
 #' 
 pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,  ...){
@@ -95,7 +91,7 @@ pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,
 
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
-PDP = R6Class('PDP', 
+PDP = R6Class('partial dependence plot', 
   inherit = Experiment,
   public = list(
     grid.size = NULL, 
@@ -109,13 +105,13 @@ PDP = R6Class('PDP',
       if(ncol(private$Q.results) > 1){
         y.hat.names = colnames(private$Q.results)
         results = cbind(results, private$Q.results)
-        results = gather(results, key = "class.name", value = "y.hat", one_of(y.hat.names))
+        results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
       } else {
         results['y.hat']= private$Q.results
-        results['class.name'] = 1
+        results['..class.name'] = self$predictor$class
       }
       results.grouped = group_by_at(results, self$feature.names)
-      results.grouped = group_by(results.grouped, class.name, add = TRUE)
+      if('..class.name' %in% colnames(results)) results.grouped = group_by(results.grouped, ..class.name, add = TRUE)
       results = data.frame(summarise(results.grouped, y.hat = mean(y.hat)))
       results 
     },
@@ -135,6 +131,10 @@ PDP = R6Class('PDP',
       }
       X.design
     }, 
+    print.parameters = function(){
+      cat('features:', paste(sprintf("%s[%s]", self$feature.names, self$feature.type), collapse = ", "))
+      cat('\ngrid size:', paste(self$grid.size, collapse = "x"))
+    },
     initialize = function(predictor, sampler, feature, grid.size, sample.size){
       assert_numeric(feature, lower=1, upper=sampler$n.features, min.len=1, max.len=2)
       if(length(feature)==2) assert_false(feature[1] == feature[2])
@@ -174,7 +174,7 @@ PDP = R6Class('PDP',
         }
       }
       if(ncol(private$Q.results) > 1){
-        p = p + facet_wrap("class.name")
+        p = p + facet_wrap("..class.name")
       } 
       p
     }, 

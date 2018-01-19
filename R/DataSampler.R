@@ -19,6 +19,9 @@ DataSampler  = R6Class('DataSampler',
     get.x = function(...){
       self$X
     },
+    print = function(){
+      cat("Sampling from data.frame with", nrow(self$X), "rows and", ncol(self$X), "columns.")
+    },
     initialize = function(X, prob = NULL){
       assertDataFrame(X, all.missing = FALSE)
       self$X = X
