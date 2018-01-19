@@ -2,7 +2,6 @@
 #' 
 #' @export
 #' @template args_experiment_wrap
-#' @template arg_feature
 lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
@@ -26,26 +25,8 @@ LIME = R6Class('LIME',
     predict = function(X=self$X){
       predict(self$model, newdata=X)
     },
-    get.Q = function(){
-      private$Q.results
-    },
-    aggregate = function(){
-      mmat = model.matrix(unlist(private$Q.results[1]) ~ ., data = self$X.design)
-      res = glmnet(x = mmat, y = unlist(private$Q.results[1]), w = self$weight.samples())
-      best.index = max(which(res$df == self$k))
-      res = data.frame(beta = res$beta[, best.index])
-      res$x = mmat[1,]
-      res$effect = res$beta * res$x
-      res$feature = colnames(mmat)
-      res
-    },
-    intervene = function(){
-      self$X.sample = rbind(self$x.interest, self$X.sample)
-      return(self$X.sample)
-    }, 
-    weight.samples = function(){
-      require('gower')
-      gower_dist(self$X.design, self$x.interest)
+    data = function(){
+      cbind(private$X.design, w = private$weight.samples())
     },
     initialize = function(predictor, sampler, sample.size, k, x.interest, class, ...){
       if(!require('glmnet')){stop('Please install glmnet')}
@@ -58,6 +39,24 @@ LIME = R6Class('LIME',
   private = list(
     generate.plot = function(){
       ggplot(private$results) + geom_point(aes(y = effect, x = feature)) + coord_flip() 
+    },
+    aggregate = function(){
+      mmat = model.matrix(unlist(private$Q.results[1]) ~ ., data = private$X.design)
+      res = glmnet(x = mmat, y = unlist(private$Q.results[1]), w = private$weight.samples())
+      best.index = max(which(res$df == self$k))
+      res = data.frame(beta = res$beta[, best.index])
+      res$x = mmat[1,]
+      res$effect = res$beta * res$x
+      res$feature = colnames(mmat)
+      res
+    },
+    intervene = function(){
+      private$X.sample = rbind(self$x.interest, private$X.sample)
+      return(private$X.sample)
+    }, 
+    weight.samples = function(){
+      require('gower')
+      gower_dist(private$X.design, self$x.interest)
     }
   ),
   active = list(

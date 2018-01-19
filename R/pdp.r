@@ -1,11 +1,12 @@
 #' Partial Dependence Plot
 #' 
 #' @description 
-#' \code{pdp} fits a partial dependence function on an arbitrary machine learning model. 
+#' \code{pdp} computes partial dependence functions of prediction models. 
 #' 
 #' @details
-#' The machine learning models the relationship \eqn{y = f(X)}. We can't visualize 
-#' this learned \eqn{\hat{f}} because it is high-dimensional. But we can split it into parts:
+#' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
+#' the learned \eqn{\hat{f}} directly for high-dimensional X. 
+#' But we can split it into parts:
 #' \deqn{f(X) = f_1(X_1) + \ldots + f_p(X_p) + f_{1, 2}(X_1, X_2) + \ldots + f_{p-1, p} + \ldots + f_{1\ldotsp}(X_1\ldotsX_p)}, 
 #' 
 #' And we can isolate the partial dependence of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
@@ -27,7 +28,10 @@
 #' Friedman, J.H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29: 1189–1232.#' 
 #' @return A partial dependence plot object
 #' @template args_experiment_wrap
-#' @template arg_feature
+#' @return \itemize{\item The partial dependence object can be reused for other features, e.g. \code{obj$feature = 2; obj$plot()}}
+#' @param feature The index (or indicices) of the feature(s) of interest. 
+#' For 1D partial dependence plot, give a single number, for a 2D-plot of two features, provide an 
+#' integer vector of length two. 
 #' @template arg_grid.size 
 #' @template arg_sample.size
 #' 
@@ -99,42 +103,6 @@ PDP = R6Class('partial dependence plot',
     feature.names = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    aggregate = function(){
-      results = self$X.design[self$feature.index]
-      
-      if(ncol(private$Q.results) > 1){
-        y.hat.names = colnames(private$Q.results)
-        results = cbind(results, private$Q.results)
-        results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
-      } else {
-        results['y.hat']= private$Q.results
-        results['..class.name'] = self$predictor$class
-      }
-      results.grouped = group_by_at(results, self$feature.names)
-      if('..class.name' %in% colnames(results)) results.grouped = group_by(results.grouped, ..class.name, add = TRUE)
-      results = data.frame(summarise(results.grouped, y.hat = mean(y.hat)))
-      results 
-    },
-    intervene = function(){
-      grid = get.1D.grid(self$X.sample[self$feature.index[1]], self$feature.type[1], self$grid.size[1])
-      
-      private$X.design.ids = rep(1:nrow(self$X.sample), times = length(grid))
-      X.design = self$X.sample[private$X.design.ids,]
-      X.design[self$feature.index[1]] = rep(grid, each = nrow(self$X.sample))
-      
-      if(self$n.features == 2) {
-        grid2 = get.1D.grid(self$X.sample[self$feature.index[2]], self$feature.type[2], self$grid.size[2])
-        private$X.design.ids = rep(private$X.design.ids, times = length(grid))
-        X.design2 = X.design[rep(1:nrow(X.design), times = length(grid)), ]
-        X.design2[self$feature.index[2]] = rep(grid, each = nrow(X.design))
-        return(X.design2)
-      }
-      X.design
-    }, 
-    print.parameters = function(){
-      cat('features:', paste(sprintf("%s[%s]", self$feature.names, self$feature.type), collapse = ", "))
-      cat('\ngrid size:', paste(self$grid.size, collapse = "x"))
-    },
     initialize = function(predictor, sampler, feature, grid.size, sample.size){
       assert_numeric(feature, lower=1, upper=sampler$n.features, min.len=1, max.len=2)
       if(length(feature)==2) assert_false(feature[1] == feature[2])
@@ -146,13 +114,49 @@ PDP = R6Class('partial dependence plot',
     }
   ), 
   private = list(
+    aggregate = function(){
+      results = private$X.design[self$feature.index]
+      
+      if(ncol(private$Q.results) > 1){
+        y.hat.names = colnames(private$Q.results)
+        results = cbind(results, private$Q.results)
+        results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
+      } else {
+        results['y.hat']= private$Q.results
+        results['..class.name'] = private$predictor$class
+      }
+      results.grouped = group_by_at(results, self$feature.names)
+      if('..class.name' %in% colnames(results)) results.grouped = group_by(results.grouped, ..class.name, add = TRUE)
+      results = data.frame(summarise(results.grouped, y.hat = mean(y.hat)))
+      results 
+    },
+    intervene = function(){
+      grid = get.1D.grid(private$X.sample[self$feature.index[1]], self$feature.type[1], self$grid.size[1])
+      
+      private$X.design.ids = rep(1:nrow(private$X.sample), times = length(grid))
+      X.design = private$X.sample[private$X.design.ids,]
+      X.design[self$feature.index[1]] = rep(grid, each = nrow(private$X.sample))
+      
+      if(self$n.features == 2) {
+        grid2 = get.1D.grid(private$X.sample[self$feature.index[2]], self$feature.type[2], self$grid.size[2])
+        private$X.design.ids = rep(private$X.design.ids, times = length(grid))
+        X.design2 = X.design[rep(1:nrow(X.design), times = length(grid)), ]
+        X.design2[self$feature.index[2]] = rep(grid, each = nrow(X.design))
+        return(X.design2)
+      }
+      X.design
+    }, 
     X.design.ids = NULL, 
     grid.size.original = NULL,
     set.feature = function(feature.index){
       self$feature.index = feature.index
       self$n.features = length(feature.index)
-      self$feature.type = self$sampler$feature.types[self$feature.index]
-      self$feature.names = self$sampler$feature.names[feature.index]
+      self$feature.type = private$sampler$feature.types[self$feature.index]
+      self$feature.names = private$sampler$feature.names[feature.index]
+    },
+    print.parameters = function(){
+      cat('features:', paste(sprintf("%s[%s]", self$feature.names, self$feature.type), collapse = ", "))
+      cat('\ngrid size:', paste(self$grid.size, collapse = "x"))
     },
     generate.plot = function(){
       if(self$n.features == 1){
@@ -180,13 +184,13 @@ PDP = R6Class('partial dependence plot',
     }, 
     set.grid.size = function(size){
       self$grid.size = numeric(length=self$n.features)
-      names(self$grid.size) = self$sampler$feature.names[self$feature.index]
+      names(self$grid.size) = private$sampler$feature.names[self$feature.index]
       private$set.grid.size.single(size, 1)
       if(self$n.features > 1) private$set.grid.size.single(size, 2)
     }, 
     set.grid.size.single = function(size, feature.number){
       self$grid.size[feature.number] = ifelse(self$feature.type[feature.number] == 'numerical', 
-        size, unique(self$X[[self$feature.index[feature.number]]]))
+        size, unique(private$X.sample[[self$feature.index[feature.number]]]))
     }
   ), 
   active = list(

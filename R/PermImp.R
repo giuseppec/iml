@@ -16,13 +16,12 @@ PermImps = R6Class('PermImps',
   public = list(
     initialize = function(predictor, sampler, y){
       experiments = lapply(1:sampler$n.features, function(feature.index){
-        x = PermImp$new(predictor = predictor, sampler = sampler, y = y, feature.index = feature.index)
-        x
+        PermImp$new(predictor = predictor, sampler = sampler, y = y, feature.index = feature.index)
       })
-      super$initialize(experiments)
+      super$initialize(predictor, sampler, experiments)
     }, 
     plot = function(){
-      plt.data = self$results
+      plt.data = private$results
       # Order features in descending order for plot
       plt.data.order = order(plt.data$performance)
       plt.data$feature = factor(plt.data$feature, levels = plt.data$feature[plt.data.order])
@@ -41,9 +40,18 @@ PermImp = R6Class('PermImp',
   public = list(
     y = NULL,
     feature.index = NULL,
+    initialize = function(predictor, sampler, feature.index, y){
+      ## TODO: Add check that nrow(X) the same as length(y) or nrow(y)
+      super$initialize(predictor = predictor, sampler = sampler)
+      self$y = y
+      self$feature.index = feature.index
+      private$sample.x = private$sampler$get.x
+    }
+  ),
+  private = list(
     intervene = function(){
-      X.inter = self$X.sample
-      X.inter[self$feature.index] = X.inter[sample(1:nrow(self$X.sample)), self$feature.index]
+      X.inter = private$X.sample
+      X.inter[self$feature.index] = X.inter[sample(1:nrow(private$X.sample)), self$feature.index]
       rbind(X, X.inter)
     },
     aggregate = function(){
@@ -54,17 +62,8 @@ PermImp = R6Class('PermImp',
       length.y = length(y)
       pp = performance(private$Q.results[1:length.y,1], self$y) - 
         performance(private$Q.results[(length.y + 1):(2*length.y),1], self$y)
-      data.frame(performance = pp, feature = self$sampler$feature.names[self$feature.index])
+      data.frame(performance = pp, feature = private$sampler$feature.names[self$feature.index])
     },
-    initialize = function(predictor, sampler, feature.index, y){
-      ## TODO: Add check that nrow(X) the same as length(y) or nrow(y)
-      super$initialize(predictor = predictor, sampler = sampler)
-      self$y = y
-      self$feature.index = feature.index
-      private$sample.x = self$sampler$get.x
-    }
-  ),
-  private = list(
     generate.plot = function(){
       ggplot(private$results) + geom_bar(aes(x = feature, y = performance), stat='identity')
     }

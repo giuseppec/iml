@@ -2,7 +2,6 @@
 #' 
 #' @export
 #' @template args_experiment_wrap
-#' @template arg_feature
 shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
@@ -21,24 +20,32 @@ Shapley = R6Class('Shapley',
   inherit = Experiment,
   public = list(
     x.interest = NULL,
+    initialize = function(predictor, sampler, x.interest, sample.size){
+      super$initialize(predictor = predictor, sampler = sampler)
+      self$sample.size = sample.size
+      self$x.interest = x.interest
+    }
+  ), 
+  private = list(
+    
     aggregate = function(){
       agg.df = data.frame(
         y.hat.with.k = private$Q.results[1:(nrow(private$Q.results)/2),1],
         y.hat.without.k = private$Q.results[(nrow(private$Q.results)/2 + 1):nrow(private$Q.results),1],
-        features = rep(colnames(self$X.design), times = self$sample.size)
+        features = rep(colnames(private$X.design), times = self$sample.size)
       )
       agg.df %>% group_by(features) %>% summarise(phi = mean(y.hat.with.k - y.hat.without.k))
     },
     intervene = function(){
-      n.features = ncol(self$X.sample)
+      n.features = ncol(private$X.sample)
       # The intervention
       runs = lapply(1:self$sample.size, function(m){
         # randomly order features
         new.feature.order = sample(1:n.features)
         # randomly choose sample instance from X
-        sample.instance.shuffled = self$X.sample[sample(1:nrow(self$X.sample), 1), new.feature.order]
+        sample.instance.shuffled = private$X.sample[sample(1:nrow(private$X.sample), 1), new.feature.order]
         x.interest.shuffled = self$x.interest[new.feature.order]
-
+        
         lapply(1:n.features, function(k){
           k.at.index = which(new.feature.order == k)
           instance.with.k = x.interest.shuffled
@@ -48,7 +55,7 @@ Shapley = R6Class('Shapley',
           }
           instance.without.k = instance.with.k
           instance.without.k[k.at.index] = sample.instance.shuffled[k.at.index]
-          cbind(instance.with.k[self$sampler$feature.names], instance.without.k[self$sampler$feature.names])
+          cbind(instance.with.k[private$sampler$feature.names], instance.without.k[private$sampler$feature.names])
         }) %>% data.table::rbindlist()
         
       }) %>% data.table::rbindlist()
@@ -56,21 +63,13 @@ Shapley = R6Class('Shapley',
       dat.without.k = data.frame(runs[,(ncol(runs)/2 + 1):ncol(runs)])
       
       rbind(dat.with.k, dat.without.k)
-    }, 
-    print = function(){
-      self$run()
-      print(self$data())
-    },
-    initialize = function(predictor, sampler, x.interest, sample.size){
-      super$initialize(predictor = predictor, sampler = sampler)
-      self$sample.size = sample.size
-      self$x.interest = x.interest
     }
-  ), 
+  ),
   active = list(
     x = function(x.interest){
       self$x.interest = x.interest
       private$flush()
+      self$run()
       self
     }
   )

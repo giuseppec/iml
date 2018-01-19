@@ -23,7 +23,7 @@ mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::
 
 
 ## PDP
-pdp.obj = pdp(object = mod, X=X, feature = c(1, 4), class = 1)  
+pdp.obj = pdp(object = mod, X=X, feature = c(1, 2))  
 pdp.obj
 pdp.obj$data()
 
@@ -43,7 +43,7 @@ pdp.obj$plot()
 pdp(mod, X, feature = 1, class = 2)$plot()
 
 ## ICE
-ice(object = mod, X=X, feature = 4, predict.args = list(type='prob'))$plot()  
+ice(object = mod, X=X, feature = 2, predict.args = list(type='prob'))$plot()  
 
 ice1 = ice(mod, X=X, feature = 2, predict.args = list(type='prob'))  
 plot(ice1)
@@ -74,8 +74,6 @@ lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), c
 lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
 dat = lime1$data()
 
-ggplot(dat) + geom_point(aes(y = effect, x = feature)) + coord_flip() 
-
 lime1$x <- X[i+1,]
 lime1
 
@@ -89,18 +87,14 @@ shapley1
 perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'), class = 1)$data()
 perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$plot()
 
-
+perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'), class = 1)
 
 
 ## Sobol (first order)
-sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'), class = 2)
-
-
-## Sobol (total)
-sobol(mod, X, sample.size = 1000, type = 'total', predict.args = list(type = 'prob'), class =1)
-
+#sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'), class = 2)
 
 
 ## tree surrogate model, centered
 tree = tree.surrogate(mod, X, 10000, predict.args = list(type = 'prob'), class = 1)
-summary(tree)
+print(tree)
+tree$data()
