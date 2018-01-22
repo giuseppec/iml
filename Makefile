@@ -1,9 +1,9 @@
 
-all: build
+all: build test
 
 test: 
 	Rscript --vanilla -e 'devtools::test()'
 	
 	
-build: test
+build: 
 	Rscript --vanilla -e 'devtools::build()'

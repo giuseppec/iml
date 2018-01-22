@@ -104,8 +104,9 @@ PDP = R6Class('partial dependence plot',
     n.features = NULL, 
     feature.type= NULL,
     initialize = function(predictor, sampler, feature, grid.size, sample.size){
-      assert_numeric(feature, lower=1, upper=sampler$n.features, min.len=1, max.len=2)
-      if(length(feature)==2) assert_false(feature[1] == feature[2])
+      assert_numeric(feature, lower = 1, upper = sampler$n.features, min.len = 1, max.len = 2)
+      assert_numeric(grid.size, min.len = 1, max.len = length(feature))
+      if(length(feature) == 2) assert_false(feature[1] == feature[2])
       super$initialize(predictor, sampler)
       self$sample.size = sample.size
       private$set.feature(feature)
@@ -131,17 +132,17 @@ PDP = R6Class('partial dependence plot',
       results 
     },
     intervene = function(){
-      grid = get.1D.grid(private$X.sample[self$feature.index[1]], self$feature.type[1], self$grid.size[1])
+      grid = get.1D.grid(private$X.sample[[self$feature.index[1]]], self$feature.type[1], self$grid.size[1])
       
       private$X.design.ids = rep(1:nrow(private$X.sample), times = length(grid))
       X.design = private$X.sample[private$X.design.ids,]
       X.design[self$feature.index[1]] = rep(grid, each = nrow(private$X.sample))
       
       if(self$n.features == 2) {
-        grid2 = get.1D.grid(private$X.sample[self$feature.index[2]], self$feature.type[2], self$grid.size[2])
-        private$X.design.ids = rep(private$X.design.ids, times = length(grid))
-        X.design2 = X.design[rep(1:nrow(X.design), times = length(grid)), ]
-        X.design2[self$feature.index[2]] = rep(grid, each = nrow(X.design))
+        grid2 = get.1D.grid(private$X.sample[[self$feature.index[2]]], self$feature.type[2], self$grid.size[2])
+        private$X.design.ids = rep(private$X.design.ids, times = length(grid2))
+        X.design2 = X.design[rep(1:nrow(X.design), times = length(grid2)), ]
+        X.design2[self$feature.index[2]] = rep(grid2, each = nrow(X.design))
         return(X.design2)
       }
       X.design
@@ -185,12 +186,20 @@ PDP = R6Class('partial dependence plot',
     set.grid.size = function(size){
       self$grid.size = numeric(length=self$n.features)
       names(self$grid.size) = private$sampler$feature.names[self$feature.index]
-      private$set.grid.size.single(size, 1)
-      if(self$n.features > 1) private$set.grid.size.single(size, 2)
+      private$set.grid.size.single(size[1], 1)
+      if(self$n.features > 1) {
+        if(length(size) == 1) {
+          # If user only provided 1D grid size
+          private$set.grid.size.single(size[1], 2)
+        } else {
+          # If user provided 2D grid.size
+          private$set.grid.size.single(size[2], 2)
+        }
+      }
     }, 
     set.grid.size.single = function(size, feature.number){
       self$grid.size[feature.number] = ifelse(self$feature.type[feature.number] == 'numerical', 
-        size, unique(private$X.sample[[self$feature.index[feature.number]]]))
+        size, length(unique(private$sampler$get.x()[[self$feature.index[feature.number]]])))
     }
   ), 
   active = list(
@@ -207,6 +216,7 @@ PDP = R6Class('partial dependence plot',
 ## TODO: Write test
 
 get.1D.grid = function(feature, feature.type, grid.size){
+  assert_vector(feature)
   if(feature.type == 'numerical'){
     grid = seq(from = min(feature), 
       to = max(feature), 
