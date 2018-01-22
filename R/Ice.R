@@ -18,6 +18,7 @@
 #' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
 #' @examples
 #' 
+#' @importFrom dplyr left_join
 #' @export
 ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE, ...){
   samp = DataSampler$new(X)

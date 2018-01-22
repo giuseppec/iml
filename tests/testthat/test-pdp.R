@@ -99,8 +99,7 @@ test_that('pdp works for single output and numerical + categorical feature',{
 test_that('pdp works for multiple output',{
   
   grid.size = 10
-  pdp.obj = pdp(function(x){f(x, multi = TRUE)}, X, feature = c(1), 
-    grid.size = grid.size, predict.args = list(multi = TRUE))
+  pdp.obj = pdp(function(x){f(x, multi=TRUE)}, X, feature = c(1), grid.size = grid.size)
   dat = pdp.obj$data()
   expect_equal(colnames(dat), c("a", "..class.name", "y.hat"))
   expect_equal(nrow(dat), grid.size * 2)  
