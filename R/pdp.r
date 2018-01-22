@@ -33,7 +33,6 @@
 #' For 1D partial dependence plot, give a single number, for a 2D-plot of two features, provide an 
 #' integer vector of length two. 
 #' @template arg_grid.size 
-#' @template arg_sample.size
 #' 
 #' @importFrom tidyr gather
 #' @importFrom dplyr one_of group_by group_by_at summarise
@@ -82,12 +81,11 @@
 #' pdp.obj = pdp(mod, iris, feature = c(1,3), predict.args = list(type = 'prob'))
 #' pdp.obj$plot()  
 #' 
-pdp  = function(object, X, feature, grid.size = 10, sample.size=100, class=NULL,  ...){
+pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
   
-  PDP$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size, 
-    sample.size = sample.size)$run()
+  PDP$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size)$run()
 }
 
 
@@ -103,12 +101,11 @@ PDP = R6Class('partial dependence plot',
     feature.names = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(predictor, sampler, feature, grid.size, sample.size){
+    initialize = function(predictor, sampler, feature, grid.size){
       assert_numeric(feature, lower = 1, upper = sampler$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       if(length(feature) == 2) assert_false(feature[1] == feature[2])
       super$initialize(predictor, sampler)
-      self$sample.size = sample.size
       private$set.feature(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size

@@ -14,17 +14,20 @@
 #' @template args_experiment_wrap
 #' @param feature The index of the feature of interest.
 #' @template arg_grid.size 
-#' @template arg_sample.size
 #' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
+#' @return An individual conditional expectation object
 #' @examples
 #' 
+#' @seealso 
+#' \code{\link{pdp}} for partial dependence plots.
+#'
 #' @importFrom dplyr left_join
 #' @export
-ice = function(object, X, feature, grid.size=10, sample.size=100, center.at = NULL, class=NULL, multi.class=FALSE, ...){
+ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
   
-  obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  feature = feature, grid.size = grid.size, sample.size = sample.size)
+  obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  feature = feature, grid.size = grid.size)
   obj$run()
   obj
 }
