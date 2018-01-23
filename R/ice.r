@@ -1,26 +1,85 @@
-## TODO: combine ICE and ICE.centered, so that active binding can be used for both. 
-##       anchoring will then wrapped in if-clause
-
-
-
-
 #' Individual conditional expectations (ICE)
 #' 
 #' @description 
 #' Fits and plots individual conditional expectation function on an arbitrary machine learning model
 #' 
-#' @details 
-#' TODO
-#' @template args_experiment_wrap
+#' @details
+#' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
+#' the learned \eqn{\hat{f}} directly for an individual, high-dimensional point \eqn{x_i}. 
+#' 
+#' But we can take one of the input features of an observation and change its value. 
+#' We try out a grid of different values and observe the predicted outcome. 
+#' This gives us the predicted \eqn{\hat{y}} as a function of feature \eqn{X_j}, which we can plot as a line. 
+#' The \code{ice} method repeats this for all the observations in the dataset and plots all the lines in the same plot.
+#' 
+#' Mathematically, we split up the learned function into its parts:
+#' \deqn{f(x_i) = f_1(x_{i,1}) + \ldots + f_p(x_{i,p}) + f_{1, 2}(x_{i,1}, x_{i,2}) + \ldots + f_{p-1, p}(x_{i,p-1}, x_{p}) + \ldots + f_{1\ldotsp}(x_{i,1\ldotsX_p})}, 
+#' 
+#' And we can isolate the individual conditional expectation of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
+#' 
+#' Partial dependence plots (\link{\code{pdp}}) are the averaged lines of ice curves. 
+#' 
+#' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/ice.html
+#' 
 #' @param feature The index of the feature of interest.
 #' @template arg_grid.size 
 #' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
 #' @return An individual conditional expectation object
+#' @template args_experiment_wrap
+#' @return 
+#' data() contains a data.frame with columns for the feature grid, the predicted outcome, an identifier
+#' for the individual observation and optionally an identfier for the predicted class ('..class.name')
 #' @examples
 #' 
 #' @seealso 
 #' \code{\link{pdp}} for partial dependence plots.
-#'
+#' 
+#' @examples
+#' # We train a random forest on the Boston dataset:
+#' library("randomForest")
+#' data("Boston", package  = "MASS")
+#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' 
+#' # Compute the individual conditional expectations for the first feature
+#' ice.obj = ice(mod, Boston, feature = 1)
+#' 
+#' # Plot the results directly
+#' plot(ice.obj)
+#' 
+#' # You can center the ICE plot
+#' ice.obj$center.at = 0
+#' plot(ice.obj)
+#' 
+#' # Since the result is a ggplot object, you can extend it: 
+#' library("ggplot2")
+#' plot(ice.obj)
+#' 
+#' # If you want to do your own thing, just extract the data: 
+#' ice.dat = ice.obj$data()
+#' head(ice.dat)
+#' ggplot(ice.dat) + geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 
+#' scale_color_discrete(guide = "none")
+#' 
+#' # You can reuse the ice object for other features: 
+#' ice.obj$feature = 2
+#' plot(ice.obj)
+#' 
+#' # Partial dependence plots support up to two features: 
+#' ice.obj = ice(mod, Boston, feature = c(1,2))  
+#' 
+#' # ICE also works with multiclass classification
+#' library("randomForest")
+#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' 
+#' # For some models we have to specify additional arguments for the predict function
+#' plot(ice(mod, iris, feature = 1, predict.args = list(type = 'prob')))
+#' 
+#' # For multiclass classification models, you can choose to only show one class:
+#' plot(ice(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
+#' 
+#' # ICE plots can be centered: 
+#' plot(ice(mod, iris, feature = 1, center = 1))
+#' 
 #' @importFrom dplyr left_join
 #' @export
 ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...){
@@ -86,7 +145,11 @@ ICE = R6Class('ICE',
         X.results = left_join(X.results, X.aggregated.anchor, by = c('..individual', '..class.name'))
         X.results$y.hat = X.results$y.hat - X.results$anchor.yhat
         X.results$anchor.yhat = NULL
-        X.results
+      }
+      
+      # Remove class name column again if single output
+      if(ncol(private$Q.results) == 1){
+        X.results$..class.name = NULL
       }
       
       X.results
@@ -97,6 +160,7 @@ ICE = R6Class('ICE',
     center.at = function(anchor.value){
       private$anchor.value = anchor.value
       private$flush()
+      self$run()
     }
   )
 )

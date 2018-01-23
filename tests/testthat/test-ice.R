@@ -18,7 +18,7 @@ test_that('ice works for single output and single feature',{
   grid.size = 10
   ice.obj = ice(f, X, feature = 1, grid.size = grid.size)
   dat = ice.obj$data()
-  expect_equal(colnames(dat), c("a", "..individual", "y.hat", "..class.name"))
+  expect_equal(colnames(dat), c("a", "..individual", "y.hat"))
   expect_equal(nrow(dat), grid.size * nrow(X))  
   expect_equal(nrow(unique(dat)), grid.size * nrow(X))
   expect_equal(max(dat$a), 5)
@@ -32,11 +32,11 @@ test_that('ice works for single output and single feature',{
 test_that('ice works for multiple output',{
   
   grid.size = 10
-  ice.obj = ice(f, X, feature = c(1), grid.size = grid.size, predict.args = list(multi = TRUE))
+  ice.obj = ice(function(x){f(x, multi = TRUE)}, X, feature = c(1), grid.size = grid.size)
   dat = ice.obj$data()
-  expect_equal(colnames(dat), c("a", "..individual", "y.hat", "..class.name"))
-  expect_equal(nrow(dat), grid.size * nrow(X))  
-  expect_equal(nrow(unique(dat)), grid.size * nrow(X))
+  expect_equal(colnames(dat), c("a", "..individual", "..class.name", "y.hat"))
+  expect_equal(nrow(dat), grid.size * nrow(X)*2)  
+  expect_equal(nrow(unique(dat)), grid.size * nrow(X) * 2)
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   
@@ -50,16 +50,22 @@ test_that('ice works for multiple output',{
 test_that('centered ice works for multiple output',{
   
   grid.size = 10
-  ice.obj = ice(f, X, feature = c(1), center = 10, grid.size = grid.size, predict.args = list(multi = TRUE))
+  ice.obj = ice(function(x){f(x, multi = TRUE)}, X, feature = c(1), grid.size = grid.size, center = 10)
   dat = ice.obj$data()
-  expect_equal(colnames(dat), c("a", "..individual", "y.hat", "..class.name"))
-  expect_equal(nrow(dat), (grid.size + 1) * nrow(X))  
-  expect_equal(nrow(unique(dat)), (grid.size + 1) * nrow(X))
+  expect_equal(colnames(dat), c("a", "..individual","..class.name", "y.hat"))
+  expect_equal(nrow(dat), (grid.size + 1) * nrow(X) * 2)  
+  expect_equal(nrow(unique(dat)), (grid.size + 1) * nrow(X) * 2)
   expect_equal(max(dat$a), 10)
   expect_equal(min(dat$a), 1)
   expect_equal(max(dat$y.hat), 0)
   p = plot(ice.obj)
   expect_s3_class(p, c("gg", "ggplot"))
   p
+  
+  
+  ice.obj$center.at = -1
+  dat = ice.obj$data()
+  expect_equal(max(dat$a), 5)
+  expect_equal(min(dat$a), -1)
   
 })

@@ -7,7 +7,7 @@
 #' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
 #' the learned \eqn{\hat{f}} directly for high-dimensional X. 
 #' But we can split it into parts:
-#' \deqn{f(X) = f_1(X_1) + \ldots + f_p(X_p) + f_{1, 2}(X_1, X_2) + \ldots + f_{p-1, p} + \ldots + f_{1\ldotsp}(X_1\ldotsX_p)}, 
+#' \deqn{f(X) = f_1(X_1) + \ldots + f_p(X_p) + f_{1, 2}(X_1, X_2) + \ldots + f_{p-1, p}(X_{p-1}, X_p) + \ldots + f_{1\ldotsp}(X_1\ldotsX_p)}, 
 #' 
 #' And we can isolate the partial dependence of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
 #' We can even do this for higher dimensions, but a maximum of 2 features makes sense: \eqn{f_j(X_j) + f_k(X_k) + f_{jk}(X_{jk})}
