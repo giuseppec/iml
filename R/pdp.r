@@ -93,7 +93,7 @@ pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
 
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
-PDP = R6Class('partial dependence plot', 
+PDP = R6::R6Class('partial dependence plot', 
   inherit = Experiment,
   public = list(
     grid.size = NULL, 
@@ -102,9 +102,9 @@ PDP = R6Class('partial dependence plot',
     n.features = NULL, 
     feature.type= NULL,
     initialize = function(predictor, sampler, feature, grid.size){
-      assert_numeric(feature, lower = 1, upper = sampler$n.features, min.len = 1, max.len = 2)
-      assert_numeric(grid.size, min.len = 1, max.len = length(feature))
-      if(length(feature) == 2) assert_false(feature[1] == feature[2])
+      checkmate::assert_numeric(feature, lower = 1, upper = sampler$n.features, min.len = 1, max.len = 2)
+      checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
+      if(length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
       super$initialize(predictor, sampler)
       private$set.feature(feature)
       private$set.grid.size(grid.size)
@@ -214,7 +214,7 @@ PDP = R6Class('partial dependence plot',
 ## TODO: Write test
 
 get.1D.grid = function(feature, feature.type, grid.size){
-  assert_vector(feature)
+  checkmate::assert_vector(feature)
   if(feature.type == 'numerical'){
     grid = seq(from = min(feature), 
       to = max(feature), 

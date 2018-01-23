@@ -1,7 +1,4 @@
-
-
-## Give option to sample from y? Would be useful for Permimp
-DataSampler  = R6Class('DataSampler',
+DataSampler  = R6::R6Class('DataSampler',
   public = list(
     X = NULL,
     feature.types = NULL,

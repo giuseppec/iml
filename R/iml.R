@@ -8,3 +8,7 @@
 #' \href{https://christophm.github.io/interpretable-ml-book/agnostic}{Book on Interpretable Machine Learning}
 "_PACKAGE"
 #> [1] "_PACKAGE"
+
+
+#' @import  R6 checkmate
+NULL

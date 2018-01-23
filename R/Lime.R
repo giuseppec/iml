@@ -16,7 +16,7 @@ lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...
 # Differences to original LIME: 
 # - Sample directly from data, not from weird normal distribution per feature
 # - Best k features are chosen by Lasso path
-LIME = R6Class('LIME', 
+LIME = R6::R6Class('LIME', 
   inherit = Experiment,
   public = list(
     x.interest = NULL, 

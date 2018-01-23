@@ -18,7 +18,8 @@
 #' And we can isolate the individual conditional expectation of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
 #' 
 #' Partial dependence plots (\link{\code{pdp}}) are the averaged lines of ice curves. 
-#' 
+#'  The returned object can be plotted is a \code{ggplot}
+#' object. This means it can be plotted directly or be extended using ggplots \code{+} operator.   
 #' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/ice.html
 #' 
 #' @param feature The index of the feature of interest.
@@ -94,11 +95,11 @@ ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, .
 
 
 
-ICE = R6Class('ICE',
+ICE = R6::R6Class('ICE',
   inherit = PDP,
   public = list( 
     initialize = function(feature, anchor.value = NULL, ...){
-      assert_number(anchor.value, null.ok = TRUE)
+      checkmate::assert_number(anchor.value, null.ok = TRUE)
       private$anchor.value = anchor.value
       assert_count(feature)
       super$initialize(feature=feature, ...)

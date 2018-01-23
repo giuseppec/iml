@@ -11,7 +11,7 @@ perm.imp = function(object, X, y, class=NULL, ...){
 }
 
 
-PermImps = R6Class('PermImps', 
+PermImps = R6::R6Class('PermImps', 
   inherit = RepeatedExperiment,
   public = list(
     initialize = function(predictor, sampler, y){
@@ -35,7 +35,7 @@ PermImps = R6Class('PermImps',
 ## TODO: performance function as a parameter in intialize
 ## TODO: implement random sampling instead of whole x
 ## TODO: Implement multi.class
-PermImp = R6Class('PermImp', 
+PermImp = R6::R6Class('PermImp', 
   inherit = Experiment,
   public = list(
     y = NULL,

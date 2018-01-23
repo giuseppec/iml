@@ -8,11 +8,11 @@ Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
 Description: Model-agnostic interpretability methods for machine learning models. 
   The iml package provides you with tools to analyse and explain the behaviour and prediction of black box machine learning models. 
   Implemented tools are: partial dependence plots, local models (LIME), feature importance measure and many more. 
-Depends: R6,
-         checkmate
-Imports: dplyr, 
-        tidyr, 
-        ggplot2
+Imports: R6,
+         checkmate,
+         dplyr, 
+         tidyr, 
+         ggplot2
 License: MIT
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1

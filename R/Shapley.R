@@ -16,7 +16,7 @@ shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
 ##       see Song, E., & Nelson, B. L. (2016). Shapley Effects for Global Sensitivity Analysis : Theory and Computation ∗, 4, 1060–1083.
 ## TODO: Get some inspiration form the sensitivity package.
 ## TODO: Implement multi.class
-Shapley = R6Class('Shapley', 
+Shapley = R6::R6Class('Shapley', 
   inherit = Experiment,
   public = list(
     x.interest = NULL,

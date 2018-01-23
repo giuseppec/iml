@@ -1,8 +1,4 @@
-
-
-
-## TODO: Move most parameters to private()
-Experiment = R6Class("Experiment",
+Experiment = R6::R6Class("Experiment",
   public = list(
     sample.size = 100,
     plot = function(){
@@ -11,8 +7,8 @@ Experiment = R6Class("Experiment",
       if(!is.null(private$plot.data)) {return(private$plot.data)} else {warning('no plot data generated')}
     },
     initialize = function(predictor, sampler){
-      assert_class(predictor, 'Prediction')
-      assert_class(sampler, 'DataSampler')
+      checkmate::assert_class(predictor, 'Prediction')
+      checkmate::assert_class(sampler, 'DataSampler')
       private$predictor = predictor
       private$predict = predictor$predict
       private$sampler = sampler
@@ -95,7 +91,7 @@ Experiment = R6Class("Experiment",
 
 
 
-RepeatedExperiment = R6Class('RepeatedExperiment', 
+RepeatedExperiment = R6::R6Class('RepeatedExperiment', 
   inherit = Experiment,
   public = list(
     initialize = function(predictor, sampler, experiments){

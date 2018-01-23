@@ -28,7 +28,7 @@ prediction.model = function(object, class = NULL, predict.args = NULL){
 
 
 
-Prediction = R6Class("Prediction", 
+Prediction = R6::R6Class("Prediction", 
   public = list(
     predict = function(newdata){
       newdata = data.frame(newdata)
@@ -74,7 +74,7 @@ Prediction = R6Class("Prediction",
 
 # For caret: extractPrediction
 # For caret: extractProb
-Prediction.mlr = R6Class("Prediction.mlr", 
+Prediction.mlr = R6::R6Class("Prediction.mlr", 
   inherit = Prediction,
   public = list(), 
   private = list(
@@ -105,7 +105,7 @@ Prediction.mlr = R6Class("Prediction.mlr",
 
 # For caret: extractPrediction
 # For caret: extractProb
-Prediction.f = R6Class("Prediction.f", 
+Prediction.f = R6::R6Class("Prediction.f", 
   inherit = Prediction,
   public = list(), 
   private = list(
@@ -130,7 +130,7 @@ Prediction.f = R6Class("Prediction.f",
 
 # For caret: extractPrediction
 # For caret: extractProb
-Prediction.caret = R6Class("Prediction.caret", 
+Prediction.caret = R6::R6Class("Prediction.caret", 
   inherit = Prediction,
   public = list(), 
   private = list(
@@ -158,7 +158,7 @@ Prediction.caret = R6Class("Prediction.caret",
 
 # For caret: extractPrediction
 # For caret: extractProb
-Prediction.S3 = R6Class("Prediction.S3", 
+Prediction.S3 = R6::R6Class("Prediction.S3", 
   inherit = Prediction.f,
   public = list(
     initialize = function(predict.args=NULL, ...){
