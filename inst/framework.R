@@ -90,11 +90,19 @@ perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$plot()
 perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'), class = 1)
 
 
-## Sobol (first order)
-#sobol(mod, X, sample.size = 1000, predict.args = list(type = 'prob'), class = 2)
-
-
 ## tree surrogate model, centered
-tree = tree.surrogate(mod, X, 10000, predict.args = list(type = 'prob'), class = 1)
+library("randomForest")
+data("Boston", package  = "MASS")
+mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+
+tree = tree.surrogate(mod, iris, 10000, tree.args = list(maxdepth = 20))
+plot(tree)
 print(tree)
 tree$data()
+
+# get.tree.data 
+# Returns: data.frame with nodes
+dat = X
+# alternative: tree$data()$where, but works only for training data
+tree.str = tree$data()
+

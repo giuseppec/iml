@@ -38,6 +38,7 @@ Experiment = R6::R6Class("Experiment",
         private$X.design = private$intervene()
         # EXECUTE experiment
         private$Q.results = private$Q(private$predict(private$X.design))
+        private$multi.class = ifelse(ncol(private$Q.results) > 1, TRUE, FALSE)
         # AGGREGATE measurements
         private$results = private$aggregate()
         private$finished = TRUE
@@ -63,6 +64,8 @@ Experiment = R6::R6Class("Experiment",
     # The quantity of interest from black box model prediction
     Q = function(x){x},
     Q.results = NULL,
+    # Flag if the prediction is multi.class (more than one column)
+    multi.class = NULL,
     # Weights for the aggregation step
     weight.samples = function(){1},
     # The aggregation function for the results
