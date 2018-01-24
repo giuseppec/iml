@@ -95,7 +95,12 @@ library("randomForest")
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 
-tree = tree.surrogate(mod, iris, 10000, tree.args = list(maxdepth = 20))
+tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], 100, tree.args = list(maxdepth = 2))
+
+mod = randomForest(Species ~ ., data = iris, ntree = 50)
+
+tree = tree.surrogate(mod, iris, 100, tree.args = list(maxdepth = 2), predict.args = list(type = 'prob'))
+
 plot(tree)
 print(tree)
 tree$data()

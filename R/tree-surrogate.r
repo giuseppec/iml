@@ -4,8 +4,8 @@
 #' Fit a decision tree model on another machine learning models predictions to replace or explain the other model.
 #' 
 #' @details  
-#' A CART tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data \eqn{X}.
-#' The \code{rpart} package and function are used to fit the tree. 
+#' A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data \eqn{X}.
+#' The \code{partykit} package and function are used to fit the tree. 
 #' By default a tree of maximum depth of 2 is fitted to improve interpretability.
 #' 
 #' @return 
@@ -55,9 +55,8 @@
 #' dat = tree$data()
 #' head(dat)
 #'
-#' @param tree.args A list with further arguments for rpart
-#' @importFrom rpart rpart
-#' @importFrom rpart path.rpart
+#' @param tree.args A list with further arguments for \code{ctree}
+#' @importFrom partykit ctree
 #' @export
 tree.surrogate = function(object, X, sample.size=100, class = NULL, tree.args = list(maxdepth=2), ...){
   samp = DataSampler$new(X)
@@ -88,14 +87,16 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
       private$tree.args = tree.args
     }, 
     predict = function(newdata, type = 'prob'){
-      assert_choice(type, c('prob', 'class'), null.ok = TRUE)
+      assert_choice(type, c('prob', 'class'))
+      res = data.frame(predict(private$model, newdata = newdata, type = 'response'))
       if(private$multi.class){
-        res = data.frame(predict(private$model, newdata = newdata, type = type[1]))
-        if(type == 'class') colnames(res) = '..class'
-        res
+        if(type == 'class') {
+          res = data.frame(..class = colnames(res)[apply(res, 1, which.max)])
+        }
       } else {
-        data.frame(..y.hat = predict(private$model, newdata = newdata))
+        res = data.frame(..y.hat = predict(private$model, newdata = newdata))
       }
+      res
     }
   ), 
   private = list(
@@ -106,17 +107,16 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
       y.hat = private$Q.results
       if(private$multi.class){
         classes = colnames(y.hat)
-        y.hat  = classes[apply(y.hat, 1, which.max)]
+        form = formula(sprintf("%s ~ .", paste(classes, collapse = "+")))       
       } else {
         y.hat = unlist(y.hat[1])
+        form = y.hat ~ .
       }
-      dat = cbind(y.hat = y.hat, private$X.design)
-      tree.args = c(list(formula = y.hat ~ ., data = dat), private$tree.args)
-      private$model = do.call(rpart::rpart, tree.args)
-      result = data.frame(..node = rownames(private$model$frame)[private$model$where])
-      path = rpart::path.rpart(private$model, nodes = unique(result$..node), print.it = FALSE)
-      path = unlist(lapply(path, function(x) paste(x[2:length(x)], collapse = ' &\n ')))
-      result$..path = path[as.character(result$..node)]
+      dat = cbind(y.hat, private$X.design)
+      tree.args = c(list(formula = form, data = dat), private$tree.args)
+      private$model = do.call(partykit::ctree, tree.args)
+      result = data.frame(..node = predict(private$model, type = 'node'), 
+        ..path = pathpred(private$model))
       if(private$multi.class){
         outcome = private$Q.results
         cnames = colnames(outcome)
@@ -148,3 +148,20 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
     
   )
 )
+
+
+pathpred <- function(object, ...)
+{
+  ## coerce to "party" object if necessary
+  if(!inherits(object, "party")) object = as.party(object)
+  
+  
+  ## get rules for each node
+  rls = partykit:::.list.rules.party(object)
+  
+  ## get predicted node and select corresponding rule
+  rules = rls[as.character(predict(object, type = "node", ...))]
+  rules = gsub("&", "&\n", rules)
+  
+  return(rules)
+}

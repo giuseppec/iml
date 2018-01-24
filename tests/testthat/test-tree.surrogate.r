@@ -39,16 +39,13 @@ test_that('tree.surrogate works for multiple output',{
   expect_s3_class(p, c("gg", "ggplot"))
   expect_s3_class(tree$predict(X), c('data.frame'))
   p
-  expected.prediction = data.frame(pred = c(1, 0, 0, 1, 0), pred2 = c(0,1,1,0,1))
   actual.prediction = predict(tree, X)
-
+  expect_equal(colnames(actual.prediction), c('pred', 'pred2'))
   expect_s3_class(actual.prediction, 'data.frame')
-  expect_equal(expected.prediction, actual.prediction, check.attributes = FALSE)
-  
-  actual.classification = predict(tree, X[1:2,], type = 'class')
+
+  actual.classification = predict(tree, X[1:4,], type = 'class')
   expect_equal(colnames(actual.classification), '..class')
-  expect_equal(actual.classification[[1]], factor(c('pred', 'pred2')))
-  
+
 })
 
 test_that('tree.surrogate works for multiple output with selected class',{
