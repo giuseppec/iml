@@ -33,8 +33,8 @@ test_that('tree.surrogate works for multiple output',{
   sample.size = 50
   tree = tree.surrogate(f2, X, sample.size = sample.size)
   dat = tree$data()
-  expect_equal(colnames(dat), c(colnames(X), "..node", "..path", "..class",  "..y.hat", "..y.hat.tree"))
-  expect_equal(nrow(dat), sample.size * 2)  
+  expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat:pred", "..y.hat:pred2", "..y.hat.tree:pred", "..y.hat.tree:pred2"))
+  expect_equal(nrow(dat), sample.size)  
   p = plot(tree)
   expect_s3_class(p, c("gg", "ggplot"))
   expect_s3_class(tree$predict(X), c('data.frame'))

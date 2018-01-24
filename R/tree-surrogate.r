@@ -102,6 +102,10 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
   private = list(
     model = NULL, 
     tree.args = NULL,
+    # Only relevant in multi.class case
+    tree.predict.colnames = NULL,
+    # Only relevant in multi.class case
+    object.predict.colnames = NULL,
     intervene = function(){private$X.sample},
     aggregate = function(){
       y.hat = private$Q.results
@@ -119,13 +123,17 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
         ..path = pathpred(private$model))
       if(private$multi.class){
         outcome = private$Q.results
-        cnames = colnames(outcome)
-        result = cbind(result, outcome)
-        result = gather(result, key = "..class", value = "..y.hat", one_of(cnames))
+        colnames(outcome) = paste('..y.hat:', colnames(outcome), sep='')
+        private$object.predict.colnames = colnames(outcome)
+
+        # result = gather(result, key = "..class", value = "..y.hat", one_of(cnames))
         ..y.hat.tree = self$predict(private$X.design, type = 'prob')
-        ..y.hat.tree = gather(..y.hat.tree, '..class.tree', '..y.hat.tree')
-        result = cbind(result, ..y.hat.tree['..y.hat.tree'])
-      } else {
+        colnames(..y.hat.tree) = paste('..y.hat.tree:', colnames(..y.hat.tree), sep='')
+        private$tree.predict.colnames = colnames(..y.hat.tree)
+
+        #..y.hat.tree = gather(..y.hat.tree, '..class.tree', '..y.hat.tree')
+        result = cbind(result, outcome, ..y.hat.tree)
+        } else {
         result$..y.hat = private$Q.results[[1]]
         result$..y.hat.tree = self$predict(private$X.design)[[1]]
       }
@@ -139,8 +147,16 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
         scale_x_discrete('') + 
         facet_wrap("..path")
       if(private$multi.class){
-        p = ggplot(private$results) + 
-          geom_boxplot(aes(y = ..y.hat, x = ..class)) + 
+        plot.data = private$results
+        # max class for model
+        plot.data$..class = private$object.predict.colnames[apply(plot.data[private$object.predict.colnames], 1, which.max)]
+        plot.data$..class = gsub('..y.hat:', '', plot.data$..class)
+        plot.data = plot.data[setdiff(names(plot.data), private$object.predict.colnames)]
+        # dataset from wide to long
+        plot.data.l = gather(plot.data, '..tree.class', '..class.prob', one_of(private$tree.predict.colnames))
+        plot.data.l$..tree.class = gsub('..y.hat.tree:', '', plot.data.l$..tree.class)  
+        p = ggplot(plot.data.l) + 
+          geom_boxplot(aes(y = ..class.prob, x = ..class)) + 
           facet_wrap("..path")
       }
       p
