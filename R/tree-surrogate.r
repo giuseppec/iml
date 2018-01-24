@@ -21,13 +21,40 @@
 #' data("Boston", package  = "MASS")
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' 
-#' dt = tree.surrogate(mod, Boston, 200)
+#' # Fit a decision tree as a surrogate for the whole random forest
+#' dt = tree.surrogate(mod, Boston[-which(names(Boston) == 'medv')], 200)
 #' 
-#' # Predict newdata
-#' predict(dt, Boston[1,])
+#' # Plot the resulting leaf nodes
+#' plot(dt) 
 #' 
-#' # 
+#' # Use the tree to predict new data
+#' predict(dt, Boston[1:10,])
 #' 
+#' # Extract the dataset
+#' dat = tree$data()
+#' head(dat)
+#' 
+#' 
+#' # It also works for classification
+#' mod = randomForest(Species ~ ., data = iris, ntree = 50)
+#' 
+#' # Fit a decision tree as a surrogate for the whole random forest
+#' X = iris[-which(names(iris) == 'Species')]
+#' dt = tree.surrogate(mod, X, 200, predict.args = list(type = 'prob'), tree.args = list(maxdepth = 1))
+#'
+#' # Plot the resulting leaf nodes
+#' plot(dt) 
+#' 
+#' # Use the tree to predict new data
+#' set.seed(42)
+#' iris.sample = X[sample(1:nrow(X), 10),]
+#' predict(dt, iris.sample)
+#' predict(dt, iris.sample, type = 'class')
+
+#' # Extract the dataset
+#' dat = tree$data()
+#' head(dat)
+#'
 #' @param tree.args A list with further arguments for rpart
 #' @importFrom rpart rpart
 #' @importFrom rpart path.rpart
@@ -48,7 +75,6 @@ predict.TreeSurrogate = function(object, newdata, ...){
 ## Extracting tree-structured representations of trained neural networks.
 ## Advances in Neural Information Processing Systems, 8, 24–30.
 ## Retrieved from citeseer.ist.psu.edu/craven96extracting.html
-# TODO: Implement multi.class 
 TreeSurrogate = R6::R6Class('TreeSurrogate',
   inherit = Experiment,
   public = list(
@@ -101,7 +127,7 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
         result = cbind(result, ..y.hat.tree['..y.hat.tree'])
       } else {
         result$..y.hat = private$Q.results[[1]]
-        result$..y.hat.tree = self$predict(private$X.design)
+        result$..y.hat.tree = self$predict(private$X.design)[[1]]
       }
       design = private$X.design
       rownames(design) = NULL
@@ -110,6 +136,7 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
     generate.plot = function(){
       p = ggplot(private$results) + 
         geom_boxplot(aes(y = ..y.hat, x = "")) + 
+        scale_x_discrete('') + 
         facet_wrap("..path")
       if(private$multi.class){
         p = ggplot(private$results) + 
