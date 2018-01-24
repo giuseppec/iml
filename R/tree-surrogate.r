@@ -30,6 +30,7 @@
 #' 
 #' @param tree.args A list with further arguments for rpart
 #' @importFrom rpart rpart
+#' @importFrom rpart path.rpart
 #' @export
 tree.surrogate = function(object, X, sample.size=100, class = NULL, tree.args = list(maxdepth=2), ...){
   samp = DataSampler$new(X)
@@ -38,7 +39,7 @@ tree.surrogate = function(object, X, sample.size=100, class = NULL, tree.args = 
   TreeSurrogate$new(predictor = pred, sampler = samp, sample.size = sample.size, tree.args = tree.args)$run()
 }
 
-
+#' @export
 predict.TreeSurrogate = function(object, newdata, ...){
   object$predict(newdata = newdata, ...)
 }
@@ -60,8 +61,15 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
       self$sample.size = sample.size
       private$tree.args = tree.args
     }, 
-    predict = function(newdata){
-      predict(private$model, newdata = newdata)
+    predict = function(newdata, type = 'prob'){
+      assert_choice(type, c('prob', 'class'), null.ok = TRUE)
+      if(private$multi.class){
+        res = data.frame(predict(private$model, newdata = newdata, type = type[1]))
+        if(type == 'class') colnames(res) = '..class'
+        res
+      } else {
+        data.frame(..y.hat = predict(private$model, newdata = newdata))
+      }
     }
   ), 
   private = list(
@@ -78,31 +86,35 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
       }
       dat = cbind(y.hat = y.hat, private$X.design)
       tree.args = c(list(formula = y.hat ~ ., data = dat), private$tree.args)
-      private$model = do.call(rpart, tree.args)
-      result = data.frame(node = rownames(private$model$frame)[private$model$where])
-      path = path.rpart(private$model, nodes = unique(result$node), print.it = FALSE)
+      private$model = do.call(rpart::rpart, tree.args)
+      result = data.frame(..node = rownames(private$model$frame)[private$model$where])
+      path = rpart::path.rpart(private$model, nodes = unique(result$..node), print.it = FALSE)
       path = unlist(lapply(path, function(x) paste(x[2:length(x)], collapse = ' &\n ')))
-      result$path = path[as.character(result$node)]
+      result$..path = path[as.character(result$..node)]
       if(private$multi.class){
         outcome = private$Q.results
         cnames = colnames(outcome)
         result = cbind(result, outcome)
-        result = gather(result, key = "..class", value = "outcome", one_of(cnames))
+        result = gather(result, key = "..class", value = "..y.hat", one_of(cnames))
+        ..y.hat.tree = self$predict(private$X.design, type = 'prob')
+        ..y.hat.tree = gather(..y.hat.tree, '..class.tree', '..y.hat.tree')
+        result = cbind(result, ..y.hat.tree['..y.hat.tree'])
       } else {
-        result$outcome = private$Q.results[[1]]
+        result$..y.hat = private$Q.results[[1]]
+        result$..y.hat.tree = self$predict(private$X.design)
       }
       design = private$X.design
       rownames(design) = NULL
-      result = cbind(design, result)
+      cbind(design, result)
     }, 
     generate.plot = function(){
       p = ggplot(private$results) + 
-        geom_boxplot(aes(y = outcome, x = "")) + 
-        facet_wrap("path")
+        geom_boxplot(aes(y = ..y.hat, x = "")) + 
+        facet_wrap("..path")
       if(private$multi.class){
         p = ggplot(private$results) + 
-          geom_boxplot(aes(y = outcome, x = ..class)) + 
-          facet_wrap("path")
+          geom_boxplot(aes(y = ..y.hat, x = ..class)) + 
+          facet_wrap("..path")
       }
       p
     }

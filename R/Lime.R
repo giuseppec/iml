@@ -9,6 +9,10 @@ lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...
 }
 
 
+#' @export
+predict.LIME = function(object, newdata, ...){
+  object$predict(newdata = newdata, ...)
+}
 
 # TODO: Implement for classification
 # TODO: Implement multi.class
