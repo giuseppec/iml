@@ -11,6 +11,7 @@
 #' @template args_experiment_wrap
 #' @param maxdepth The maximum depth of the tree. Default is 2. 
 #' @param tree.args A list with further arguments for \code{ctree}
+#' 
 #' @return 
 #' A TreeSurrogate object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
@@ -21,6 +22,7 @@
 #' \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}}
 #' \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
 #' @template args_internal_methods
+#' 
 #' @examples 
 #' # Fit a Random Forest on the Boston housing data set
 #' library("randomForest")
@@ -112,7 +114,6 @@ predict.TreeSurrogate = function(object, newdata, type = "prob"){
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{tree.surrogate}
-#' @export
 plot.TreeSurrogate = function(object){
   object$plot()
 }

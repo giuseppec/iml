@@ -1,7 +1,7 @@
-#' Partial Dependence Plot
+#' Partial Dependence
 #' 
 #' @description 
-#' \code{pdp} computes partial dependence functions of prediction models. 
+#' \code{pdp()} computes partial dependence functions of prediction models. 
 #' 
 #' @details
 #' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
@@ -22,16 +22,24 @@
 #' 
 #' 
 #' @seealso 
+#' \link{plot.PDP}
+#' 
 #' \code{\link{ice}} for individual conditional expectation plots. 
 #' 
 #' @references 
 #' Friedman, J.H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29: 1189–1232.#' 
-#' @return A partial dependence plot object
-#' @template args_experiment_wrap
-#' @return \itemize{\item The partial dependence object can be reused for other features, e.g. \code{obj$feature = 2; obj$plot()}}
-#' @param feature The index (or indicices) of the feature(s) of interest. 
-#' For 1D partial dependence plot, give a single number, for a 2D-plot of two features, provide an 
-#' integer vector of length two. 
+#' @return 
+#' A PDP object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' \item{feature}{The feature names for which the partial dependence was computed.}
+#' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
+#' \item{feature.index}{The index of the features for which the partial dependence was computed.}
+#' \item{grid.size}{The size of the grid.}
+#' \item{sample.size}{The number of instances sampled from data X.}
+#' \item{data()}{method to extract the results of the partial dependence plot. 
+#' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+#' Can be used for creating custom partial dependence plots.}
+#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PDP}}
+#' @template args_internal_methods
 #' @template arg_grid.size 
 #' 
 #' @importFrom tidyr gather
@@ -89,8 +97,18 @@ pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
 }
 
 
-
-
+#' Partial dependence plot
+#' 
+#' plot.PDP() plots a line for a single feature and a tile plot for 2 features.
+#' 
+#' For examples see \link{pdp}
+#' @param object The partial dependence. A PDP R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{pdp}
+plot.PDP = function(object){
+  object$plot()
+}
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
 PDP = R6::R6Class('partial dependence plot', 
