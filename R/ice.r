@@ -28,12 +28,23 @@
 #' @return An individual conditional expectation object
 #' @template args_experiment_wrap
 #' @return 
-#' data() contains a data.frame with columns for the feature grid, the predicted outcome, an identifier
-#' for the individual observation and optionally an identfier for the predicted class ('..class.name')
+#' An ICE object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' \item{feature.name}{The feature name for which the partial dependence was computed.}
+#' \item{feature.type}{The detected type of the feature, either "categorical" or "numerical".}
+#' \item{feature.index}{The index of the feature for which the individual conditional expectations weree computed.}
+#' \item{center.at}{The features value(s) at which the ice computations are centered.}
+#' \item{grid.size}{The size of the grid.}
+#' \item{sample.size}{The number of instances sampled from data X.}
+#' \item{center}{method to get/set the feature value at which the ice computation should be centered. See examples for usage.}
+#' \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
+#' \item{data()}{method to extract the results of the partial dependence plot. 
+#' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+#' Can be used for creating custom partial dependence plots.}
+#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PDP}}
 #' @examples
 #' 
 #' @seealso 
-#' \link{pdp} for partial dependence plots.
+#' \link{pdp} for partial dependence plots (aggregated ice plots)
 #' 
 #' @examples
 #' # We train a random forest on the Boston dataset:
@@ -51,9 +62,17 @@
 #' ice.obj$center.at = 0
 #' plot(ice.obj)
 #' 
+#' # ICE plots can be centered at initialization
+#' ice.obj = ice(mod, Boston, feature = 1, center=75)
+#' plot(ice.obj)
+#' 
+#' # Centering can also be removed
+#' ice.obj$center.at = NULL
+#' plot(ice.obj)
+#' 
 #' # Since the result is a ggplot object, you can extend it: 
 #' library("ggplot2")
-#' plot(ice.obj)
+#' plot(ice.obj) + theme_bw()
 #' 
 #' # If you want to do your own thing, just extract the data: 
 #' ice.dat = ice.obj$data()
@@ -64,9 +83,6 @@
 #' # You can reuse the ice object for other features: 
 #' ice.obj$feature = 2
 #' plot(ice.obj)
-#' 
-#' # Partial dependence plots support up to two features: 
-#' ice.obj = ice(mod, Boston, feature = c(1,2))  
 #' 
 #' # ICE also works with multiclass classification
 #' library("randomForest")
@@ -79,7 +95,7 @@
 #' plot(ice(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
 #' 
 #' # ICE plots can be centered: 
-#' plot(ice(mod, iris, feature = 1, center = 1))
+#' plot(ice(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
 #' 
 #' @importFrom dplyr left_join
 #' @export
@@ -93,6 +109,18 @@ ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, .
 }
 
 
+#' Individual conditional expectation plots
+#' 
+#' plot.ICE() plots individiual expectation curves for each observation for one feature.
+#' 
+#' For examples see \link{ice}
+#' @param object The individual conditional expectation curves. An ICE R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{ice}
+plot.PDP = function(object){
+  object$plot()
+}
 
 
 ICE = R6::R6Class('ICE',
@@ -159,6 +187,7 @@ ICE = R6::R6Class('ICE',
   ),
   active = list(
     center.at = function(anchor.value){
+      if(missing(anchor.value)) {return(private$anchor.value)}
       private$anchor.value = anchor.value
       private$flush()
       self$run()

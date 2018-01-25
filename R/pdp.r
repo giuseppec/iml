@@ -27,7 +27,7 @@
 #' \code{\link{ice}} for individual conditional expectation plots. 
 #' 
 #' @references 
-#' Friedman, J.H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29: 1189–1232.#' 
+#' Friedman, J.H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29: 1189–1232.
 #' @return 
 #' A PDP object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{feature}{The feature names for which the partial dependence was computed.}
@@ -35,6 +35,7 @@
 #' \item{feature.index}{The index of the features for which the partial dependence was computed.}
 #' \item{grid.size}{The size of the grid.}
 #' \item{sample.size}{The number of instances sampled from data X.}
+#' \item{feature(index)}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 #' \item{data()}{method to extract the results of the partial dependence plot. 
 #' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
