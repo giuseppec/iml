@@ -33,7 +33,7 @@
 #' @examples
 #' 
 #' @seealso 
-#' \code{\link{pdp}} for partial dependence plots.
+#' \link{pdp} for partial dependence plots.
 #' 
 #' @examples
 #' # We train a random forest on the Boston dataset:
