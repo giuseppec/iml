@@ -4,19 +4,19 @@
 #' @export
 #' @template args_experiment_wrap
 perm.imp = function(object, X, y, class=NULL, ...){
-  samp = DataSampler$new(X)
+  samp = DataSampler$new(X, y=data.frame(y = y))
   pred = prediction.model(object, class = class, ...)
   
-  PermImps$new(predictor = pred, sampler = samp, y=y)$run()
+  PermImps$new(predictor = pred, sampler = samp)$run()
 }
 
 
 PermImps = R6::R6Class('PermImps', 
   inherit = RepeatedExperiment,
   public = list(
-    initialize = function(predictor, sampler, y){
+    initialize = function(predictor, sampler){
       experiments = lapply(1:sampler$n.features, function(feature.index){
-        PermImp$new(predictor = predictor, sampler = sampler, y = y, feature.index = feature.index)
+        PermImp$new(predictor = predictor, sampler = sampler, feature.index = feature.index)
       })
       super$initialize(predictor, sampler, experiments)
     }, 
@@ -40,28 +40,28 @@ PermImp = R6::R6Class('PermImp',
   public = list(
     y = NULL,
     feature.index = NULL,
-    initialize = function(predictor, sampler, feature.index, y){
+    initialize = function(predictor, sampler, feature.index){
       ## TODO: Add check that nrow(X) the same as length(y) or nrow(y)
       super$initialize(predictor = predictor, sampler = sampler)
-      self$y = y
       self$feature.index = feature.index
-      private$sample.x = private$sampler$get.x
+      private$sample.x = private$sampler$get.xy
     }
   ),
   private = list(
     intervene = function(){
       X.inter = private$X.sample
       X.inter[self$feature.index] = X.inter[sample(1:nrow(private$X.sample)), self$feature.index]
-      rbind(X, X.inter)
+      rbind(private$X.sample, X.inter)
     },
     aggregate = function(){
-      stopifnot(nrow(private$Q.results)/2 == length(self$y))
+      y = private$X.design[[private$sampler$y.names]]
+      stopifnot(nrow(private$Q.results) == length(y))
       performance = function(y.hat, y){
         mean(log(y.hat + 0.00001)*y + log((1-y.hat) + 0.00001) * (1-y))
       }
       length.y = length(y)
-      pp = performance(private$Q.results[1:length.y,1], self$y) - 
-        performance(private$Q.results[(length.y + 1):(2*length.y),1], self$y)
+      pp = performance(private$Q.results[1:length.y,1], y) - 
+        performance(private$Q.results[(length.y + 1):(2*length.y),1], y)
       data.frame(performance = pp, feature = private$sampler$feature.names[self$feature.index])
     },
     generate.plot = function(){
