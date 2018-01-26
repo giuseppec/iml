@@ -48,7 +48,20 @@
 #' # Or as a plot
 #' plot(shap)
 #' 
-#' TODO: Continue here with multi.class
+#' # shapley() also works with multiclass classification
+#' library("randomForest")
+#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' X = iris[-which(names(iris) == 'Species')]
+#' 
+#' # Then we explain the first instance of the dataset with the shapley() method:
+#' shap = shapley(mod, X, x.interest = X[1,], predict.args = list(type='prob'))
+#' shap$data()
+#' plot(shap) 
+#' 
+#'# You can also focus on one class
+#' shap = shapley(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'))
+#' shap$data()
+#' plot(shap) 
 #' 
 shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
   samp = DataSampler$new(X)
@@ -84,16 +97,15 @@ Shapley = R6::R6Class('Shapley',
       y.hat.diff
     },
     intervene = function(){
-      n.features = ncol(private$X.sample)
       # The intervention
       runs = lapply(1:self$sample.size, function(m){
         # randomly order features
-        new.feature.order = sample(1:n.features)
+        new.feature.order = sample(1:private$sampler$n.features)
         # randomly choose sample instance from X
         sample.instance.shuffled = private$X.sample[sample(1:nrow(private$X.sample), 1), new.feature.order]
         x.interest.shuffled = self$x.interest[new.feature.order]
         
-        lapply(1:n.features, function(k){
+        lapply(1:private$sampler$n.features, function(k){
           k.at.index = which(new.feature.order == k)
           instance.with.k = x.interest.shuffled
           if(k.at.index < ncol(self$x.interest)){
@@ -113,7 +125,7 @@ Shapley = R6::R6Class('Shapley',
     }, 
     set.x.interest = function(x.interest){
       self$x.interest = x.interest
-      self$y.hat.interest = private$predict(x.interest)
+      self$y.hat.interest = private$predict(x.interest)[1,]
       self$y.hat.average = colMeans(private$predict(private$sampler$get.x()))
     },
     generate.plot = function(){

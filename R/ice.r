@@ -41,8 +41,9 @@
 #' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
 #' \item{plot()}{method to plot the partial dependence function. See \link{plot.PDP}}
-#' @examples
-#' 
+#' @references 
+#' Goldstein, A., Kapelner, A., Bleich, J., & Pitkin, E. (2013). Peeking Inside the Black Box: 
+#' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1–22. https://doi.org/10.1080/10618600.2014.907095 
 #' @seealso 
 #' \link{pdp} for partial dependence plots (aggregated ice plots)
 #' 
@@ -159,7 +160,7 @@ ICE = R6::R6Class('ICE',
       X.id = private$X.design.ids
       X.results = private$X.design[self$feature.index]
       X.results$..individual = X.id
-      if(ncol(private$Q.results) > 1){
+      if(private$multi.class){
         y.hat.names = colnames(private$Q.results)
         X.results = cbind(X.results, private$Q.results)
         X.results = gather(X.results, key = "..class.name", value = "y.hat", one_of(y.hat.names))

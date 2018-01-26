@@ -1,4 +1,4 @@
-context('Test utility functions')
+context('utility functions')
 
 
 test_that('get.feature.type function works', {

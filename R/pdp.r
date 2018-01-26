@@ -135,7 +135,7 @@ PDP = R6::R6Class('partial dependence plot',
     aggregate = function(){
       results = private$X.design[self$feature.index]
       
-      if(ncol(private$Q.results) > 1){
+      if(private$multi.class){
         y.hat.names = colnames(private$Q.results)
         results = cbind(results, private$Q.results)
         results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
@@ -195,7 +195,7 @@ PDP = R6::R6Class('partial dependence plot',
               group = categorical.feature, color = categorical.feature))
         }
       }
-      if(ncol(private$Q.results) > 1){
+      if(private$multi.class){
         p = p + facet_wrap("..class.name")
       } 
       p
