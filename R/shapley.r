@@ -18,6 +18,9 @@
 #' @return 
 #' A PDP object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
+#' \item{x.interest}{data.frame with the instance of interest}
+#' \item{y.hat.interest}{predicted value for instance of interest}
+#' \item{y.hat.averate}{average predicted value for data \code{X}} 
 #' \item{x}{method to get/set the instance. See examples for usage.}
 #' \item{data()}{method to extract the results of the shapley estimations. 
 #' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction (\code{phi})}
@@ -29,7 +32,24 @@
 #' \link{lime}
 #' @export
 #' @examples 
-#' # TODO
+#' # First we fit a machine learning model on the Boston housing data
+#' library("randomForest")
+#' data("Boston", package  = "MASS")
+#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' X = Boston[-which(names(Boston) == "medv")]
+#' 
+#' # Then we explain the first instance of the dataset with the shapley() method:
+#' x.interest = X[1,]
+#' shap = shapley(mod, X, x.interest = x.interest)
+#' shap
+#' 
+#' # Look at the results in a table
+#' shap$data()
+#' # Or as a plot
+#' plot(shap)
+#' 
+#' TODO: Continue here with multi.class
+#' 
 shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
@@ -37,21 +57,17 @@ shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
   Shapley$new(predictor = pred, sampler = samp, x.interest=x.interest, sample.size=sample.size)$run()
 }
 
-## TODO: instead having an outer loop over features,
-##       loop over features within each coalition, like the ApproShapley algorithms.
-##       Additionally make sure to not calculate things twice, because  it's always
-##       the difference of coalition of features with and without feature j.
-##       see Song, E., & Nelson, B. L. (2016). Shapley Effects for Global Sensitivity Analysis : Theory and Computation ∗, 4, 1060–1083.
-## TODO: Implement multi.class
 Shapley = R6::R6Class('Shapley', 
   inherit = Experiment,
   public = list(
     x.interest = NULL,
+    y.hat.interest = NULL,
+    y.hat.average = NULL,
     initialize = function(predictor, sampler, x.interest, sample.size){
       checkmate::assert_data_frame(x.interest)
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
-      self$x.interest = x.interest
+      private$set.x.interest(x.interest)
     }
   ), 
   private = list(
@@ -95,16 +111,25 @@ Shapley = R6::R6Class('Shapley',
       
       rbind(dat.with.k, dat.without.k)
     }, 
+    set.x.interest = function(x.interest){
+      self$x.interest = x.interest
+      self$y.hat.interest = private$predict(x.interest)
+      self$y.hat.average = colMeans(private$predict(private$sampler$get.x()))
+    },
     generate.plot = function(){
       p = ggplot(private$results) + geom_point(aes(y = feature, x = phi))
       if(private$multi.class) p = p + facet_wrap("class")
       p
+    },
+    print.parameters = function(){
+      cat(sprintf('Predicted value: %f, Average prediction: %f (diff = %f)', 
+        self$y.hat.interest, self$y.hat.average, self$y.hat.interest - self$y.hat.average))
     }
   ),
   active = list(
     x = function(x.interest){
-      self$x.interest = x.interest
       private$flush()
+      private$set.x.interest(x.interest)
       self$run()
       self
     }
