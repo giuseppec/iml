@@ -1,6 +1,10 @@
+context('Prediction')
+
+
 library('mlr')
 library('randomForest')
 library('caret')
+
 
 ## mlr
 task = mlr::makeClassifTask(data = iris, target = "Species")
@@ -26,7 +30,6 @@ iris.test = iris[c(2,20, 100, 150), c('Sepal.Length', 'Sepal.Width', 'Petal.Leng
 prediction.f = predictor.f$predict(iris.test)
 
 
-context('multi.class prediction works')
 test_that('equivalence',{
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
   expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
@@ -42,7 +45,9 @@ test_that('f works', {
 })
 
 
-context('single class Prediction works')
+# Test single class  predictions
+
+
 
 ## mlr
 predictor.mlr = prediction.model(mod.mlr, class = 2)
@@ -64,6 +69,9 @@ test_that('f works', {
 })
 
 
+
+
+# Test numeric predictions
 
 data(Boston, package='MASS')
 ## mlr
@@ -90,7 +98,7 @@ boston.test = Boston[c(1,2,3,4), ]
 prediction.f = predictor.f$predict(boston.test)
 
 
-context('Numerical Prediction works')
+
 
 test_that('equivalence',{
   expect_equivalent(prediction.f, predictor.caret$predict(boston.test))

@@ -1,4 +1,4 @@
-context('ICE')
+context('ice()')
 
 
 f = function(x, multi = FALSE){

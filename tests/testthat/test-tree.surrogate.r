@@ -1,4 +1,4 @@
-context('Tree Surrogate')
+context('tree.surrogate()')
 
 
 f = function(x, multi = FALSE){

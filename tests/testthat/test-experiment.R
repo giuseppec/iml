@@ -1,4 +1,4 @@
-context('Test experiment super class')
+context('Experiment')
 
 
 test_that('Experiments work',{

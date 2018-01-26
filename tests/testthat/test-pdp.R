@@ -1,4 +1,4 @@
-context('PDP')
+context('pdp()')
 
 
 f = function(x, multi = FALSE){
