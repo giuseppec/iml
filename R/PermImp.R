@@ -1,24 +1,28 @@
 #' Permutation feature importance
 #' 
 #' 
+#' @param loss The loss function to use: l(actual, predicted) -> R
+#' 
 #' @export
 #' @template args_experiment_wrap
-perm.imp = function(object, X, y, class=NULL, ...){
+perm.imp = function(object, X, y, class=NULL, loss, ...){
   samp = DataSampler$new(X, y=data.frame(y = y))
   pred = prediction.model(object, class = class, ...)
   
-  PermImps$new(predictor = pred, sampler = samp)$run()
+  PermImps$new(predictor = pred, sampler = samp, loss=loss)$run()
 }
 
 
 PermImps = R6::R6Class('PermImps', 
   inherit = RepeatedExperiment,
   public = list(
-    initialize = function(predictor, sampler){
+    error.original = NULL,
+    initialize = function(predictor, sampler, loss){
       experiments = lapply(1:sampler$n.features, function(feature.index){
-        PermImp$new(predictor = predictor, sampler = sampler, feature.index = feature.index)
+        PermImp$new(predictor = predictor, sampler = sampler, feature.index = feature.index, loss = loss)
       })
       super$initialize(predictor, sampler, experiments)
+      error.original = experiments[[1]]$error.original
     }, 
     plot = function(){
       plt.data = private$results
@@ -40,11 +44,15 @@ PermImp = R6::R6Class('PermImp',
   public = list(
     y = NULL,
     feature.index = NULL,
-    initialize = function(predictor, sampler, feature.index){
+    loss = NULL,
+    error.original = NULL,
+    initialize = function(predictor, sampler, feature.index, loss){
       ## TODO: Add check that nrow(X) the same as length(y) or nrow(y)
       super$initialize(predictor = predictor, sampler = sampler)
       self$feature.index = feature.index
+      self$loss = private$set.loss(loss)
       private$sample.x = private$sampler$get.xy
+      self$error.original = loss(private$predict(private$sampler$X), private$sampler$y)
     }
   ),
   private = list(
@@ -56,16 +64,19 @@ PermImp = R6::R6Class('PermImp',
     aggregate = function(){
       y = private$X.design[[private$sampler$y.names]]
       stopifnot(nrow(private$Q.results) == length(y))
-      performance = function(y.hat, y){
-        mean(log(y.hat + 0.00001)*y + log((1-y.hat) + 0.00001) * (1-y))
-      }
       length.y = length(y)
-      pp = performance(private$Q.results[1:length.y,1], y) - 
-        performance(private$Q.results[(length.y + 1):(2*length.y),1], y)
-      data.frame(performance = pp, feature = private$sampler$feature.names[self$feature.index])
+      normal.index = 1:(length.y/2)
+      shuffled.index = (length.y/2 + 1):length.y
+      importance = self$loss(private$Q.results[shuffled.index,1], y[shuffled.index]) /
+        self$loss(private$Q.results[normal.index,1], y[normal.index])
+
+      data.frame(importance = importance, feature = private$sampler$feature.names[self$feature.index])
     },
     generate.plot = function(){
-      ggplot(private$results) + geom_bar(aes(x = feature, y = performance), stat='identity')
+      ggplot(private$results) + geom_bar(aes(x = feature, y = loss), stat='identity')
+    }, 
+    set.loss = function(loss){
+      self$loss = loss
     }
   ), 
   active = list(
