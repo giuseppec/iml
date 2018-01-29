@@ -30,9 +30,10 @@ prediction.model = function(object, class = NULL, predict.args = NULL){
 
 Prediction = R6::R6Class("Prediction", 
   public = list(
-    predict = function(newdata){
+    predict = function(newdata, labels = FALSE){
       newdata = data.frame(newdata)
       prediction = private$predict.function(newdata)
+      # Store the class labels
       if(self$type == 'classification' && is.null(self$classes)) {
         self$classes = colnames(prediction)
         if(!is.null(self$class)){
@@ -42,13 +43,13 @@ Prediction = R6::R6Class("Prediction",
       if(self$type == 'classification' & !is.null(self$class)){
         prediction = prediction[,self$class]
       } 
+      if(labels){
+        prediction = self$predict(newdata)
+        classes = colnames(prediction)
+        prediction = classes[apply(prediction, 1, which.max)]
+        prediction = data.frame(..class = prediction)
+      }
       data.frame(prediction)
-    },
-    predict.class = function(newdata){
-      stopifnot(self$type == 'classification')
-      pred = self$predict(newdata)
-      classes = colnames(pred)
-      classes[apply(pred, 1, which.max)]
     },
     class = NULL,
     classes = NULL, 

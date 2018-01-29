@@ -39,7 +39,8 @@ test_that('equivalence',{
 test_that('f works', {
   expect_equal(colnames(prediction.f), c('setosa', 'versicolor', 'virginica'))
   expect_class(prediction.f, 'data.frame')
-  expect_equal(predictor.f$predict.class(iris.test), c('setosa', 'setosa', 'versicolor', 'virginica'))
+  labels.out = data.frame(..class = factor(c('setosa', 'setosa', 'versicolor', 'virginica')))
+  expect_equal(predictor.f$predict(iris.test, labels=TRUE), labels.out)
   predictor.f.1 = prediction.model(mod.f, class = 1)
   expect_equal(prediction.f[,1], predictor.f.1$predict(iris.test)$prediction)
 })
