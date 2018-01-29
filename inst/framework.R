@@ -81,14 +81,26 @@ lime1
 shapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'), class = 3)
 shapley1 = shapley(mod, X, x.interest, 100, class=NULL, predict.args = list(type = 'prob'))
 shapley1$x = X[i+2,]
+plot(shapley1)
 shapley1
 
 ## Permutation feature importance
-perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'), class = 1)$data()
-perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'))$plot()
 
-perm.imp(mod, X,  y=(y=='setosa'), predict.args = list(type = 'prob'), class = 1)
+perm.imp(mod, X,  y=1*(y=='virginica'), predict.args = list(type = 'prob'), class = 3, loss = 'mae')$data()
+pimp = perm.imp(mod, X,  y = y, loss = 'ce', classif.type = 'class')
+pimp$data()
 
+pimp = perm.imp(mod, X,  y = y, loss = 'ce', classif.type = 'prob')
+pimp$data()
+
+perm.imp(mod, X,  y=y, predict.args = list(type = 'prob'),  loss = 'mae')
+
+library("randomForest")
+data("Boston", package  = "MASS")
+mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+pimp = perm.imp(mod, Boston[which(names(Boston) != 'medv')], y = Boston$medv, loss = 'mae')
+
+pimp$data()
 
 ## tree surrogate model, centered
 library("randomForest")

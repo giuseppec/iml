@@ -103,7 +103,6 @@
 ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
-  
   obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  feature = feature, grid.size = grid.size)
   obj$run()
   obj

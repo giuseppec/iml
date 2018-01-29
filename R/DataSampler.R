@@ -19,17 +19,15 @@ DataSampler  = R6::R6Class('DataSampler',
         self$X[indices, ]
       }
     },
-    get.x = function(...){
-      self$X
-    },
     get.xy = function(...){
       cbind(self$X, self$y)
     },
     print = function(){
       cat("Sampling from data.frame with", nrow(self$X), "rows and", ncol(self$X), "columns.")
     },
-    initialize = function(X, y=NULL, prob = NULL){
+    initialize = function(X, y = NULL, prob = NULL){
       assertDataFrame(X, all.missing = FALSE)
+      assert_named(X)
       assertDataFrame(y, all.missing = FALSE, null.ok = TRUE)
       self$X = X
       if(!missing(y)){
