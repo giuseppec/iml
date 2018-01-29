@@ -19,6 +19,9 @@ DataSampler  = R6::R6Class('DataSampler',
         self$X[indices, ]
       }
     },
+    get.x = function(...){
+      self$X
+    },
     get.xy = function(...){
       cbind(self$X, self$y)
     },

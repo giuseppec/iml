@@ -32,7 +32,6 @@ Experiment = R6::R6Class("Experiment",
     run = function(force = FALSE, ...){
       if(force) private$flush()
       if(!private$finished){
-        browser()
         # DESIGN experiment
         private$X.sample = private$sample.x(self$sample.size)
         private$X.design = private$intervene()
