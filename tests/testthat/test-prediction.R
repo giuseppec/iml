@@ -111,3 +111,29 @@ test_that('f works', {
   expect_class(prediction.f, 'data.frame')
 })
 
+
+f = function(x, multi = FALSE){
+  pred = unlist(x[1] + x[2] + 100 * (x[3] == 'a')) / (155)
+  dat = data.frame(pred = pred)
+  if(multi) dat$pred2 = 1 - dat$pred
+  dat
+}
+
+f2 = function(x) f(x, multi = TRUE)
+X = data.frame(a = c(1, 2, 3, 4, 5), 
+  b = c(10, 20, 30, 40, 50), 
+  c = factor(c("a", "b", "c", "a", "b")), 
+  d = factor(c("A", "A", "B", "B", "B")))
+
+test_that('labels work', {
+  pred = prediction.model(f2)
+  expect_equal(pred$predict(X[1,]), data.frame(pred = 111/155, pred2 = 1 - 111/155))
+  expect_equal(pred$predict(X[1:2,], labels = TRUE), data.frame(..class = c('pred', 'pred2')))
+  
+  # If one-dimensional, labels are ignored
+  pred = prediction.model(f)
+  expect_equal(pred$predict(X[1,]), data.frame(pred = 111/155))
+  expect_equal(pred$predict(X[1,], labels = TRUE), data.frame(pred = 111/155))
+})
+
+private$predictor$predict(private$sampler$X, labels=TRUE)

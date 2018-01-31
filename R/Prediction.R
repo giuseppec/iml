@@ -32,31 +32,27 @@ Prediction = R6::R6Class("Prediction",
   public = list(
     predict = function(newdata, labels = FALSE){
       newdata = data.frame(newdata)
-      prediction = private$predict.function(newdata)
+      prediction = data.frame(private$predict.function(newdata))
       # Store the class labels
-      if(self$type == 'classification' && is.null(self$classes)) {
-        self$classes = colnames(prediction)
-        if(!is.null(self$class)){
-          self$classes = self$classes[self$class]
-        }
-      }
+      if(is.null(self$prediction.colnames)) private$extract.class.labels(prediction)
       if(self$type == 'classification' & !is.null(self$class)){
-        prediction = prediction[,self$class]
+        prediction = prediction[,self$class, drop=FALSE]
       } 
-      if(labels){
-        prediction = self$predict(newdata)
-        classes = colnames(prediction)
-        prediction = classes[apply(prediction, 1, which.max)]
+      if(labels & ncol(prediction) > 1){
+        prediction = self$prediction.colnames[apply(prediction, 1, which.max)]
         prediction = data.frame(..class = prediction)
+      } else {
+        colnames(prediction) = self$prediction.colnames
       }
+      rownames(prediction) = NULL
       data.frame(prediction)
     },
     class = NULL,
-    classes = NULL, 
+    prediction.colnames = NULL, 
     type = NULL,
     print = function(){
       cat('Prediction type:', self$type, '\n')
-      if(self$type == 'classification') cat('Classes: ', paste(self$classes, collapse = ', '))
+      if(self$type == 'classification') cat('Classes: ', paste(self$prediction.colnames, collapse = ', '))
     },
     initialize = function(object, class=NULL){
       # if object has predict function, but not from caret or mlr, then 
@@ -69,7 +65,13 @@ Prediction = R6::R6Class("Prediction",
     }
   ), 
   private = list(
-    object = NULL
+    object = NULL, 
+    extract.class.labels = function(prediction){
+      self$prediction.colnames = colnames(prediction)
+      if(!is.null(self$class)){
+        self$prediction.colnames = self$prediction.colnames[self$class]
+      }
+    }
   )
 )
 
