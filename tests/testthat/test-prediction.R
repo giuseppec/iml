@@ -38,11 +38,11 @@ test_that('equivalence',{
 
 test_that('f works', {
   expect_equal(colnames(prediction.f), c('setosa', 'versicolor', 'virginica'))
-  expect_class(prediction.f, 'data.frame')
+  expect_s3_class(prediction.f, 'data.frame')
   labels.out = data.frame(..class = factor(c('setosa', 'setosa', 'versicolor', 'virginica')))
   expect_equal(predictor.f$predict(iris.test, labels=TRUE), labels.out)
   predictor.f.1 = prediction.model(mod.f, class = 1)
-  expect_equal(prediction.f[,1], predictor.f.1$predict(iris.test)$prediction)
+  expect_equal(prediction.f[,1], predictor.f.1$predict(iris.test)$setosa)
 })
 
 
@@ -65,7 +65,7 @@ test_that('equivalence',{
 })
 
 test_that('f works', {
-  expect_equal(colnames(prediction.f), c('prediction'))
+  expect_equal(colnames(prediction.f), c('versicolor'))
   expect_class(prediction.f, 'data.frame')
 })
 
@@ -107,7 +107,7 @@ test_that('equivalence',{
 })
 
 test_that('f works', {
-  expect_equal(colnames(prediction.f), c('prediction'))
+  expect_equal(colnames(prediction.f), c('..prediction'))
   expect_class(prediction.f, 'data.frame')
 })
 
@@ -135,5 +135,3 @@ test_that('labels work', {
   expect_equal(pred$predict(X[1,]), data.frame(pred = 111/155))
   expect_equal(pred$predict(X[1,], labels = TRUE), data.frame(pred = 111/155))
 })
-
-private$predictor$predict(private$sampler$X, labels=TRUE)

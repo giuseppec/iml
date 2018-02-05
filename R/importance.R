@@ -1,26 +1,35 @@
-#' Permutation feature importance
+#' Feature importance
 #' 
+#' @description 
+#' imp() computes the feature importance for a machine learning model. 
+#' The importance of a feature is the loss in model performance when the feature is shuffled. 
+#' 
+#' @details
+#' #' To learn more about feature importance, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/permutation-feature-importance.html
 #' 
 #' @param loss The loss function to use: l(actual, predicted) -> R
 #' 
 #' @export
 #' @importFrom data.table rbindlist
 #' @template args_experiment_wrap
-perm.imp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
+importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
   assert_vector(y, any.missing = FALSE)
-  loss.fct = getFromNamespace(loss, "Metrics")
-  
+  if(!inherits(loss, 'function')){
+  ## Only allow metrics from Metrics package
+   #assert_choice(loss, ls('package:Metrics'))
+   loss = getFromNamespace(loss, "Metrics")
+  }
   samp = DataSampler$new(X, y = data.frame(y = y))
   pred = prediction.model(object, class = class,...)
   
-  PermImp$new(predictor = pred, sampler = samp, loss=loss.fct, method=method)$run()
+  Importance$new(predictor = pred, sampler = samp, loss=loss, method=method)$run()
 }
 
 
 ## TODO: Use different performance function for regression
 ## TODO: implement random sampling instead of whole x
 ## TODO: Implement multi.class
-PermImp = R6::R6Class('PermImp', 
+Importance = R6::R6Class('Importance', 
   inherit = Experiment,
   public = list(
     y = NULL,
@@ -29,6 +38,7 @@ PermImp = R6::R6Class('PermImp',
     initialize = function(predictor, sampler, loss, method){
       checkmate::assert_choice(method, c('shuffle', 'cartesian'))
       super$initialize(predictor = predictor, sampler = sampler)
+      private$loss.string = loss
       self$loss = private$set.loss(loss)
       private$method = method
       private$sample.x = private$sampler$get.xy
@@ -39,6 +49,8 @@ PermImp = R6::R6Class('PermImp',
   ),
   private = list(
     method = NULL,
+    # for printing
+    loss.string = NULL,
     shuffle.feature = function(feature.name, method){
       if(method == 'shuffle'){
         X.inter = private$X.sample
@@ -79,6 +91,9 @@ PermImp = R6::R6Class('PermImp',
     }, 
     set.loss = function(loss){
       self$loss = loss
+    }, 
+    print.parameters = function(){
+      cat('error function:', private$loss.string)
     }
   ), 
   active = list(

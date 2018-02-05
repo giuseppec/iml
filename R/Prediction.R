@@ -32,16 +32,17 @@ Prediction = R6::R6Class("Prediction",
   public = list(
     predict = function(newdata, labels = FALSE){
       newdata = data.frame(newdata)
-      prediction = data.frame(private$predict.function(newdata))
+      prediction = private$predict.function(newdata)
       # Store the class labels
-      if(is.null(self$prediction.colnames)) private$extract.class.labels(prediction)
+      if(is.null(self$prediction.colnames)) private$extract.prediction.colnames(prediction)
+      prediction = data.frame(prediction)
       if(self$type == 'classification' & !is.null(self$class)){
         prediction = prediction[,self$class, drop=FALSE]
       } 
       if(labels & ncol(prediction) > 1){
         prediction = self$prediction.colnames[apply(prediction, 1, which.max)]
         prediction = data.frame(..class = prediction)
-      } else {
+      }  else {
         colnames(prediction) = self$prediction.colnames
       }
       rownames(prediction) = NULL
@@ -66,8 +67,14 @@ Prediction = R6::R6Class("Prediction",
   ), 
   private = list(
     object = NULL, 
-    extract.class.labels = function(prediction){
+    extract.prediction.colnames = function(prediction){
+      if(!inherits(prediction, 'data.frame')){
+        self$prediction.colnames = "..prediction"
+      }
       self$prediction.colnames = colnames(prediction)
+      if(is.null(self$prediction.colnames)){
+        self$prediction.colnames = "..prediction"
+      }
       if(!is.null(self$class)){
         self$prediction.colnames = self$prediction.colnames[self$class]
       }
@@ -86,7 +93,7 @@ Prediction.mlr = R6::R6Class("Prediction.mlr",
       tsk = mlr::getTaskType(private$object)
       if(tsk == 'classif'){
         self$type = 'classification'
-
+        
       } else if(tsk == 'regr'){
         self$type = 'regression'
       } else {
