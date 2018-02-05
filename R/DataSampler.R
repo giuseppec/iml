@@ -7,7 +7,7 @@ DataSampler  = R6::R6Class('DataSampler',
     feature.names = NULL,
     n.features = NULL,
     prob = NULL,
-    sample = function(n, replace = TRUE, prob = NULL, get.y=FALSE) {
+    sample = function(n=100, replace = TRUE, prob = NULL, get.y=FALSE) {
       if(is.null(prob) & !is.null(self$prob)) {
         prob = self$prob
       }
