@@ -1,24 +1,88 @@
 #' Feature importance
 #' 
 #' @description 
-#' imp() computes the feature importance for a machine learning model. 
-#' The importance of a feature is the loss in model performance when the feature is shuffled. 
+#' importance() computes feature importances for machine learning models. 
+#' The importance of a feature is the factor by which the model's prediction error increases when the feature is shuffled. 
 #' 
 #' @details
-#' #' To learn more about feature importance, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/permutation-feature-importance.html
+#' Read the Interpretable Machine Learning book to learn more about feature importance: 
+#' \url{https://christophm.github.io/interpretable-ml-book/permutation-feature-importance.html}
 #' 
-#' @param loss The loss function to use: l(actual, predicted) -> R
+#' Two permutation schemes are implemented: 
+#' \itemize{
+#' \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (faster)
+#' \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (slow)
+#' }
+#' The loss function can be either specified via a string, or by handing a function to \code{importance()}.
+#' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
+#' See \code{library(help = "Metrics")} to get a list of functions. 
+#' Only use functions that return a single performance value, not a vector. 
+#' You can also provide a function directly. It has to take the actual value as its first argument and the prediction as its second. 
 #' 
+#' 
+#' @param loss The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details.
+#' @param method Either 'shuffle' or 'cartesian'. See Details. 
+#' @param y The vector or data.frame with the actual target values associated with X.
+#' @return 
+#' An Importance object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' \item{error.original}{The loss of the model before perturbing features.}
+#' \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
+#' \item{data()}{method to extract the results of the feature importance computation.
+#' Returns a data.frame with importance and permutation error measurements per feature.}
+#' \item{plot()}{method to plot the feature importances. See \link{plot.Importance}}
+#' @template args_internal_methods
+#' 
+#' @references 
+#' Fisher, A., Rudin, C., & Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the “Rashomon” Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #' @export
 #' @importFrom data.table rbindlist
 #' @template args_experiment_wrap
+#' @examples
+#' # We train a random forest on the Boston dataset:
+#' library("randomForest")
+#' data("Boston", package  = "MASS")
+#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' 
+#' # Compute the individual conditional expectations for the first feature
+#' X = Boston[-which(names(Boston) == 'medv')]
+#' y = Boston$medv
+#' 
+#' # Compute feature importances as the performance drop in mean absolute error
+#' imp = importance(mod, X, y, loss = 'mae')
+#' 
+#' # Plot the results directly
+#' plot(imp)
+#' 
+#' 
+#' # Since the result is a ggplot object, you can extend it: 
+#' library("ggplot2")
+#' plot(imp) + theme_bw()
+#' 
+#' # If you want to do your own thing, just extract the data: 
+#' imp.dat = imp$data()
+#' head(imp.dat)
+#' ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
+#' theme_bw()
+#' 
+#' # importance() also works with multiclass classification. 
+#' # In this case, the importance measurement regards all classes
+#' library("randomForest")
+#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' X = iris[-which(names(iris) == 'Species')]
+#' y = iris$Species
+#' # For some models we have to specify additional arguments for the predict function
+#' imp = importance(mod, X, y, loss = 'ce', predict.args = list(type = 'prob'))
+#' plot(imp)
+#' # Here we encounter the special case that the machine learning model perfectly predicts
+#' # The importance becomes infinite
+#' imp$data()
+#' 
+#' # For multiclass classification models, you can choose to only compute performance for one class. 
+#' # Make sure to adapt y
+#' plot(importance(mod, X, y == 'virginica', class = 3, loss = 'ce', predict.args = list(type = 'prob')))
 importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
   assert_vector(y, any.missing = FALSE)
-  if(!inherits(loss, 'function')){
-  ## Only allow metrics from Metrics package
-   #assert_choice(loss, ls('package:Metrics'))
-   loss = getFromNamespace(loss, "Metrics")
-  }
+
   samp = DataSampler$new(X, y = data.frame(y = y))
   pred = prediction.model(object, class = class,...)
   
@@ -26,19 +90,36 @@ importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
 }
 
 
-## TODO: Use different performance function for regression
-## TODO: implement random sampling instead of whole x
-## TODO: Implement multi.class
+#' Feature importance plot
+#' 
+#' plot.Importance() plots the feature importance results of an Importance object.
+#' 
+#' For examples see \link{importance}
+#' @param object The feature importance. An Importance R6 object
+#' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{importance}
+plot.Importance = function(object, sort = TRUE){
+  object$plot(sort = sort)
+}
+
+
 Importance = R6::R6Class('Importance', 
   inherit = Experiment,
   public = list(
-    y = NULL,
     loss = NULL,
     error.original = NULL,
     initialize = function(predictor, sampler, loss, method){
+      if(!inherits(loss, 'function')){
+        ## Only allow metrics from Metrics package
+        private$loss.string  = loss
+        loss = getFromNamespace(loss, "Metrics")
+      } else {
+        private$loss.string = head(loss)
+      }
       checkmate::assert_choice(method, c('shuffle', 'cartesian'))
       super$initialize(predictor = predictor, sampler = sampler)
-      private$loss.string = loss
       self$loss = private$set.loss(loss)
       private$method = method
       private$get.data = private$sampler$get.xy
@@ -86,20 +167,20 @@ Importance = R6::R6Class('Importance',
           importance = error / self$error.original)
       result
     },
-    generate.plot = function(){
-      ggplot(private$results) + geom_bar(aes(x = ..feature, y = importance), stat='identity')
+    generate.plot = function(sort){
+      res = private$results
+      if(sort){
+        res$..feature = factor(res$..feature, levels = res$..feature[order(res$importance)])
+      }
+       ggplot(res, aes(x = ..feature, y = importance)) + geom_point()+ 
+       geom_segment(aes(x = ..feature, xend = ..feature, y=0, yend = importance)) + 
+       coord_flip()
     }, 
     set.loss = function(loss){
       self$loss = loss
     }, 
     print.parameters = function(){
       cat('error function:', private$loss.string)
-    }
-  ), 
-  active = list(
-    feature = function(feature.index){
-      self$feature.index = feature.index
-      private$flush()
     }
   )
 )

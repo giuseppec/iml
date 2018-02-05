@@ -1,4 +1,4 @@
-context('perm.imp()')
+context('importance()')
 
 
 f = function(x, multi = FALSE){
