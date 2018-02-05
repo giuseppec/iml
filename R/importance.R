@@ -41,7 +41,7 @@ Importance = R6::R6Class('Importance',
       private$loss.string = loss
       self$loss = private$set.loss(loss)
       private$method = method
-      private$sample.x = private$sampler$get.xy
+      private$get.data = private$sampler$get.xy
       # In case of multi.class, forces labels, otherwise same as normal predict.
       private$predict = function(newdata) private$predictor$predict(newdata, labels = TRUE)
       self$error.original = loss(private$sampler$y[[1]], private$predict(private$sampler$X)[[1]])

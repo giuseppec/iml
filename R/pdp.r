@@ -128,7 +128,6 @@ PDP = R6::R6Class('partial dependence plot',
       private$set.feature(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
-      private$sample.x = private$sampler$get.x
     }
   ), 
   private = list(

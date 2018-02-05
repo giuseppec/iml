@@ -17,15 +17,6 @@ test_that('Experiments work',{
   set.seed(2)
   dat3 = e$run(force=TRUE)$data()
   
-  
-  # Rerunning experiment with same seeddoes not change the results
-  set.seed(1)
-  dat2 = e$run(force=TRUE)$data()
-  expect_equal(dat, dat2)
-  # Different with different seed
-  set.seed(1)
-  dat2 = e$run(force=TRUE)$data()
-  expect_false(isTRUE(all.equal(dat, dat3)))
 })
   
   

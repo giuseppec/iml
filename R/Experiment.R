@@ -1,6 +1,5 @@
 Experiment = R6::R6Class("Experiment",
   public = list(
-    sample.size = 100,
     plot = function(){
       self$run()
       private$plot.data = private$generate.plot()
@@ -12,7 +11,7 @@ Experiment = R6::R6Class("Experiment",
       private$predictor = predictor
       private$predict = predictor$predict
       private$sampler = sampler
-      private$sample.x = private$sampler$sample
+      private$get.data = private$sampler$get.x
     },
     data = function(){
       private$results
@@ -33,7 +32,7 @@ Experiment = R6::R6Class("Experiment",
       if(force) private$flush()
       if(!private$finished){
         # DESIGN experiment
-        private$X.sample = private$sample.x(self$sample.size)
+        private$X.sample = private$get.data()
         private$X.design = private$intervene()
         # EXECUTE experiment
         private$Q.results = private$Q(private$predict(private$X.design))
@@ -49,7 +48,7 @@ Experiment = R6::R6Class("Experiment",
     # The sampling object for sampling from X
     sampler = NULL,
     # Wrapper for sampler
-    sample.x = NULL,
+    get.data = NULL,
     # The sampled data
     X.sample = NULL,
     # The intervention on the sample

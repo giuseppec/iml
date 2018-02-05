@@ -129,11 +129,13 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
     tree = NULL,
     # Maximal depth as set by the user
     maxdepth = NULL,
+    sample.size = NULL,
     initialize = function(predictor, sampler, sample.size, maxdepth, tree.args){
       super$initialize(predictor, sampler)
       self$sample.size = sample.size
       private$tree.args = tree.args
       self$maxdepth = maxdepth
+      private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
     }, 
     predict = function(newdata, type = 'prob'){
       assert_choice(type, c('prob', 'class'))

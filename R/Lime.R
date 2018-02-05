@@ -38,6 +38,7 @@ LIME = R6::R6Class('LIME',
       self$sample.size = sample.size
       self$k = k
       self$x.interest = x.interest
+      private$get.data = function(...) self$sampler$sample(size = self$sample.size, ...)
     }
   ),
   private = list(
