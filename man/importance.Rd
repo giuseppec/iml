@@ -96,9 +96,8 @@ plot(imp)
 imp$data()
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
-# Make sure to 
+# Make sure to adapt y
 plot(importance(mod, X, y == 'virginica', class = 3, loss = 'ce', predict.args = list(type = 'prob')))
-
 }
 \references{
 Fisher, A., Rudin, C., & Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the “Rashomon” Perspective. Retrieved from http://arxiv.org/abs/1801.01489

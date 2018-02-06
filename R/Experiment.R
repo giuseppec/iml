@@ -34,8 +34,9 @@ Experiment = R6::R6Class("Experiment",
         private$X.sample = private$get.data()
         private$X.design = private$intervene()
         # EXECUTE experiment
-        private$Q.results = private$Q(private$predict(private$X.design))
-        private$multi.class = ifelse(ncol(private$Q.results) > 1, TRUE, FALSE)
+        predict.results = private$predict(private$X.design)
+        private$multi.class = ifelse(ncol(predict.results) > 1, TRUE, FALSE)
+        private$Q.results = private$Q(predict.results)
         # AGGREGATE measurements
         private$results = private$aggregate()
         private$finished = TRUE

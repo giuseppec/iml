@@ -30,21 +30,15 @@ prediction.model = function(object, class = NULL, predict.args = NULL){
 
 Prediction = R6::R6Class("Prediction", 
   public = list(
-    predict = function(newdata, labels = FALSE){
+    predict = function(newdata){
       newdata = data.frame(newdata)
       prediction = private$predict.function(newdata)
-      # Store the class labels
       if(is.null(self$prediction.colnames)) private$extract.prediction.colnames(prediction)
       prediction = data.frame(prediction)
       if(self$type == 'classification' & !is.null(self$class)){
         prediction = prediction[,self$class, drop=FALSE]
       } 
-      if(labels & ncol(prediction) > 1){
-        prediction = self$prediction.colnames[apply(prediction, 1, which.max)]
-        prediction = data.frame(..class = prediction)
-      }  else {
-        colnames(prediction) = self$prediction.colnames
-      }
+      colnames(prediction) = self$prediction.colnames
       rownames(prediction) = NULL
       data.frame(prediction)
     },
@@ -82,8 +76,7 @@ Prediction = R6::R6Class("Prediction",
   )
 )
 
-# For caret: extractPrediction
-# For caret: extractProb
+
 Prediction.mlr = R6::R6Class("Prediction.mlr", 
   inherit = Prediction,
   public = list(), 
@@ -93,7 +86,6 @@ Prediction.mlr = R6::R6Class("Prediction.mlr",
       tsk = mlr::getTaskType(private$object)
       if(tsk == 'classif'){
         self$type = 'classification'
-        
       } else if(tsk == 'regr'){
         self$type = 'regression'
       } else {
@@ -113,8 +105,7 @@ Prediction.mlr = R6::R6Class("Prediction.mlr",
 
 
 
-# For caret: extractPrediction
-# For caret: extractProb
+
 Prediction.f = R6::R6Class("Prediction.f", 
   inherit = Prediction,
   public = list(), 
@@ -138,8 +129,7 @@ Prediction.f = R6::R6Class("Prediction.f",
   )
 )
 
-# For caret: extractPrediction
-# For caret: extractProb
+
 Prediction.caret = R6::R6Class("Prediction.caret", 
   inherit = Prediction,
   public = list(), 
@@ -166,8 +156,7 @@ Prediction.caret = R6::R6Class("Prediction.caret",
   )
 )
 
-# For caret: extractPrediction
-# For caret: extractProb
+
 Prediction.S3 = R6::R6Class("Prediction.S3", 
   inherit = Prediction.f,
   public = list(
@@ -182,6 +171,7 @@ Prediction.S3 = R6::R6Class("Prediction.S3",
     predict.function = function(x){
       predict.args = c(list(object = private$object, newdata = x), private$predict.args)
       pred = do.call(predict, predict.args)
+      ## TODO: warning instead of error and reshape output to conform numeric data.frame type
       if(private$is.label.output(pred)) stop("Output seems to be class instead of probabilities. Please use the predict.args argument.")
       if(is.null(self$type)) private$infer.f.type(pred)
       pred 

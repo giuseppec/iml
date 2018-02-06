@@ -139,7 +139,7 @@ ICE = R6::R6Class('ICE',
       if(self$feature.type == 'numerical') p = p + geom_line()
       else if (self$feature.type == 'categorical') p = p + geom_line(alpha = 0.2) + geom_point()
       
-      if(ncol(private$Q.results) > 1){
+      if(private$multi.class){
         p + facet_wrap("..class.name")
       } else {
         p
@@ -177,7 +177,7 @@ ICE = R6::R6Class('ICE',
       }
       
       # Remove class name column again if single output
-      if(ncol(private$Q.results) == 1){
+      if(!private$multi.class){
         X.results$..class.name = NULL
       }
       

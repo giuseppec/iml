@@ -123,9 +123,7 @@ Importance = R6::R6Class('Importance',
       self$loss = private$set.loss(loss)
       private$method = method
       private$get.data = private$sampler$get.xy
-      # In case of multi.class, forces labels, otherwise same as normal predict.
-      private$predict = function(newdata) private$predictor$predict(newdata, labels = TRUE)
-      self$error.original = loss(private$sampler$y[[1]], private$predict(private$sampler$X)[[1]])
+      self$error.original = loss(private$sampler$y[[1]], private$Q(private$predict(private$sampler$X))[[1]])
     }
   ),
   private = list(
@@ -150,8 +148,8 @@ Importance = R6::R6Class('Importance',
       }
       X.inter$..feature = feature.name
       X.inter 
-      
     },
+    Q = function(pred) probs.to.labels(pred),
     intervene = function(){
       X.inter.list = lapply(private$sampler$feature.names, function(i) private$shuffle.feature(i, method = private$method))
       data.frame(rbindlist(X.inter.list))
@@ -184,6 +182,7 @@ Importance = R6::R6Class('Importance',
     }
   )
 )
+
 
 
 

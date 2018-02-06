@@ -39,8 +39,6 @@ test_that('equivalence',{
 test_that('f works', {
   expect_equal(colnames(prediction.f), c('setosa', 'versicolor', 'virginica'))
   expect_s3_class(prediction.f, 'data.frame')
-  labels.out = data.frame(..class = factor(c('setosa', 'setosa', 'versicolor', 'virginica')))
-  expect_equal(predictor.f$predict(iris.test, labels=TRUE), labels.out)
   predictor.f.1 = prediction.model(mod.f, class = 1)
   expect_equal(prediction.f[,1], predictor.f.1$predict(iris.test)$setosa)
 })
@@ -112,26 +110,5 @@ test_that('f works', {
 })
 
 
-f = function(x, multi = FALSE){
-  pred = unlist(x[1] + x[2] + 100 * (x[3] == 'a')) / (155)
-  dat = data.frame(pred = pred)
-  if(multi) dat$pred2 = 1 - dat$pred
-  dat
-}
 
-f2 = function(x) f(x, multi = TRUE)
-X = data.frame(a = c(1, 2, 3, 4, 5), 
-  b = c(10, 20, 30, 40, 50), 
-  c = factor(c("a", "b", "c", "a", "b")), 
-  d = factor(c("A", "A", "B", "B", "B")))
 
-test_that('labels work', {
-  pred = prediction.model(f2)
-  expect_equal(pred$predict(X[1,]), data.frame(pred = 111/155, pred2 = 1 - 111/155))
-  expect_equal(pred$predict(X[1:2,], labels = TRUE), data.frame(..class = c('pred', 'pred2')))
-  
-  # If one-dimensional, labels are ignored
-  pred = prediction.model(f)
-  expect_equal(pred$predict(X[1,]), data.frame(pred = 111/155))
-  expect_equal(pred$predict(X[1,], labels = TRUE), data.frame(pred = 111/155))
-})
