@@ -73,9 +73,14 @@ lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), c
 
 lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
 dat = lime1$data()
-
+plot(lime1)
 lime1$x <- X[i+1,]
 lime1
+
+
+lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 2)
+lime1
+plot(lime1)
 
 ## Shapley
 shapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'), class = 3)

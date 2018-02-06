@@ -14,7 +14,10 @@ predict.LIME = function(object, newdata, ...){
   object$predict(newdata = newdata, ...)
 }
 
-# TODO: Implement for classification
+plot.LIME = function(object){
+  object$plot()
+}
+
 # TODO: Implement multi.class
 # TODO: Allow categorical feature (sampler has to be changed also)
 # Differences to original LIME: 
@@ -26,39 +29,76 @@ LIME = R6::R6Class('LIME',
     x.interest = NULL, 
     k = NULL,
     model = NULL,
+    sample.size = NULL,
     predict = function(X=self$X){
+      
+      ## TODO: Integrate recoding here.
+      
       predict(self$model, newdata=X)
     },
-    data = function(){
-      cbind(private$X.design, w = private$weight.samples())
-    },
     initialize = function(predictor, sampler, sample.size, k, x.interest, class, ...){
+      checkmate::assert_number(k, lower = 1, upper = sampler$n.features)
+      checkmate::assert_data_frame(x.interest)
       if(!require('glmnet')){stop('Please install glmnet')}
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$k = k
       self$x.interest = x.interest
-      private$get.data = function(...) self$sampler$sample(size = self$sample.size, ...)
+      private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
     }
   ),
   private = list(
-    generate.plot = function(){
-      ggplot(private$results) + geom_point(aes(y = effect, x = feature)) + coord_flip() 
+    Q = function(pred) probs.to.labels(pred),
+    feature.center = NULL,
+    feature.scale = NULL,
+    standardise = function(dat){
+      if(is.null(private$feature.center)) {
+        dat.scaled = scale(dat)
+        private$feature.center = attr(dat.scaled, "scaled:center")
+        private$feature.scale = attr(dat.scaled, "scaled:scale")
+        dat.scaled
+      } else {
+        sweep(sweep(df,2,private$feature.center,"-"),2,private$feature.scale,"/")
+      }
+    },
+    destandardise = function(dat){
+      sweep(sweep(dat,2,private$feature.scale,"*"),2,private$feature.center,"+")
     },
     aggregate = function(){
-      mmat = model.matrix(unlist(private$Q.results[1]) ~ ., data = private$X.design)
-      res = glmnet(x = mmat, y = unlist(private$Q.results[1]), w = private$weight.samples())
-      best.index = max(which(res$df == self$k))
-      res = data.frame(beta = res$beta[, best.index])
-      res$x = mmat[1,]
-      res$effect = res$beta * res$x
-      res$feature = colnames(mmat)
-      res
+      browser()
+      X.recode = recode.data(private$X.design, self$x.interest)
+      X.recode = private$standardise(X.recode)
+      fam = ifelse(private$multi.class, 'multinomial', 'gaussian')
+      #mmat = model.matrix(unlist(private$Q.results[1]) ~ ., data = X.recode)
+      res = glmnet(x = as.matrix(X.recode), y = unlist(private$Q.results[1]), family = fam, w = private$weight.samples(), 
+        intercept = FALSE)
+      ## It can happen, that no n.vars matching k occurs
+      if(any(res$df == self$k)){
+        best.index = max(which(res$df == self$k))
+      } else {
+        best.index = max(which(res$df < self$k))
+        warning("Had to choose a smaller k")
+      }
+      if(private$multi.class){
+        class.results = lapply(res$beta, extract.glment.effects, best.index = best.index, model.mat = X.recode)
+        res = rbindlist(class.results)
+        res$..class = rep(names(class.results), each = ncol(mmat))
+      } else {
+        res = extract.glment.effects(res$beta, best.index = best.index, model.mat = X.recode)
+      }
+      X.recode = private$destandardise(X.recode)
+      res$x = X.recode[1,]
+      res[res$beta != 0, ]
     },
     intervene = function(){
-      private$X.sample = rbind(self$x.interest, private$X.sample)
+      X.sample = rbind(self$x.interest, private$X.sample)
       return(private$X.sample)
     }, 
+    generate.plot = function(){
+      p = ggplot(private$results) + geom_point(aes(y = feature.value, x = effect))
+      if(private$multi.class) p = p + facet_wrap("..class")
+      p
+    },
     weight.samples = function(){
       require('gower')
       gower_dist(private$X.design, self$x.interest)
@@ -68,6 +108,7 @@ LIME = R6::R6Class('LIME',
     x = function(x.interest){
       self$x.interest = x.interest
       private$flush()
+      self$run()
     }
   )
 )
