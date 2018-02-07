@@ -4,7 +4,7 @@
 \alias{extract.glment.effects}
 \title{Extract glmnet effects}
 \usage{
-extract.glment.effects(betas, best.index, model.mat)
+extract.glment.effects(betas, best.index, x.scaled, x.original)
 }
 \arguments{
 \item{betas}{glment$beta
