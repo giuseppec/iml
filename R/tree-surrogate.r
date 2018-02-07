@@ -71,7 +71,6 @@
 #' 
 #' For the tree implementation
 #' \link[partykit]{ctree}
-#' @importFrom partykit ctree
 #' @export
 tree.surrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2, tree.args = NULL, ...){
   samp = DataSampler$new(X)

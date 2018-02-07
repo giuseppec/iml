@@ -87,12 +87,12 @@ mod = randomForest(Species ~ ., data= iris, ntree=50)
 X = iris[-which(names(iris) == 'Species')]
 
 # Then we explain the first instance of the dataset with the lime() method:
-lemon = lime(mod, X, x.interest = X[110,], predict.args = list(type='prob'), k = 3)
+lemon = lime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 2)
 lemon$data()
 plot(lemon) 
 
 # You can also focus on one class
-lemon = lime(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'))
+lemon = lime(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'), k = 2)
 lemon$data()
 plot(lemon) 
 
