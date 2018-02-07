@@ -27,9 +27,9 @@ test_that('probs.to.labels',{
 
 
 
-test_that('recode.data',{
+test_that('recode',{
   X = data.frame(x1=1:10, x2=letters[c(1,1,2,2,2,2,2,2,1,1)], x3=rep(0, 10), x4=factor('c'))
-  X.recode = recode.data(X, X[1,])
+  X.recode = recode(X, X[1,])
   expect_equal(dim(X), dim(X.recode))
   expect_equal(rownames(X), rownames(X.recode))
   expect_equal(X.recode$x1, X$x1)

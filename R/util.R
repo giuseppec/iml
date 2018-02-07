@@ -58,7 +58,7 @@ extract.glment.effects = function(betas, best.index, x.scaled, x.original){
 # binarizes categorical variables: TRUE if same level as x.interest, else FALSE
 # TODO: Keep level names for factors
 # used in lime
-recode.data = function(dat, x.interest){
+recode = function(dat, x.interest){
   checkmate::assert_data_frame(dat)
   checkmate::assert_data_frame(x.interest, nrows = 1, ncols = ncol(dat))
   checkmate::assert_true(all(colnames(dat) == colnames(x.interest)))

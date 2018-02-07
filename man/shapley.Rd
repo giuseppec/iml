@@ -22,7 +22,7 @@ like an object from class \code{lm}.}
 By default the multiclass classification is done.}
 }
 \value{
-A PDP object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+A Shapley object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
 \item{x.interest}{data.frame with the instance of interest}
 \item{y.hat.interest}{predicted value for instance of interest}

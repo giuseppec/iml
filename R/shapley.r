@@ -12,11 +12,11 @@
 #' @seealso 
 #' A different way to explain predictions: \link{lime}
 #' @template args_experiment_wrap
-#' @param x.interest data.frame with a single row for the instance to be explained.
+#' @template args_x.interest
 #' @param sample.size Number of samples to be drawn to estimate the Shapley value. The higher the more accurate the estimations.
 #' 
 #' @return 
-#' A PDP object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' A Shapley object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
 #' \item{x.interest}{data.frame with the instance of interest}
 #' \item{y.hat.interest}{predicted value for instance of interest}
