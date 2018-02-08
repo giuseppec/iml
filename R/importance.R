@@ -78,7 +78,9 @@
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
-#' plot(importance(mod, X, y == 'virginica', class = 3, loss = 'ce', predict.args = list(type = 'prob')))
+#' imp = importance(mod, X, y == 'virginica', class = 3, loss = 'ce', 
+#'     predict.args = list(type = 'prob'))
+#' plot(imp)
 #' }
 importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
   assert_vector(y, any.missing = FALSE)

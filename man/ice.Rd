@@ -97,7 +97,8 @@ plot(ice.obj) + theme_bw()
 # If you want to do your own thing, just extract the data: 
 ice.dat = ice.obj$data()
 head(ice.dat)
-ggplot(ice.dat) + geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 
+ggplot(ice.dat) + 
+geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 
 scale_color_discrete(guide = "none")
 
 # You can reuse the ice object for other features: 

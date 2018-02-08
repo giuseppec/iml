@@ -1,10 +1,3 @@
-
-
-
-## TODO
-# - Think about subclasses for mlr/caret/predict/function
-
-
 #' Get a prediction object
 #' 
 #' @param object function, mlr WrappedObject, S3 class with predict function, or caret train object

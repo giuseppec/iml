@@ -16,6 +16,7 @@ get.feature.type = function(feature.class){
 
 
 # returns TRUE if object has predict function
+#' @importFrom utils methods
 has.predict = function(object){
   classes = class(object)
   any(unlist(lapply(classes, function(x){
