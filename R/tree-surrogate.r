@@ -226,7 +226,7 @@ pathpred <- function(object, ...)
   if(!inherits(object, "party")) object = partykit::as.party(object)
 
   ## get rules for each node
-  rls = .list.rules.party(object)
+  rls = list.rules.party(object)
   
   ## get predicted node and select corresponding rule
   rules = rls[as.character(predict(object, type = "node", ...))]

@@ -4,7 +4,7 @@
 \alias{plot.Importance}
 \title{Feature importance plot}
 \usage{
-\method{plot}{Importance}(object, sort = TRUE)
+\method{plot}{Importance}(object, sort = TRUE, ...)
 }
 \arguments{
 \item{object}{The feature importance. An Importance R6 object}

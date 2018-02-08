@@ -168,7 +168,7 @@ PDP = R6::R6Class('partial dependence plot',
     set.feature = function(feature.index){
       self$feature.index = feature.index
       self$n.features = length(feature.index)
-      self$feature.type = private$sampler$feature.types[self$feature.index]
+      self$feature.type = private$sampler$feature.types[feature.index]
       self$feature.names = private$sampler$feature.names[feature.index]
     },
     print.parameters = function(){
@@ -223,6 +223,7 @@ PDP = R6::R6Class('partial dependence plot',
       private$flush()
       private$set.feature(feature)
       private$set.grid.size(private$grid.size.original)
+      private$run()
     }
   )
 )

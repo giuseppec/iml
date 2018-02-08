@@ -3,3 +3,6 @@
 README.md
 framework.jpg
 .travis.yml
+Makefile
+man-roxygen
+notes.md

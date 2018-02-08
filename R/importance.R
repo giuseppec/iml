@@ -100,10 +100,11 @@ importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
 #' @param object The feature importance. An Importance R6 object
 #' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
 #' @return ggplot2 plot object
+#' @export
 #' @importFrom dplyr group_by_
 #' @seealso 
 #' \link{importance}
-plot.Importance = function(object, sort = TRUE){
+plot.Importance = function(object, sort = TRUE, ...){
   object$plot(sort = sort)
 }
 

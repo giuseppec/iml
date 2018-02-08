@@ -3,12 +3,12 @@
 #' Get node rules
 #' 
 #' @import partykit
-.list.rules.party = function (x, i = NULL, ...) 
+list.rules.party = function (x, i = NULL, ...) 
 {
   if (is.null(i)) 
     i <- nodeids(x, terminal = TRUE)
   if (length(i) > 1) {
-    ret <- sapply(i, .list.rules.party, x = x)
+    ret <- sapply(i, list.rules.party, x = x)
     names(ret) <- if (is.character(i)) 
       i
     else names(x)[i]
