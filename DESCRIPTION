@@ -15,7 +15,8 @@ Imports: R6,
          tidyr, 
          ggplot2
 Suggests: randomForest,
-          gower
+          gower, 
+          testthat
 License: MIT
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1
