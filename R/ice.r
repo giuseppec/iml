@@ -49,7 +49,8 @@
 #' 
 #' @examples
 #' # We train a random forest on the Boston dataset:
-#' library("randomForest")
+#' if(require("randomForest")){
+#' 
 #' data("Boston", package  = "MASS")
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' 
@@ -97,7 +98,7 @@
 #' 
 #' # ICE plots can be centered: 
 #' plot(ice(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
-#' 
+#' }
 #' @importFrom dplyr left_join
 #' @export
 ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...){

@@ -14,3 +14,7 @@ TODO
 \seealso{
 \href{https://christophm.github.io/interpretable-ml-book/agnostic}{Book on Interpretable Machine Learning}
 }
+\author{
+\strong{Maintainer}: Christoph Molnar \email{christoph.molnar@gmail.com}
+
+}

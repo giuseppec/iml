@@ -65,7 +65,8 @@ To learn more about partial dependence plot, read the Interpretable Machine Lear
 }
 \examples{
 # We train a random forest on the Boston dataset:
-library("randomForest")
+if(require("randomForest")){
+
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 
@@ -113,7 +114,7 @@ plot(ice(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
 
 # ICE plots can be centered: 
 plot(ice(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
-
+}
 }
 \references{
 Goldstein, A., Kapelner, A., Bleich, J., & Pitkin, E. (2013). Peeking Inside the Black Box: 
