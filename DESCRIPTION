@@ -18,12 +18,14 @@ Imports: R6,
          partykit,
          glmnet, 
          Metrics, 
-         data.table
+         data.table, 
+         mlr
 Suggests: randomForest,
           gower, 
           testthat, 
           rpart, 
-          MASS
+          MASS,
+          caret
 License: MIT
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1
