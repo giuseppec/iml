@@ -15,7 +15,8 @@ Imports: R6,
          tidyr, 
          ggplot2,
          partykit,
-         glmnet
+         glmnet, 
+         Metrics
 Suggests: randomForest,
           gower, 
           testthat, 

@@ -35,6 +35,7 @@
 #' @references 
 #' Fisher, A., Rudin, C., & Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the “Rashomon” Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #' @export
+#' @import Metrics
 #' @template args_experiment_wrap
 #' @examples
 #' # We train a tree on the Boston dataset:
