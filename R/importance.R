@@ -33,15 +33,15 @@
 #' @template args_internal_methods
 #' 
 #' @references 
-#' Fisher, A., Rudin, C., & Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the “Rashomon” Perspective. Retrieved from http://arxiv.org/abs/1801.01489
+#' Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #' @export
 #' @import Metrics
 #' @template args_experiment_wrap
 #' @examples
 #' # We train a tree on the Boston dataset:
-#' library("rpart")
+#' if(require("rpart")){
 #' data("Boston", package  = "MASS")
-#' mod = randomForest(medv ~ ., data = Boston)
+#' mod = rpart(medv ~ ., data = Boston)
 #' 
 #' # Compute the individual conditional expectations for the first feature
 #' X = Boston[-which(names(Boston) == 'medv')]
@@ -66,8 +66,7 @@
 #' 
 #' # importance() also works with multiclass classification. 
 #' # In this case, the importance measurement regards all classes
-#' library("randomForest")
-#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' mod = rpart(Species ~ ., data= iris)
 #' X = iris[-which(names(iris) == 'Species')]
 #' y = iris$Species
 #' # For some models we have to specify additional arguments for the predict function
@@ -80,6 +79,7 @@
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
 #' plot(importance(mod, X, y == 'virginica', class = 3, loss = 'ce', predict.args = list(type = 'prob')))
+#' }
 importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
   assert_vector(y, any.missing = FALSE)
 
