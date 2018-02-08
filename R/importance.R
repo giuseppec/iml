@@ -151,7 +151,7 @@ Importance = R6::R6Class('Importance',
     Q = function(pred) probs.to.labels(pred),
     intervene = function(){
       X.inter.list = lapply(private$sampler$feature.names, function(i) private$shuffle.feature(i, method = private$method))
-      data.frame(rbindlist(X.inter.list))
+      data.frame(data.table::rbindlist(X.inter.list))
     },
     aggregate = function(){
       y = private$X.design[private$sampler$y.names]

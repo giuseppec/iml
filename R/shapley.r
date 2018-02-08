@@ -70,6 +70,20 @@ shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
   Shapley$new(predictor = pred, sampler = samp, x.interest=x.interest, sample.size=sample.size)$run()
 }
 
+
+#' Shapley plot
+#' 
+#' plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction. 
+#' 
+#' For examples see \link{shapley}
+#' @param object  A Shapley R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{shapley}
+plot.Shapley = function(object){
+  object$plot()
+}
+
 Shapley = R6::R6Class('Shapley', 
   inherit = Experiment,
   public = list(

@@ -7,7 +7,7 @@
 lime(object, X, sample.size = 100, k = 3, x.interest, class = NULL, ...)
 }
 \arguments{
-\item{object}{The object is the machine learning model. Different types are allowed. 
+\item{object}{The machine learning model. Different types are allowed. 
 Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
 a function that predicts the outcome given features or anything with an S3 predict function,
 like an object from class \code{lm}.}
@@ -28,11 +28,10 @@ By default the multiclass classification is done.}
 \value{
 A Lime object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 \item{sample.size}{The number of samples from data X. The higher the more accurate the explanations become.}
-\item{x.interest}{data.frame with the instance of interest}
-\item{x}{method to get/set the instance. See examples for usage.}
 \item{model}{the glmnet object.}
 \item{best.fit.index}{the index of the best glmnet fit}
 \item{k}{The number of features as set by the user.}
+\item{x.interest}{method to get/set the instance. See examples for usage.}
 \item{data()}{method to extract the results of the local feature effects 
 Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
 \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
@@ -81,13 +80,17 @@ lemon$data()
 # Or as a plot
 plot(lemon)
 
+# Reuse the object with a new instance to explain
+lemon$x.interest = X[2,]
+plot(lemon)
+  
 # lime() also works with multiclass classification
 library("randomForest")
 mod = randomForest(Species ~ ., data= iris, ntree=50)
 X = iris[-which(names(iris) == 'Species')]
 
 # Then we explain the first instance of the dataset with the lime() method:
-lemon = lime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 2)
+lemon = lime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 3)
 lemon$data()
 plot(lemon) 
 

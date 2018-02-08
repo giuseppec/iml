@@ -38,9 +38,9 @@ probs.to.labels = function(prediction){
 }
 
 #' Extract glmnet effects
-#' @param betas glment$beta
+#' @param betas glmnet$beta
 #' Assuming that the first row is the x.interest
-extract.glment.effects = function(betas, best.index, x.scaled, x.original){
+extract.glmnet.effects = function(betas, best.index, x.scaled, x.original){
   checkmate::assert_data_frame(x.scaled, nrows=1)
   checkmate::assert_data_frame(x.original, nrows=1)
   res = data.frame(beta = betas[, best.index])

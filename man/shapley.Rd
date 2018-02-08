@@ -7,7 +7,7 @@
 shapley(object, X, x.interest, sample.size = 100, class = NULL, ...)
 }
 \arguments{
-\item{object}{The object is the machine learning model. Different types are allowed. 
+\item{object}{The machine learning model. Different types are allowed. 
 Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
 a function that predicts the outcome given features or anything with an S3 predict function,
 like an object from class \code{lm}.}

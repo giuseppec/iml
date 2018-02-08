@@ -39,11 +39,10 @@
 #' @return 
 #' A Lime object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{sample.size}{The number of samples from data X. The higher the more accurate the explanations become.}
-#' \item{x.interest}{data.frame with the instance of interest}
-#' \item{x}{method to get/set the instance. See examples for usage.}
 #' \item{model}{the glmnet object.}
 #' \item{best.fit.index}{the index of the best glmnet fit}
 #' \item{k}{The number of features as set by the user.}
+#' \item{x.interest}{method to get/set the instance. See examples for usage.}
 #' \item{data()}{method to extract the results of the local feature effects 
 #' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
 #' \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
@@ -65,14 +64,18 @@
 #' lemon$data()
 #' # Or as a plot
 #' plot(lemon)
-#' 
+#'
+#' # Reuse the object with a new instance to explain
+#' lemon$x.interest = X[2,]
+#' plot(lemon)
+#'   
 #' # lime() also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
 #' X = iris[-which(names(iris) == 'Species')]
 #' 
 #' # Then we explain the first instance of the dataset with the lime() method:
-#' lemon = lime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 2)
+#' lemon = lime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 3)
 #' lemon$data()
 #' plot(lemon) 
 #' 
@@ -81,7 +84,6 @@
 #' lemon$data()
 #' plot(lemon) 
 #' 
-
 lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
@@ -89,12 +91,33 @@ lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...
 }
 
 
+
+#' LIME prediction
+#' 
+#' Predict the response for newdata with the LIME model.
+#' 
+#' This function makes the LIME object call 
+#' its iternal object$predict() method. 
+#' For examples see \link{lime}
+#' @param object A LIME R6 object
+#' @param newdata A data.frame for which to predict
+#' @return A data.frame with the predicted outcome. 
+#' @seealso 
+#' \link{lime}
 #' @export
 predict.LIME = function(object, newdata = NULL, ...){
   object$predict(newdata = newdata, ...)
 }
 
-#' @export
+#' LIME plot
+#' 
+#' plot.LIME() plots the feature effects of the LIME model.
+#' 
+#' For examples see \link{lime}
+#' @param object  A LIME R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{lime}
 plot.LIME = function(object){
   object$plot()
 }
@@ -106,14 +129,14 @@ plot.LIME = function(object){
 LIME = R6::R6Class('LIME', 
   inherit = Experiment,
   public = list(
-    x.interest = NULL, 
+    x = NULL, 
     k = NULL,
     model = NULL,
     best.fit.index = NULL,
     sample.size = NULL,
     predict = function(newdata = NULL, ...){
-      if(is.null(newdata)) newdata = self$x.interest
-      X.recode = recode(newdata, self$x.interest)
+      if(is.null(newdata)) newdata = self$x
+      X.recode = recode(newdata, self$x)
       prediction = predict(self$model, newx=as.matrix(X.recode))
       if(private$multi.class){
         data.frame(prediction[,,self$best.fit.index])
@@ -130,7 +153,7 @@ LIME = R6::R6Class('LIME',
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$k = k
-      self$x.interest = x.interest
+      self$x = x.interest
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
     }
   ),
@@ -138,8 +161,8 @@ LIME = R6::R6Class('LIME',
     Q = function(pred) probs.to.labels(pred),
     best.index = NULL,
     aggregate = function(){
-      X.recode = recode(private$X.design, self$x.interest)
-      x.scaled = recode(self$x.interest, self$x.interest)
+      X.recode = recode(private$X.design, self$x)
+      x.scaled = recode(self$x, self$x)
       fam = ifelse(private$multi.class, 'multinomial', 'gaussian')
       self$model = glmnet(x = as.matrix(X.recode), y = unlist(private$Q.results[1]), 
         family = fam, w = private$weight.samples(), 
@@ -154,12 +177,12 @@ LIME = R6::R6Class('LIME',
       }
       self$best.fit.index = best.index
       if(private$multi.class){
-        class.results = lapply(res$beta, extract.glment.effects, 
-          best.index = best.index, x.scaled = x.scaled, x.original = self$x.interest)
-        res = rbindlist(class.results)
+        class.results = lapply(res$beta, extract.glmnet.effects, 
+          best.index = best.index, x.scaled = x.scaled, x.original = self$x)
+        res = data.table::rbindlist(class.results)
         res$..class = rep(names(class.results), each = ncol(X.recode))
       } else {
-        res = extract.glment.effects(res$beta, best.index, x.scaled, self$x.interest)
+        res = extract.glmnet.effects(res$beta, best.index, x.scaled, self$x)
       }
       res[res$beta != 0, ]
     },
@@ -171,12 +194,12 @@ LIME = R6::R6Class('LIME',
     },
     weight.samples = function(){
       require('gower')
-      1 - gower_dist(private$X.design, self$x.interest)
+      1 - gower_dist(private$X.design, self$x)
     }
   ),
   active = list(
-    x = function(x.interest){
-      self$x.interest = x.interest
+    x.interest = function(x.interest){
+      self$x = x.interest
       private$flush()
       self$run()
     }

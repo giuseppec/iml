@@ -7,7 +7,7 @@
 importance(object, X, y, class = NULL, loss, method = "shuffle", ...)
 }
 \arguments{
-\item{object}{The object is the machine learning model. Different types are allowed. 
+\item{object}{The machine learning model. Different types are allowed. 
 Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
 a function that predicts the outcome given features or anything with an S3 predict function,
 like an object from class \code{lm}.}
