@@ -25,19 +25,20 @@
 #' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). “Why Should I Trust You?”: Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
 #' 
 #' @seealso 
-#' \code{\link{plot.Lime}} and \code{\link{predict.Lime}}
+#' \code{\link{plot.LIME}} and \code{\link{predict.LIME}}
 #' 
 #' \code{\link{shapley}} can also be used to explain single predictions
 #' 
 #' \code{\link[lime]{lime}}, the original implementation
 #' @export
+#' @importFrom glmnet glmnet
 #' @template args_experiment_wrap
 #' @template arg_sample.size
 #' @template args_x.interest
 #' @param k the (maximum) number of features to be used for the surrogate model
 #' @param x.interest data.frame with the instance to be explained
 #' @return 
-#' A Lime object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' A LIME object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{sample.size}{The number of samples from data X. The higher the more accurate the explanations become.}
 #' \item{model}{the glmnet object.}
 #' \item{best.fit.index}{the index of the best glmnet fit}
@@ -45,8 +46,8 @@
 #' \item{x.interest}{method to get/set the instance. See examples for usage.}
 #' \item{data()}{method to extract the results of the local feature effects 
 #' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
-#' \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
-#' \item{predict()}{method to predict new data with the local model See also \link{predict.Lime}}
+#' \item{plot()}{method to plot the LIME feature effects. See \link{plot.LIME}}
+#' \item{predict()}{method to predict new data with the local model See also \link{predict.LIME}}
 #' @template args_internal_methods
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data

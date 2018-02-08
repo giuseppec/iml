@@ -13,10 +13,14 @@ Imports: R6,
          checkmate,
          dplyr, 
          tidyr, 
-         ggplot2
+         ggplot2,
+         partykit,
+         glmnet
 Suggests: randomForest,
           gower, 
-          testthat
+          testthat, 
+          rpart, 
+          MASS
 License: MIT
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1

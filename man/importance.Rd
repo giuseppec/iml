@@ -22,6 +22,8 @@ By default the multiclass classification is done.}
 \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details.}
 
 \item{method}{Either 'shuffle' or 'cartesian'. See Details.}
+
+\item{...}{Further arguments as a list for the prediction method.}
 }
 \value{
 An Importance object (R6). Its methods and variables can be accessed with the \code{$}-operator:
@@ -56,10 +58,10 @@ Only use functions that return a single performance value, not a vector.
 You can also provide a function directly. It has to take the actual value as its first argument and the prediction as its second.
 }
 \examples{
-# We train a random forest on the Boston dataset:
-library("randomForest")
+# We train a tree on the Boston dataset:
+library("rpart")
 data("Boston", package  = "MASS")
-mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+mod = randomForest(medv ~ ., data = Boston)
 
 # Compute the individual conditional expectations for the first feature
 X = Boston[-which(names(Boston) == 'medv')]

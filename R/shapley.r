@@ -14,7 +14,6 @@
 #' @template args_experiment_wrap
 #' @template args_x.interest
 #' @param sample.size Number of samples to be drawn to estimate the Shapley value. The higher the more accurate the estimations.
-#' 
 #' @return 
 #' A Shapley object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}

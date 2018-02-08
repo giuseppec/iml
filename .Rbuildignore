@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 README.md
 framework.jpg
+.travis.yml

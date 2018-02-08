@@ -23,6 +23,8 @@ By default the multiclass classification is done.}
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 
 \item{tree.args}{A list with further arguments for \code{ctree}}
+
+\item{...}{Further arguments as a list for the prediction method.}
 }
 \value{
 A TreeSurrogate object (R6). Its methods and variables can be accessed with the \code{$}-operator:

@@ -37,10 +37,10 @@
 #' @export
 #' @template args_experiment_wrap
 #' @examples
-#' # We train a random forest on the Boston dataset:
-#' library("randomForest")
+#' # We train a tree on the Boston dataset:
+#' library("rpart")
 #' data("Boston", package  = "MASS")
-#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = randomForest(medv ~ ., data = Boston)
 #' 
 #' # Compute the individual conditional expectations for the first feature
 #' X = Boston[-which(names(Boston) == 'medv')]
@@ -97,6 +97,7 @@ importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
 #' @param object The feature importance. An Importance R6 object
 #' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
 #' @return ggplot2 plot object
+#' @importFrom dplyr group_by_
 #' @seealso 
 #' \link{importance}
 plot.Importance = function(object, sort = TRUE){
@@ -159,8 +160,8 @@ Importance = R6::R6Class('Importance',
       # For classification we work with the class labels instead of probs
       result = data.frame(..feature = private$X.design$..feature, ..actual = y[[1]], ..predicted = y.hat[[1]])
       
-      result = result %>% group_by(..feature) %>% 
-        summarise(error = self$loss(..actual, ..predicted), 
+      result.grouped  = group_by_(result, "..feature")
+      result = summarise(result.grouped, error = self$loss(..actual, ..predicted), 
           importance = error / self$error.original)
       result
     },

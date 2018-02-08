@@ -72,6 +72,7 @@
 #' For the tree implementation
 #' \link[partykit]{ctree}
 #' @export
+#' @import partykit
 tree.surrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2, tree.args = NULL, ...){
   samp = DataSampler$new(X)
   pred = prediction.model(object, class = class, ...)
@@ -95,7 +96,7 @@ tree.surrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2
 #' @seealso 
 #' \link{tree.surrogate}
 #' @export
-predict.TreeSurrogate = function(object, newdata, type = "prob"){
+predict.TreeSurrogate = function(object, newdata, type = "prob", ...){
   object$predict(newdata = newdata, type)
 }
 
@@ -217,7 +218,7 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
 )
 
 
-# Return the paths of a ctree for each training data point
+#' Return the paths of a ctree for each training data point
 pathpred <- function(object, ...)
 {
   ## coerce to "party" object if necessary

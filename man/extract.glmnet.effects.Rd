@@ -7,7 +7,13 @@
 extract.glmnet.effects(betas, best.index, x.scaled, x.original)
 }
 \arguments{
-\item{betas}{glmnet$beta
+\item{betas}{glmnet$beta}
+
+\item{best.index}{index k}
+
+\item{x.scaled}{the scaled version of x}
+
+\item{x.original}{the original x
 Assuming that the first row is the x.interest}
 }
 \description{

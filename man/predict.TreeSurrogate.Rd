@@ -4,7 +4,7 @@
 \alias{predict.TreeSurrogate}
 \title{Surrogate tree prediction}
 \usage{
-\method{predict}{TreeSurrogate}(object, newdata, type = "prob")
+\method{predict}{TreeSurrogate}(object, newdata, type = "prob", ...)
 }
 \arguments{
 \item{object}{The surrogate tree. A TreeSurrogate R6 object}

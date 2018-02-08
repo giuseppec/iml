@@ -7,5 +7,6 @@
 #'    data.frame with the data for the prediction model
 #' @param class In case of classification, class specifies the class for which to predict the probability. 
 #' By default the multiclass classification is done. 
+#' @param ... Further arguments as a list for the prediction method.
 
 
