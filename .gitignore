@@ -2,4 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-
+*.swp
+iml.Rcheck
+..Rcheck
