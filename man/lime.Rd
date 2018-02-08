@@ -33,7 +33,7 @@ A LIME object (R6). Its methods and variables can be accessed with the \code{$}-
 \item{model}{the glmnet object.}
 \item{best.fit.index}{the index of the best glmnet fit}
 \item{k}{The number of features as set by the user.}
-\item{x.interest}{method to get/set the instance. See examples for usage.}
+\item{x.interest2}{method to get/set the instance. See examples for usage.}
 \item{data()}{method to extract the results of the local feature effects 
 Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
 \item{plot()}{method to plot the LIME feature effects. See \link{plot.LIME}}
@@ -103,7 +103,7 @@ plot(lemon)
 
 }
 \references{
-Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). “Why Should I Trust You?”: Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
+Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
 }
 \seealso{
 \code{\link{plot.LIME}} and \code{\link{predict.LIME}}

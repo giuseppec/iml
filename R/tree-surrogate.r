@@ -95,6 +95,7 @@ tree.surrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2
 #' In case of classification it is either the class probabilities *(for type "prob") or the class label (type "class")
 #' @seealso 
 #' \link{tree.surrogate}
+#' @importFrom stats predict
 #' @export
 predict.TreeSurrogate = function(object, newdata, type = "prob", ...){
   object$predict(newdata = newdata, type)

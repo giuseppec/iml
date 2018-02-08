@@ -17,7 +17,7 @@
 #' 
 #' And we can isolate the individual conditional expectation of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
 #' 
-#' Partial dependence plots (\link{\code{pdp}}) are the averaged lines of ice curves. 
+#' Partial dependence plots (\link{pdp}) are the averaged lines of ice curves. 
 #'  The returned object can be plotted is a \code{ggplot}
 #' object. This means it can be plotted directly or be extended using ggplots \code{+} operator.   
 #' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/ice.html
@@ -42,8 +42,8 @@
 #' Can be used for creating custom partial dependence plots.}
 #' \item{plot()}{method to plot the partial dependence function. See \link{plot.PDP}}
 #' @references 
-#' Goldstein, A., Kapelner, A., Bleich, J., & Pitkin, E. (2013). Peeking Inside the Black Box: 
-#' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1–22. https://doi.org/10.1080/10618600.2014.907095 
+#' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
+#' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
 #' @seealso 
 #' \link{pdp} for partial dependence plots (aggregated ice plots)
 #' 

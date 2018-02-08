@@ -92,7 +92,7 @@ pdp.obj$plot()
 
 }
 \references{
-Friedman, J.H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29: 1189–1232.
+Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 }
 \seealso{
 \link{plot.PDP}

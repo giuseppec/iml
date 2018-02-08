@@ -26,7 +26,7 @@
 #' \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
 #' @template args_internal_methods
 #' @references 
-#' Strumbelj, E., Kononenko, I., Štrumbelj, E., & Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647–665. https://doi.org/10.1007/s10115-013-0679-x
+#' Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x
 #' @seealso 
 #' \link{lime}
 #' @export

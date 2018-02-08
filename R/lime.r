@@ -22,7 +22,7 @@
 #' To learn more about local models, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/lime.html
 #' 
 #' @references 
-#' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). “Why Should I Trust You?”: Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
+#' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
 #' 
 #' @seealso 
 #' \code{\link{plot.LIME}} and \code{\link{predict.LIME}}
@@ -43,7 +43,7 @@
 #' \item{model}{the glmnet object.}
 #' \item{best.fit.index}{the index of the best glmnet fit}
 #' \item{k}{The number of features as set by the user.}
-#' \item{x.interest}{method to get/set the instance. See examples for usage.}
+#' \item{x.interest2}{method to get/set the instance. See examples for usage.}
 #' \item{data()}{method to extract the results of the local feature effects 
 #' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
 #' \item{plot()}{method to plot the LIME feature effects. See \link{plot.LIME}}
@@ -105,6 +105,7 @@ lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...
 #' @return A data.frame with the predicted outcome. 
 #' @seealso 
 #' \link{lime}
+#' @importFrom stats predict
 #' @export
 predict.LIME = function(object, newdata = NULL, ...){
   object$predict(newdata = newdata, ...)
@@ -123,10 +124,7 @@ plot.LIME = function(object){
   object$plot()
 }
 
-## TODO: Add binarization option for numerical features
-# Differences to original LIME: 
-# - Sample directly from data, not from weird normal distribution per feature
-# - Best k features are chosen by Lasso path
+
 LIME = R6::R6Class('LIME', 
   inherit = Experiment,
   public = list(

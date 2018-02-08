@@ -82,7 +82,7 @@ plot(shap)
 
 }
 \references{
-Strumbelj, E., Kononenko, I., Štrumbelj, E., & Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647–665. https://doi.org/10.1007/s10115-013-0679-x
+Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x
 }
 \seealso{
 A different way to explain predictions: \link{lime}
