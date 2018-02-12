@@ -116,12 +116,13 @@ ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, .
 #' plot.ICE() plots individiual expectation curves for each observation for one feature.
 #' 
 #' For examples see \link{ice}
-#' @param object The individual conditional expectation curves. An ICE R6 object
+#' @param x The individual conditional expectation curves. An ICE R6 object
+#' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{ice}
-plot.PDP = function(object){
-  object$plot()
+plot.ICE = function(x, ...){
+  x$plot()
 }
 
 
