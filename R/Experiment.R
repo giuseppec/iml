@@ -92,44 +92,6 @@ Experiment = R6::R6Class("Experiment",
 
 
 
-# RepeatedExperiment = R6::R6Class('RepeatedExperiment', 
-#   inherit = Experiment,
-#   public = list(
-#     initialize = function(predictor, sampler, experiments){
-#       private$predictor = predictor
-#       private$sampler = sampler
-#       private$experiments = experiments
-#     }, 
-#     run = function(force = FALSE){
-#       if(!private$finished){
-#         private$experiments = lapply(private$experiments, function(experiment){
-#           experiment$run(force = force)
-#         })
-#         private$results = self$data()
-#         private$finished = TRUE
-#       }
-#       self
-#     }, 
-#     data = function(){
-#       dfs = lapply(private$experiments, function(experiment){
-#         experiment$data()
-#       })
-#       data.table::rbindlist(dfs)
-#     }
-#   ), 
-#   private = list(
-#     experiments = NULL,
-#     results = NULL,
-#     finished = FALSE,
-#     flush = function(){
-#       lapply(private$experiments, function(experiment){
-#         experiment$flush()
-#       })
-#     }
-#   )
-# )
-
-
 
 
 

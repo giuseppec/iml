@@ -3,7 +3,8 @@
 #' @param object function, mlr WrappedObject, S3 class with predict function, or caret train object
 #' @param class In case of classification, class specifies the class for which to predict the probability. 
 #' By default the first class in the prediction (first column) is chosen. 
-#' @import mlr
+#' @param predict.args named list with arguments passed down to the prediction model
+#' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
 #' @return object of type Prediction
 prediction.model = function(object, class = NULL, predict.args = NULL){
   assert_vector(class, len=1, null.ok=TRUE)

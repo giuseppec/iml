@@ -13,7 +13,7 @@
 #' \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (faster)
 #' \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (slow)
 #' }
-#' The loss function can be either specified via a string, or by handing a function to \code{importance()}.
+#' The loss function can be either specified via a string, or by handing a function to \code{feature.imp()}.
 #' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
 #' See \code{library(help = "Metrics")} to get a list of functions. 
 #' Only use functions that return a single performance value, not a vector. 
@@ -48,7 +48,7 @@
 #' y = Boston$medv
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = importance(mod, X, y, loss = 'mae')
+#' imp = feature.imp(mod, X, y, loss = 'mae')
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -64,13 +64,13 @@
 #' ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
 #' theme_bw()
 #' 
-#' # importance() also works with multiclass classification. 
+#' # feature.imp() also works with multiclass classification. 
 #' # In this case, the importance measurement regards all classes
 #' mod = rpart(Species ~ ., data= iris)
 #' X = iris[-which(names(iris) == 'Species')]
 #' y = iris$Species
 #' # For some models we have to specify additional arguments for the predict function
-#' imp = importance(mod, X, y, loss = 'ce', predict.args = list(type = 'prob'))
+#' imp = feature.imp(mod, X, y, loss = 'ce', predict.args = list(type = 'prob'))
 #' plot(imp)
 #' # Here we encounter the special case that the machine learning model perfectly predicts
 #' # The importance becomes infinite
@@ -78,11 +78,11 @@
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
-#' imp = importance(mod, X, y == 'virginica', class = 3, loss = 'ce', 
+#' imp = feature.imp(mod, X, y == 'virginica', class = 3, loss = 'ce', 
 #'     predict.args = list(type = 'prob'))
 #' plot(imp)
 #' }
-importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
+feature.imp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
   assert_vector(y, any.missing = FALSE)
 
   samp = DataSampler$new(X, y = data.frame(y = y))
@@ -96,16 +96,17 @@ importance = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
 #' 
 #' plot.Importance() plots the feature importance results of an Importance object.
 #' 
-#' For examples see \link{importance}
-#' @param object The feature importance. An Importance R6 object
+#' For examples see \link{feature.imp}
+#' @param x The feature importance. An Importance R6 object
 #' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
+#' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @export
 #' @importFrom dplyr group_by_
 #' @seealso 
-#' \link{importance}
-plot.Importance = function(object, sort = TRUE, ...){
-  object$plot(sort = sort)
+#' \link{feature.imp}
+plot.Importance = function(x, sort = TRUE, ...){
+  x$plot(sort = sort, ...)
 }
 
 
