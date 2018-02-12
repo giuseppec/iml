@@ -71,7 +71,7 @@ plot(ice.curves)
 
 
 
-### Explain a single prediction a local linear model. (LIME) 
+### Explain a single prediction with a local linear model. (LIME) 
 ```{r}
 x = Boston[1,]
 lime.explain = lime(mod, Boston, x.interest = x)

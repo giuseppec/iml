@@ -98,7 +98,7 @@ plot(ice.curves)
 
 ![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
-### Explain a single prediction a local linear model. (LIME)
+### Explain a single prediction with a local linear model. (LIME)
 
 ``` r
 x = Boston[1,]
