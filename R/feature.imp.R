@@ -1,7 +1,7 @@
 #' Feature importance
 #' 
 #' @description 
-#' importance() computes feature importances for machine learning models. 
+#' feature.imp() computes feature importances for machine learning models. 
 #' The importance of a feature is the factor by which the model's prediction error increases when the feature is shuffled. 
 #' 
 #' @details

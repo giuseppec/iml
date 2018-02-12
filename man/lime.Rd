@@ -23,9 +23,7 @@ like an object from class \code{lm}.}
 \item{class}{In case of classification, class specifies the class for which to predict the probability. 
 By default the multiclass classification is done.}
 
-\item{...}{Further arguments as a list for the prediction method.}
-
-\item{x.interest}{data.frame with the instance to be explained}
+\item{...}{Further arguments  for the prediction method.}
 }
 \value{
 A LIME object (R6). Its methods and variables can be accessed with the \code{$}-operator:
@@ -33,7 +31,7 @@ A LIME object (R6). Its methods and variables can be accessed with the \code{$}-
 \item{model}{the glmnet object.}
 \item{best.fit.index}{the index of the best glmnet fit}
 \item{k}{The number of features as set by the user.}
-\item{x.interest2}{method to get/set the instance. See examples for usage.}
+\item{x.interest}{method to get/set the instance. See examples for usage.}
 \item{data()}{method to extract the results of the local feature effects 
 Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
 \item{plot()}{method to plot the LIME feature effects. See \link{plot.LIME}}

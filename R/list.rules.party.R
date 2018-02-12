@@ -1,8 +1,5 @@
 
 # Copied from internal partykit function
-#' Get node rules
-#' 
-#' @import partykit
 list.rules.party = function (x, i = NULL, ...) 
 {
   if (is.null(i)) 

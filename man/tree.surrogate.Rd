@@ -24,7 +24,7 @@ By default the multiclass classification is done.}
 
 \item{tree.args}{A list with further arguments for \code{ctree}}
 
-\item{...}{Further arguments as a list for the prediction method.}
+\item{...}{Further arguments  for the prediction method.}
 }
 \value{
 A TreeSurrogate object (R6). Its methods and variables can be accessed with the \code{$}-operator:
@@ -65,7 +65,7 @@ plot(dt)
 predict(dt, Boston[1:10,])
 
 # Extract the results
-dat = tree$data()
+dat = dt$data()
 head(dat)
 
 
@@ -89,7 +89,7 @@ predict(dt, iris.sample)
 predict(dt, iris.sample, type = 'class')
 
 # Extract the dataset
-dat = tree$data()
+dat = dt$data()
 head(dat)
 }
 \seealso{

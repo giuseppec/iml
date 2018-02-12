@@ -12,6 +12,8 @@
 \item{newdata}{A data.frame for which to predict}
 
 \item{type}{Either "prob" or "class". Ignored if the surrogate tree does regression.}
+
+\item{...}{Further argumets for \code{predict_party}}
 }
 \value{
 A data.frame with the predicted outcome. 

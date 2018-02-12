@@ -39,7 +39,7 @@
 #' predict(dt, Boston[1:10,])
 #' 
 #' # Extract the results
-#' dat = tree$data()
+#' dat = dt$data()
 #' head(dat)
 #' 
 #' 
@@ -63,7 +63,7 @@
 #' predict(dt, iris.sample, type = 'class')
 #' 
 #' # Extract the dataset
-#' dat = tree$data()
+#' dat = dt$data()
 #' head(dat)
 #' @seealso 
 #' \link{predict.TreeSurrogate}
@@ -90,6 +90,7 @@ tree.surrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2
 #' @param object The surrogate tree. A TreeSurrogate R6 object
 #' @param newdata A data.frame for which to predict
 #' @param type Either "prob" or "class". Ignored if the surrogate tree does regression. 
+#' @param ... Further argumets for \code{predict_party}
 #' @return A data.frame with the predicted outcome. 
 #' In case of regression it is the predicted \eqn{\hat{y}}. 
 #' In case of classification it is either the class probabilities *(for type "prob") or the class label (type "class")
@@ -98,7 +99,7 @@ tree.surrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2
 #' @importFrom stats predict
 #' @export
 predict.TreeSurrogate = function(object, newdata, type = "prob", ...){
-  object$predict(newdata = newdata, type)
+  object$predict(newdata = newdata, type, ...)
 }
 
 
@@ -138,15 +139,15 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
       self$maxdepth = maxdepth
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
     }, 
-    predict = function(newdata, type = 'prob'){
+    predict = function(newdata, type = 'prob', ...){
       assert_choice(type, c('prob', 'class'))
-      res = data.frame(predict(self$tree, newdata = newdata, type = 'response'))
+      res = data.frame(predict(self$tree, newdata = newdata, type = 'response', ...))
       if(private$multi.class){
         if(type == 'class') {
           res = data.frame(..class = colnames(res)[apply(res, 1, which.max)])
         }
       } else {
-        res = data.frame(..y.hat = predict(self$tree, newdata = newdata))
+        res = data.frame(..y.hat = predict(self$tree, newdata = newdata, ...))
       }
       res
     }
@@ -219,7 +220,7 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
 )
 
 
-#' Return the paths of a ctree for each training data point
+# Return the paths of a ctree for each training data point
 pathpred <- function(object, ...)
 {
   ## coerce to "party" object if necessary

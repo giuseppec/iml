@@ -10,6 +10,8 @@
 \item{object}{A LIME R6 object}
 
 \item{newdata}{A data.frame for which to predict}
+
+\item{...}{Further arguments for the objects predict function}
 }
 \value{
 A data.frame with the predicted outcome.

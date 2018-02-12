@@ -36,14 +36,13 @@
 #' @template arg_sample.size
 #' @template args_x.interest
 #' @param k the (maximum) number of features to be used for the surrogate model
-#' @param x.interest data.frame with the instance to be explained
 #' @return 
 #' A LIME object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{sample.size}{The number of samples from data X. The higher the more accurate the explanations become.}
 #' \item{model}{the glmnet object.}
 #' \item{best.fit.index}{the index of the best glmnet fit}
 #' \item{k}{The number of features as set by the user.}
-#' \item{x.interest2}{method to get/set the instance. See examples for usage.}
+#' \item{x.interest}{method to get/set the instance. See examples for usage.}
 #' \item{data()}{method to extract the results of the local feature effects 
 #' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
 #' \item{plot()}{method to plot the LIME feature effects. See \link{plot.LIME}}
@@ -102,6 +101,7 @@ lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...
 #' For examples see \link{lime}
 #' @param object A LIME R6 object
 #' @param newdata A data.frame for which to predict
+#' @param ... Further arguments for the objects predict function
 #' @return A data.frame with the predicted outcome. 
 #' @seealso 
 #' \link{lime}

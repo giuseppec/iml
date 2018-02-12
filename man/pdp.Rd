@@ -7,7 +7,22 @@
 pdp(object, X, feature, grid.size = 10, class = NULL, ...)
 }
 \arguments{
+\item{object}{The machine learning model. Different types are allowed. 
+Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
+a function that predicts the outcome given features or anything with an S3 predict function,
+like an object from class \code{lm}.}
+
+\item{X}{data.frame with the data for the prediction model}
+
+\item{feature}{The feature index for which to compute the partial dependencies. 
+Either a single number or vector of two numbers}
+
 \item{grid.size}{The size of the grid for evaluating the predictions}
+
+\item{class}{In case of classification, class specifies the class for which to predict the probability. 
+By default the multiclass classification is done.}
+
+\item{...}{Further arguments  for the prediction method.}
 }
 \value{
 A PDP object (R6). Its methods and variables can be accessed with the \code{$}-operator:

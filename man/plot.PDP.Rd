@@ -5,14 +5,16 @@
 \alias{plot.PDP}
 \title{Individual conditional expectation plots}
 \usage{
-\method{plot}{PDP}(object)
+\method{plot}{PDP}(x, ...)
 
-\method{plot}{PDP}(object)
+\method{plot}{PDP}(x, ...)
 }
 \arguments{
-\item{object}{The individual conditional expectation curves. An ICE R6 object}
+\item{x}{The partial dependence. A PDP R6 object}
 
-\item{object}{The partial dependence. A PDP R6 object}
+\item{...}{Further arguments for the objects plot function}
+
+\item{object}{The individual conditional expectation curves. An ICE R6 object}
 }
 \value{
 ggplot2 plot object

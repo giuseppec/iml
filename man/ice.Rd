@@ -24,7 +24,7 @@ like an object from class \code{lm}.}
 \item{class}{In case of classification, class specifies the class for which to predict the probability. 
 By default the multiclass classification is done.}
 
-\item{...}{Further arguments as a list for the prediction method.}
+\item{...}{Further arguments  for the prediction method.}
 }
 \value{
 An individual conditional expectation object

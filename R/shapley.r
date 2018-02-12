@@ -107,7 +107,8 @@ Shapley = R6::R6Class('Shapley',
       y.hat.diff = cbind(data.frame(feature = rep(colnames(private$X.design), times = self$sample.size)), 
         y.hat.diff)
       y.hat.diff = gather(y.hat.diff, key = "class", "value", one_of(cnames))
-      y.hat.diff = y.hat.diff %>% group_by(feature, class) %>% summarise(phi = mean(value), phi.var = var(value))
+      y.hat.diff.grouped  =   group_by(y.hat.diff, feature, class)
+      y.hat.diff = summarise(y.hat.diff.grouped, phi = mean(value), phi.var = var(value))
       if(!private$multi.class) y.hat.diff$class = NULL
       y.hat.diff
     },
@@ -120,7 +121,7 @@ Shapley = R6::R6Class('Shapley',
         sample.instance.shuffled = private$X.sample[sample(1:nrow(private$X.sample), 1), new.feature.order]
         x.interest.shuffled = self$x.interest[new.feature.order]
         
-        lapply(1:private$sampler$n.features, function(k){
+        featurewise = lapply(1:private$sampler$n.features, function(k){
           k.at.index = which(new.feature.order == k)
           instance.with.k = x.interest.shuffled
           if(k.at.index < ncol(self$x.interest)){
@@ -130,9 +131,11 @@ Shapley = R6::R6Class('Shapley',
           instance.without.k = instance.with.k
           instance.without.k[k.at.index] = sample.instance.shuffled[k.at.index]
           cbind(instance.with.k[private$sampler$feature.names], instance.without.k[private$sampler$feature.names])
-        }) %>% data.table::rbindlist()
+        }) 
+        data.table::rbindlist(featurewise)
         
-      }) %>% data.table::rbindlist()
+      }) 
+      runs = data.table::rbindlist(runs)
       dat.with.k = data.frame(runs[,1:(ncol(runs)/2)])
       dat.without.k = data.frame(runs[,(ncol(runs)/2 + 1):ncol(runs)])
       

@@ -11,6 +11,8 @@ prediction.model(object, class = NULL, predict.args = NULL)
 
 \item{class}{In case of classification, class specifies the class for which to predict the probability. 
 By default the first class in the prediction (first column) is chosen.}
+
+\item{predict.args}{named list with arguments passed down to the prediction model}
 }
 \value{
 object of type Prediction

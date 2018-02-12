@@ -27,7 +27,7 @@ has.predict = function(object){
 #test = randomForest(Species ~ ., data = iris)
 
 
-#' Turn class probabilities into class labels
+# Turn class probabilities into class labels
 probs.to.labels = function(prediction){
   checkmate::assert_data_frame(prediction)
   if(ncol(prediction) > 1){

@@ -26,6 +26,11 @@
 #' 
 #' \code{\link{ice}} for individual conditional expectation plots. 
 #' 
+#' 
+#' @template args_experiment_wrap
+#' @param feature The feature index for which to compute the partial dependencies. 
+#' Either a single number or vector of two numbers
+#' 
 #' @references 
 #' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 #' @return 
@@ -103,12 +108,13 @@ pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
 #' plot.PDP() plots a line for a single feature and a tile plot for 2 features.
 #' 
 #' For examples see \link{pdp}
-#' @param object The partial dependence. A PDP R6 object
+#' @param x The partial dependence. A PDP R6 object
+#' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{pdp}
-plot.PDP = function(object){
-  object$plot()
+plot.PDP = function(x, ...){
+  object$plot(x, ...)
 }
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
