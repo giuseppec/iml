@@ -114,7 +114,7 @@ pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
 #' @seealso 
 #' \link{pdp}
 plot.PDP = function(x, ...){
-  object$plot(x, ...)
+  x$plot(x, ...)
 }
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
