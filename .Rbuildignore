@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 README.*
+README_files
 framework.jpg
 .travis.yml
 Makefile
