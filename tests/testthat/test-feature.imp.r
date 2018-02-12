@@ -51,6 +51,13 @@ test_that('feature.imp works for single output',{
   expect_s3_class(p, c("gg", "ggplot"))
   p
   
+  p = plot(var.imp, sort = FALSE)
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
+  
+  p = var.imp$plot()
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
   
 })
 

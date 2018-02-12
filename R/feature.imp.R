@@ -170,7 +170,7 @@ Importance = R6::R6Class('Importance',
           importance = error / self$error.original)
       result
     },
-    generate.plot = function(sort){
+    generate.plot = function(sort = TRUE, ...){
       res = private$results
       if(sort){
         res$..feature = factor(res$..feature, levels = res$..feature[order(res$importance)])

@@ -96,7 +96,7 @@ pimp$data()
 
 pimp = feature.imp(mod, X,  y = y, loss = 'ce', method = 'cartesian')
 pimp$data()
-pimp$plot()
+plot(pimp)
 
 feature.imp(mod, X,  y=y, predict.args = list(type = 'prob'),  loss = 'mae')
 
