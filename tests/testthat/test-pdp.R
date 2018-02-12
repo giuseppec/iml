@@ -27,6 +27,15 @@ test_that('pdp works for single output and single feature',{
   expect_s3_class(p, c("gg", "ggplot"))
   p
   
+  
+  
+  pdp.obj$feature = 2
+  dat = pdp.obj$data()
+  expect_equal(colnames(dat), c("b", "y.hat"))
+  expect_equal(nrow(dat), grid.size)  
+  expect_equal(nrow(unique(dat)), grid.size)
+  expect_equal(max(dat$b), 50)
+  expect_equal(min(dat$b), 10)
 })
 
 test_that('pdp works for single output and 2 features, 2D grid.size',{

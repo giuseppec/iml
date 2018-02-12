@@ -219,11 +219,12 @@ PDP = R6::R6Class('partial dependence plot',
     }
   ), 
   active = list(
-    feature = function(feature){
+    feature = function(feature.index){
+      browser()
       private$flush()
-      private$set.feature(feature)
+      private$set.feature(feature.index)
       private$set.grid.size(private$grid.size.original)
-      private$run()
+      self$run()
     }
   )
 )
