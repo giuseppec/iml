@@ -26,7 +26,8 @@ Suggests: randomForest,
           rpart, 
           MASS,
           caret,
-          e1071
+          e1071, 
+          lime
 License: MIT
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1
