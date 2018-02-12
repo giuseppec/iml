@@ -1,0 +1,76 @@
+---
+output: github_document
+---
+[![Build Status](https://travis-ci.org/christophM/iml.svg?branch=master)](https://travis-ci.org/christophM/iml)
+
+# iml: interpretable machine learning
+ `iml ` is an R package which provides methods to explain behaviour and predictions of machine learning models.
+ It implements model-agnostic interpretability methods - meaning they can be applied to any model type.
+ Currently implemented: 
+ - Feature importance
+ - Partial dependence plots
+ - Individual conditional expectation plots (ICE)
+ - Tree surrogate
+ - LIME: Local Interpretable Model-agnostic Explanations
+ - Shapley value for explaining single predictions
+ 
+## An R package for Interpretable machine learning
+
+# Examples
+
+
+
+# Installation 
+The package can be installed directly from github with devtools:
+```{r}
+devtools::install_github('christophM/iml')
+```
+
+
+
+```{r}
+library('iml')
+
+# Train a randomForest to predict the Boston median housing value
+library('randomForest')
+data("Boston", package  = "MASS")
+mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+
+# What were the most important features? (Permutation feature importance / Model reliance)
+imp = feature.imp(mod, Boston, y = Boston$medv, loss = 'mae')
+imp$data()
+plot(imp)
+
+# Let's build a single tree from the randomForest predictions (Tree surrogate)
+tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
+plot(tree)
+
+
+# How does lstat influence the prediction on average? (Partial dependence plot)
+pdp.obj = pdp(mod, Boston, feature = 13)
+plot(pdp.obj)
+
+
+# How does lstat influence the individual predictions? (ICE)
+ice.curves = ice(mod, Boston[1:100,], feature = 13)
+plot(ice.curves) 
+
+
+
+# Explain the prediction of the first instance with a local linear model: (LIME) 
+x = Boston[1,]
+lime.explain = lime(mod, Boston, x.interest = x)
+lime.explain$data()
+plot(lime.explain)
+
+
+
+# Explain the prediction with game theory (Shapley)
+x = Boston[1,]
+shapley.explain = shapley(mod, Boston, x.interest = x)
+shapley.explain$data()
+plot(shapley.explain)
+
+```
+
+
