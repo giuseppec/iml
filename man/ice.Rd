@@ -56,7 +56,7 @@ This gives us the predicted \eqn{\hat{y}} as a function of feature \eqn{X_j}, wh
 The \code{ice} method repeats this for all the observations in the dataset and plots all the lines in the same plot.
 
 Mathematically, we split up the learned function into its parts:
-\deqn{f(x_i) = f_1(x_{i,1}) + \ldots + f_p(x_{i,p}) + f_{1, 2}(x_{i,1}, x_{i,2}) + \ldots + f_{p-1, p}(x_{i,p-1}, x_{p}) + \ldots + f_{1\ldotsp}(x_{i,1\ldotsX_p})}, 
+\deqn{f(x_i) = f_1(x_{i,1}) + \ldots + f_p(x_{i,p}) + f_{1, 2}(x_{i,1}, x_{i,2}) + \ldots + f_{p-1, p}(x_{i,p-1}, x_{p}) + \ldots + f_{1\ldots p}(x_{i,1\ldots X_p})}, 
 
 And we can isolate the individual conditional expectation of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
 
