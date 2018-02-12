@@ -4,9 +4,11 @@ output: github_document
 [![Build Status](https://travis-ci.org/christophM/iml.svg?branch=master)](https://travis-ci.org/christophM/iml)
 
 # iml: interpretable machine learning
- `iml ` is an R package which provides methods to explain behaviour and predictions of machine learning models.
- It implements model-agnostic interpretability methods - meaning they can be applied to any model type.
+ `iml ` is an R package that interprets the behaviour and explains predictions of machine learning models.
+ It implements model-agnostic interpretability methods - meaning they can be used with any machine learning model.
+ 
  Currently implemented: 
+ 
  - Feature importance
  - Partial dependence plots
  - Individual conditional expectation plots (ICE)
@@ -14,58 +16,72 @@ output: github_document
  - LIME: Local Interpretable Model-agnostic Explanations
  - Shapley value for explaining single predictions
  
-## An R package for Interpretable machine learning
+Read more about the methods in the [Interpretable Machine Learning book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
 
-# Examples
-
-
+```{r global_options, include=FALSE}
+library(knitr)
+opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
 
 # Installation 
 The package can be installed directly from github with devtools:
-```{r}
+```{r, results = 'hide', eval = FALSE}
+# install.packages("devtools")
 devtools::install_github('christophM/iml')
 ```
 
 
+# Examples
 
+First we train a randomForest to predict the Boston median housing value
 ```{r}
 library('iml')
 
-# Train a randomForest to predict the Boston median housing value
 library('randomForest')
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+```
 
-# What were the most important features? (Permutation feature importance / Model reliance)
+#### What were the most important features? (Permutation feature importance / Model reliance)
+```{r}
 imp = feature.imp(mod, Boston, y = Boston$medv, loss = 'mae')
-imp$data()
 plot(imp)
+imp$data()
+```
 
-# Let's build a single tree from the randomForest predictions (Tree surrogate)
+### Let's build a single tree from the randomForest predictions! (Tree surrogate)
+```{r}
 tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
 plot(tree)
+```
 
-
-# How does lstat influence the prediction on average? (Partial dependence plot)
+### How does lstat influence the prediction on average? (Partial dependence plot)
+```{r}
 pdp.obj = pdp(mod, Boston, feature = 13)
 plot(pdp.obj)
+```
 
 
-# How does lstat influence the individual predictions? (ICE)
+### How does lstat influence the individual predictions? (ICE)
+```{r}
 ice.curves = ice(mod, Boston[1:100,], feature = 13)
 plot(ice.curves) 
+```
 
 
 
-# Explain the prediction of the first instance with a local linear model: (LIME) 
+### Explain a single prediction a local linear model. (LIME) 
+```{r}
 x = Boston[1,]
 lime.explain = lime(mod, Boston, x.interest = x)
 lime.explain$data()
 plot(lime.explain)
+```
 
 
 
-# Explain the prediction with game theory (Shapley)
+### Explain a single prediction with game theory. (Shapley)
+```{r}
 x = Boston[1,]
 shapley.explain = shapley(mod, Boston, x.interest = x)
 shapley.explain$data()
