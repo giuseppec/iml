@@ -9,3 +9,6 @@ document: man-roxygen/*
 	
 install: 
 	Rscript --vanilla -e 'devtools::install()'
+
+readme: 
+	Rscript --vanilla -e 'rmarkdown::render("README.Rmd", output_format = "github_document")'

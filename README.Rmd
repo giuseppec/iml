@@ -21,6 +21,7 @@ Read more about the methods in the [Interpretable Machine Learning book](https:/
 ```{r global_options, include=FALSE}
 library(knitr)
 opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+set.seed(42)
 ```
 
 # Installation 

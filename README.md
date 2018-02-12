@@ -56,20 +56,20 @@ imp$data()
     ## # A tibble: 14 x 3
     ##    ..feature error importance
     ##    <fct>     <dbl>      <dbl>
-    ##  1 age       1.39        1.39
-    ##  2 black     1.27        1.27
-    ##  3 chas      1.01        1.02
-    ##  4 crim      1.65        1.65
-    ##  5 dis       1.75        1.75
-    ##  6 indus     1.75        1.76
-    ##  7 lstat     4.68        4.69
-    ##  8 medv      0.997       1.00
-    ##  9 nox       1.75        1.75
-    ## 10 ptratio   1.42        1.43
-    ## 11 rad       1.08        1.08
-    ## 12 rm        3.39        3.40
-    ## 13 tax       1.33        1.33
-    ## 14 zn        1.02        1.02
+    ##  1 age       1.28        1.30
+    ##  2 black     1.24        1.25
+    ##  3 chas      1.01        1.03
+    ##  4 crim      1.65        1.67
+    ##  5 dis       1.66        1.68
+    ##  6 indus     1.47        1.49
+    ##  7 lstat     4.23        4.29
+    ##  8 medv      0.988       1.00
+    ##  9 nox       1.64        1.66
+    ## 10 ptratio   1.58        1.60
+    ## 11 rad       1.11        1.12
+    ## 12 rm        3.71        3.76
+    ## 13 tax       1.24        1.26
+    ## 14 zn        1.09        1.11
 
 ### Let's build a single tree from the randomForest predictions! (Tree surrogate)
 
@@ -107,9 +107,9 @@ lime.explain$data()
 ```
 
     ##              beta x.scaled     effect x.original feature feature.value
-    ## rm     0.50908514    6.575  3.3472348      6.575      rm      rm=6.575
-    ## lstat -0.05140837    4.980 -0.2560137       4.98   lstat    lstat=4.98
-    ## medv   0.71921815   24.000 17.2612357         24    medv       medv=24
+    ## rm     1.03669473    6.575  6.8162678      6.575      rm      rm=6.575
+    ## lstat -0.05867633    4.980 -0.2922081       4.98   lstat    lstat=4.98
+    ## medv   0.72759814   24.000 17.4623553         24    medv       medv=24
 
 ``` r
 plot(lime.explain)
@@ -127,22 +127,22 @@ shapley.explain$data()
 
     ## # A tibble: 14 x 3
     ## # Groups:   feature [?]
-    ##    feature     phi phi.var
-    ##    <fct>     <dbl>   <dbl>
-    ##  1 age     -0.113   0.495 
-    ##  2 black   -0.0753  0.216 
-    ##  3 chas    -0.0201  0.0136
-    ##  4 crim    -0.0839  1.43  
-    ##  5 dis     -0.391   1.27  
-    ##  6 indus    0.818   1.47  
-    ##  7 lstat    3.78   15.8   
-    ##  8 medv     0       0     
-    ##  9 nox     -0.183   1.88  
-    ## 10 ptratio  0.485   0.322 
-    ## 11 rad     -0.250   0.121 
-    ## 12 rm      -0.985  11.5   
-    ## 13 tax     -0.0407  0.399 
-    ## 14 zn       0.0465  0.0115
+    ##    feature      phi  phi.var
+    ##    <fct>      <dbl>    <dbl>
+    ##  1 age     -0.00607  0.0969 
+    ##  2 black    0.0974   0.102  
+    ##  3 chas    -0.00898  0.00539
+    ##  4 crim    -0.298    1.86   
+    ##  5 dis     -0.147    1.40   
+    ##  6 indus    0.634    0.724  
+    ##  7 lstat    3.12    12.7    
+    ##  8 medv     0        0      
+    ##  9 nox     -0.206    0.467  
+    ## 10 ptratio  0.553    0.698  
+    ## 11 rad     -0.156    0.0683 
+    ## 12 rm       0.706    4.05   
+    ## 13 tax     -0.111    0.378  
+    ## 14 zn       0.201    0.115
 
 ``` r
 plot(shapley.explain)
