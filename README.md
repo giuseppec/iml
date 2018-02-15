@@ -149,3 +149,8 @@ plot(shapley.explain)
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+Python Implementation
+=====================
+
+Referring to <https://github.com/datascienceinc/Skater>

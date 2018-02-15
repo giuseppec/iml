@@ -90,4 +90,7 @@ plot(shapley.explain)
 
 ```
 
+# Python Implementation
+Referring to https://github.com/datascienceinc/Skater
+
 
