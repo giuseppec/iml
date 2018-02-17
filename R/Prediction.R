@@ -90,7 +90,7 @@ Prediction.mlr = R6::R6Class("Prediction.mlr",
     predict.function = function(x){
       pred = predict(private$object, newdata = x)
       if(self$type == 'classification') {
-        getPredictionProbabilities(pred)
+        getPredictionProbabilities(pred, cl = private$object$task.desc$class.levels)
       } else {
         getPredictionResponse(pred)
       }
