@@ -24,8 +24,6 @@ has.predict = function(object){
   })))
 }
 
-#test = randomForest(Species ~ ., data = iris)
-
 
 # Turn class probabilities into class labels
 probs.to.labels = function(prediction, levels = NULL){
