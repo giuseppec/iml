@@ -84,7 +84,7 @@
 #' }
 feature.imp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
   assert_vector(y, any.missing = FALSE)
-
+  
   samp = DataSampler$new(X, y = data.frame(y = y))
   pred = prediction.model(object, class = class,...)
   
@@ -167,7 +167,7 @@ Importance = R6::R6Class('Importance',
       
       result.grouped  = group_by_(result, "..feature")
       result = summarise(result.grouped, error = self$loss(..actual, ..predicted), 
-          importance = error / self$error.original)
+        importance = error / self$error.original)
       result = result[order(result$importance, decreasing = TRUE),]
       result
     },
@@ -176,8 +176,10 @@ Importance = R6::R6Class('Importance',
       if(sort){
         res$..feature = factor(res$..feature, levels = res$..feature[order(res$importance)])
       }
-       ggplot(res, aes(y = ..feature, x = importance)) + geom_point()+ 
-       geom_segment(aes(y = ..feature, yend = ..feature, x=1, xend = importance))
+      ggplot(res, aes(y = ..feature, x = importance)) + geom_point()+ 
+        geom_segment(aes(y = ..feature, yend = ..feature, x=1, xend = importance)) + 
+        scale_x_continuous("Feature Importance") + 
+        scale_y_continuous("Feature")
     }, 
     set.loss = function(loss){
       self$loss = loss
