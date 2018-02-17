@@ -182,7 +182,7 @@ Importance = R6::R6Class('Importance',
       ggplot(res, aes(y = ..feature, x = importance)) + geom_point()+ 
         geom_segment(aes(y = ..feature, yend = ..feature, x=1, xend = importance)) + 
         scale_x_continuous("Feature Importance") + 
-        scale_y_continuous("Feature")
+        scale_y_discrete("Feature")
     }, 
     set.loss = function(loss){
       self$loss = loss
