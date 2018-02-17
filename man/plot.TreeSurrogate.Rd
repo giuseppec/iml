@@ -20,8 +20,8 @@ This makes the TreeSurrogate object call
 its iternal object$plot() method.
 }
 \details{
-For examples see \link{tree.surrogate}
+For examples see \link{treeSurrogate}
 }
 \seealso{
-\link{tree.surrogate}
+\link{treeSurrogate}
 }

@@ -26,8 +26,8 @@ Predict the response for newdata with the surrogate tree
 \details{
 This function makes the TreeSurrogate object call 
 its iternal object$predict() method. 
-For examples see \link{tree.surrogate}
+For examples see \link{treeSurrogate}
 }
 \seealso{
-\link{tree.surrogate}
+\link{treeSurrogate}
 }

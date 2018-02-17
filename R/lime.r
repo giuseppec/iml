@@ -85,8 +85,8 @@
 #' plot(lemon) 
 #' 
 lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...){
-  samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, ...)
+  samp = Data$new(X)
+  pred = predictionModel(object, class = class, ...)
   LIME$new(predictor = pred, sampler = samp, sample.size=sample.size, k = k, x.interest = x.interest)$run()
 }
 

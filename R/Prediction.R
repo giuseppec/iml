@@ -4,21 +4,28 @@
 #' @param class In case of classification, class specifies the class for which to predict the probability. 
 #' By default the first class in the prediction (first column) is chosen. 
 #' @param predict.args named list with arguments passed down to the prediction model
+#' @param ... further arguments for the prediction functions
 #' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
 #' @return object of type Prediction
-prediction.model = function(object, class = NULL, predict.args = NULL){
+predictionModel = function(object, class = NULL, predict.args = NULL, ...){
   assert_vector(class, len=1, null.ok=TRUE)
-  if(inherits(object, "function")) {
-    Prediction.f$new(object = object, class = class)
-  } else if(inherits(object, "WrappedModel")){
-    Prediction.mlr$new(object = object, class = class)
-  } else if(inherits(object, 'train')){
-    Prediction.caret$new(object = object, class = class)
-  } else if(has.predict(object)) {
-    Prediction.S3$new(object = object, class = class, predict.args = predict.args)
-  } else {
-    stop(sprintf('Object of type [%s] not supported', paste(class(object), collapse = ", ")))
-  }
+  UseMethod('predictionModel')
+}
+
+predictionModel.WrappedModel = function(object, class = NULL, predict.args = NULL, ...){
+  PredictionMlr$new(object = object, class = class)
+}
+
+predictionModel.function = function(object, class = NULL, predict.args = NULL, ...){
+  PredictionFunction$new(object = object, class = class)
+}
+
+predictionModel.train = function(object, class = NULL, predict.args = NULL, ...){
+  PredictionCaret$new(object = object, class = class)
+}
+
+predictionModel.default = function(object, class = NULL, predict.args = NULL, ...){
+  PredictionS3$new(object = object, class = class, predict.args = predict.args)
 }
 
 
@@ -72,7 +79,7 @@ Prediction = R6::R6Class("Prediction",
 )
 
 
-Prediction.mlr = R6::R6Class("Prediction.mlr", 
+PredictionMlr = R6::R6Class("PredictionMlr", 
   inherit = Prediction,
   public = list(), 
   private = list(
@@ -101,7 +108,7 @@ Prediction.mlr = R6::R6Class("Prediction.mlr",
 
 
 
-Prediction.f = R6::R6Class("Prediction.f", 
+PredictionFunction = R6::R6Class("PredictionFunction", 
   inherit = Prediction,
   public = list(), 
   private = list(
@@ -125,7 +132,7 @@ Prediction.f = R6::R6Class("Prediction.f",
 )
 
 
-Prediction.caret = R6::R6Class("Prediction.caret", 
+PredictionCaret = R6::R6Class("PredictionCaret", 
   inherit = Prediction,
   public = list(), 
   private = list(
@@ -152,8 +159,8 @@ Prediction.caret = R6::R6Class("Prediction.caret",
 )
 
 
-Prediction.S3 = R6::R6Class("Prediction.S3", 
-  inherit = Prediction.f,
+PredictionS3 = R6::R6Class("PredictionS3", 
+  inherit = PredictionFunction,
   public = list(
     initialize = function(predict.args=NULL, ...){
       super$initialize(...)

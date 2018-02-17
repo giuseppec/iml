@@ -45,14 +45,14 @@ mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 ```{r}
-imp = feature.imp(mod, Boston, y = Boston$medv, loss = 'mae')
+imp = featureImp(mod, Boston, y = Boston$medv, loss = 'mae')
 plot(imp)
 imp$data()
 ```
 
 ### Let's build a single tree from the randomForest predictions! (Tree surrogate)
 ```{r}
-tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
+tree = treeSurrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
 plot(tree)
 ```
 

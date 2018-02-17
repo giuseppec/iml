@@ -10,22 +10,22 @@ library('caret')
 task = mlr::makeClassifTask(data = iris, target = "Species")
 lrn = mlr::makeLearner("classif.randomForest", predict.type = 'prob')
 mod.mlr = mlr::train(lrn, task)
-predictor.mlr = prediction.model(mod.mlr)
+predictor.mlr = predictionModel(mod.mlr)
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
-predictor.S3 = prediction.model(mod.S3, predict.args = list(type='prob'))
+predictor.S3 = predictionModel(mod.S3, predict.args = list(type='prob'))
 
 # caret
 mod.caret = caret::train(Species ~ ., data = iris, method = "knn", 
   trControl = caret::trainControl(method = "cv"))
-predictor.caret = prediction.model(mod.caret)
+predictor.caret = predictionModel(mod.caret)
 
 # function
 mod.f = function(X){
   predict(mod.caret, newdata = X,  type = 'prob')
 }
-predictor.f = prediction.model(mod.f)
+predictor.f = predictionModel(mod.f)
 iris.test = iris[c(2,20, 100, 150), c('Sepal.Length', 'Sepal.Width', 'Petal.Length', 'Petal.Width')]
 prediction.f = predictor.f$predict(iris.test)
 
@@ -39,7 +39,7 @@ test_that('equivalence',{
 test_that('f works', {
   expect_equal(colnames(prediction.f), c('setosa', 'versicolor', 'virginica'))
   expect_s3_class(prediction.f, 'data.frame')
-  predictor.f.1 = prediction.model(mod.f, class = 1)
+  predictor.f.1 = predictionModel(mod.f, class = 1)
   expect_equal(prediction.f[,1], predictor.f.1$predict(iris.test)$setosa)
 })
 
@@ -49,13 +49,13 @@ test_that('f works', {
 
 
 ## mlr
-predictor.mlr = prediction.model(mod.mlr, class = 2)
+predictor.mlr = predictionModel(mod.mlr, class = 2)
 # S3 predict
-predictor.S3 = prediction.model(mod.S3, class = 2, predict.args = list(type='prob'))
+predictor.S3 = predictionModel(mod.S3, class = 2, predict.args = list(type='prob'))
 # caret
-predictor.caret = prediction.model(mod.caret, class = 2)
+predictor.caret = predictionModel(mod.caret, class = 2)
 # function
-predictor.f = prediction.model(mod.f, class = 2)
+predictor.f = predictionModel(mod.f, class = 2)
 prediction.f = predictor.f$predict(iris.test)
 test_that('equivalence',{
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
@@ -77,22 +77,22 @@ data(Boston, package='MASS')
 task = mlr::makeRegrTask(data = Boston, target = "medv")
 lrn = mlr::makeLearner("regr.randomForest")
 mod.mlr = mlr::train(lrn, task)
-predictor.mlr = prediction.model(mod.mlr)
+predictor.mlr = predictionModel(mod.mlr)
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
-predictor.S3 = prediction.model(mod.S3)
+predictor.S3 = predictionModel(mod.S3)
 
 # caret
 mod.caret = caret::train(medv ~ ., data = Boston, method = "knn", 
   trControl = caret::trainControl(method = "cv"))
-  predictor.caret = prediction.model(mod.caret)
+  predictor.caret = predictionModel(mod.caret)
 
 # function
 mod.f = function(X){
   predict(mod.caret, newdata = X)
 }
-predictor.f = prediction.model(mod.f)
+predictor.f = predictionModel(mod.f)
 boston.test = Boston[c(1,2,3,4), ]
 prediction.f = predictor.f$predict(boston.test)
 

@@ -96,8 +96,8 @@
 #' pdp.obj$plot()  
 #' 
 pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
-  samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, ...)
+  samp = Data$new(X)
+  pred = predictionModel(object, class = class, ...)
   
   PDP$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size)$run()
 }

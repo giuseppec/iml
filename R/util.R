@@ -28,7 +28,7 @@ has.predict = function(object){
 
 
 # Turn class probabilities into class labels
-probs.to.labels = function(prediction){
+probs.to.labels = function(prediction, levels = NULL){
   checkmate::assert_data_frame(prediction)
   if(ncol(prediction) > 1){
     prediction = colnames(prediction)[apply(prediction, 1, which.max)]

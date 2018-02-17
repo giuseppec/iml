@@ -1,11 +1,11 @@
-context('DataSampler')
-ds = DataSampler$new(iris)
+context('Data')
+ds = Data$new(iris)
 sample1 = ds$sample(3)
 n = 100
 set.seed(42)
 sample1.weighted = ds$sample(n, prob = c(2,1, rep(0, times = nrow(iris)- 2)))
 
-ds.weighted = DataSampler$new(iris, prob = c(2,1, rep(0, times = nrow(iris)- 2)))
+ds.weighted = Data$new(iris, prob = c(2,1, rep(0, times = nrow(iris)- 2)))
 set.seed(42)
 
 sample2 = ds.weighted$sample(n)

@@ -1,4 +1,4 @@
-DataSampler  = R6::R6Class('DataSampler',
+Data  = R6::R6Class('Data',
   public = list(
     X = NULL,
     y = NULL,

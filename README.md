@@ -43,11 +43,11 @@ mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #### What were the most important features? (Permutation feature importance / Model reliance)
 
 ``` r
-imp = feature.imp(mod, Boston, y = Boston$medv, loss = 'mae')
+imp = featureImp(mod, Boston, y = Boston$medv, loss = 'mae')
 plot(imp)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
 
 ``` r
 imp$data()
@@ -56,29 +56,29 @@ imp$data()
     ## # A tibble: 14 x 3
     ##    ..feature error importance
     ##    <fct>     <dbl>      <dbl>
-    ##  1 age       1.28        1.30
-    ##  2 black     1.24        1.25
-    ##  3 chas      1.01        1.03
-    ##  4 crim      1.65        1.67
-    ##  5 dis       1.66        1.68
-    ##  6 indus     1.47        1.49
-    ##  7 lstat     4.23        4.29
-    ##  8 medv      0.988       1.00
-    ##  9 nox       1.64        1.66
-    ## 10 ptratio   1.58        1.60
-    ## 11 rad       1.11        1.12
-    ## 12 rm        3.71        3.76
-    ## 13 tax       1.24        1.26
-    ## 14 zn        1.09        1.11
+    ##  1 age        1.38       1.37
+    ##  2 black      1.25       1.24
+    ##  3 chas       1.03       1.03
+    ##  4 crim       1.73       1.72
+    ##  5 dis        1.65       1.65
+    ##  6 indus      1.61       1.60
+    ##  7 lstat      4.24       4.22
+    ##  8 medv       1.00       1.00
+    ##  9 nox        1.66       1.65
+    ## 10 ptratio    1.73       1.72
+    ## 11 rad        1.16       1.16
+    ## 12 rm         3.27       3.26
+    ## 13 tax        1.36       1.35
+    ## 14 zn         1.06       1.06
 
 ### Let's build a single tree from the randomForest predictions! (Tree surrogate)
 
 ``` r
-tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
+tree = treeSurrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
 plot(tree)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 
@@ -87,7 +87,7 @@ pdp.obj = pdp(mod, Boston, feature = 13)
 plot(pdp.obj)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
 ### How does lstat influence the individual predictions? (ICE)
 
@@ -96,7 +96,7 @@ ice.curves = ice(mod, Boston[1:100,], feature = 13)
 plot(ice.curves) 
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
 
 ### Explain a single prediction with a local linear model. (LIME)
 
@@ -107,15 +107,15 @@ lime.explain$data()
 ```
 
     ##              beta x.scaled     effect x.original feature feature.value
-    ## rm     1.03669473    6.575  6.8162678      6.575      rm      rm=6.575
-    ## lstat -0.05867633    4.980 -0.2922081       4.98   lstat    lstat=4.98
-    ## medv   0.72759814   24.000 17.4623553         24    medv       medv=24
+    ## rm     0.12205377    6.575  0.8025035      6.575      rm      rm=6.575
+    ## lstat -0.06774873    4.980 -0.3373887       4.98   lstat    lstat=4.98
+    ## medv   0.79950263   24.000 19.1880631         24    medv       medv=24
 
 ``` r
 plot(lime.explain)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
 
 ### Explain a single prediction with game theory. (Shapley)
 
@@ -127,28 +127,28 @@ shapley.explain$data()
 
     ## # A tibble: 14 x 3
     ## # Groups:   feature [?]
-    ##    feature      phi  phi.var
-    ##    <fct>      <dbl>    <dbl>
-    ##  1 age     -0.00607  0.0969 
-    ##  2 black    0.0974   0.102  
-    ##  3 chas    -0.00898  0.00539
-    ##  4 crim    -0.298    1.86   
-    ##  5 dis     -0.147    1.40   
-    ##  6 indus    0.634    0.724  
-    ##  7 lstat    3.12    12.7    
-    ##  8 medv     0        0      
-    ##  9 nox     -0.206    0.467  
-    ## 10 ptratio  0.553    0.698  
-    ## 11 rad     -0.156    0.0683 
-    ## 12 rm       0.706    4.05   
-    ## 13 tax     -0.111    0.378  
-    ## 14 zn       0.201    0.115
+    ##    feature       phi  phi.var
+    ##    <fct>       <dbl>    <dbl>
+    ##  1 age     -0.114     0.315  
+    ##  2 black    0.0143    0.263  
+    ##  3 chas    -0.00776   0.00369
+    ##  4 crim    -0.0643    1.16   
+    ##  5 dis      0.118     2.18   
+    ##  6 indus    0.651     1.08   
+    ##  7 lstat    3.33     14.0    
+    ##  8 medv     0         0      
+    ##  9 nox      0.000583  1.33   
+    ## 10 ptratio  0.418     1.41   
+    ## 11 rad     -0.396     0.352  
+    ## 12 rm       0.0579    9.05   
+    ## 13 tax     -0.129     0.234  
+    ## 14 zn      -0.119     0.0564
 
 ``` r
 plot(shapley.explain)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
 
 Python Implementation
 =====================

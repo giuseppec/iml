@@ -63,8 +63,8 @@
 #' plot(shap) 
 #' 
 shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
-  samp = DataSampler$new(X)
-  pred = prediction.model(object, class = class, ...)
+  samp = Data$new(X)
+  pred = predictionModel(object, class = class, ...)
   
   Shapley$new(predictor = pred, sampler = samp, x.interest=x.interest, sample.size=sample.size)$run()
 }

@@ -8,8 +8,8 @@ test_that('Experiments work',{
     unlist(x[1] + x[2])
   }
   X = data.frame(a = c(1,2,3), b = c(2,3,4))
-  ds = DataSampler$new(X)
-  pred = Prediction.f$new(f)
+  ds = Data$new(X)
+  pred = predictionModel(f)
   e = Experiment$new(pred, ds)
   set.seed(1)
   dat = e$run()$data()

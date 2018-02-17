@@ -1,7 +1,7 @@
 #' Feature importance
 #' 
 #' @description 
-#' feature.imp() computes feature importances for machine learning models. 
+#' featureImp() computes feature importances for machine learning models. 
 #' The importance of a feature is the factor by which the model's prediction error increases when the feature is shuffled. 
 #' 
 #' @details
@@ -13,7 +13,7 @@
 #' \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (faster)
 #' \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (slow)
 #' }
-#' The loss function can be either specified via a string, or by handing a function to \code{feature.imp()}.
+#' The loss function can be either specified via a string, or by handing a function to \code{featureImp()}.
 #' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
 #' See \code{library(help = "Metrics")} to get a list of functions. 
 #' Only use functions that return a single performance value, not a vector. 
@@ -48,7 +48,7 @@
 #' y = Boston$medv
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = feature.imp(mod, X, y, loss = 'mae')
+#' imp = featureImp(mod, X, y, loss = 'mae')
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -64,13 +64,13 @@
 #' ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
 #' theme_bw()
 #' 
-#' # feature.imp() also works with multiclass classification. 
+#' # featureImp() also works with multiclass classification. 
 #' # In this case, the importance measurement regards all classes
 #' mod = rpart(Species ~ ., data= iris)
 #' X = iris[-which(names(iris) == 'Species')]
 #' y = iris$Species
 #' # For some models we have to specify additional arguments for the predict function
-#' imp = feature.imp(mod, X, y, loss = 'ce', predict.args = list(type = 'prob'))
+#' imp = featureImp(mod, X, y, loss = 'ce', predict.args = list(type = 'prob'))
 #' plot(imp)
 #' # Here we encounter the special case that the machine learning model perfectly predicts
 #' # The importance becomes infinite
@@ -78,15 +78,15 @@
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
-#' imp = feature.imp(mod, X, y == 'virginica', class = 3, loss = 'ce', 
+#' imp = featureImp(mod, X, y == 'virginica', class = 3, loss = 'ce', 
 #'     predict.args = list(type = 'prob'))
 #' plot(imp)
 #' }
-feature.imp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
+featureImp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
   assert_vector(y, any.missing = FALSE)
 
-  samp = DataSampler$new(X, y = data.frame(y = y))
-  pred = prediction.model(object, class = class,...)
+  samp = Data$new(X, y = data.frame(y = y))
+  pred = predictionModel(object, class = class,...)
   
   Importance$new(predictor = pred, sampler = samp, loss=loss, method=method)$run()
 }
@@ -96,7 +96,7 @@ feature.imp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
 #' 
 #' plot.Importance() plots the feature importance results of an Importance object.
 #' 
-#' For examples see \link{feature.imp}
+#' For examples see \link{featureImp}
 #' @param x The feature importance. An Importance R6 object
 #' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
 #' @param ... Further arguments for the objects plot function
@@ -104,7 +104,7 @@ feature.imp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
 #' @export
 #' @importFrom dplyr group_by_
 #' @seealso 
-#' \link{feature.imp}
+#' \link{featureImp}
 plot.Importance = function(x, sort = TRUE, ...){
   x$plot(sort = sort, ...)
 }
@@ -128,7 +128,10 @@ Importance = R6::R6Class('Importance',
       self$loss = private$set.loss(loss)
       private$method = method
       private$get.data = private$sampler$get.xy
-      self$error.original = loss(private$sampler$y[[1]], private$Q(private$predict(private$sampler$X))[[1]])
+      actual = private$sampler$y[[1]]
+      predicted = private$Q(private$predict(private$sampler$X))[[1]]
+      # Assuring that levels are the same
+      self$error.original = loss(actual, predicted)
     }
   ),
   private = list(

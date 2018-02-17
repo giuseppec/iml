@@ -6,7 +6,7 @@ Experiment = R6::R6Class("Experiment",
     },
     initialize = function(predictor, sampler){
       checkmate::assert_class(predictor, 'Prediction')
-      checkmate::assert_class(sampler, 'DataSampler')
+      checkmate::assert_class(sampler, 'Data')
       private$predictor = predictor
       private$predict = predictor$predict
       private$sampler = sampler
