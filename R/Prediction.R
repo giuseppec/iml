@@ -88,6 +88,9 @@ PredictionMlr = R6::R6Class("PredictionMlr",
       tsk = mlr::getTaskType(private$object)
       if(tsk == 'classif'){
         self$type = 'classification'
+        if(private$object$learner$predict.type != "prob"){
+          stop('Set predict.type = "prob" when creating the learner with makeLearner')
+        }
       } else if(tsk == 'regr'){
         self$type = 'regression'
       } else {
