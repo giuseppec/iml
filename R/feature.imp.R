@@ -170,7 +170,8 @@ Importance = R6::R6Class('Importance',
       
       result.grouped  = group_by_(result, "..feature")
       result = summarise(result.grouped, error = self$loss(..actual, ..predicted), 
-          importance = error / self$error.original)
+        importance = error / self$error.original)
+      result = result[order(result$importance, decreasing = TRUE),]
       result
     },
     generate.plot = function(sort = TRUE, ...){
@@ -178,9 +179,10 @@ Importance = R6::R6Class('Importance',
       if(sort){
         res$..feature = factor(res$..feature, levels = res$..feature[order(res$importance)])
       }
-       ggplot(res, aes(x = ..feature, y = importance)) + geom_point()+ 
-       geom_segment(aes(x = ..feature, xend = ..feature, y=0, yend = importance)) + 
-       coord_flip()
+      ggplot(res, aes(y = ..feature, x = importance)) + geom_point()+ 
+        geom_segment(aes(y = ..feature, yend = ..feature, x=1, xend = importance)) + 
+        scale_x_continuous("Feature Importance") + 
+        scale_y_continuous("Feature")
     }, 
     set.loss = function(loss){
       self$loss = loss

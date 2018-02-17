@@ -26,8 +26,11 @@ test_that('featureImp works for single output',{
   expect_s3_class(p, c("gg", "ggplot"))
   p
   
+
   var.imp = featureImp(f, X, y = y, loss = 'mse', method = 'cartesian')
   dat = var.imp$data()
+  # Making sure the result is sorted by decreasing importance
+  expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
   expect_equal(colnames(dat), c("..feature", "error", "importance"))
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
@@ -65,6 +68,8 @@ test_that('featureImp works for single output and function as loss',{
     
   var.imp = featureImp(f, X, y = y, loss = Metrics::mse)
   dat = var.imp$data()
+  # Making sure the result is sorted by decreasing importance
+  expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
   expect_equal(colnames(dat), c("..feature", "error", "importance"))
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
