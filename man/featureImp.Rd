@@ -59,7 +59,7 @@ You can also provide a function directly. It has to take the actual value as its
 }
 \examples{
 # We train a tree on the Boston dataset:
-if(require("rpart")){
+if (require("rpart")) {
 data("Boston", package  = "MASS")
 mod = rpart(medv ~ ., data = Boston)
 
@@ -68,7 +68,7 @@ X = Boston[-which(names(Boston) == "medv")]
 y = Boston$medv
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = feature.imp(mod, X, y, loss = "mae")
+imp = featureImp(mod, X, y, loss = "mae")
 
 # Plot the results directly
 plot(imp)
@@ -90,7 +90,7 @@ mod = rpart(Species ~ ., data= iris)
 X = iris[-which(names(iris) == "Species")]
 y = iris$Species
 # For some models we have to specify additional arguments for the predict function
-imp = feature.imp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
+imp = featureImp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
 plot(imp)
 # Here we encounter the special case that the machine learning model perfectly predicts
 # The importance becomes infinite
