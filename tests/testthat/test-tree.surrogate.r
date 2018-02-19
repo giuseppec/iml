@@ -1,10 +1,10 @@
 context("treeSurrogate()")
 
 
-f = function(x, multi = FALSE){
+f = function(x, multi = FALSE) {
   pred = unlist(x[1] + x[2] + 100 * (x[3] == "a")) / (155)
   dat = data.frame(pred = pred)
-  if(multi) dat$pred2 = 1 - dat$pred
+  if (multi) dat$pred2 = 1 - dat$pred
   dat
 }
 
@@ -15,7 +15,7 @@ X = data.frame(a = c(1, 2, 3, 4, 5),
   d = factor(c("A", "A", "B", "B", "B")))
 
 
-test_that("treeSurrogate works for single output and single feature",{
+test_that("treeSurrogate works for single output and single feature", {
   
   sample.size = 100
   tree = treeSurrogate(f, X, sample.size = sample.size)
@@ -29,7 +29,7 @@ test_that("treeSurrogate works for single output and single feature",{
   
 })
 
-test_that("treeSurrogate works for multiple output",{
+test_that("treeSurrogate works for multiple output", {
   sample.size = 50
   tree = treeSurrogate(f2, X, sample.size = sample.size)
   dat = tree$data()
@@ -48,7 +48,7 @@ test_that("treeSurrogate works for multiple output",{
 
 })
 
-test_that("treeSurrogate works for multiple output with selected class",{
+test_that("treeSurrogate works for multiple output with selected class", {
   sample.size = 50
   tree = treeSurrogate(f2, X, sample.size = sample.size, class = 1)
   dat = tree$data()

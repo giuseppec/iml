@@ -95,7 +95,7 @@
 #' pdp.obj = pdp(mod, iris, feature = c(1,3), predict.args = list(type = 'prob'))
 #' pdp.obj$plot()  
 #' 
-pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
+pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...) {
   samp = Data$new(X)
   pred = predictionModel(object, class = class, ...)
   
@@ -113,7 +113,7 @@ pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...){
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{pdp}
-plot.PDP = function(x, ...){
+plot.PDP = function(x, ...) {
   x$plot(x, ...)
 }
 
@@ -126,10 +126,10 @@ PDP = R6::R6Class("partial dependence plot",
     feature.names = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(predictor, sampler, feature, grid.size){
+    initialize = function(predictor, sampler, feature, grid.size) {
       checkmate::assert_numeric(feature, lower = 1, upper = sampler$n.features, min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
-      if(length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
+      if (length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
       super$initialize(predictor, sampler)
       private$set.feature(feature)
       private$set.grid.size(grid.size)
@@ -137,10 +137,10 @@ PDP = R6::R6Class("partial dependence plot",
     }
   ), 
   private = list(
-    aggregate = function(){
+    aggregate = function() {
       results = private$X.design[self$feature.index]
       
-      if(private$multi.class){
+      if (private$multi.class) {
         y.hat.names = colnames(private$Q.results)
         results = cbind(results, private$Q.results)
         results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
@@ -149,18 +149,20 @@ PDP = R6::R6Class("partial dependence plot",
         results["..class.name"] = private$predictor$class
       }
       results.grouped = group_by_at(results, self$feature.names)
-      if("..class.name" %in% colnames(results)) results.grouped = group_by(results.grouped, ..class.name, add = TRUE)
+      if ("..class.name" %in% colnames(results)) {
+        results.grouped = group_by(results.grouped, ..class.name, add = TRUE)
+      }
       results = data.frame(summarise(results.grouped, y.hat = mean(y.hat)))
       results 
     },
-    intervene = function(){
+    intervene = function() {
       grid = get.1D.grid(private$X.sample[[self$feature.index[1]]], self$feature.type[1], self$grid.size[1])
       
       private$X.design.ids = rep(1:nrow(private$X.sample), times = length(grid))
       X.design = private$X.sample[private$X.design.ids,]
       X.design[self$feature.index[1]] = rep(grid, each = nrow(private$X.sample))
       
-      if(self$n.features == 2) {
+      if (self$n.features == 2) {
         grid2 = get.1D.grid(private$X.sample[[self$feature.index[2]]], self$feature.type[2], self$grid.size[2])
         private$X.design.ids = rep(private$X.design.ids, times = length(grid2))
         X.design2 = X.design[rep(1:nrow(X.design), times = length(grid2)), ]
@@ -171,23 +173,26 @@ PDP = R6::R6Class("partial dependence plot",
     }, 
     X.design.ids = NULL, 
     grid.size.original = NULL,
-    set.feature = function(feature.index){
+    set.feature = function(feature.index) {
       self$feature.index = feature.index
       self$n.features = length(feature.index)
       self$feature.type = private$sampler$feature.types[feature.index]
       self$feature.names = private$sampler$feature.names[feature.index]
     },
-    print.parameters = function(){
+    print.parameters = function() {
       cat("features:", paste(sprintf("%s[%s]", self$feature.names, self$feature.type), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
-    generate.plot = function(){
-      if(self$n.features == 1){
+    generate.plot = function() {
+      if (self$n.features == 1) {
         p = ggplot(private$results, mapping = aes_string(x = self$feature.names,"y.hat"))
-        if(self$feature.type == "numerical") p = p + geom_path() 
-        else if (self$feature.type == "categorical") p = p + geom_point()
-      } else if (self$n.features == 2){
-        if(all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
+        if (self$feature.type == "numerical") {
+          p = p + geom_path() 
+        } else if (self$feature.type == "categorical") {
+          p = p + geom_point()
+        }
+      } else if (self$n.features == 2) {
+        if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(private$results) + 
             geom_tile(aes_string(x = self$feature.names[1], 
               y = self$feature.names[2], 
@@ -200,17 +205,17 @@ PDP = R6::R6Class("partial dependence plot",
               group = categorical.feature, color = categorical.feature))
         }
       }
-      if(private$multi.class){
+      if (private$multi.class) {
         p = p + facet_wrap("..class.name")
       } 
       p
     }, 
-    set.grid.size = function(size){
+    set.grid.size = function(size) {
       self$grid.size = numeric(length=self$n.features)
       names(self$grid.size) = private$sampler$feature.names[self$feature.index]
       private$set.grid.size.single(size[1], 1)
-      if(self$n.features > 1) {
-        if(length(size) == 1) {
+      if (self$n.features > 1) {
+        if (length(size) == 1) {
           # If user only provided 1D grid size
           private$set.grid.size.single(size[1], 2)
         } else {
@@ -219,13 +224,13 @@ PDP = R6::R6Class("partial dependence plot",
         }
       }
     }, 
-    set.grid.size.single = function(size, feature.number){
+    set.grid.size.single = function(size, feature.number) {
       self$grid.size[feature.number] = ifelse(self$feature.type[feature.number] == "numerical", 
         size, length(unique(private$sampler$get.x()[[self$feature.index[feature.number]]])))
     }
   ), 
   active = list(
-    feature = function(feature.index){
+    feature = function(feature.index) {
       private$flush()
       private$set.feature(feature.index)
       private$set.grid.size(private$grid.size.original)
@@ -238,13 +243,13 @@ PDP = R6::R6Class("partial dependence plot",
 ## TODO:document
 ## TODO: Write test
 
-get.1D.grid = function(feature, feature.type, grid.size){
+get.1D.grid = function(feature, feature.type, grid.size) {
   checkmate::assert_vector(feature)
-  if(feature.type == "numerical"){
+  if (feature.type == "numerical") {
     grid = seq(from = min(feature), 
       to = max(feature), 
       length.out = grid.size)
-  } else if(feature.type == "categorical") {
+  } else if (feature.type == "categorical") {
     grid = unique(feature)
   }
 }

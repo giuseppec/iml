@@ -56,7 +56,7 @@ data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 
 # Fit a decision tree as a surrogate for the whole random forest
-dt = treeSurrogate(mod, Boston[-which(names(Boston) == 'medv')], 200)
+dt = treeSurrogate(mod, Boston[-which(names(Boston) == "medv")], 200)
 
 # Plot the resulting leaf nodes
 plot(dt) 
@@ -73,7 +73,7 @@ head(dat)
 mod = randomForest(Species ~ ., data = iris, ntree = 50)
 
 # Fit a decision tree as a surrogate for the whole random forest
-X = iris[-which(names(iris) == 'Species')]
+X = iris[-which(names(iris) == "Species")]
 dt = treeSurrogate(mod, X, 200, predict.args = list(type = 'prob'), maxdepth=2, class=3)
 
 # Plot the resulting leaf nodes

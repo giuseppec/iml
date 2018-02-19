@@ -1,4 +1,4 @@
-get.feature.type = function(feature.class){
+get.feature.type = function(feature.class) {
   assertCharacter(feature.class)
   
   feature.types = c(
@@ -7,7 +7,7 @@ get.feature.type = function(feature.class){
     'character'='categorical',
     'factor'='categorical',
     'ordered'='categorical'
-    )
+  )
   
   stopifnot(all(feature.class %in% names(feature.types)))
   feature.types[feature.class]
@@ -17,18 +17,18 @@ get.feature.type = function(feature.class){
 
 # returns TRUE if object has predict function
 #' @importFrom utils methods
-has.predict = function(object){
+has.predict = function(object) {
   classes = class(object)
-  any(unlist(lapply(classes, function(x){
+  any(unlist(lapply(classes, function(x) {
     'predict' %in% attr(methods(class = x), 'info')$generic
   })))
 }
 
 
 # Turn class probabilities into class labels
-probs.to.labels = function(prediction, levels = NULL){
+probs.to.labels = function(prediction, levels = NULL) {
   checkmate::assert_data_frame(prediction)
-  if(ncol(prediction) > 1){
+  if (ncol(prediction) > 1) {
     prediction = colnames(prediction)[apply(prediction, 1, which.max)]
     data.frame(..class = prediction)
   } else {
@@ -42,7 +42,7 @@ probs.to.labels = function(prediction, levels = NULL){
 #' @param x.scaled the scaled version of x
 #' @param x.original the original x
 #' Assuming that the first row is the x.interest
-extract.glmnet.effects = function(betas, best.index, x.scaled, x.original){
+extract.glmnet.effects = function(betas, best.index, x.scaled, x.original) {
   checkmate::assert_data_frame(x.scaled, nrows=1)
   checkmate::assert_data_frame(x.original, nrows=1)
   res = data.frame(beta = betas[, best.index])
@@ -60,7 +60,7 @@ extract.glmnet.effects = function(betas, best.index, x.scaled, x.original){
 # binarizes categorical variables: TRUE if same level as x.interest, else FALSE
 # TODO: Keep level names for factors
 # used in lime
-recode = function(dat, x.interest){
+recode = function(dat, x.interest) {
   checkmate::assert_data_frame(dat)
   checkmate::assert_data_frame(x.interest, nrows = 1, ncols = ncol(dat))
   checkmate::assert_true(all(colnames(dat) == colnames(x.interest)))
@@ -70,9 +70,9 @@ recode = function(dat, x.interest){
   cat.index = types == 'categorical'
   x.cat = unlist(lapply(x.interest[cat.index], as.character))
   new.colnames[cat.index] = sprintf('%s=%s', colnames(dat)[cat.index], x.cat)
-
-  dat2 = data.frame(lapply(1:ncol(dat), function(x){
-    if(types[x] == 'categorical'){
+  
+  dat2 = data.frame(lapply(1:ncol(dat), function(x) {
+    if (types[x] == 'categorical') {
       1 * (dat[[x]] == x.interest[[x]])
     } else {
       dat[[x]]

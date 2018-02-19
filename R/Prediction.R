@@ -7,24 +7,24 @@
 #' @param ... further arguments for the prediction functions
 #' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
 #' @return object of type Prediction
-predictionModel = function(object, class = NULL, predict.args = NULL, ...){
+predictionModel = function(object, class = NULL, predict.args = NULL, ...) {
   assert_vector(class, len=1, null.ok=TRUE)
   UseMethod("predictionModel")
 }
 
-predictionModel.WrappedModel = function(object, class = NULL, predict.args = NULL, ...){
+predictionModel.WrappedModel = function(object, class = NULL, predict.args = NULL, ...) {
   PredictionMlr$new(object = object, class = class)
 }
 
-predictionModel.function = function(object, class = NULL, predict.args = NULL, ...){
+predictionModel.function = function(object, class = NULL, predict.args = NULL, ...) {
   PredictionFunction$new(object = object, class = class)
 }
 
-predictionModel.train = function(object, class = NULL, predict.args = NULL, ...){
+predictionModel.train = function(object, class = NULL, predict.args = NULL, ...) {
   PredictionCaret$new(object = object, class = class)
 }
 
-predictionModel.default = function(object, class = NULL, predict.args = NULL, ...){
+predictionModel.default = function(object, class = NULL, predict.args = NULL, ...) {
   PredictionS3$new(object = object, class = class, predict.args = predict.args)
 }
 
@@ -32,12 +32,12 @@ predictionModel.default = function(object, class = NULL, predict.args = NULL, ..
 
 Prediction = R6::R6Class("Prediction", 
   public = list(
-    predict = function(newdata){
+    predict = function(newdata) {
       newdata = data.frame(newdata)
       prediction = private$predict.function(newdata)
-      if(is.null(self$prediction.colnames)) private$extract.prediction.colnames(prediction)
+      if (is.null(self$prediction.colnames)) private$extract.prediction.colnames(prediction)
       prediction = data.frame(prediction)
-      if(self$type == "classification" & !is.null(self$class)){
+      if (self$type == "classification" & !is.null(self$class)) {
         prediction = prediction[,self$class, drop=FALSE]
       } 
       colnames(prediction) = self$prediction.colnames
@@ -47,31 +47,33 @@ Prediction = R6::R6Class("Prediction",
     class = NULL,
     prediction.colnames = NULL, 
     type = NULL,
-    print = function(){
+    print = function() {
       cat("Prediction type:", self$type, "\n")
-      if(self$type == "classification") cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
+      if (self$type == "classification") {
+        cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
+      }
     },
-    initialize = function(object, class=NULL){
+    initialize = function(object, class=NULL) {
       # if object has predict function, but not from caret or mlr, then 
       # it is difficult to know if it"s classification or regression model
       # if class was set, then at least we can make a guess
       self$class = class
-      if(!is.null(class)) self$type = "classification"
+      if (!is.null(class)) self$type = "classification"
       private$object = object
       private$infer.type()
     }
   ), 
   private = list(
     object = NULL, 
-    extract.prediction.colnames = function(prediction){
-      if(!inherits(prediction, "data.frame")){
+    extract.prediction.colnames = function(prediction) {
+      if (!inherits(prediction, "data.frame")) {
         self$prediction.colnames = "..prediction"
       }
       self$prediction.colnames = colnames(prediction)
-      if(is.null(self$prediction.colnames)){
+      if (is.null(self$prediction.colnames)) {
         self$prediction.colnames = "..prediction"
       }
-      if(!is.null(self$class)){
+      if (!is.null(self$class)) {
         self$prediction.colnames = self$prediction.colnames[self$class]
       }
     }
@@ -84,22 +86,22 @@ PredictionMlr = R6::R6Class("PredictionMlr",
   public = list(), 
   private = list(
     # Automatically set task type and class name according to output
-    infer.type = function(){
+    infer.type = function() {
       tsk = mlr::getTaskType(private$object)
-      if(tsk == "classif"){
+      if (tsk == "classif") {
         self$type = "classification"
-        if(private$object$learner$predict.type != "prob"){
+        if (private$object$learner$predict.type != "prob") {
           stop("Set predict.type = 'prob' when creating the learner with makeLearner")
         }
-      } else if(tsk == "regr"){
+      } else if (tsk == "regr") {
         self$type = "regression"
       } else {
         stop(sprintf("mlr task type <%s> not supported", tsk))
       }
     },
-    predict.function = function(x){
+    predict.function = function(x) {
       pred = predict(private$object, newdata = x)
-      if(self$type == "classification") {
+      if (self$type == "classification") {
         getPredictionProbabilities(pred, cl = private$object$task.desc$class.levels)
       } else {
         getPredictionResponse(pred)
@@ -116,19 +118,18 @@ PredictionFunction = R6::R6Class("PredictionFunction",
   public = list(), 
   private = list(
     ## can"t infer the type before first prediction
-    infer.type = function(){},
-    infer.f.type = function(pred){
+    infer.type = function() {},
+    infer.f.type = function(pred) {
       assert_true(any(class(pred) %in% c("integer", "numeric", "data.frame", "matrix")))
-      if(inherits(pred, c("data.frame", "matrix")) && dim(pred)[2] > 1) {
+      if (inherits(pred, c("data.frame", "matrix")) && dim(pred)[2] > 1) {
         self$type = "classification" 
-        
       } else {
         self$type = "regression"
       }
     }, 
-    predict.function = function(x){
+    predict.function = function(x) {
       pred = private$object(x)
-      if(is.null(self$type)) private$infer.f.type(pred)
+      if (is.null(self$type)) private$infer.f.type(pred)
       pred
     }
   )
@@ -139,20 +140,20 @@ PredictionCaret = R6::R6Class("PredictionCaret",
   inherit = Prediction,
   public = list(), 
   private = list(
-    infer.type = function(){
+    infer.type = function() {
       mtype = private$object$modelType
-      if(mtype == "Regression"){
+      if (mtype == "Regression") {
         self$type = "regression"
-      } else if (mtype == "Classification"){
+      } else if (mtype == "Classification") {
         self$type = "classification"
       } else {
         stop(sprintf("caret model type %s not supported.", mtype))
       }
     },
-    predict.function = function(x){
-      if(self$type == "classification"){
+    predict.function = function(x) {
+      if (self$type == "classification") {
         predict(private$object, newdata = x,  type = "prob")
-      } else if(self$type == "regression"){
+      } else if (self$type == "regression") {
         predict(private$object, newdata = x)
       } else {
         stop(sprintf("private$type of %s not allowed.", private$type))
@@ -165,25 +166,28 @@ PredictionCaret = R6::R6Class("PredictionCaret",
 PredictionS3 = R6::R6Class("PredictionS3", 
   inherit = PredictionFunction,
   public = list(
-    initialize = function(predict.args=NULL, ...){
+    initialize = function(predict.args=NULL, ...) {
       super$initialize(...)
       private$predict.args = predict.args
     }
   ), 
   private = list(
     predict.args = NULL,
-    infer.type = function(){},
-    predict.function = function(x){
+    infer.type = function() {},
+    predict.function = function(x) {
       predict.args = c(list(object = private$object, newdata = x), private$predict.args)
       pred = do.call(predict, predict.args)
       ## TODO: warning instead of error and reshape output to conform numeric data.frame type
-      if(private$is.label.output(pred)) stop("Output seems to be class instead of probabilities. Please use the predict.args argument.")
-      if(is.null(self$type)) private$infer.f.type(pred)
+      if (private$is.label.output(pred)) {
+        stop("Output seems to be class instead of probabilities. 
+          Please use the predict.args argument.")
+      }
+      if (is.null(self$type)) private$infer.f.type(pred)
       pred 
     },
-    is.label.output = function(pred){
-      if(inherits(pred, c("character", "factor"))) return(TRUE)
-      if(inherits(pred, c("data.frame", "matrix")) && inherits(pred[,1], "character")){
+    is.label.output = function(pred) {
+      if (inherits(pred, c("character", "factor"))) return(TRUE)
+      if (inherits(pred, c("data.frame", "matrix")) && inherits(pred[,1], "character")) {
         return(TRUE)
       }
       FALSE

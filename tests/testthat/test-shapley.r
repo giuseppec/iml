@@ -1,10 +1,10 @@
 context("shapley()")
 
 
-f = function(x, multi = FALSE){
+f = function(x, multi = FALSE) {
   pred = unlist(x[1] + x[2] + 100 * (x[3] == "a")) / (155)
   dat = data.frame(pred = pred)
-  if(multi) dat$pred2 = 1 - dat$pred
+  if (multi) dat$pred2 = 1 - dat$pred
   dat
 }
 

@@ -39,7 +39,7 @@
 #' @template args_experiment_wrap
 #' @examples
 #' # We train a tree on the Boston dataset:
-#' if(require("rpart")){
+#' if (require("rpart")) {
 #' data("Boston", package  = "MASS")
 #' mod = rpart(medv ~ ., data = Boston)
 #' 
@@ -78,11 +78,11 @@
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
-#' imp = feature.imp(mod, X, y == "virginica", class = 3, loss = "ce", 
+#' imp = featureImp(mod, X, y == "virginica", class = 3, loss = "ce", 
 #'     predict.args = list(type = "prob"))
 #' plot(imp)
 #' }
-feature.imp = function(object, X, y, class=NULL, loss, method = "shuffle", ...){
+featureImp = function(object, X, y, class=NULL, loss, method = "shuffle", ...) {
   assert_vector(y, any.missing = FALSE)
 
   samp = Data$new(X, y = data.frame(y = y))
@@ -105,7 +105,7 @@ feature.imp = function(object, X, y, class=NULL, loss, method = "shuffle", ...){
 #' @importFrom dplyr group_by_
 #' @seealso 
 #' \link{featureImp}
-plot.Importance = function(x, sort = TRUE, ...){
+plot.Importance = function(x, sort = TRUE, ...) {
   x$plot(sort = sort, ...)
 }
 
@@ -115,8 +115,8 @@ Importance = R6::R6Class("Importance",
   public = list(
     loss = NULL,
     error.original = NULL,
-    initialize = function(predictor, sampler, loss, method){
-      if(!inherits(loss, "function")){
+    initialize = function(predictor, sampler, loss, method) {
+      if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
         private$loss.string  = loss
         loss = getFromNamespace(loss, "Metrics")
@@ -138,11 +138,11 @@ Importance = R6::R6Class("Importance",
     method = NULL,
     # for printing
     loss.string = NULL,
-    shuffle.feature = function(feature.name, method){
-      if(method == "shuffle"){
+    shuffle.feature = function(feature.name, method) {
+      if (method == "shuffle") {
         X.inter = private$X.sample
         X.inter[feature.name] = X.inter[sample(1:nrow(private$X.sample)), feature.name]
-      } else if(method == "cartesian"){
+      } else if (method == "cartesian") {
         n = nrow(private$X.sample)
         row.indices = rep(1:n, times = n)
         replace.indices = rep(1:n, each = n)
@@ -158,15 +158,17 @@ Importance = R6::R6Class("Importance",
       X.inter 
     },
     Q = function(pred) probs.to.labels(pred),
-    intervene = function(){
-      X.inter.list = lapply(private$sampler$feature.names, function(i) private$shuffle.feature(i, method = private$method))
+    intervene = function() {
+      X.inter.list = lapply(private$sampler$feature.names, 
+        function(i) private$shuffle.feature(i, method = private$method))
       data.frame(data.table::rbindlist(X.inter.list))
     },
-    aggregate = function(){
+    aggregate = function() {
       y = private$X.design[private$sampler$y.names]
       y.hat = private$Q.results
       # For classification we work with the class labels instead of probs
-      result = data.frame(..feature = private$X.design$..feature, ..actual = y[[1]], ..predicted = y.hat[[1]])
+      result = data.frame(..feature = private$X.design$..feature, ..actual = y[[1]], 
+        ..predicted = y.hat[[1]])
       
       result.grouped  = group_by_(result, "..feature")
       result = summarise(result.grouped, error = self$loss(..actual, ..predicted), 
@@ -174,9 +176,9 @@ Importance = R6::R6Class("Importance",
       result = result[order(result$importance, decreasing = TRUE),]
       result
     },
-    generate.plot = function(sort = TRUE, ...){
+    generate.plot = function(sort = TRUE, ...) {
       res = private$results
-      if(sort){
+      if (sort) {
         res$..feature = factor(res$..feature, levels = res$..feature[order(res$importance)])
       }
       ggplot(res, aes(y = ..feature, x = importance)) + geom_point()+ 
@@ -184,10 +186,10 @@ Importance = R6::R6Class("Importance",
         scale_x_continuous("Feature Importance") + 
         scale_y_discrete("Feature")
     }, 
-    set.loss = function(loss){
+    set.loss = function(loss) {
       self$loss = loss
     }, 
-    print.parameters = function(){
+    print.parameters = function() {
       cat("error function:", private$loss.string)
     }
   )

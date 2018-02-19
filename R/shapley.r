@@ -50,7 +50,7 @@
 #' # shapley() also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
-#' X = iris[-which(names(iris) == 'Species')]
+#' X = iris[-which(names(iris) == "Species")]
 #' 
 #' # Then we explain the first instance of the dataset with the shapley() method:
 #' shap = shapley(mod, X, x.interest = X[1,], predict.args = list(type='prob'))
@@ -62,7 +62,7 @@
 #' shap$data()
 #' plot(shap) 
 #' 
-shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
+shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...) {
   samp = Data$new(X)
   pred = predictionModel(object, class = class, ...)
   
@@ -79,7 +79,7 @@ shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...){
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{shapley}
-plot.Shapley = function(object){
+plot.Shapley = function(object) {
   object$plot()
 }
 
@@ -90,7 +90,7 @@ Shapley = R6::R6Class("Shapley",
     y.hat.interest = NULL,
     y.hat.average = NULL,
     sample.size = NULL,
-    initialize = function(predictor, sampler, x.interest, sample.size){
+    initialize = function(predictor, sampler, x.interest, sample.size) {
       checkmate::assert_data_frame(x.interest)
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
@@ -99,7 +99,7 @@ Shapley = R6::R6Class("Shapley",
     }
   ), 
   private = list(
-    aggregate = function(){
+    aggregate = function() {
       y.hat.with.k = private$Q.results[1:(nrow(private$Q.results)/2), , drop = FALSE]
       y.hat.without.k = private$Q.results[(nrow(private$Q.results)/2 + 1):nrow(private$Q.results), , drop = FALSE]
       y.hat.diff = y.hat.with.k - y.hat.without.k
@@ -109,22 +109,22 @@ Shapley = R6::R6Class("Shapley",
       y.hat.diff = gather(y.hat.diff, key = "class", "value", one_of(cnames))
       y.hat.diff.grouped  =   group_by(y.hat.diff, feature, class)
       y.hat.diff = summarise(y.hat.diff.grouped, phi = mean(value), phi.var = var(value))
-      if(!private$multi.class) y.hat.diff$class = NULL
+      if (!private$multi.class) y.hat.diff$class = NULL
       y.hat.diff
     },
-    intervene = function(){
+    intervene = function() {
       # The intervention
-      runs = lapply(1:self$sample.size, function(m){
+      runs = lapply(1:self$sample.size, function(m) {
         # randomly order features
         new.feature.order = sample(1:private$sampler$n.features)
         # randomly choose sample instance from X
         sample.instance.shuffled = private$X.sample[sample(1:nrow(private$X.sample), 1), new.feature.order]
         x.interest.shuffled = self$x.interest[new.feature.order]
         
-        featurewise = lapply(1:private$sampler$n.features, function(k){
+        featurewise = lapply(1:private$sampler$n.features, function(k) {
           k.at.index = which(new.feature.order == k)
           instance.with.k = x.interest.shuffled
-          if(k.at.index < ncol(self$x.interest)){
+          if (k.at.index < ncol(self$x.interest)) {
             instance.with.k[(k.at.index + 1):ncol(instance.with.k)] =
               sample.instance.shuffled[(k.at.index + 1):ncol(instance.with.k)]
           }
@@ -141,23 +141,23 @@ Shapley = R6::R6Class("Shapley",
       
       rbind(dat.with.k, dat.without.k)
     }, 
-    set.x.interest = function(x.interest){
+    set.x.interest = function(x.interest) {
       self$x.interest = x.interest
       self$y.hat.interest = private$predict(x.interest)[1,]
       self$y.hat.average = colMeans(private$predict(private$sampler$get.x()))
     },
-    generate.plot = function(){
+    generate.plot = function() {
       p = ggplot(private$results) + geom_point(aes(y = feature, x = phi))
-      if(private$multi.class) p = p + facet_wrap("class")
+      if (private$multi.class) p = p + facet_wrap("class")
       p
     },
-    print.parameters = function(){
+    print.parameters = function() {
       cat(sprintf("Predicted value: %f, Average prediction: %f (diff = %f)", 
         self$y.hat.interest, self$y.hat.average, self$y.hat.interest - self$y.hat.average))
     }
   ),
   active = list(
-    x = function(x.interest){
+    x = function(x.interest) {
       private$flush()
       private$set.x.interest(x.interest)
       self$run()

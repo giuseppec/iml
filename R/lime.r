@@ -84,7 +84,7 @@
 #' lemon$data()
 #' plot(lemon) 
 #' 
-lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...){
+lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...) {
   samp = Data$new(X)
   pred = predictionModel(object, class = class, ...)
   LIME$new(predictor = pred, sampler = samp, sample.size=sample.size, k = k, x.interest = x.interest)$run()
@@ -107,7 +107,7 @@ lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...
 #' \link{lime}
 #' @importFrom stats predict
 #' @export
-predict.LIME = function(object, newdata = NULL, ...){
+predict.LIME = function(object, newdata = NULL, ...) {
   object$predict(newdata = newdata, ...)
 }
 
@@ -120,7 +120,7 @@ predict.LIME = function(object, newdata = NULL, ...){
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{lime}
-plot.LIME = function(object){
+plot.LIME = function(object) {
   object$plot()
 }
 
@@ -133,11 +133,11 @@ LIME = R6::R6Class("LIME",
     model = NULL,
     best.fit.index = NULL,
     sample.size = NULL,
-    predict = function(newdata = NULL, ...){
-      if(is.null(newdata)) newdata = self$x
+    predict = function(newdata = NULL, ...) {
+      if (is.null(newdata)) newdata = self$x
       X.recode = recode(newdata, self$x)
       prediction = predict(self$model, newx=as.matrix(X.recode))
-      if(private$multi.class){
+      if (private$multi.class) {
         data.frame(prediction[,,self$best.fit.index])
       } else {
         pred = prediction[,self$best.fit.index, drop=FALSE]
@@ -145,10 +145,12 @@ LIME = R6::R6Class("LIME",
         data.frame(prediction = pred)
       }
     },
-    initialize = function(predictor, sampler, sample.size, k, x.interest, class, ...){
+    initialize = function(predictor, sampler, sample.size, k, x.interest, class, ...) {
       checkmate::assert_number(k, lower = 1, upper = sampler$n.features)
       checkmate::assert_data_frame(x.interest)
-      if(!require("glmnet")){stop("Please install glmnet.")}
+      if (!require("glmnet")) {
+        stop("Please install glmnet.")
+      }
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$k = k
@@ -159,7 +161,7 @@ LIME = R6::R6Class("LIME",
   private = list(
     Q = function(pred) probs.to.labels(pred),
     best.index = NULL,
-    aggregate = function(){
+    aggregate = function() {
       X.recode = recode(private$X.design, self$x)
       x.scaled = recode(self$x, self$x)
       fam = ifelse(private$multi.class, "multinomial", "gaussian")
@@ -168,14 +170,14 @@ LIME = R6::R6Class("LIME",
         intercept = TRUE, standardize = TRUE, type.multinomial = "grouped")
       res = self$model
       ## It can happen, that no n.vars matching k occurs
-      if(any(res$df == self$k)){
+      if (any(res$df == self$k)) {
         best.index = max(which(res$df == self$k))
       } else {
         best.index = max(which(res$df < self$k))
         warning("Had to choose a smaller k")
       }
       self$best.fit.index = best.index
-      if(private$multi.class){
+      if (private$multi.class) {
         class.results = lapply(res$beta, extract.glmnet.effects, 
           best.index = best.index, x.scaled = x.scaled, x.original = self$x)
         res = data.table::rbindlist(class.results)
@@ -185,19 +187,19 @@ LIME = R6::R6Class("LIME",
       }
       res[res$beta != 0, ]
     },
-    intervene = function(){private$X.sample}, 
-    generate.plot = function(){
+    intervene = function() private$X.sample, 
+    generate.plot = function() {
       p = ggplot(private$results) + geom_point(aes(y = feature.value, x = effect))
-      if(private$multi.class) p = p + facet_wrap("..class")
+      if (private$multi.class) p = p + facet_wrap("..class")
       p
     },
-    weight.samples = function(){
+    weight.samples = function() {
       require("gower")
       1 - gower_dist(private$X.design, self$x)
     }
   ),
   active = list(
-    x.interest = function(x.interest){
+    x.interest = function(x.interest) {
       self$x = x.interest
       private$flush()
       self$run()

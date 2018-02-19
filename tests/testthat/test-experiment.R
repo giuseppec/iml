@@ -4,7 +4,7 @@ context("Experiment")
 test_that("Experiments work",{
   
   
-  f = function(x){
+  f = function(x) {
     unlist(x[1] + x[2])
   }
   X = data.frame(a = c(1,2,3), b = c(2,3,4))

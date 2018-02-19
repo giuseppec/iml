@@ -21,7 +21,7 @@ By default the multiclass classification is done.}
 
 \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details.}
 
-\item{method}{Either 'shuffle' or 'cartesian'. See Details.}
+\item{method}{Either "shuffle" or "cartesian". See Details.}
 
 \item{...}{Further arguments  for the prediction method.}
 }
@@ -64,11 +64,11 @@ data("Boston", package  = "MASS")
 mod = rpart(medv ~ ., data = Boston)
 
 # Compute the individual conditional expectations for the first feature
-X = Boston[-which(names(Boston) == 'medv')]
+X = Boston[-which(names(Boston) == "medv")]
 y = Boston$medv
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = featureImp(mod, X, y, loss = 'mae')
+imp = feature.imp(mod, X, y, loss = "mae")
 
 # Plot the results directly
 plot(imp)
@@ -87,10 +87,10 @@ theme_bw()
 # featureImp() also works with multiclass classification. 
 # In this case, the importance measurement regards all classes
 mod = rpart(Species ~ ., data= iris)
-X = iris[-which(names(iris) == 'Species')]
+X = iris[-which(names(iris) == "Species")]
 y = iris$Species
 # For some models we have to specify additional arguments for the predict function
-imp = featureImp(mod, X, y, loss = 'ce', predict.args = list(type = 'prob'))
+imp = feature.imp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
 plot(imp)
 # Here we encounter the special case that the machine learning model perfectly predicts
 # The importance becomes infinite
@@ -98,8 +98,8 @@ imp$data()
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y
-imp = featureImp(mod, X, y == 'virginica', class = 3, loss = 'ce', 
-    predict.args = list(type = 'prob'))
+imp = featureImp(mod, X, y == "virginica", class = 3, loss = "ce", 
+    predict.args = list(type = "prob"))
 plot(imp)
 }
 }

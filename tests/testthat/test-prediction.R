@@ -22,7 +22,7 @@ mod.caret = caret::train(Species ~ ., data = iris, method = "knn",
 predictor.caret = predictionModel(mod.caret)
 
 # function
-mod.f = function(X){
+mod.f = function(X) {
   predict(mod.caret, newdata = X,  type = "prob")
 }
 predictor.f = predictionModel(mod.f)
@@ -30,7 +30,7 @@ iris.test = iris[c(2,20, 100, 150), c("Sepal.Length", "Sepal.Width", "Petal.Leng
 prediction.f = predictor.f$predict(iris.test)
 
 
-test_that("equivalence",{
+test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
   expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
   
@@ -91,7 +91,7 @@ mod.caret = caret::train(medv ~ ., data = Boston, method = "knn",
   predictor.caret = predictionModel(mod.caret)
 
 # function
-mod.f = function(X){
+mod.f = function(X) {
   predict(mod.caret, newdata = X)
 }
 predictor.f = predictionModel(mod.f)
@@ -101,7 +101,7 @@ prediction.f = predictor.f$predict(boston.test)
 
 
 
-test_that("equivalence",{
+test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(boston.test))
   expect_equivalent(predictor.mlr$predict(boston.test), predictor.S3$predict(boston.test))
 })

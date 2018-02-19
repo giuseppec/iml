@@ -1,10 +1,10 @@
 context("lime()")
 
 
-f = function(x, multi = FALSE){
+f = function(x, multi = FALSE) {
   pred = unlist(5  + 20 * x[1] - 10 * x[2] + 100 * (x[3] == "a")) 
   dat = data.frame(pred = pred)
-  if(multi) dat$pred2 = 1 - dat$pred
+  if (multi) dat$pred2 = 1 - dat$pred
   dat
 }
 
@@ -21,7 +21,7 @@ y = f(X)[[1]]
 
 expected.colnames = c("beta", "x.scaled", "effect", "x.original", "feature", "feature.value")
 
-test_that("lime works for single output and single feature",{
+test_that("lime works for single output and single feature", {
   
   x.interest = X[2,]
   k = 2
@@ -46,7 +46,7 @@ test_that("lime works for single output and single feature",{
   expect_equal(colnames(pred), "prediction")
 })
 
-test_that("lime works for multiple output",{
+test_that("lime works for multiple output", {
   
   x.interest = X[1,]
   

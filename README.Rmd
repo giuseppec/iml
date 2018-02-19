@@ -26,9 +26,9 @@ set.seed(42)
 
 # Installation 
 The package can be installed directly from github with devtools:
-```{r, results = 'hide', eval = FALSE}
+```{r, results = "hide", eval = FALSE}
 # install.packages("devtools")
-devtools::install_github('christophM/iml')
+devtools::install_github("christophM/iml")
 ```
 
 
@@ -36,23 +36,23 @@ devtools::install_github('christophM/iml')
 
 First we train a randomForest to predict the Boston median housing value
 ```{r}
-library('iml')
+library("iml")
 
-library('randomForest')
+library("randomForest")
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 ```
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 ```{r}
-imp = featureImp(mod, Boston, y = Boston$medv, loss = 'mae')
+imp = featureImp(mod, Boston, y = Boston$medv, loss = "mae")
 plot(imp)
 imp$data()
 ```
 
-### Let's build a single tree from the randomForest predictions! (Tree surrogate)
+### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
 ```{r}
-tree = treeSurrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
+tree = treeSurrogate(mod, Boston[which(names(Boston) != "medv")], maxdepth = 2)
 plot(tree)
 ```
 

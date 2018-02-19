@@ -73,7 +73,7 @@
 #' \link[partykit]{ctree}
 #' @export
 #' @import partykit
-treeSurrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2, tree.args = NULL, ...){
+treeSurrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2, tree.args = NULL, ...) {
   samp = Data$new(X)
   pred = predictionModel(object, class = class, ...)
   
@@ -99,7 +99,7 @@ treeSurrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2,
 #' \link{treeSurrogate}
 #' @importFrom stats predict
 #' @export
-predict.TreeSurrogate = function(object, newdata, type = "prob", ...){
+predict.TreeSurrogate = function(object, newdata, type = "prob", ...) {
   object$predict(newdata = newdata, type, ...)
 }
 
@@ -117,7 +117,7 @@ predict.TreeSurrogate = function(object, newdata, type = "prob", ...){
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{treeSurrogate}
-plot.TreeSurrogate = function(object){
+plot.TreeSurrogate = function(object) {
   object$plot()
 }
 
@@ -133,18 +133,18 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     # Maximal depth as set by the user
     maxdepth = NULL,
     sample.size = NULL,
-    initialize = function(predictor, sampler, sample.size, maxdepth, tree.args){
+    initialize = function(predictor, sampler, sample.size, maxdepth, tree.args) {
       super$initialize(predictor, sampler)
       self$sample.size = sample.size
       private$tree.args = tree.args
       self$maxdepth = maxdepth
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
     }, 
-    predict = function(newdata, type = "prob", ...){
+    predict = function(newdata, type = "prob", ...) {
       assert_choice(type, c("prob", "class"))
       res = data.frame(predict(self$tree, newdata = newdata, type = "response", ...))
-      if(private$multi.class){
-        if(type == "class") {
+      if (private$multi.class) {
+        if (type == "class") {
           res = data.frame(..class = colnames(res)[apply(res, 1, which.max)])
         }
       } else {
@@ -160,10 +160,10 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     # Only relevant in multi.class case
     object.predict.colnames = NULL,
 
-    intervene = function(){private$X.sample},
-    aggregate = function(){
+    intervene = function() private$X.sample,
+    aggregate = function() {
       y.hat = private$Q.results
-      if(private$multi.class){
+      if (private$multi.class) {
         classes = colnames(y.hat)
         form = formula(sprintf("%s ~ .", paste(classes, collapse = "+")))       
       } else {
@@ -175,7 +175,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
       self$tree = do.call(partykit::ctree, tree.args)
       result = data.frame(..node = predict(self$tree, type = "node"), 
         ..path = pathpred(self$tree))
-      if(private$multi.class){
+      if (private$multi.class) {
         outcome = private$Q.results
         colnames(outcome) = paste("..y.hat:", colnames(outcome), sep="")
         private$object.predict.colnames = colnames(outcome)
@@ -195,12 +195,12 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
       rownames(design) = NULL
       cbind(design, result)
     }, 
-    generate.plot = function(){
+    generate.plot = function() {
       p = ggplot(private$results) + 
         geom_boxplot(aes(y = ..y.hat, x = "")) + 
         scale_x_discrete("") + 
         facet_wrap("..path")
-      if(private$multi.class){
+      if (private$multi.class) {
         plot.data = private$results
         # max class for model
         plot.data$..class = private$object.predict.colnames[apply(plot.data[private$object.predict.colnames], 1, which.max)]
@@ -225,7 +225,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
 pathpred <- function(object, ...)
 {
   ## coerce to "party" object if necessary
-  if(!inherits(object, "party")) object = partykit::as.party(object)
+  if (!inherits(object, "party")) object = partykit::as.party(object)
 
   ## get rules for each node
   rls = list.rules.party(object)

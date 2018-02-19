@@ -49,7 +49,7 @@
 #' 
 #' @examples
 #' # We train a random forest on the Boston dataset:
-#' if(require("randomForest")){
+#' if (require("randomForest")) {
 #' 
 #' data("Boston", package  = "MASS")
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
@@ -102,7 +102,7 @@
 #' }
 #' @importFrom dplyr left_join
 #' @export
-ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...){
+ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...) {
   samp = Data$new(X)
   pred = predictionModel(object, class = class, ...)
   obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  
@@ -122,7 +122,7 @@ ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, .
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{ice}
-plot.ICE = function(x, ...){
+plot.ICE = function(x, ...) {
   x$plot()
 }
 
@@ -130,7 +130,7 @@ plot.ICE = function(x, ...){
 ICE = R6::R6Class("ICE",
   inherit = PDP,
   public = list( 
-    initialize = function(feature, anchor.value = NULL, ...){
+    initialize = function(feature, anchor.value = NULL, ...) {
       checkmate::assert_number(anchor.value, null.ok = TRUE)
       private$anchor.value = anchor.value
       assert_count(feature)
@@ -138,20 +138,21 @@ ICE = R6::R6Class("ICE",
     }
   ),
   private = list(
-    generate.plot = function(){
-      p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = "y.hat", group = "..individual"))
-      if(self$feature.type == "numerical") p = p + geom_line()
+    generate.plot = function() {
+      p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], 
+        y = "y.hat", group = "..individual"))
+      if (self$feature.type == "numerical") p = p + geom_line()
       else if (self$feature.type == "categorical") p = p + geom_line(alpha = 0.2) + geom_point()
       
-      if(private$multi.class){
+      if (private$multi.class) {
         p + facet_wrap("..class.name")
       } else {
         p
       }
     }, 
-    intervene = function(){
+    intervene = function() {
       X.design = super$intervene()
-      if(!is.null(private$anchor.value)) {
+      if (!is.null(private$anchor.value)) {
         X.design.anchor = private$X.sample
         X.design.anchor[self$feature.index] = private$anchor.value
         private$X.design.ids = c(private$X.design.ids, 1:nrow(private$X.sample))
@@ -159,11 +160,11 @@ ICE = R6::R6Class("ICE",
       }
       X.design
     },
-    aggregate = function(){
+    aggregate = function() {
       X.id = private$X.design.ids
       X.results = private$X.design[self$feature.index]
       X.results$..individual = X.id
-      if(private$multi.class){
+      if (private$multi.class) {
         y.hat.names = colnames(private$Q.results)
         X.results = cbind(X.results, private$Q.results)
         X.results = gather(X.results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
@@ -172,7 +173,7 @@ ICE = R6::R6Class("ICE",
         X.results["..class.name"] = 1
       }
       
-      if(!is.null(private$anchor.value)){
+      if (!is.null(private$anchor.value)) {
         X.aggregated.anchor = X.results[X.results[self$feature.names] == private$anchor.value, c("y.hat", "..individual", "..class.name")]
         names(X.aggregated.anchor) = c("anchor.yhat", "..individual", "..class.name")
         X.results = left_join(X.results, X.aggregated.anchor, by = c("..individual", "..class.name"))
@@ -181,7 +182,7 @@ ICE = R6::R6Class("ICE",
       }
       
       # Remove class name column again if single output
-      if(!private$multi.class){
+      if (!private$multi.class) {
         X.results$..class.name = NULL
       }
       
@@ -190,8 +191,8 @@ ICE = R6::R6Class("ICE",
     anchor.value = NULL
   ),
   active = list(
-    center.at = function(anchor.value){
-      if(missing(anchor.value)) {return(private$anchor.value)}
+    center.at = function(anchor.value) {
+      if (missing(anchor.value)) return(private$anchor.value)
       private$anchor.value = anchor.value
       private$flush()
       self$run()
