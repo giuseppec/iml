@@ -1,4 +1,4 @@
-context("featureImp()")
+context("makeFeatureImp()")
 
 
 f = function(x, multi = FALSE) {
@@ -16,9 +16,9 @@ set.seed(42)
 y = f(X) + rnorm(nrow(X))
 y2 = factor(ifelse(X$b + X$a < 20, "pred", "pred2"))
 
-test_that("featureImp works for single output", {
+test_that("makeFeatureImp works for single output", {
   
-  var.imp = featureImp(f, X, y = y, loss = "mse")
+  var.imp = makeFeatureImp(f, X, y = y, loss = "mse")
   dat = var.imp$data()
   expect_equal(colnames(dat), c("..feature", "error", "importance"))
   expect_equal(nrow(dat), ncol(X))  
@@ -27,7 +27,7 @@ test_that("featureImp works for single output", {
   p
   
 
-  var.imp = featureImp(f, X, y = y, loss = "mse", method = "cartesian")
+  var.imp = makeFeatureImp(f, X, y = y, loss = "mse", method = "cartesian")
   dat = var.imp$data()
   # Making sure the result is sorted by decreasing importance
   expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
@@ -44,7 +44,7 @@ test_that("featureImp works for single output", {
   cart.indices = c(1,1,2,2,3,3)
   cartesian.error = Metrics::mse(y.exact[cart.indices], c(2,3,1,3,1,2))
   
-  var.imp = featureImp(f.exact, X.exact, y = y.exact, loss = "mse", method = "cartesian")
+  var.imp = makeFeatureImp(f.exact, X.exact, y = y.exact, loss = "mse", method = "cartesian")
   dat = var.imp$data()
   expect_equal(dat$importance, c(cartesian.error, 1))
   expect_equal(colnames(dat), c("..feature", "error", "importance"))
@@ -64,9 +64,9 @@ test_that("featureImp works for single output", {
   
 })
 
-test_that("featureImp works for single output and function as loss", {
+test_that("makeFeatureImp works for single output and function as loss", {
     
-  var.imp = featureImp(f, X, y = y, loss = Metrics::mse)
+  var.imp = makeFeatureImp(f, X, y = y, loss = Metrics::mse)
   dat = var.imp$data()
   # Making sure the result is sorted by decreasing importance
   expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
@@ -78,9 +78,9 @@ test_that("featureImp works for single output and function as loss", {
   
 })
 
-test_that("featureImp works for multiple output",{
+test_that("makeFeatureImp works for multiple output",{
   
-  var.imp = featureImp(f2, X, y = y2, loss = "ce")
+  var.imp = makeFeatureImp(f2, X, y = y2, loss = "ce")
   dat = var.imp$data()
   expect_equal(colnames(dat), c("..feature", "error", "importance"))
   expect_equal(nrow(dat), ncol(X))  

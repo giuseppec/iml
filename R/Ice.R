@@ -1,7 +1,7 @@
-#' Individual conditional expectations (ICE)
+#' Individual conditional expectations (Ice)
 #' 
 #' @description 
-#' Fits and plots individual conditional expectation function on an arbitrary machine learning model
+#' makeIce() fits and plots individual conditional expectation function on an arbitrary machine learning model
 #' 
 #' @details
 #' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
@@ -10,14 +10,14 @@
 #' But we can take one of the input features of an observation and change its value. 
 #' We try out a grid of different values and observe the predicted outcome. 
 #' This gives us the predicted \eqn{\hat{y}} as a function of feature \eqn{X_j}, which we can plot as a line. 
-#' The \code{ice} method repeats this for all the observations in the dataset and plots all the lines in the same plot.
+#' The \code{makeIce} method repeats this for all the observations in the dataset and plots all the lines in the same plot.
 #' 
 #' Mathematically, we split up the learned function into its parts:
 #' \deqn{f(x_i) = f_1(x_{i,1}) + \ldots + f_p(x_{i,p}) + f_{1, 2}(x_{i,1}, x_{i,2}) + \ldots + f_{p-1, p}(x_{i,p-1}, x_{p}) + \ldots + f_{1\ldots p}(x_{i,1\ldots X_p})}, 
 #' 
 #' And we can isolate the individual conditional expectation of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
 #' 
-#' Partial dependence plots (\link{pdp}) are the averaged lines of ice curves. 
+#' Partial dependence plots (\link{makePartialDependence}) are the averaged lines of ice curves. 
 #'  The returned object can be plotted is a \code{ggplot}
 #' object. This means it can be plotted directly or be extended using ggplots \code{+} operator.   
 #' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/ice.html
@@ -28,7 +28,7 @@
 #' @return An individual conditional expectation object
 #' @template args_experiment_wrap
 #' @return 
-#' An ICE object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' An Ice object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{feature.name}{The feature name for which the partial dependence was computed.}
 #' \item{feature.type}{The detected type of the feature, either "categorical" or "numerical".}
 #' \item{feature.index}{The index of the feature for which the individual conditional expectations weree computed.}
@@ -45,7 +45,7 @@
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
 #' @seealso 
-#' \link{pdp} for partial dependence plots (aggregated ice plots)
+#' \link{makePartialDependence} for partial dependence plots (aggregated ice plots)
 #' 
 #' @examples
 #' # We train a random forest on the Boston dataset:
@@ -55,57 +55,57 @@
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' 
 #' # Compute the individual conditional expectations for the first feature
-#' ice.obj = ice(mod, Boston, feature = 1)
+#' ice = makeIce(mod, Boston, feature = 1)
 #' 
 #' # Plot the results directly
-#' plot(ice.obj)
+#' plot(ice)
 #' 
-#' # You can center the ICE plot
-#' ice.obj$center.at = 0
-#' plot(ice.obj)
+#' # You can center the Ice plot
+#' ice$center.at = 0
+#' plot(ice)
 #' 
-#' # ICE plots can be centered at initialization
-#' ice.obj = ice(mod, Boston, feature = 1, center=75)
-#' plot(ice.obj)
+#' # Ice plots can be centered at initialization
+#' ice = makeIce(mod, Boston, feature = 1, center=75)
+#' plot(ice)
 #' 
 #' # Centering can also be removed
-#' ice.obj$center.at = NULL
-#' plot(ice.obj)
+#' ice$center.at = NULL
+#' plot(ice)
 #' 
 #' # Since the result is a ggplot object, you can extend it: 
 #' library("ggplot2")
-#' plot(ice.obj) + theme_bw()
+#' plot(ice) + theme_bw()
 #' 
 #' # If you want to do your own thing, just extract the data: 
-#' ice.dat = ice.obj$data()
-#' head(ice.dat)
-#' ggplot(ice.dat) + 
+#' iceData = ice$data()
+#' head(iceData)
+#' ggplot(iceData) + 
 #' geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 
 #' scale_color_discrete(guide = "none")
 #' 
 #' # You can reuse the ice object for other features: 
-#' ice.obj$feature = 2
-#' plot(ice.obj)
+#' ice$feature = 2
+#' plot(ice)
 #' 
-#' # ICE also works with multiclass classification
+#' # Ice also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(ice(mod, iris, feature = 1, predict.args = list(type = 'prob')))
+#' plot(makeIce(mod, iris, feature = 1, predict.args = list(type = 'prob')))
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' plot(ice(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
+#' plot(makeIce(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
 #' 
-#' # ICE plots can be centered: 
-#' plot(ice(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
+#' # Ice plots can be centered: 
+#' plot(makeIce(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
 #' }
 #' @importFrom dplyr left_join
 #' @export
-ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...) {
+makeIce = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...) {
   samp = Data$new(X)
-  pred = predictionModel(object, class = class, ...)
-  obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  
+  pred = makePredictor(object, class = class, ...)
+  obj = Ice$new(predictor = pred, sampler = samp, anchor.value = center.at,  
     feature = feature, grid.size = grid.size)
   obj$run()
   obj
@@ -114,21 +114,21 @@ ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, .
 
 #' Individual conditional expectation plots
 #' 
-#' plot.ICE() plots individiual expectation curves for each observation for one feature.
+#' plot.Ice() plots individiual expectation curves for each observation for one feature.
 #' 
-#' For examples see \link{ice}
-#' @param x The individual conditional expectation curves. An ICE R6 object
+#' For examples see \link{makeIce}
+#' @param x The individual conditional expectation curves. An Ice R6 object
 #' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{ice}
-plot.ICE = function(x, ...) {
+#' \link{makeIce}
+plot.Ice = function(x, ...) {
   x$plot()
 }
 
 
-ICE = R6::R6Class("ICE",
-  inherit = PDP,
+Ice = R6::R6Class("Ice",
+  inherit = PartialDependence,
   public = list( 
     initialize = function(feature, anchor.value = NULL, ...) {
       checkmate::assert_number(anchor.value, null.ok = TRUE)

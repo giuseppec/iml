@@ -9,7 +9,7 @@ test_that("Experiments work",{
   }
   X = data.frame(a = c(1,2,3), b = c(2,3,4))
   ds = Data$new(X)
-  pred = predictionModel(f)
+  pred = makePredictor(f)
   e = Experiment$new(pred, ds)
   set.seed(1)
   dat = e$run()$data()

@@ -23,7 +23,7 @@ mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::
 
 
 ## PDP
-pdp.obj = pdp(object = mod, X=X, feature = c(1, 3), grid.size = 50)  
+pdp.obj = makePartialDependence(object = mod, X=X, feature = c(1, 3), grid.size = 50)  
 pdp.obj
 pdp.obj$data()
 
@@ -40,12 +40,12 @@ pdp.obj$feature = 1
 pdp.obj$plot()
 
 
-pdp(mod, X, feature = 1, class = 2)$plot()
+makePartialDependence(mod, X, feature = 1, class = 2)$plot()
 
 ## ICE
-ice(object = mod, X=X, feature = 2, predict.args = list(type='prob'))$plot()  
+makeIce(object = mod, X=X, feature = 2, predict.args = list(type='prob'))$plot()  
 
-ice1 = ice(mod, X=X, feature = 2, predict.args = list(type='prob'))  
+ice1 = makeIce(mod, X=X, feature = 2, predict.args = list(type='prob'))  
 plot(ice1)
 
 ice1$data()
@@ -53,11 +53,11 @@ ice1$feature = 3
 ice1$plot()
 
 ## ICE centered
-ice1 = ice(mod, X=X, feature = 1, center.at = 4)
+ice1 = makeIce(mod, X=X, feature = 1, center.at = 4)
 ice1$plot()
 
 
-ice1 = ice(mod, X=X, feature = 1, center.at = 4, class = 2)
+ice1 = makeIce(mod, X=X, feature = 1, center.at = 4, class = 2)
 plot(ice1)
 ice1$center.at = 4
 plot(ice1)
@@ -69,41 +69,41 @@ plot(ice1)
 i = 121
 x.interest = X[i,]
 
-lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 1)
+makeLime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 1)
 
-lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
+lime1 = makeLime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
 dat = lime1$data()
 plot(lime1)
 lime1$x <- X[i+1,]
 lime1
 
 
-lime1 = lime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 2)
+lime1 = makeLime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 2)
 lime1
 plot(lime1)
 
 ## Shapley
-shapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'), class = 3)
-shapley1 = shapley(mod, X, x.interest, 100, class=NULL, predict.args = list(type = 'prob'))
+makeShapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'), class = 3)
+shapley1 = makeShapley(mod, X, x.interest, 100, class=NULL, predict.args = list(type = 'prob'))
 shapley1$x = X[i+2,]
 plot(shapley1)
 shapley1
 
 ## Permutation feature importance
-featureImp(mod, X,  y=1*(y=='virginica'), predict.args = list(type = 'prob'), class = 3, loss = 'mae')$data()
-pimp = featureImp(mod, X,  y = y, loss = 'ce')
+makeFeatureImp(mod, X,  y=1*(y=='virginica'), predict.args = list(type = 'prob'), class = 3, loss = 'mae')$data()
+pimp = makeFeatureImp(mod, X,  y = y, loss = 'ce')
 pimp$data()
 
-pimp = featureImp(mod, X,  y = y, loss = 'ce', method = 'cartesian')
+pimp = makeFeatureImp(mod, X,  y = y, loss = 'ce', method = 'cartesian')
 pimp$data()
 plot(pimp)
 
-featureImp(mod, X,  y=y, predict.args = list(type = 'prob'),  loss = 'mae')
+makeFeatureImp(mod, X,  y=y, predict.args = list(type = 'prob'),  loss = 'mae')
 
 library("randomForest")
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
-pimportance = featureImp(mod, Boston[which(names(Boston) != 'medv')], y = Boston$medv, loss = 'mae', method = 'cartesian')
+pimportance = makeFeatureImp(mod, Boston[which(names(Boston) != 'medv')], y = Boston$medv, loss = 'mae', method = 'cartesian')
 
 pimp$data()
 pimp$plot()
@@ -114,11 +114,11 @@ library("randomForest")
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 
-tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], 100, maxdepth = 4)
+tree = makeTreeSurrogate(mod, Boston[which(names(Boston) != 'medv')], 100, maxdepth = 4)
 
 mod = randomForest(Species ~ ., data = iris, ntree = 50)
 
-tree = tree.surrogate(mod, iris[which(names(iris) != 'Species')], 100, 
+tree = makeTreeSurrogate(mod, iris[which(names(iris) != 'Species')], 100, 
   maxdepth = 2, predict.args = list(type = 'prob'))
 
 plot(tree)

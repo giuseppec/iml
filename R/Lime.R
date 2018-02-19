@@ -1,7 +1,7 @@
-#' LIME
+#' Lime
 #' 
 #' @description 
-#' \code{lime()} fits a locally weighted linear regression model (logistic for classification) to explain a single machine learning prediction.
+#' \code{makeLime()} fits a locally weighted linear regression model (logistic for classification) to explain a single machine learning prediction.
 #' 
 #' @details 
 #' Data points are sampled and weighted by their proximity to the instance to be explained. 
@@ -10,7 +10,7 @@
 #' The resulting model can be seen as a surrogate for the machine learning model, which is only valid for that one point.
 #' Categorical features are binarized, depending on the category of the instance to be explained: 1 if the category is the same, 0 otherwise.
 #' 
-#' Differences to the original LIME implementation: 
+#' Differences to the original Lime implementation: 
 #' \itemize{
 #' \item Distance measure: Uses gower proximity (= 1 - gower distance) instead of a kernel based on the Euclidean distance. Has the advantage to have a meaningful neighbourhood and no kernel width to tune.
 #' \item Sampling: Sample from X instead of from normal distributions. 
@@ -25,7 +25,7 @@
 #' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
 #' 
 #' @seealso 
-#' \code{\link{plot.LIME}} and \code{\link{predict.LIME}}
+#' \code{\link{plot.Lime}} and \code{\link{predict.Lime}}
 #' 
 #' \code{\link{shapley}} can also be used to explain single predictions
 #' 
@@ -37,7 +37,7 @@
 #' @template args_x.interest
 #' @param k the (maximum) number of features to be used for the surrogate model
 #' @return 
-#' A LIME object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' A Lime object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{sample.size}{The number of samples from data X. The higher the more accurate the explanations become.}
 #' \item{model}{the glmnet object.}
 #' \item{best.fit.index}{the index of the best glmnet fit}
@@ -45,8 +45,8 @@
 #' \item{x.interest}{method to get/set the instance. See examples for usage.}
 #' \item{data()}{method to extract the results of the local feature effects 
 #' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
-#' \item{plot()}{method to plot the LIME feature effects. See \link{plot.LIME}}
-#' \item{predict()}{method to predict new data with the local model See also \link{predict.LIME}}
+#' \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
+#' \item{predict()}{method to predict new data with the local model See also \link{predict.Lime}}
 #' @template args_internal_methods
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data
@@ -55,9 +55,9 @@
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' X = Boston[-which(names(Boston) == "medv")]
 #' 
-#' # Then we explain the first instance of the dataset with the lime() method:
+#' # Then we explain the first instance of the dataset with the makeLime() method:
 #' x.interest = X[1,]
-#' lemon = lime(mod, X, x.interest = x.interest, k = 2)
+#' lemon = makeLime(mod, X, x.interest = x.interest, k = 2)
 #' lemon
 #' 
 #' # Look at the results in a table
@@ -69,63 +69,63 @@
 #' lemon$x.interest = X[2,]
 #' plot(lemon)
 #'   
-#' # lime() also works with multiclass classification
+#' # makeLime() also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
 #' X = iris[-which(names(iris) == 'Species')]
 #' 
-#' # Then we explain the first instance of the dataset with the lime() method:
-#' lemon = lime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 3)
+#' # Then we explain the first instance of the dataset with the makeLime() method:
+#' lemon = makeLime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 3)
 #' lemon$data()
 #' plot(lemon) 
 #' 
 #'# You can also focus on one class
-#' lemon = lime(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'), k = 2)
+#' lemon = makeLime(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'), k = 2)
 #' lemon$data()
 #' plot(lemon) 
 #' 
-lime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...) {
+makeLime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...) {
   samp = Data$new(X)
-  pred = predictionModel(object, class = class, ...)
-  LIME$new(predictor = pred, sampler = samp, sample.size=sample.size, k = k, x.interest = x.interest)$run()
+  pred = makePredictor(object, class = class, ...)
+  Lime$new(predictor = pred, sampler = samp, sample.size=sample.size, k = k, x.interest = x.interest)$run()
 }
 
 
 
-#' LIME prediction
+#' Lime prediction
 #' 
-#' Predict the response for newdata with the LIME model.
+#' Predict the response for newdata with the Lime model.
 #' 
-#' This function makes the LIME object call 
+#' This function makes the Lime object call 
 #' its iternal object$predict() method. 
-#' For examples see \link{lime}
-#' @param object A LIME R6 object
+#' For examples see \link{makeLime}
+#' @param object A Lime R6 object
 #' @param newdata A data.frame for which to predict
 #' @param ... Further arguments for the objects predict function
 #' @return A data.frame with the predicted outcome. 
 #' @seealso 
-#' \link{lime}
+#' \link{makeLime}
 #' @importFrom stats predict
 #' @export
-predict.LIME = function(object, newdata = NULL, ...) {
+predict.Lime = function(object, newdata = NULL, ...) {
   object$predict(newdata = newdata, ...)
 }
 
-#' LIME plot
+#' Lime plot
 #' 
-#' plot.LIME() plots the feature effects of the LIME model.
+#' plot.Lime() plots the feature effects of the Lime model.
 #' 
-#' For examples see \link{lime}
-#' @param object  A LIME R6 object
+#' For examples see \link{makeLime}
+#' @param object  A Lime R6 object
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{lime}
-plot.LIME = function(object) {
+#' \link{makeLime}
+plot.Lime = function(object) {
   object$plot()
 }
 
 
-LIME = R6::R6Class("LIME", 
+Lime = R6::R6Class("Lime", 
   inherit = Experiment,
   public = list(
     x = NULL, 

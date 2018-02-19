@@ -1,7 +1,7 @@
 #' Partial Dependence
 #' 
 #' @description 
-#' \code{pdp()} computes partial dependence functions of prediction models. 
+#' \code{makePartialDependence()} computes partial dependence functions of prediction models. 
 #' 
 #' @details
 #' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
@@ -22,7 +22,7 @@
 #' 
 #' 
 #' @seealso 
-#' \link{plot.PDP}
+#' \link{plot.PartialDependence}
 #' 
 #' \code{\link{ice}} for individual conditional expectation plots. 
 #' 
@@ -34,7 +34,7 @@
 #' @references 
 #' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 #' @return 
-#' A PDP object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' A PartialDependence object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{feature}{The feature names for which the partial dependence was computed.}
 #' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 #' \item{feature.index}{The index of the features for which the partial dependence was computed.}
@@ -44,7 +44,7 @@
 #' \item{data()}{method to extract the results of the partial dependence plot. 
 #' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
-#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PDP}}
+#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 #' @template args_internal_methods
 #' @template arg_grid.size 
 #' 
@@ -60,7 +60,7 @@
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' 
 #' # Compute the partial dependence for the first feature
-#' pdp.obj = pdp(mod, Boston, feature = 1)
+#' pdp.obj = makePartialDependence(mod, Boston, feature = 1)
 #' 
 #' # Plot the results directly
 #' plot(pdp.obj)
@@ -79,46 +79,46 @@
 #' plot(pdp.obj)
 #' 
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = pdp(mod, Boston, feature = c(1,2))  
+#' pdp.obj = makePartialDependence(mod, Boston, feature = c(1,2))  
 #' 
 #' # Partial dependence plots also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(pdp(mod, iris, feature = 1, predict.args = list(type = 'prob')))
+#' plot(makePartialDependence(mod, iris, feature = 1, predict.args = list(type = 'prob')))
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' plot(pdp(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
+#' plot(makePartialDependence(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
 #' 
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = pdp(mod, iris, feature = c(1,3), predict.args = list(type = 'prob'))
+#' pdp.obj = makePartialDependence(mod, iris, feature = c(1,3), predict.args = list(type = 'prob'))
 #' pdp.obj$plot()  
 #' 
-pdp  = function(object, X, feature, grid.size = 10, class=NULL,  ...) {
+makePartialDependence  = function(object, X, feature, grid.size = 10, class=NULL,  ...) {
   samp = Data$new(X)
-  pred = predictionModel(object, class = class, ...)
+  pred = makePredictor(object, class = class, ...)
   
-  PDP$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size)$run()
+  PartialDependence$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size)$run()
 }
 
 
 #' Partial dependence plot
 #' 
-#' plot.PDP() plots a line for a single feature and a tile plot for 2 features.
+#' plot.PartialDependence() plots a line for a single feature and a tile plot for 2 features.
 #' 
-#' For examples see \link{pdp}
-#' @param x The partial dependence. A PDP R6 object
+#' For examples see \link{makePartialDependence}
+#' @param x The partial dependence. A PartialDependence R6 object
 #' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{pdp}
-plot.PDP = function(x, ...) {
-  x$plot(x, ...)
+#' \link{makePartialDependence}
+plot.PartialDependence = function(x, ...) {
+  x$plot(...)
 }
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
-PDP = R6::R6Class("partial dependence plot", 
+PartialDependence = R6::R6Class("PartialDependence", 
   inherit = Experiment,
   public = list(
     grid.size = NULL, 

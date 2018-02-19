@@ -1,7 +1,7 @@
 #' Feature importance
 #' 
 #' @description 
-#' featureImp() computes feature importances for machine learning models. 
+#' makeFeatureImp() computes feature importances for machine learning models. 
 #' The importance of a feature is the factor by which the model's prediction error increases when the feature is shuffled. 
 #' 
 #' @details
@@ -13,7 +13,7 @@
 #' \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (faster)
 #' \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (slow)
 #' }
-#' The loss function can be either specified via a string, or by handing a function to \code{featureImp()}.
+#' The loss function can be either specified via a string, or by handing a function to \code{makeFeatureImp()}.
 #' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
 #' See \code{library(help = "Metrics")} to get a list of functions. 
 #' Only use functions that return a single performance value, not a vector. 
@@ -24,12 +24,12 @@
 #' @param method Either "shuffle" or "cartesian". See Details. 
 #' @param y The vector or data.frame with the actual target values associated with X.
 #' @return 
-#' An Importance object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' An FeatureImp object (R6). Its methods and variables can be accessed with the \code{$}-operator:
 #' \item{error.original}{The loss of the model before perturbing features.}
 #' \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 #' \item{data()}{method to extract the results of the feature importance computation.
 #' Returns a data.frame with importance and permutation error measurements per feature.}
-#' \item{plot()}{method to plot the feature importances. See \link{plot.Importance}}
+#' \item{plot()}{method to plot the feature importances. See \link{plot.FeatureImp}}
 #' @template args_internal_methods
 #' 
 #' @references 
@@ -48,7 +48,7 @@
 #' y = Boston$medv
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = featureImp(mod, X, y, loss = "mae")
+#' imp = makeFeatureImp(mod, X, y, loss = "mae")
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -64,13 +64,13 @@
 #' ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
 #' theme_bw()
 #' 
-#' # featureImp() also works with multiclass classification. 
+#' # makeFeatureImp() also works with multiclass classification. 
 #' # In this case, the importance measurement regards all classes
 #' mod = rpart(Species ~ ., data= iris)
 #' X = iris[-which(names(iris) == "Species")]
 #' y = iris$Species
 #' # For some models we have to specify additional arguments for the predict function
-#' imp = featureImp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
+#' imp = makeFeatureImp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
 #' plot(imp)
 #' # Here we encounter the special case that the machine learning model perfectly predicts
 #' # The importance becomes infinite
@@ -78,39 +78,39 @@
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
-#' imp = featureImp(mod, X, y == "virginica", class = 3, loss = "ce", 
+#' imp = makeFeatureImp(mod, X, y == "virginica", class = 3, loss = "ce", 
 #'     predict.args = list(type = "prob"))
 #' plot(imp)
 #' }
-featureImp = function(object, X, y, class=NULL, loss, method = "shuffle", ...) {
+makeFeatureImp = function(object, X, y, class=NULL, loss, method = "shuffle", ...) {
   assert_vector(y, any.missing = FALSE)
 
   samp = Data$new(X, y = data.frame(y = y))
-  pred = predictionModel(object, class = class,...)
+  pred = makePredictor(object, class = class,...)
   
-  Importance$new(predictor = pred, sampler = samp, loss=loss, method=method)$run()
+  FeatureImp$new(predictor = pred, sampler = samp, loss=loss, method=method)$run()
 }
 
 
 #' Feature importance plot
 #' 
-#' plot.Importance() plots the feature importance results of an Importance object.
+#' plot.FeatureImp() plots the feature importance results of an FeatureImp object.
 #' 
-#' For examples see \link{featureImp}
-#' @param x The feature importance. An Importance R6 object
+#' For examples see \link{makeFeatureImp}
+#' @param x The feature importance. An FeatureImp R6 object
 #' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
 #' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @export
 #' @importFrom dplyr group_by_
 #' @seealso 
-#' \link{featureImp}
-plot.Importance = function(x, sort = TRUE, ...) {
+#' \link{makeFeatureImp}
+plot.FeatureImp = function(x, sort = TRUE, ...) {
   x$plot(sort = sort, ...)
 }
 
 
-Importance = R6::R6Class("Importance", 
+FeatureImp = R6::R6Class("FeatureImp", 
   inherit = Experiment,
   public = list(
     loss = NULL,

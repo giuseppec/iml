@@ -1,4 +1,4 @@
-#' Get a prediction object
+#' Make a Predictor() object
 #' 
 #' @param object function, mlr WrappedObject, S3 class with predict function, or caret train object
 #' @param class In case of classification, class specifies the class for which to predict the probability. 
@@ -6,31 +6,31 @@
 #' @param predict.args named list with arguments passed down to the prediction model
 #' @param ... further arguments for the prediction functions
 #' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
-#' @return object of type Prediction
-predictionModel = function(object, class = NULL, predict.args = NULL, ...) {
+#' @return object of type Predictor
+makePredictor = function(object, class = NULL, predict.args = NULL, ...) {
   assert_vector(class, len=1, null.ok=TRUE)
-  UseMethod("predictionModel")
+  UseMethod("makePredictor")
 }
 
-predictionModel.WrappedModel = function(object, class = NULL, predict.args = NULL, ...) {
-  PredictionMlr$new(object = object, class = class)
+makePredictor.WrappedModel = function(object, class = NULL, predict.args = NULL, ...) {
+  PredictorMlr$new(object = object, class = class)
 }
 
-predictionModel.function = function(object, class = NULL, predict.args = NULL, ...) {
-  PredictionFunction$new(object = object, class = class)
+makePredictor.function = function(object, class = NULL, predict.args = NULL, ...) {
+  PredictorFunction$new(object = object, class = class)
 }
 
-predictionModel.train = function(object, class = NULL, predict.args = NULL, ...) {
-  PredictionCaret$new(object = object, class = class)
+makePredictor.train = function(object, class = NULL, predict.args = NULL, ...) {
+  PredictorCaret$new(object = object, class = class)
 }
 
-predictionModel.default = function(object, class = NULL, predict.args = NULL, ...) {
-  PredictionS3$new(object = object, class = class, predict.args = predict.args)
+makePredictor.default = function(object, class = NULL, predict.args = NULL, ...) {
+  PredictorS3$new(object = object, class = class, predict.args = predict.args)
 }
 
 
 
-Prediction = R6::R6Class("Prediction", 
+Predictor = R6::R6Class("Predictor", 
   public = list(
     predict = function(newdata) {
       newdata = data.frame(newdata)
@@ -81,8 +81,8 @@ Prediction = R6::R6Class("Prediction",
 )
 
 
-PredictionMlr = R6::R6Class("PredictionMlr", 
-  inherit = Prediction,
+PredictorMlr = R6::R6Class("PredictorMlr", 
+  inherit = Predictor,
   public = list(), 
   private = list(
     # Automatically set task type and class name according to output
@@ -113,8 +113,8 @@ PredictionMlr = R6::R6Class("PredictionMlr",
 
 
 
-PredictionFunction = R6::R6Class("PredictionFunction", 
-  inherit = Prediction,
+PredictorFunction = R6::R6Class("PredictorFunction", 
+  inherit = Predictor,
   public = list(), 
   private = list(
     ## can"t infer the type before first prediction
@@ -136,8 +136,8 @@ PredictionFunction = R6::R6Class("PredictionFunction",
 )
 
 
-PredictionCaret = R6::R6Class("PredictionCaret", 
-  inherit = Prediction,
+PredictorCaret = R6::R6Class("PredictorCaret", 
+  inherit = Predictor,
   public = list(), 
   private = list(
     infer.type = function() {
@@ -163,8 +163,8 @@ PredictionCaret = R6::R6Class("PredictionCaret",
 )
 
 
-PredictionS3 = R6::R6Class("PredictionS3", 
-  inherit = PredictionFunction,
+PredictorS3 = R6::R6Class("PredictorS3", 
+  inherit = PredictorFunction,
   public = list(
     initialize = function(predict.args=NULL, ...) {
       super$initialize(...)

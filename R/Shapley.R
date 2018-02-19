@@ -1,9 +1,9 @@
 #' Explain predictions
 #' 
 #' @description 
-#' shapley() computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory approach. 
+#' makeShapley() computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory approach. 
 #' The features values of an instance cooperate to achieve the prediction. 
-#' shapley() fairly distributes the difference of the instance's prediction and the datasets average prediction among the features. 
+#' makeShapley() fairly distributes the difference of the instance's prediction and the datasets average prediction among the features. 
 #' A features contribution can be negative. 
 #' 
 #' @details
@@ -37,9 +37,9 @@
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' X = Boston[-which(names(Boston) == "medv")]
 #' 
-#' # Then we explain the first instance of the dataset with the shapley() method:
+#' # Then we explain the first instance of the dataset with the makeShapley() method:
 #' x.interest = X[1,]
-#' shap = shapley(mod, X, x.interest = x.interest)
+#' shap = makeShapley(mod, X, x.interest = x.interest)
 #' shap
 #' 
 #' # Look at the results in a table
@@ -47,26 +47,26 @@
 #' # Or as a plot
 #' plot(shap)
 #' 
-#' # shapley() also works with multiclass classification
+#' # makeShapley() also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
 #' X = iris[-which(names(iris) == "Species")]
 #' 
-#' # Then we explain the first instance of the dataset with the shapley() method:
-#' shap = shapley(mod, X, x.interest = X[1,], predict.args = list(type='prob'))
+#' # Then we explain the first instance of the dataset with the makeShapley() method:
+#' shap = makeShapley(mod, X, x.interest = X[1,], predict.args = list(type='prob'))
 #' shap$data()
 #' plot(shap) 
 #' 
 #'# You can also focus on one class
-#' shap = shapley(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'))
+#' shap = makeShapley(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'))
 #' shap$data()
 #' plot(shap) 
 #' 
-shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...) {
+makeShapley = function(object, X, x.interest, sample.size=100, class=NULL, ...) {
   samp = Data$new(X)
-  pred = predictionModel(object, class = class, ...)
+  pred = makePredictor(object, class = class, ...)
   
-  Shapley$new(predictor = pred, sampler = samp, x.interest=x.interest, sample.size=sample.size)$run()
+  Shapley$new(predictor = pred, sampler = samp, x.interest = x.interest, sample.size = sample.size)$run()
 }
 
 
@@ -74,11 +74,11 @@ shapley = function(object, X, x.interest, sample.size=100, class=NULL, ...) {
 #' 
 #' plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction. 
 #' 
-#' For examples see \link{shapley}
+#' For examples see \link{makeShapley}
 #' @param object  A Shapley R6 object
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{shapley}
+#' \link{makeShapley}
 plot.Shapley = function(object) {
   object$plot()
 }

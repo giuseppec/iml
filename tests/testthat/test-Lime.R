@@ -1,4 +1,4 @@
-context("lime()")
+context("makeLime()")
 
 
 f = function(x, multi = FALSE) {
@@ -21,12 +21,12 @@ y = f(X)[[1]]
 
 expected.colnames = c("beta", "x.scaled", "effect", "x.original", "feature", "feature.value")
 
-test_that("lime works for single output and single feature", {
+test_that("makeLime works for single output and single feature", {
   
   x.interest = X[2,]
   k = 2
   set.seed(42)
-  lime1 = lime(f, X, x.interest=x.interest, sample.size = 100, k = k)
+  lime1 = makeLime(f, X, x.interest=x.interest, sample.size = 100, k = k)
   dat = lime1$data()
   expect_equal(colnames(dat), expected.colnames)
   expect_true("x3=a" %in% dat$feature)
@@ -46,13 +46,13 @@ test_that("lime works for single output and single feature", {
   expect_equal(colnames(pred), "prediction")
 })
 
-test_that("lime works for multiple output", {
+test_that("makeLime works for multiple output", {
   
   x.interest = X[1,]
   
   k = 3
   set.seed(42)
-  lime1 = lime(f2, X, x.interest, sample.size = 400, k = k)
+  lime1 = makeLime(f2, X, x.interest, sample.size = 400, k = k)
   dat = lime1$data()
   expect_equal(colnames(dat), c(expected.colnames, "..class"))
   expect_equal(nrow(dat), k * 2)  

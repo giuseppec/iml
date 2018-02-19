@@ -1,4 +1,4 @@
-context("shapley()")
+context("makeShapley()")
 
 
 f = function(x, multi = FALSE) {
@@ -15,12 +15,12 @@ X = data.frame(a = c(1, 2, 3, 4, 5),
   d = factor(c("A", "A", "B", "B", "B")))
 
 
-test_that("shapley works for single output and single feature",{
+test_that("makeShapley works for single output and single feature",{
   
   x.interest = X[1,]
   
   set.seed(42)
-  shap = shapley(f, X, x.interest, sample.size = 400)
+  shap = makeShapley(f, X, x.interest, sample.size = 400)
   dat = shap$data()
   expect_equal(colnames(dat), c("feature", "phi", "phi.var"))
   expect_equal(nrow(dat), ncol(X))  
@@ -38,12 +38,12 @@ test_that("shapley works for single output and single feature",{
   
 })
 
-test_that("shapley works for multiple output",{
+test_that("makeShapley works for multiple output",{
   
   x.interest = X[1,]
   
   set.seed(42)
-  shap = shapley(f2, X, x.interest, sample.size = 400)
+  shap = makeShapley(f2, X, x.interest, sample.size = 400)
   dat = shap$data()
   expect_equal(colnames(dat), c("feature", "class", "phi", "phi.var"))
   expect_equal(sum(dat$phi[dat$class == "pred"]), unlist(f(x.interest) - mean(f(X)$pred), use.names = FALSE), tolerance = 0.02)
