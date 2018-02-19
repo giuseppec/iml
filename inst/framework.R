@@ -90,20 +90,20 @@ plot(shapley1)
 shapley1
 
 ## Permutation feature importance
-feature.imp(mod, X,  y=1*(y=='virginica'), predict.args = list(type = 'prob'), class = 3, loss = 'mae')$data()
-pimp = feature.imp(mod, X,  y = y, loss = 'ce')
+featureImp(mod, X,  y=1*(y=='virginica'), predict.args = list(type = 'prob'), class = 3, loss = 'mae')$data()
+pimp = featureImp(mod, X,  y = y, loss = 'ce')
 pimp$data()
 
-pimp = feature.imp(mod, X,  y = y, loss = 'ce', method = 'cartesian')
+pimp = featureImp(mod, X,  y = y, loss = 'ce', method = 'cartesian')
 pimp$data()
 plot(pimp)
 
-feature.imp(mod, X,  y=y, predict.args = list(type = 'prob'),  loss = 'mae')
+featureImp(mod, X,  y=y, predict.args = list(type = 'prob'),  loss = 'mae')
 
 library("randomForest")
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
-pimportance = feature.imp(mod, Boston[which(names(Boston) != 'medv')], y = Boston$medv, loss = 'mae', method = 'cartesian')
+pimportance = featureImp(mod, Boston[which(names(Boston) != 'medv')], y = Boston$medv, loss = 'mae', method = 'cartesian')
 
 pimp$data()
 pimp$plot()

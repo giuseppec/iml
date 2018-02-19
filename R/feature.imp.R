@@ -48,7 +48,7 @@
 #' y = Boston$medv
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = feature.imp(mod, X, y, loss = "mae")
+#' imp = featureImp(mod, X, y, loss = "mae")
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -70,7 +70,7 @@
 #' X = iris[-which(names(iris) == "Species")]
 #' y = iris$Species
 #' # For some models we have to specify additional arguments for the predict function
-#' imp = feature.imp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
+#' imp = featureImp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
 #' plot(imp)
 #' # Here we encounter the special case that the machine learning model perfectly predicts
 #' # The importance becomes infinite
