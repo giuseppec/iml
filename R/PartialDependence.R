@@ -24,7 +24,7 @@
 #' @seealso 
 #' \link{plot.PartialDependence}
 #' 
-#' \code{\link{ice}} for individual conditional expectation plots. 
+#' \code{\link{makeIce}} for individual conditional expectation plots. 
 #' 
 #' 
 #' @template args_experiment_wrap

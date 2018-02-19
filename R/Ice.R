@@ -40,7 +40,7 @@
 #' \item{data()}{method to extract the results of the partial dependence plot. 
 #' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
-#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PDP}}
+#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 #' @references 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 

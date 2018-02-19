@@ -41,7 +41,7 @@ An Ice object (R6). Its methods and variables can be accessed with the \code{$}-
 \item{data()}{method to extract the results of the partial dependence plot. 
 Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 Can be used for creating custom partial dependence plots.}
-\item{plot()}{method to plot the partial dependence function. See \link{plot.PDP}}
+\item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 }
 \description{
 makeIce() fits and plots individual conditional expectation function on an arbitrary machine learning model

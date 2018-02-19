@@ -10,7 +10,7 @@
 #' See TODO: BOOK REFERENCE
 #' 
 #' @seealso 
-#' A different way to explain predictions: \link{lime}
+#' A different way to explain predictions: \link{makeLime}
 #' @template args_experiment_wrap
 #' @template args_x.interest
 #' @param sample.size Number of samples to be drawn to estimate the Shapley value. The higher the more accurate the estimations.
@@ -28,7 +28,7 @@
 #' @references 
 #' Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x
 #' @seealso 
-#' \link{lime}
+#' \link{makeLime}
 #' @export
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data

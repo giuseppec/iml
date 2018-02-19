@@ -27,7 +27,7 @@
 #' @seealso 
 #' \code{\link{plot.Lime}} and \code{\link{predict.Lime}}
 #' 
-#' \code{\link{shapley}} can also be used to explain single predictions
+#' \code{\link{makeShapley}} can also be used to explain single predictions
 #' 
 #' \code{\link[lime]{lime}}, the original implementation
 #' @export

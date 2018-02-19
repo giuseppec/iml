@@ -112,5 +112,5 @@ Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine
 \seealso{
 \link{plot.PartialDependence}
 
-\code{\link{ice}} for individual conditional expectation plots.
+\code{\link{makeIce}} for individual conditional expectation plots.
 }
