@@ -83,7 +83,7 @@ plot.Shapley = function(object){
   object$plot()
 }
 
-Shapley = R6::R6Class('Shapley', 
+Shapley = R6::R6Class("Shapley", 
   inherit = Experiment,
   public = list(
     x.interest = NULL,
@@ -152,7 +152,7 @@ Shapley = R6::R6Class('Shapley',
       p
     },
     print.parameters = function(){
-      cat(sprintf('Predicted value: %f, Average prediction: %f (diff = %f)', 
+      cat(sprintf("Predicted value: %f, Average prediction: %f (diff = %f)", 
         self$y.hat.interest, self$y.hat.average, self$y.hat.interest - self$y.hat.average))
     }
   ),

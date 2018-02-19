@@ -21,7 +21,7 @@
 #' 
 #' 
 #' @param loss The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details.
-#' @param method Either 'shuffle' or 'cartesian'. See Details. 
+#' @param method Either "shuffle" or "cartesian". See Details. 
 #' @param y The vector or data.frame with the actual target values associated with X.
 #' @return 
 #' An Importance object (R6). Its methods and variables can be accessed with the \code{$}-operator:
@@ -44,11 +44,11 @@
 #' mod = rpart(medv ~ ., data = Boston)
 #' 
 #' # Compute the individual conditional expectations for the first feature
-#' X = Boston[-which(names(Boston) == 'medv')]
+#' X = Boston[-which(names(Boston) == "medv")]
 #' y = Boston$medv
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = featureImp(mod, X, y, loss = 'mae')
+#' imp = feature.imp(mod, X, y, loss = "mae")
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -67,10 +67,10 @@
 #' # featureImp() also works with multiclass classification. 
 #' # In this case, the importance measurement regards all classes
 #' mod = rpart(Species ~ ., data= iris)
-#' X = iris[-which(names(iris) == 'Species')]
+#' X = iris[-which(names(iris) == "Species")]
 #' y = iris$Species
 #' # For some models we have to specify additional arguments for the predict function
-#' imp = featureImp(mod, X, y, loss = 'ce', predict.args = list(type = 'prob'))
+#' imp = feature.imp(mod, X, y, loss = "ce", predict.args = list(type = "prob"))
 #' plot(imp)
 #' # Here we encounter the special case that the machine learning model perfectly predicts
 #' # The importance becomes infinite
@@ -78,11 +78,11 @@
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
-#' imp = featureImp(mod, X, y == 'virginica', class = 3, loss = 'ce', 
-#'     predict.args = list(type = 'prob'))
+#' imp = feature.imp(mod, X, y == "virginica", class = 3, loss = "ce", 
+#'     predict.args = list(type = "prob"))
 #' plot(imp)
 #' }
-featureImp = function(object, X, y, class=NULL, loss, method = 'shuffle', ...){
+feature.imp = function(object, X, y, class=NULL, loss, method = "shuffle", ...){
   assert_vector(y, any.missing = FALSE)
 
   samp = Data$new(X, y = data.frame(y = y))
@@ -110,20 +110,20 @@ plot.Importance = function(x, sort = TRUE, ...){
 }
 
 
-Importance = R6::R6Class('Importance', 
+Importance = R6::R6Class("Importance", 
   inherit = Experiment,
   public = list(
     loss = NULL,
     error.original = NULL,
     initialize = function(predictor, sampler, loss, method){
-      if(!inherits(loss, 'function')){
+      if(!inherits(loss, "function")){
         ## Only allow metrics from Metrics package
         private$loss.string  = loss
         loss = getFromNamespace(loss, "Metrics")
       } else {
         private$loss.string = head(loss)
       }
-      checkmate::assert_choice(method, c('shuffle', 'cartesian'))
+      checkmate::assert_choice(method, c("shuffle", "cartesian"))
       super$initialize(predictor = predictor, sampler = sampler)
       self$loss = private$set.loss(loss)
       private$method = method
@@ -139,10 +139,10 @@ Importance = R6::R6Class('Importance',
     # for printing
     loss.string = NULL,
     shuffle.feature = function(feature.name, method){
-      if(method == 'shuffle'){
+      if(method == "shuffle"){
         X.inter = private$X.sample
         X.inter[feature.name] = X.inter[sample(1:nrow(private$X.sample)), feature.name]
-      } else if(method == 'cartesian'){
+      } else if(method == "cartesian"){
         n = nrow(private$X.sample)
         row.indices = rep(1:n, times = n)
         replace.indices = rep(1:n, each = n)
@@ -152,7 +152,7 @@ Importance = R6::R6Class('Importance',
         X.inter[feature.name] = X.inter[replace.indices, feature.name]
         X.inter = X.inter[keep.indices,]
       } else {
-        stop(sprintf('%s method not implemented'))
+        stop(sprintf("%s method not implemented"))
       }
       X.inter$..feature = feature.name
       X.inter 
@@ -188,7 +188,7 @@ Importance = R6::R6Class('Importance',
       self$loss = loss
     }, 
     print.parameters = function(){
-      cat('error function:', private$loss.string)
+      cat("error function:", private$loss.string)
     }
   )
 )

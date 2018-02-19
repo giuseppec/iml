@@ -2,11 +2,11 @@ Experiment = R6::R6Class("Experiment",
   public = list(
     plot = function(...){
       private$plot.data = private$generate.plot(...)
-      if(!is.null(private$plot.data)) {return(private$plot.data)} else {warning('no plot data generated')}
+      if(!is.null(private$plot.data)) {return(private$plot.data)} else {warning("no plot data generated")}
     },
     initialize = function(predictor, sampler){
-      checkmate::assert_class(predictor, 'Prediction')
-      checkmate::assert_class(sampler, 'Data')
+      checkmate::assert_class(predictor, "Prediction")
+      checkmate::assert_class(sampler, "Data")
       private$predictor = predictor
       private$predict = predictor$predict
       private$sampler = sampler

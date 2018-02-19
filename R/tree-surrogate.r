@@ -30,7 +30,7 @@
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
-#' dt = treeSurrogate(mod, Boston[-which(names(Boston) == 'medv')], 200)
+#' dt = treeSurrogate(mod, Boston[-which(names(Boston) == "medv")], 200)
 #' 
 #' # Plot the resulting leaf nodes
 #' plot(dt) 
@@ -47,7 +47,7 @@
 #' mod = randomForest(Species ~ ., data = iris, ntree = 50)
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
-#' X = iris[-which(names(iris) == 'Species')]
+#' X = iris[-which(names(iris) == "Species")]
 #' dt = treeSurrogate(mod, X, 200, predict.args = list(type = 'prob'), maxdepth=2, class=3)
 #'
 #' # Plot the resulting leaf nodes
@@ -77,7 +77,8 @@ treeSurrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2,
   samp = Data$new(X)
   pred = predictionModel(object, class = class, ...)
   
-  TreeSurrogate$new(predictor = pred, sampler = samp, sample.size = sample.size, maxdepth=maxdepth, tree.args = tree.args)$run()
+  TreeSurrogate$new(predictor = pred, sampler = samp, sample.size = sample.size, 
+    maxdepth = maxdepth, tree.args = tree.args)$run()
 }
 
 #' Surrogate tree prediction
@@ -124,7 +125,7 @@ plot.TreeSurrogate = function(object){
 ## Extracting tree-structured representations of trained neural networks.
 ## Advances in Neural Information Processing Systems, 8, 24–30.
 ## Retrieved from citeseer.ist.psu.edu/craven96extracting.html
-TreeSurrogate = R6::R6Class('TreeSurrogate',
+TreeSurrogate = R6::R6Class("TreeSurrogate",
   inherit = Experiment,
   public = list(
     # The fitted tree
@@ -139,11 +140,11 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
       self$maxdepth = maxdepth
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
     }, 
-    predict = function(newdata, type = 'prob', ...){
-      assert_choice(type, c('prob', 'class'))
-      res = data.frame(predict(self$tree, newdata = newdata, type = 'response', ...))
+    predict = function(newdata, type = "prob", ...){
+      assert_choice(type, c("prob", "class"))
+      res = data.frame(predict(self$tree, newdata = newdata, type = "response", ...))
       if(private$multi.class){
-        if(type == 'class') {
+        if(type == "class") {
           res = data.frame(..class = colnames(res)[apply(res, 1, which.max)])
         }
       } else {
@@ -172,19 +173,19 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
       dat = cbind(y.hat, private$X.design)
       tree.args = c(list(formula = form, data = dat, maxdepth = self$maxdepth), private$tree.args)
       self$tree = do.call(partykit::ctree, tree.args)
-      result = data.frame(..node = predict(self$tree, type = 'node'), 
+      result = data.frame(..node = predict(self$tree, type = "node"), 
         ..path = pathpred(self$tree))
       if(private$multi.class){
         outcome = private$Q.results
-        colnames(outcome) = paste('..y.hat:', colnames(outcome), sep='')
+        colnames(outcome) = paste("..y.hat:", colnames(outcome), sep="")
         private$object.predict.colnames = colnames(outcome)
         
         # result = gather(result, key = "..class", value = "..y.hat", one_of(cnames))
-        ..y.hat.tree = self$predict(private$X.design, type = 'prob')
-        colnames(..y.hat.tree) = paste('..y.hat.tree:', colnames(..y.hat.tree), sep='')
+        ..y.hat.tree = self$predict(private$X.design, type = "prob")
+        colnames(..y.hat.tree) = paste("..y.hat.tree:", colnames(..y.hat.tree), sep="")
         private$tree.predict.colnames = colnames(..y.hat.tree)
         
-        #..y.hat.tree = gather(..y.hat.tree, '..class.tree', '..y.hat.tree')
+        #..y.hat.tree = gather(..y.hat.tree, "..class.tree", "..y.hat.tree")
         result = cbind(result, outcome, ..y.hat.tree)
       } else {
         result$..y.hat = private$Q.results[[1]]
@@ -197,17 +198,17 @@ TreeSurrogate = R6::R6Class('TreeSurrogate',
     generate.plot = function(){
       p = ggplot(private$results) + 
         geom_boxplot(aes(y = ..y.hat, x = "")) + 
-        scale_x_discrete('') + 
+        scale_x_discrete("") + 
         facet_wrap("..path")
       if(private$multi.class){
         plot.data = private$results
         # max class for model
         plot.data$..class = private$object.predict.colnames[apply(plot.data[private$object.predict.colnames], 1, which.max)]
-        plot.data$..class = gsub('..y.hat:', '', plot.data$..class)
+        plot.data$..class = gsub("..y.hat:", "", plot.data$..class)
         plot.data = plot.data[setdiff(names(plot.data), private$object.predict.colnames)]
         # dataset from wide to long
         #plot.data$..class.tree = private$tree.predict.colnames[apply(plot.data[private$tree.predict.colnames], 1, which.max)]
-        #plot.data$..class.tree = gsub('..y.hat.tree:', '', plot.data$..class.tree)
+        #plot.data$..class.tree = gsub("..y.hat.tree:", "", plot.data$..class.tree)
         #plot.data = plot.data[setdiff(names(plot.data), private$tree.predict.colnames)]        
         p = ggplot(plot.data) + 
           geom_bar(aes(x = ..class)) + 

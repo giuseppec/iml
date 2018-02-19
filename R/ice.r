@@ -105,7 +105,8 @@
 ice = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...){
   samp = Data$new(X)
   pred = predictionModel(object, class = class, ...)
-  obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  feature = feature, grid.size = grid.size)
+  obj = ICE$new(predictor = pred, sampler = samp, anchor.value = center.at,  
+    feature = feature, grid.size = grid.size)
   obj$run()
   obj
 }
@@ -126,7 +127,7 @@ plot.ICE = function(x, ...){
 }
 
 
-ICE = R6::R6Class('ICE',
+ICE = R6::R6Class("ICE",
   inherit = PDP,
   public = list( 
     initialize = function(feature, anchor.value = NULL, ...){
@@ -138,9 +139,9 @@ ICE = R6::R6Class('ICE',
   ),
   private = list(
     generate.plot = function(){
-      p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = 'y.hat', group = '..individual'))
-      if(self$feature.type == 'numerical') p = p + geom_line()
-      else if (self$feature.type == 'categorical') p = p + geom_line(alpha = 0.2) + geom_point()
+      p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], y = "y.hat", group = "..individual"))
+      if(self$feature.type == "numerical") p = p + geom_line()
+      else if (self$feature.type == "categorical") p = p + geom_line(alpha = 0.2) + geom_point()
       
       if(private$multi.class){
         p + facet_wrap("..class.name")
@@ -167,14 +168,14 @@ ICE = R6::R6Class('ICE',
         X.results = cbind(X.results, private$Q.results)
         X.results = gather(X.results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
       } else {
-        X.results['y.hat']= private$Q.results
-        X.results['..class.name'] = 1
+        X.results["y.hat"]= private$Q.results
+        X.results["..class.name"] = 1
       }
       
       if(!is.null(private$anchor.value)){
-        X.aggregated.anchor = X.results[X.results[self$feature.names] == private$anchor.value, c('y.hat', '..individual', '..class.name')]
-        names(X.aggregated.anchor) = c('anchor.yhat', '..individual', '..class.name')
-        X.results = left_join(X.results, X.aggregated.anchor, by = c('..individual', '..class.name'))
+        X.aggregated.anchor = X.results[X.results[self$feature.names] == private$anchor.value, c("y.hat", "..individual", "..class.name")]
+        names(X.aggregated.anchor) = c("anchor.yhat", "..individual", "..class.name")
+        X.results = left_join(X.results, X.aggregated.anchor, by = c("..individual", "..class.name"))
         X.results$y.hat = X.results$y.hat - X.results$anchor.yhat
         X.results$anchor.yhat = NULL
       }

@@ -125,7 +125,7 @@ plot.LIME = function(object){
 }
 
 
-LIME = R6::R6Class('LIME', 
+LIME = R6::R6Class("LIME", 
   inherit = Experiment,
   public = list(
     x = NULL, 
@@ -148,7 +148,7 @@ LIME = R6::R6Class('LIME',
     initialize = function(predictor, sampler, sample.size, k, x.interest, class, ...){
       checkmate::assert_number(k, lower = 1, upper = sampler$n.features)
       checkmate::assert_data_frame(x.interest)
-      if(!require('glmnet')){stop('Please install glmnet.')}
+      if(!require("glmnet")){stop("Please install glmnet.")}
       super$initialize(predictor = predictor, sampler = sampler)
       self$sample.size = sample.size
       self$k = k
@@ -162,7 +162,7 @@ LIME = R6::R6Class('LIME',
     aggregate = function(){
       X.recode = recode(private$X.design, self$x)
       x.scaled = recode(self$x, self$x)
-      fam = ifelse(private$multi.class, 'multinomial', 'gaussian')
+      fam = ifelse(private$multi.class, "multinomial", "gaussian")
       self$model = glmnet(x = as.matrix(X.recode), y = unlist(private$Q.results[1]), 
         family = fam, w = private$weight.samples(), 
         intercept = TRUE, standardize = TRUE, type.multinomial = "grouped")
@@ -192,7 +192,7 @@ LIME = R6::R6Class('LIME',
       p
     },
     weight.samples = function(){
-      require('gower')
+      require("gower")
       1 - gower_dist(private$X.design, self$x)
     }
   ),

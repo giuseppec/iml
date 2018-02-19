@@ -9,7 +9,7 @@
 #' @return object of type Prediction
 predictionModel = function(object, class = NULL, predict.args = NULL, ...){
   assert_vector(class, len=1, null.ok=TRUE)
-  UseMethod('predictionModel')
+  UseMethod("predictionModel")
 }
 
 predictionModel.WrappedModel = function(object, class = NULL, predict.args = NULL, ...){
@@ -37,7 +37,7 @@ Prediction = R6::R6Class("Prediction",
       prediction = private$predict.function(newdata)
       if(is.null(self$prediction.colnames)) private$extract.prediction.colnames(prediction)
       prediction = data.frame(prediction)
-      if(self$type == 'classification' & !is.null(self$class)){
+      if(self$type == "classification" & !is.null(self$class)){
         prediction = prediction[,self$class, drop=FALSE]
       } 
       colnames(prediction) = self$prediction.colnames
@@ -48,15 +48,15 @@ Prediction = R6::R6Class("Prediction",
     prediction.colnames = NULL, 
     type = NULL,
     print = function(){
-      cat('Prediction type:', self$type, '\n')
-      if(self$type == 'classification') cat('Classes: ', paste(self$prediction.colnames, collapse = ', '))
+      cat("Prediction type:", self$type, "\n")
+      if(self$type == "classification") cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
     },
     initialize = function(object, class=NULL){
       # if object has predict function, but not from caret or mlr, then 
-      # it is difficult to know if it's classification or regression model
+      # it is difficult to know if it"s classification or regression model
       # if class was set, then at least we can make a guess
       self$class = class
-      if(!is.null(class)) self$type = 'classification'
+      if(!is.null(class)) self$type = "classification"
       private$object = object
       private$infer.type()
     }
@@ -64,7 +64,7 @@ Prediction = R6::R6Class("Prediction",
   private = list(
     object = NULL, 
     extract.prediction.colnames = function(prediction){
-      if(!inherits(prediction, 'data.frame')){
+      if(!inherits(prediction, "data.frame")){
         self$prediction.colnames = "..prediction"
       }
       self$prediction.colnames = colnames(prediction)
@@ -86,20 +86,20 @@ PredictionMlr = R6::R6Class("PredictionMlr",
     # Automatically set task type and class name according to output
     infer.type = function(){
       tsk = mlr::getTaskType(private$object)
-      if(tsk == 'classif'){
-        self$type = 'classification'
+      if(tsk == "classif"){
+        self$type = "classification"
         if(private$object$learner$predict.type != "prob"){
-          stop('Set predict.type = "prob" when creating the learner with makeLearner')
+          stop("Set predict.type = 'prob' when creating the learner with makeLearner")
         }
-      } else if(tsk == 'regr'){
-        self$type = 'regression'
+      } else if(tsk == "regr"){
+        self$type = "regression"
       } else {
-        stop(sprintf('mlr task type <%s> not supported', tsk))
+        stop(sprintf("mlr task type <%s> not supported", tsk))
       }
     },
     predict.function = function(x){
       pred = predict(private$object, newdata = x)
-      if(self$type == 'classification') {
+      if(self$type == "classification") {
         getPredictionProbabilities(pred, cl = private$object$task.desc$class.levels)
       } else {
         getPredictionResponse(pred)
@@ -115,15 +115,15 @@ PredictionFunction = R6::R6Class("PredictionFunction",
   inherit = Prediction,
   public = list(), 
   private = list(
-    ## can't infer the type before first prediction
+    ## can"t infer the type before first prediction
     infer.type = function(){},
     infer.f.type = function(pred){
-      assert_true(any(class(pred) %in% c('integer', 'numeric', 'data.frame', 'matrix')))
-      if(inherits(pred, c('data.frame', 'matrix')) && dim(pred)[2] > 1) {
-        self$type = 'classification' 
+      assert_true(any(class(pred) %in% c("integer", "numeric", "data.frame", "matrix")))
+      if(inherits(pred, c("data.frame", "matrix")) && dim(pred)[2] > 1) {
+        self$type = "classification" 
         
       } else {
-        self$type = 'regression'
+        self$type = "regression"
       }
     }, 
     predict.function = function(x){
@@ -141,21 +141,21 @@ PredictionCaret = R6::R6Class("PredictionCaret",
   private = list(
     infer.type = function(){
       mtype = private$object$modelType
-      if(mtype == 'Regression'){
-        self$type = 'regression'
-      } else if (mtype == 'Classification'){
-        self$type = 'classification'
+      if(mtype == "Regression"){
+        self$type = "regression"
+      } else if (mtype == "Classification"){
+        self$type = "classification"
       } else {
-        stop(sprintf('caret model type %s not supported.', mtype))
+        stop(sprintf("caret model type %s not supported.", mtype))
       }
     },
     predict.function = function(x){
-      if(self$type == 'classification'){
-        predict(private$object, newdata = x,  type = 'prob')
-      } else if(self$type == 'regression'){
+      if(self$type == "classification"){
+        predict(private$object, newdata = x,  type = "prob")
+      } else if(self$type == "regression"){
         predict(private$object, newdata = x)
       } else {
-        stop(sprintf('private$type of %s not allowed.', private$type))
+        stop(sprintf("private$type of %s not allowed.", private$type))
       }
     }
   )
@@ -182,8 +182,8 @@ PredictionS3 = R6::R6Class("PredictionS3",
       pred 
     },
     is.label.output = function(pred){
-      if(inherits(pred, c('character', 'factor'))) return(TRUE)
-      if(inherits(pred, c('data.frame', 'matrix')) && inherits(pred[,1], 'character')){
+      if(inherits(pred, c("character", "factor"))) return(TRUE)
+      if(inherits(pred, c("data.frame", "matrix")) && inherits(pred[,1], "character")){
         return(TRUE)
       }
       FALSE
