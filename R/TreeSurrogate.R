@@ -1,19 +1,49 @@
 #' Decision tree surrogate model
 #' 
 #' @description 
-#' makeTreeSurrogate() fits a decision tree on the predictions of a machine learning model to make it interpretable.
+#' TreeSurrogate fits a decision tree on the predictions of a machine learning model to make it interpretable.
 #' 
-#' @details  
+#' @name TreeSurrogate
+#' 
+#' @section Usage:
+#' \preformatted{
+#' tree = TreeSurrogate$new(object, X, sample.size=100, class = NULL, 
+#'   maxdepth = 2, tree.args = NULL)
+#' 
+#' tree$data()
+#' tree$run()
+#' plot(tree)
+#' tree$plot()
+#' predict(tree, newdata)
+#' 
+#' print(tree)
+#' }
+#' 
+#' 
+#' @section Arguments:
+#' 
+#' \describe{
+#' \item{object}{
+#'    The machine learning model. Different types are allowed. 
+#'    Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
+#'    a function that predicts the outcome given features or anything with an S3 predict function,
+#'    like an object from class \code{lm}.}
+#' \item{X}{
+#'    data.frame with the data for the prediction model}
+#' \item{class}{In case of classification, class specifies the class for which to predict the probability. 
+#' By default the multiclass classification is done.}
+#' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
+#' \item{sample.size}{The number of instances to be sampled from X.} 
+#' \item{...}{A list with further arguments for \code{ctree}}
+#' }
+#' 
+#' @section Details:  
 #' A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data \eqn{X}.
 #' The \code{partykit} package and function are used to fit the tree. 
 #' By default a tree of maximum depth of 2 is fitted to improve interpretability.
-#' @template arg_sample.size
-#' @template args_experiment_wrap
-#' @param maxdepth The maximum depth of the tree. Default is 2. 
-#' @param tree.args A list with further arguments for \code{ctree}
 #' 
-#' @return 
-#' A TreeSurrogate object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' The methods and variables of a TreeSurrogate object (R6) can be accessed with the \code{$}-operator:
+#' \describe{
 #' \item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
 #' \item{maxdepth}{the maximal tree depth set by the user.}
 #' \item{data()}{method to extract the results of the tree. 
@@ -21,7 +51,11 @@
 #' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}}
 #' \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
-#' @template args_internal_methods
+#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
+#' General R6 methods
+#' \item{\code{clone()}}{[internal] method to clone the R6 object.}
+#' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+#' }
 #' 
 #' @examples 
 #' # Fit a Random Forest on the Boston housing data set
@@ -30,7 +64,7 @@
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
-#' dt = makeTreeSurrogate(mod, Boston[-which(names(Boston) == "medv")], 200)
+#' dt = TreeSurrogate$new(mod, Boston[-which(names(Boston) == "medv")], 200)
 #' 
 #' # Plot the resulting leaf nodes
 #' plot(dt) 
@@ -73,58 +107,9 @@
 #' \link[partykit]{ctree}
 #' @export
 #' @import partykit
-makeTreeSurrogate = function(object, X, sample.size=100, class = NULL, maxdepth = 2, tree.args = NULL, ...) {
-  samp = Data$new(X)
-  pred = makePredictor(object, class = class, ...)
-  
-  TreeSurrogate$new(predictor = pred, sampler = samp, sample.size = sample.size, 
-    maxdepth = maxdepth, tree.args = tree.args)$run()
-}
+NULL
 
-#' Surrogate tree prediction
-#' 
-#' Predict the response for newdata with the surrogate tree
-#' 
-#' This function makes the TreeSurrogate object call 
-#' its iternal object$predict() method. 
-#' For examples see \link{makeTreeSurrogate}
-#' @param object The surrogate tree. A TreeSurrogate R6 object
-#' @param newdata A data.frame for which to predict
-#' @param type Either "prob" or "class". Ignored if the surrogate tree does regression. 
-#' @param ... Further argumets for \code{predict_party}
-#' @return A data.frame with the predicted outcome. 
-#' In case of regression it is the predicted \eqn{\hat{y}}. 
-#' In case of classification it is either the class probabilities *(for type "prob") or the class label (type "class")
-#' @seealso 
-#' \link{makeTreeSurrogate}
-#' @importFrom stats predict
 #' @export
-predict.TreeSurrogate = function(object, newdata, type = "prob", ...) {
-  object$predict(newdata = newdata, type, ...)
-}
-
-
-#' Surrogate tree visualisation
-#' 
-#' Predict the response for newdata with the surrogate tree
-#' Each plot facet is one leaf node and visualises the distribution of the \eqn{\hat{y}}
-#' from the machine learning model. 
-#' This makes the TreeSurrogate object call 
-#' its iternal object$plot() method. 
-#' 
-#' For examples see \link{makeTreeSurrogate}
-#' @param object The surrogate tree. A TreeSurrogate R6 object
-#' @return ggplot2 plot object
-#' @seealso 
-#' \link{makeTreeSurrogate}
-plot.TreeSurrogate = function(object) {
-  object$plot()
-}
-
-## Craven, M. W., & Shavlik, J. W. (1996).
-## Extracting tree-structured representations of trained neural networks.
-## Advances in Neural Information Processing Systems, 8, 24–30.
-## Retrieved from citeseer.ist.psu.edu/craven96extracting.html
 TreeSurrogate = R6::R6Class("TreeSurrogate",
   inherit = Experiment,
   public = list(
@@ -216,10 +201,50 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
       }
       p
     }
-    
   )
 )
 
+
+
+#' Surrogate tree prediction
+#' 
+#' Predict the response for newdata with the surrogate tree
+#' 
+#' This function makes the TreeSurrogate object call 
+#' its iternal object$predict() method. 
+#' For examples see \link{makeTreeSurrogate}
+#' @param object The surrogate tree. A TreeSurrogate R6 object
+#' @param newdata A data.frame for which to predict
+#' @param type Either "prob" or "class". Ignored if the surrogate tree does regression. 
+#' @param ... Further argumets for \code{predict_party}
+#' @return A data.frame with the predicted outcome. 
+#' In case of regression it is the predicted \eqn{\hat{y}}. 
+#' In case of classification it is either the class probabilities *(for type "prob") or the class label (type "class")
+#' @seealso 
+#' \link{makeTreeSurrogate}
+#' @importFrom stats predict
+#' @export
+predict.TreeSurrogate = function(object, newdata, type = "prob", ...) {
+  object$predict(newdata = newdata, type, ...)
+}
+
+
+#' Surrogate tree visualisation
+#' 
+#' Predict the response for newdata with the surrogate tree
+#' Each plot facet is one leaf node and visualises the distribution of the \eqn{\hat{y}}
+#' from the machine learning model. 
+#' This makes the TreeSurrogate object call 
+#' its iternal object$plot() method. 
+#' 
+#' For examples see \link{makeTreeSurrogate}
+#' @param object The surrogate tree. A TreeSurrogate R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{makeTreeSurrogate}
+plot.TreeSurrogate = function(object) {
+  object$plot()
+}
 
 # Return the paths of a ctree for each training data point
 pathpred <- function(object, ...)
