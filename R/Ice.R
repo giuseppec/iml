@@ -102,39 +102,20 @@
 #' }
 #' @importFrom dplyr left_join
 #' @export
-makeIce = function(object, X, feature, grid.size=10, center.at = NULL, class=NULL, ...) {
-  samp = Data$new(X)
-  pred = makePredictor(object, class = class, ...)
-  obj = Ice$new(predictor = pred, sampler = samp, anchor.value = center.at,  
-    feature = feature, grid.size = grid.size)
-  obj$run()
-  obj
-}
+NULL
 
-
-#' Individual conditional expectation plots
-#' 
-#' plot.Ice() plots individiual expectation curves for each observation for one feature.
-#' 
-#' For examples see \link{makeIce}
-#' @param x The individual conditional expectation curves. An Ice R6 object
-#' @param ... Further arguments for the objects plot function
-#' @return ggplot2 plot object
-#' @seealso 
-#' \link{makeIce}
-plot.Ice = function(x, ...) {
-  x$plot()
-}
-
+#' @export
 
 Ice = R6::R6Class("Ice",
   inherit = PartialDependence,
   public = list( 
-    initialize = function(feature, anchor.value = NULL, ...) {
-      checkmate::assert_number(anchor.value, null.ok = TRUE)
-      private$anchor.value = anchor.value
+    initialize = function(predictor, data, feature, grid.size = 10, 
+      anchor.value = NULL, center.at = NULL, run = TRUE) {
+      checkmate::assert_number(center.at, null.ok = TRUE)
+      private$anchor.value = center.at
       assert_count(feature)
-      super$initialize(feature=feature, ...)
+      super$initialize(predictor = predictor, data = data, feature=feature, run = run, 
+        grid.size = grid.size)
     }
   ),
   private = list(
@@ -199,4 +180,18 @@ Ice = R6::R6Class("Ice",
     }
   )
 )
+
+#' Individual conditional expectation plots
+#' 
+#' plot.Ice() plots individiual expectation curves for each observation for one feature.
+#' 
+#' For examples see \link{makeIce}
+#' @param x The individual conditional expectation curves. An Ice R6 object
+#' @param ... Further arguments for the objects plot function
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{makeIce}
+plot.Ice = function(x, ...) {
+  x$plot()
+}
 

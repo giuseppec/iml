@@ -1,24 +1,9 @@
 context("TreeSurrogate")
 
-
-f = function(x, multi = FALSE) {
-  pred = unlist(x[1] + x[2] + 100 * (x[3] == "a")) / (155)
-  dat = data.frame(pred = pred)
-  if (multi) dat$pred2 = 1 - dat$pred
-  dat
-}
-
-f2 = function(x) f(x, multi = TRUE)
-X = data.frame(a = c(1, 2, 3, 4, 5), 
-  b = c(10, 20, 30, 40, 50), 
-  c = factor(c("a", "b", "c", "a", "b")), 
-  d = factor(c("A", "A", "B", "B", "B")))
-
-
 test_that("TreeSurrogate works for single output and single feature", {
   
   sample.size = 100
-  tree = TreeSurrogate$new(f, X, sample.size = sample.size)
+  tree = TreeSurrogate$new(predictor1, X, sample.size = sample.size)
   
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path", "..y.hat", "..y.hat.tree"))
@@ -32,7 +17,7 @@ test_that("TreeSurrogate works for single output and single feature", {
 
 test_that("TreeSurrogate works for multiple output", {
   sample.size = 50
-  tree = TreeSurrogate$new(f2, X, sample.size = sample.size)
+  tree = TreeSurrogate$new(predictor2, X, sample.size = sample.size)
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat:pred", "..y.hat:pred2", "..y.hat.tree:pred", "..y.hat.tree:pred2"))
   expect_equal(nrow(dat), sample.size)  
@@ -51,7 +36,7 @@ test_that("TreeSurrogate works for multiple output", {
 
 test_that("TreeSurrogate works for multiple output with selected class", {
   sample.size = 50
-  tree = TreeSurrogate$new(f2, X, sample.size = sample.size, class = 1)
+  tree = TreeSurrogate$new(predictor3, X, sample.size = sample.size)
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat", "..y.hat.tree"))
   expect_equal(nrow(dat), sample.size )  

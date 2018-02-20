@@ -2,8 +2,7 @@ context("Experiment")
 
 
 test_that("Experiments work",{
-  
-  
+
   f = function(x) {
     unlist(x[1] + x[2])
   }

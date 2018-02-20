@@ -84,11 +84,7 @@
 #' lemon$data()
 #' plot(lemon) 
 #' 
-makeLime = function(object, X, sample.size=100, k = 3, x.interest, class = NULL, ...) {
-  samp = Data$new(X)
-  pred = makePredictor(object, class = class, ...)
-  Lime$new(predictor = pred, sampler = samp, sample.size=sample.size, k = k, x.interest = x.interest)$run()
-}
+NULL
 
 
 
@@ -124,6 +120,7 @@ plot.Lime = function(object) {
   object$plot()
 }
 
+#' @export
 
 Lime = R6::R6Class("Lime", 
   inherit = Experiment,
@@ -145,17 +142,18 @@ Lime = R6::R6Class("Lime",
         data.frame(prediction = pred)
       }
     },
-    initialize = function(predictor, sampler, sample.size, k, x.interest, class, ...) {
-      checkmate::assert_number(k, lower = 1, upper = sampler$n.features)
+    initialize = function(predictor, data, x.interest, sample.size = 1000, k = 3, run = TRUE) {
+      checkmate::assert_number(k, lower = 1, upper = ncol(data))
       checkmate::assert_data_frame(x.interest)
       if (!require("glmnet")) {
         stop("Please install glmnet.")
       }
-      super$initialize(predictor = predictor, sampler = sampler)
+      super$initialize(predictor = predictor, data = data)
       self$sample.size = sample.size
       self$k = k
       self$x = x.interest
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
+      if(run) self$run()
     }
   ),
   private = list(

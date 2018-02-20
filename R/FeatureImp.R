@@ -82,40 +82,21 @@
 #'     predict.args = list(type = "prob"))
 #' plot(imp)
 #' }
-makeFeatureImp = function(object, X, y, class=NULL, loss, method = "shuffle", ...) {
-  assert_vector(y, any.missing = FALSE)
+NULL
 
-  samp = Data$new(X, y = data.frame(y = y))
-  pred = makePredictor(object, class = class,...)
-  
-  FeatureImp$new(predictor = pred, sampler = samp, loss=loss, method=method)$run()
-}
-
-
-#' Feature importance plot
-#' 
-#' plot.FeatureImp() plots the feature importance results of an FeatureImp object.
-#' 
-#' For examples see \link{makeFeatureImp}
-#' @param x The feature importance. An FeatureImp R6 object
-#' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
-#' @param ... Further arguments for the objects plot function
-#' @return ggplot2 plot object
 #' @export
-#' @importFrom dplyr group_by_
-#' @seealso 
-#' \link{makeFeatureImp}
-plot.FeatureImp = function(x, sort = TRUE, ...) {
-  x$plot(sort = sort, ...)
-}
-
 
 FeatureImp = R6::R6Class("FeatureImp", 
   inherit = Experiment,
   public = list(
     loss = NULL,
     error.original = NULL,
-    initialize = function(predictor, sampler, loss, method) {
+    initialize = function(predictor, data, y = NULL, loss, method = "shuffle", run = TRUE) {
+      checkmate::assert_choice(method, c("shuffle", "cartesian"))
+      if (!inherits(data, 'Data')) {
+        assert_vector(y, any.missing = FALSE)
+        data = Data$new(data, y = data.frame(y = y))
+      }
       if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
         private$loss.string  = loss
@@ -123,8 +104,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       } else {
         private$loss.string = head(loss)
       }
-      checkmate::assert_choice(method, c("shuffle", "cartesian"))
-      super$initialize(predictor = predictor, sampler = sampler)
+      super$initialize(predictor = predictor, data = data)
       self$loss = private$set.loss(loss)
       private$method = method
       private$get.data = private$sampler$get.xy
@@ -132,6 +112,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       predicted = private$Q(private$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$error.original = loss(actual, predicted)
+      if(run) self$run()
     }
   ),
   private = list(
@@ -196,7 +177,22 @@ FeatureImp = R6::R6Class("FeatureImp",
 )
 
 
-
+#' Feature importance plot
+#' 
+#' plot.FeatureImp() plots the feature importance results of an FeatureImp object.
+#' 
+#' For examples see \link{makeFeatureImp}
+#' @param x The feature importance. An FeatureImp R6 object
+#' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
+#' @param ... Further arguments for the objects plot function
+#' @return ggplot2 plot object
+#' @export
+#' @importFrom dplyr group_by_
+#' @seealso 
+#' \link{makeFeatureImp}
+plot.FeatureImp = function(x, sort = TRUE, ...) {
+  x$plot(sort = sort, ...)
+}
 
 
 

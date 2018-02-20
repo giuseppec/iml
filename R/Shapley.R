@@ -115,9 +115,9 @@ Shapley = R6::R6Class("Shapley",
     y.hat.interest = NULL,
     y.hat.average = NULL,
     sample.size = NULL,
-    initialize = function(predictor, data, x.interest, sample.size = 100, class = NULL, run = TRUE, predict.args = NULL) {
+    initialize = function(predictor, data, x.interest, sample.size = 100,  run = TRUE) {
       checkmate::assert_data_frame(x.interest)
-      super$initialize(predictor = predictor, sampler = data, class = class, predict.args = predict.args)
+      super$initialize(predictor = predictor, data = data)
       self$sample.size = sample.size
       private$set.x.interest(x.interest)
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)

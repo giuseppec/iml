@@ -6,24 +6,34 @@
 #' @param predict.args named list with arguments passed down to the prediction model
 #' @param ... further arguments for the prediction functions
 #' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
+#' @export
 #' @return object of type Predictor
 makePredictor = function(object, class = NULL, predict.args = NULL, ...) {
   assert_vector(class, len=1, null.ok=TRUE)
   UseMethod("makePredictor")
 }
 
+#' @export
+makePredictor.Predictor = function(object, class = NULL, predict.args = NULL, ...) {
+  object
+}
+
+#' @export
 makePredictor.WrappedModel = function(object, class = NULL, predict.args = NULL, ...) {
   PredictorMlr$new(object = object, class = class)
 }
 
+#' @export
 makePredictor.function = function(object, class = NULL, predict.args = NULL, ...) {
-  PredictorFunction$new(object = object, class = class)
+  PredictorFunction$new(object = object, class = class, predict.args = predict.args)
 }
 
+#' @export
 makePredictor.train = function(object, class = NULL, predict.args = NULL, ...) {
   PredictorCaret$new(object = object, class = class)
 }
 
+#' @export
 makePredictor.default = function(object, class = NULL, predict.args = NULL, ...) {
   PredictorS3$new(object = object, class = class, predict.args = predict.args)
 }
@@ -110,32 +120,6 @@ PredictorMlr = R6::R6Class("PredictorMlr",
   )
 )
 
-
-
-
-PredictorFunction = R6::R6Class("PredictorFunction", 
-  inherit = Predictor,
-  public = list(), 
-  private = list(
-    ## can"t infer the type before first prediction
-    infer.type = function() {},
-    infer.f.type = function(pred) {
-      assert_true(any(class(pred) %in% c("integer", "numeric", "data.frame", "matrix")))
-      if (inherits(pred, c("data.frame", "matrix")) && dim(pred)[2] > 1) {
-        self$type = "classification" 
-      } else {
-        self$type = "regression"
-      }
-    }, 
-    predict.function = function(x) {
-      pred = private$object(x)
-      if (self$type == "unknown") private$infer.f.type(pred)
-      pred
-    }
-  )
-)
-
-
 PredictorCaret = R6::R6Class("PredictorCaret", 
   inherit = Predictor,
   public = list(), 
@@ -163,8 +147,10 @@ PredictorCaret = R6::R6Class("PredictorCaret",
 )
 
 
-PredictorS3 = R6::R6Class("PredictorS3", 
-  inherit = PredictorFunction,
+
+
+PredictorFunction = R6::R6Class("PredictorFunction", 
+  inherit = Predictor,
   public = list(
     initialize = function(predict.args=NULL, ...) {
       super$initialize(...)
@@ -173,6 +159,31 @@ PredictorS3 = R6::R6Class("PredictorS3",
   ), 
   private = list(
     predict.args = NULL,
+    ## can't infer the type before first prediction
+    infer.type = function() {},
+    infer.f.type = function(pred) {
+      assert_true(any(class(pred) %in% c("integer", "numeric", "data.frame", "matrix")))
+      if (inherits(pred, c("data.frame", "matrix")) && dim(pred)[2] > 1) {
+        self$type = "classification" 
+      } else {
+        self$type = "regression"
+      }
+    }, 
+    predict.function = function(x) {
+      predict.args = c(list(x), private$predict.args)
+      pred = do.call(private$object, predict.args)
+      if (self$type == "unknown") private$infer.f.type(pred)
+      pred
+    }
+  )
+)
+
+
+
+
+PredictorS3 = R6::R6Class("PredictorS3", 
+  inherit = PredictorFunction,
+  private = list(
     infer.type = function() {},
     predict.function = function(x) {
       predict.args = c(list(object = private$object, newdata = x), private$predict.args)

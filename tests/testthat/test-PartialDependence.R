@@ -1,22 +1,9 @@
-context("makePartialDependence()")
+context("PartialDependence()")
 
-
-f = function(x, multi = FALSE) {
-  pred = unlist(x[1] + x[2] + 100 * (x[3] == "a"))
-  dat = data.frame(pred = pred)
-  if (multi) dat$pred2 = 0.2 * dat$pred + 7 
-  dat
-}
-X = data.frame(a = c(1, 2, 3, 4, 5), 
-  b = c(10, 20, 30, 40, 50), 
-  c = factor(c("a", "b", "c", "a", "b")), 
-  d = factor(c("A", "A", "B", "B", "B")))
-
-
-test_that("makePartialDependence works for single output and single feature", {
+test_that("PartialDependence works for single output and single feature", {
   
   grid.size = 10
-  pdp.obj = makePartialDependence(f, X, feature = 1, grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor1, X, feature = 1, grid.size = grid.size)
   dat = pdp.obj$data()
   expect_equal(colnames(dat), c("a", "y.hat"))
   expect_equal(nrow(dat), grid.size)  
@@ -38,11 +25,11 @@ test_that("makePartialDependence works for single output and single feature", {
   expect_equal(min(dat$b), 10)
 })
 
-test_that("makePartialDependence works for single output and 2 features, 2D grid.size", {
+test_that("PartialDependence works for single output and 2 features, 2D grid.size", {
   
   ## two numerical features with 2 grid.sizes
   grid.size = c(10,2)
-  pdp.obj = makePartialDependence(f, X, feature = c(1,2), grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor1, X, feature = c(1,2), grid.size = grid.size)
   dat = pdp.obj$data()
   expect_equal(colnames(dat), c("a", "b", "y.hat"))
   expect_equal(nrow(dat), grid.size[1] * grid.size[2])  
@@ -56,12 +43,12 @@ test_that("makePartialDependence works for single output and 2 features, 2D grid
   p
 })
 
-test_that("makePartialDependence works for single output and 2 numerical features, 1D grid.size", {
+test_that("PartialDependence works for single output and 2 numerical features, 1D grid.size", {
   
   
   ## Two numerical with same grid.size
   grid.size = 10
-  pdp.obj = makePartialDependence(f, X, feature = c(1,2), grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor1, X, feature = c(1,2), grid.size = grid.size)
   dat = pdp.obj$data()
   expect_equal(colnames(dat), c("a", "b", "y.hat"))
   expect_equal(nrow(dat), grid.size * grid.size)  
@@ -75,11 +62,11 @@ test_that("makePartialDependence works for single output and 2 numerical feature
   
 })
 
-test_that("makePartialDependence works for single output and numerical + categorical feature", {
+test_that("PartialDependence works for single output and numerical + categorical feature", {
   
   ## One feature categorical
   grid.size = 11
-  pdp.obj = makePartialDependence(f, X, feature = c(1,3), grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor1, X, feature = c(1,3), grid.size = grid.size)
   dat = pdp.obj$data()
   expect_equal(colnames(dat), c("a", "c", "y.hat"))
   expect_equal(nrow(dat), grid.size[1] * length(unique(X[,3])))  
@@ -92,7 +79,7 @@ test_that("makePartialDependence works for single output and numerical + categor
   
   ## One feature categorical
   grid.size = c(7,9)
-  pdp.obj = makePartialDependence(f, X, feature = c(3,2), grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor1, X, feature = c(3,2), grid.size = grid.size)
   dat = pdp.obj$data()
   expect_equal(colnames(dat), c("c", "b", "y.hat"))
   expect_equal(nrow(dat), grid.size[2] * length(unique(X[,3])))  
@@ -105,10 +92,10 @@ test_that("makePartialDependence works for single output and numerical + categor
   
 })
 
-test_that("makePartialDependence works for multiple output", {
+test_that("PartialDependence works for multiple output", {
   
   grid.size = 10
-  pdp.obj = makePartialDependence(function(x) f(x, multi=TRUE), X, feature = c(1), grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor2, X, feature = c(1), grid.size = grid.size)
   dat = pdp.obj$data()
   expect_equal(colnames(dat), c("a", "..class.name", "y.hat"))
   expect_equal(nrow(dat), grid.size * 2)  

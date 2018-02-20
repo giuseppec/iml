@@ -19,11 +19,11 @@ lrn = makeLearner("classif.randomForest", predict.type = 'prob')
 #mod = train(lrn, task)
 mod = randomForest::randomForest(Species ~ ., data= iris)
 
-mod <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::trainControl(method = "cv"))
-
+modCaret <- caret::train(Species ~ ., data = iris, method = "knn",trControl = caret::trainControl(method = "cv"))
+mod = makePredictor(modCaret, predict.args = list(type = "prob"))
 
 ## PDP
-pdp.obj = makePartialDependence(object = mod, X=X, feature = c(1, 3), grid.size = 50)  
+pdp.obj = PartialDependence$new(mod, data=X, feature = c(1, 3), grid.size = 20)  
 pdp.obj
 pdp.obj$data()
 
@@ -40,12 +40,12 @@ pdp.obj$feature = 1
 pdp.obj$plot()
 
 
-makePartialDependence(mod, X, feature = 1, class = 2)$plot()
+PartialDependence$new(mod, X, feature = 1)$plot()
 
 ## ICE
-makeIce(object = mod, X=X, feature = 2, predict.args = list(type='prob'))$plot()  
+Ice$new(mod, X, feature = 2)$plot()  
 
-ice1 = makeIce(mod, X=X, feature = 2, predict.args = list(type='prob'))  
+ice1 = Ice$new(mod, X, feature = 2)  
 plot(ice1)
 
 ice1$data()
@@ -53,11 +53,11 @@ ice1$feature = 3
 ice1$plot()
 
 ## ICE centered
-ice1 = makeIce(mod, X=X, feature = 1, center.at = 4)
+ice1 = Ice$new(mod, X, feature = 1, center.at = 4)
 ice1$plot()
 
-
-ice1 = makeIce(mod, X=X, feature = 1, center.at = 4, class = 2)
+mod2 = makePredictor(modCaret, class = 2, predict.args = list(type = "prob"))
+ice1 = Ice$new(mod2, X, feature = 1, center.at = 4)
 plot(ice1)
 ice1$center.at = 4
 plot(ice1)
@@ -69,41 +69,42 @@ plot(ice1)
 i = 121
 x.interest = X[i,]
 
-makeLime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 1)
+Lime$new(mod2, X,  1000, x.interest=x.interest)
 
-lime1 = makeLime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'))
+lime1 = Lime$new(mod, X,  1000, x.interest=x.interest)
 dat = lime1$data()
 plot(lime1)
 lime1$x <- X[i+1,]
 lime1
 
 
-lime1 = makeLime(mod, X,  1000, x.interest=x.interest, predict.args = list(type = 'prob'), class = 2)
+lime1 = Lime$new(mod2, X,  1000, x.interest=x.interest)
 lime1
 plot(lime1)
 
 ## Shapley
-makeShapley(mod, X, x.interest, 100, predict.args = list(type = 'prob'), class = 3)
-shapley1 = makeShapley(mod, X, x.interest, 100, class=NULL, predict.args = list(type = 'prob'))
+Shapley$new(mod2, X, x.interest, 100)
+shapley1 = Shapley$new(mod, X, x.interest, 100)
 shapley1$x = X[i+2,]
 plot(shapley1)
 shapley1
 
 ## Permutation feature importance
-makeFeatureImp(mod, X,  y=1*(y=='virginica'), predict.args = list(type = 'prob'), class = 3, loss = 'mae')$data()
-pimp = makeFeatureImp(mod, X,  y = y, loss = 'ce')
+FeatureImp$new(mod2, X,  y=1*(y=='virginica'), loss = 'mae')$data()
+pimp = FeatureImp$new(mod, X,  y = y, loss = 'ce')
 pimp$data()
 
-pimp = makeFeatureImp(mod, X,  y = y, loss = 'ce', method = 'cartesian')
+pimp = FeatureImp$new(mod, X,  y = y, loss = 'ce', method = 'cartesian')
 pimp$data()
 plot(pimp)
 
-makeFeatureImp(mod, X,  y=y, predict.args = list(type = 'prob'),  loss = 'mae')
+FeatureImp$new(mod, X,  y=y,  loss = 'mae')
 
 library("randomForest")
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
-pimportance = makeFeatureImp(mod, Boston[which(names(Boston) != 'medv')], y = Boston$medv, loss = 'mae', method = 'cartesian')
+mod = makePredictor(mod)
+pimportance = FeatureImp$new(mod, Boston[which(names(Boston) != 'medv')], y = Boston$medv, loss = 'mae', method = 'cartesian')
 
 pimp$data()
 pimp$plot()
@@ -113,13 +114,14 @@ pimp$plot()
 library("randomForest")
 data("Boston", package  = "MASS")
 mod = randomForest(medv ~ ., data = Boston, ntree = 50)
-
-tree = makeTreeSurrogate(mod, Boston[which(names(Boston) != 'medv')], 100, maxdepth = 4)
+mod = makePredictor(mod)
+tree = TreeSurrogate$new(mod, Boston[which(names(Boston) != 'medv')], 100, maxdepth = 4)
 
 mod = randomForest(Species ~ ., data = iris, ntree = 50)
+mod = makePredictor(mod, predict.args = list(type = "prob"))
 
-tree = makeTreeSurrogate(mod, iris[which(names(iris) != 'Species')], 100, 
-  maxdepth = 2, predict.args = list(type = 'prob'))
+tree = TreeSurrogate$new(mod, iris[which(names(iris) != 'Species')], 100, 
+  maxdepth = 2)
 
 plot(tree)
 

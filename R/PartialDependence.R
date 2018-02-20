@@ -1,4 +1,5 @@
 #' Partial Dependence
+#' @name PartialDependence
 #' 
 #' @description 
 #' \code{makePartialDependence()} computes partial dependence functions of prediction models. 
@@ -95,27 +96,9 @@
 #' pdp.obj = makePartialDependence(mod, iris, feature = c(1,3), predict.args = list(type = 'prob'))
 #' pdp.obj$plot()  
 #' 
-makePartialDependence  = function(object, X, feature, grid.size = 10, class=NULL,  ...) {
-  samp = Data$new(X)
-  pred = makePredictor(object, class = class, ...)
-  
-  PartialDependence$new(predictor = pred, sampler = samp, feature = feature, grid.size = grid.size)$run()
-}
+NULL
 
 
-#' Partial dependence plot
-#' 
-#' plot.PartialDependence() plots a line for a single feature and a tile plot for 2 features.
-#' 
-#' For examples see \link{makePartialDependence}
-#' @param x The partial dependence. A PartialDependence R6 object
-#' @param ... Further arguments for the objects plot function
-#' @return ggplot2 plot object
-#' @seealso 
-#' \link{makePartialDependence}
-plot.PartialDependence = function(x, ...) {
-  x$plot(...)
-}
 
 # TODO: Allow empty grid size, where grid points are drawn from X. 
 PartialDependence = R6::R6Class("PartialDependence", 
@@ -126,14 +109,15 @@ PartialDependence = R6::R6Class("PartialDependence",
     feature.names = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(predictor, sampler, feature, grid.size) {
-      checkmate::assert_numeric(feature, lower = 1, upper = sampler$n.features, min.len = 1, max.len = 2)
+    initialize = function(predictor, data, feature, grid.size = 10, run = TRUE) {
+      checkmate::assert_numeric(feature, lower = 1, upper = ncol(data), min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       if (length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
-      super$initialize(predictor, sampler)
+      super$initialize(predictor, data)
       private$set.feature(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
+      if(run) self$run()
     }
   ), 
   private = list(
@@ -239,6 +223,20 @@ PartialDependence = R6::R6Class("PartialDependence",
   )
 )
 
+
+#' Partial dependence plot
+#' 
+#' plot.PartialDependence() plots a line for a single feature and a tile plot for 2 features.
+#' 
+#' For examples see \link{makePartialDependence}
+#' @param x The partial dependence. A PartialDependence R6 object
+#' @param ... Further arguments for the objects plot function
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{makePartialDependence}
+plot.PartialDependence = function(x, ...) {
+  x$plot(...)
+}
 
 ## TODO:document
 ## TODO: Write test

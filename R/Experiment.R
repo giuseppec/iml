@@ -6,16 +6,14 @@ Experiment = R6::R6Class("Experiment",
         return(private$plot.data)} else {warning("no plot data generated")
         }
     },
-    initialize = function(predictor, sampler, class = NULL, ...) {
-      if(inherits(sampler, "data.frame")){
-        sampler = Data$new(sampler)
+    initialize = function(predictor, data) {
+      checkmate::assert_class(predictor, "Predictor")
+      if(inherits(data, "data.frame")){
+        data = Data$new(data)
       }      
-      if(!inherits(predictor, "Predictor")){
-        predictor = makePredictor(predictor, class = class,...)
-      }
       private$predictor = predictor
       private$predict = predictor$predict
-      private$sampler = sampler
+      private$sampler = data
       private$get.data = private$sampler$get.x
     },
     data = function() {

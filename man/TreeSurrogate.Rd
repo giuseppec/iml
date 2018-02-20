@@ -5,13 +5,18 @@
 \title{Decision tree surrogate model}
 \format{\code{\link{R6Class}} object.}
 \description{
+Decision tree surrogate model
+}
+\section{Description}{
+ 
 \code{TreeSurrogate} fits a decision tree on the predictions of a machine learning model.
 }
+
 \section{Usage}{
 
 \preformatted{
 tree = TreeSurrogate(predictor, data, sample.size = 100, maxdepth = 2, tree.args = NULL, 
-class = NULL, run = TRUE)
+class = NULL, predict.args = NULL, run = TRUE)
 
 plot(tree)
 predict(tree, newdata)
@@ -30,9 +35,7 @@ The machine learning model. Different types are allowed.
 Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
 a function that predicts the outcome given features or anything with an S3 predict function,
 like an object from class \code{lm}.}
-\item{data}{data.frame with the data for the prediction model}
-\item{class}{In case of classification, class specifies the class for which to predict the probability. 
-By default the multiclass classification is done.}
+\item{data}{data.frame with the data for the prediction model.}
 \item{sample.size}{The number of instances to be sampled from X.} 
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 \item{class}{The class column that should be looked at from the prediction model. 

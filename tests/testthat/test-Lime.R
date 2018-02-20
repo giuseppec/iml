@@ -1,35 +1,17 @@
-context("makeLime()")
+context("Lime()")
 
-
-f = function(x, multi = FALSE) {
-  pred = unlist(5  + 20 * x[1] - 10 * x[2] + 100 * (x[3] == "a")) 
-  dat = data.frame(pred = pred)
-  if (multi) dat$pred2 = 1 - dat$pred
-  dat
-}
-
-f2 = function(x) f(x, multi = TRUE)
-set.seed(123)
+set.seed(1)
 n = 100
-X = data.frame(
-  x1 = rnorm(n), 
-  x2 = runif(n), 
-  x3 = sample(c("a", "b","c"), size = n, replace=TRUE), 
-  x4 = sample(c("A", "B", "C"), size = n, replace=TRUE))
-
-y = f(X)[[1]]
-
 expected.colnames = c("beta", "x.scaled", "effect", "x.original", "feature", "feature.value")
 
-test_that("makeLime works for single output and single feature", {
+test_that("Lime works for single output and single feature", {
   
   x.interest = X[2,]
   k = 2
   set.seed(42)
-  lime1 = makeLime(f, X, x.interest=x.interest, sample.size = 100, k = k)
+  lime1 = Lime$new(predictor1, X, x.interest=x.interest, sample.size = 100, k = k)
   dat = lime1$data()
   expect_equal(colnames(dat), expected.colnames)
-  expect_true("x3=a" %in% dat$feature)
   expect_equal(nrow(dat), k)
   p = plot(lime1)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -46,13 +28,13 @@ test_that("makeLime works for single output and single feature", {
   expect_equal(colnames(pred), "prediction")
 })
 
-test_that("makeLime works for multiple output", {
+test_that("Lime works for multiple output", {
   
   x.interest = X[1,]
   
-  k = 3
+  k = 1
   set.seed(42)
-  lime1 = makeLime(f2, X, x.interest, sample.size = 400, k = k)
+  lime1 = Lime$new(predictor2, X, x.interest, sample.size = 400, k = k)
   dat = lime1$data()
   expect_equal(colnames(dat), c(expected.colnames, "..class"))
   expect_equal(nrow(dat), k * 2)  
