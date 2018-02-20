@@ -46,7 +46,7 @@ Predictor = R6::R6Class("Predictor",
     },
     class = NULL,
     prediction.colnames = NULL, 
-    type = NULL,
+    type = "undefined",
     print = function() {
       cat("Prediction type:", self$type, "\n")
       if (self$type == "classification") {
@@ -129,7 +129,7 @@ PredictorFunction = R6::R6Class("PredictorFunction",
     }, 
     predict.function = function(x) {
       pred = private$object(x)
-      if (is.null(self$type)) private$infer.f.type(pred)
+      if (self$type == "unknown") private$infer.f.type(pred)
       pred
     }
   )
@@ -182,7 +182,7 @@ PredictorS3 = R6::R6Class("PredictorS3",
         stop("Output seems to be class instead of probabilities. 
           Please use the predict.args argument.")
       }
-      if (is.null(self$type)) private$infer.f.type(pred)
+      if (self$type == "unknown") private$infer.f.type(pred)
       pred 
     },
     is.label.output = function(pred) {

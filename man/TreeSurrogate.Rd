@@ -3,21 +3,19 @@
 \name{TreeSurrogate}
 \alias{TreeSurrogate}
 \title{Decision tree surrogate model}
+\format{\code{\link{R6Class}} object.}
 \description{
-TreeSurrogate fits a decision tree on the predictions of a machine learning model to make it interpretable.
+\code{TreeSurrogate} fits a decision tree on the predictions of a machine learning model.
 }
 \section{Usage}{
 
 \preformatted{
-tree = TreeSurrogate$new(object, X, sample.size=100, class = NULL, 
-  maxdepth = 2, tree.args = NULL)
+tree = TreeSurrogate(predictor, data, sample.size = 100, maxdepth = 2, tree.args = NULL, 
+class = NULL, run = TRUE)
 
-tree$data()
-tree$run()
 plot(tree)
-tree$plot()
 predict(tree, newdata)
-
+tree$data()
 print(tree)
 }
 }
@@ -25,32 +23,44 @@ print(tree)
 \section{Arguments}{
 
 
+For TreeSurrogate$new():
 \describe{
-\item{object}{
-   The machine learning model. Different types are allowed. 
-   Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
-   a function that predicts the outcome given features or anything with an S3 predict function,
-   like an object from class \code{lm}.}
-\item{X}{
-   data.frame with the data for the prediction model}
+\item{predictor}{
+The machine learning model. Different types are allowed. 
+Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
+a function that predicts the outcome given features or anything with an S3 predict function,
+like an object from class \code{lm}.}
+\item{data}{data.frame with the data for the prediction model}
 \item{class}{In case of classification, class specifies the class for which to predict the probability. 
 By default the multiclass classification is done.}
-\item{maxdepth}{The maximum depth of the tree. Default is 2.}
 \item{sample.size}{The number of instances to be sampled from X.} 
-\item{...}{A list with further arguments for \code{ctree}}
+\item{maxdepth}{The maximum depth of the tree. Default is 2.}
+\item{class}{The class column that should be looked at from the prediction model. 
+Ignored if output one-dimensional}
+\item{run}{logical. Should the Interpretation method be run?}
+\item{tree.args}{A list with further arguments for \code{ctree}}
 }
 }
 
 \section{Details}{
   
-A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data \eqn{X}.
+A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data.
 The \code{partykit} package and function are used to fit the tree. 
 By default a tree of maximum depth of 2 is fitted to improve interpretability.
+}
 
-A TreeSurrogate object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+\section{Fields}{
+
 \describe{
-\item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
 \item{maxdepth}{the maximal tree depth set by the user.}
+\item{sample.size}{The sample size used.}
+\item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
+}
+}
+
+\section{Methods}{
+
+\describe{
 \item{data()}{method to extract the results of the tree. 
 Returns the sampled feature X together with the leaf node information (columns ..node and ..path) 
 and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
@@ -88,7 +98,7 @@ mod = randomForest(Species ~ ., data = iris, ntree = 50)
 
 # Fit a decision tree as a surrogate for the whole random forest
 X = iris[-which(names(iris) == "Species")]
-dt = makeTreeSurrogate(mod, X, 200, predict.args = list(type = 'prob'), maxdepth=2, class=3)
+dt = TreeSurrogate$new(mod, X, 200, predict.args = list(type = 'prob'), maxdepth=2, class=3)
 
 # Plot the resulting leaf nodes
 plot(dt) 

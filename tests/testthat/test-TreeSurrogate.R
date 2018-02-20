@@ -1,4 +1,4 @@
-context("makeTreeSurrogate()")
+context("TreeSurrogate")
 
 
 f = function(x, multi = FALSE) {
@@ -15,10 +15,11 @@ X = data.frame(a = c(1, 2, 3, 4, 5),
   d = factor(c("A", "A", "B", "B", "B")))
 
 
-test_that("makeTreeSurrogate works for single output and single feature", {
+test_that("TreeSurrogate works for single output and single feature", {
   
   sample.size = 100
-  tree = makeTreeSurrogate(f, X, sample.size = sample.size)
+  tree = TreeSurrogate$new(f, X, sample.size = sample.size)
+  
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path", "..y.hat", "..y.hat.tree"))
   expect_equal(nrow(dat), sample.size)  
@@ -29,9 +30,9 @@ test_that("makeTreeSurrogate works for single output and single feature", {
   
 })
 
-test_that("makeTreeSurrogate works for multiple output", {
+test_that("TreeSurrogate works for multiple output", {
   sample.size = 50
-  tree = makeTreeSurrogate(f2, X, sample.size = sample.size)
+  tree = TreeSurrogate$new(f2, X, sample.size = sample.size)
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat:pred", "..y.hat:pred2", "..y.hat.tree:pred", "..y.hat.tree:pred2"))
   expect_equal(nrow(dat), sample.size)  
@@ -48,9 +49,9 @@ test_that("makeTreeSurrogate works for multiple output", {
 
 })
 
-test_that("makeTreeSurrogate works for multiple output with selected class", {
+test_that("TreeSurrogate works for multiple output with selected class", {
   sample.size = 50
-  tree = makeTreeSurrogate(f2, X, sample.size = sample.size, class = 1)
+  tree = TreeSurrogate$new(f2, X, sample.size = sample.size, class = 1)
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat", "..y.hat.tree"))
   expect_equal(nrow(dat), sample.size )  
