@@ -1,13 +1,14 @@
-#' Partial Dependence
-#' @name PartialDependence
+#' Partial Dependence Plot
 #' 
-#' @description 
-#' \code{makePartialDependence()} computes partial dependence functions of prediction models. 
+#' \code{PartialDependence} computes partial dependence functions of prediction models. 
+#' 
+#' @format \code{\link{R6Class}} object.
+#' @name PartialDependence
 #' 
 #' @details
 #' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
 #' the learned \eqn{\hat{f}} directly for high-dimensional X. 
-#' But we can split it into parts:
+#' But we can split it into parts and plot the depependence of f(X) on a single or two features.
 #' \deqn{f(X) = f_1(X_1) + \ldots + f_p(X_p) + f_{1, 2}(X_1, X_2) + \ldots + f_{p-1, p}(X_{p-1}, X_p) + \ldots + f_{1\ldots p}(X_1\ldots X_p)}, 
 #' 
 #' And we can isolate the partial dependence of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
@@ -100,7 +101,8 @@ NULL
 
 
 
-# TODO: Allow empty grid size, where grid points are drawn from X. 
+#' @export
+
 PartialDependence = R6::R6Class("PartialDependence", 
   inherit = Experiment,
   public = list(

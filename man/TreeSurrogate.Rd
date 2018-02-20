@@ -5,18 +5,13 @@
 \title{Decision tree surrogate model}
 \format{\code{\link{R6Class}} object.}
 \description{
-Decision tree surrogate model
-}
-\section{Description}{
- 
 \code{TreeSurrogate} fits a decision tree on the predictions of a machine learning model.
 }
-
 \section{Usage}{
 
 \preformatted{
-tree = TreeSurrogate(predictor, data, sample.size = 100, maxdepth = 2, tree.args = NULL, 
-class = NULL, predict.args = NULL, run = TRUE)
+tree = TreeSurrogate$new(predictor, data, sample.size = 100, maxdepth = 2, 
+  tree.args = NULL, run = TRUE)
 
 plot(tree)
 predict(tree, newdata)
@@ -30,16 +25,10 @@ print(tree)
 
 For TreeSurrogate$new():
 \describe{
-\item{predictor}{
-The machine learning model. Different types are allowed. 
-Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
-a function that predicts the outcome given features or anything with an S3 predict function,
-like an object from class \code{lm}.}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 \item{data}{data.frame with the data for the prediction model.}
-\item{sample.size}{The number of instances to be sampled from X.} 
+\item{sample.size}{The number of instances to be sampled from the data.} 
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
-\item{class}{The class column that should be looked at from the prediction model. 
-Ignored if output one-dimensional}
 \item{run}{logical. Should the Interpretation method be run?}
 \item{tree.args}{A list with further arguments for \code{ctree}}
 }
@@ -80,7 +69,9 @@ General R6 methods
 # Fit a Random Forest on the Boston housing data set
 library("randomForest")
 data("Boston", package  = "MASS")
-mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+# Create a Predictor object
+mod = makePredictor(rf) 
 
 # Fit a decision tree as a surrogate for the whole random forest
 dt = TreeSurrogate$new(mod, Boston[-which(names(Boston) == "medv")], 200)
@@ -97,11 +88,12 @@ head(dat)
 
 
 # It also works for classification
-mod = randomForest(Species ~ ., data = iris, ntree = 50)
+rf = randomForest(Species ~ ., data = iris, ntree = 50)
+mod = makePredictor(rf, predict.args = list(type + "prob"), class = 3)
 
 # Fit a decision tree as a surrogate for the whole random forest
 X = iris[-which(names(iris) == "Species")]
-dt = TreeSurrogate$new(mod, X, 200, predict.args = list(type = 'prob'), maxdepth=2, class=3)
+dt = TreeSurrogate$new(mod, X, 200,  maxdepth=2)
 
 # Plot the resulting leaf nodes
 plot(dt) 
@@ -113,7 +105,7 @@ plot(dt$tree)
 set.seed(42)
 iris.sample = X[sample(1:nrow(X), 10),]
 predict(dt, iris.sample)
-predict(dt, iris.sample, type = 'class')
+predict(dt, iris.sample, type = "class")
 
 # Extract the dataset
 dat = dt$data()

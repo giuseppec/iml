@@ -1,18 +1,16 @@
-#' Explain predictions
-#' @name Shapley
+#' Game theoretic prediction explanations
 #' 
-#' @format \code{\link{R6Class}} object.
-#' 
-#' @section Description: 
-#' Shapley() computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory approach. 
+#' \code{Shapley} computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory approach. 
 #' The features values of an instance cooperate to achieve the prediction. 
-#' Shapley() fairly distributes the difference of the instance's prediction and the datasets average prediction among the features. 
+#' The Shapley value fairly distributes the difference of the instance's prediction and the datasets average prediction among the features. 
 #' A features contribution can be negative. 
 #' 
+#' @format \code{\link{R6Class}} object.
+#' @name Shapley
 #' @section Usage:
 #' \preformatted{
 #' shapley = Shapley$new(predictor, data, x.interest, 
-#'   sample.size = 100, class = NULL, run = TRUE)
+#'   sample.size = 100, run = TRUE)
 #' 
 #' plot(shapley)
 #' shapley$data()
@@ -20,25 +18,17 @@
 #' }
 #' 
 #' @section Arguments: 
-#' #' For Shapley$new():
+#' For Shapley$new():
 #' \describe{
-#' \item{predictor}{
-#' The machine learning model. Different types are allowed. 
-#' Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
-#' a function that predicts the outcome given features or anything with an S3 predict function,
-#' like an object from class \code{lm}.}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{makePredictor}.}
 #' \item{data}{data.frame with the data for the prediction model}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
-#' \item{class}{In case of classification, class specifies the class for which to predict the probability. 
-#' By default the multiclass classification is done.}
-#' \item{sample.size}{The number of instances to be sampled from X.} 
+#' \item{sample.size}{The number of instances to be sampled from the data.} 
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
-#' \item{class}{The class column that should be looked at from the prediction model. 
-#' Ignored if output one-dimensional}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' }
 #' 
-#' @section Details
+#' @section Details:
 #' For more details on the algorithm see https://christophm.github.io/interpretable-ml-book/shapley.html
 #' 
 #' @section Fields:
