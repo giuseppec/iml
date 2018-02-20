@@ -1,34 +1,76 @@
 #' Explain predictions
+#' @name Shapley
 #' 
-#' @description 
-#' makeShapley() computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory approach. 
+#' @format \code{\link{R6Class}} object.
+#' 
+#' @section Description: 
+#' Shapley() computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory approach. 
 #' The features values of an instance cooperate to achieve the prediction. 
-#' makeShapley() fairly distributes the difference of the instance's prediction and the datasets average prediction among the features. 
+#' Shapley() fairly distributes the difference of the instance's prediction and the datasets average prediction among the features. 
 #' A features contribution can be negative. 
 #' 
-#' @details
-#' See TODO: BOOK REFERENCE
+#' @section Usage:
+#' \preformatted{
+#' shapley = Shapley$new(predictor, data, x.interest, 
+#'   sample.size = 100, class = NULL, run = TRUE)
 #' 
-#' @seealso 
-#' A different way to explain predictions: \link{makeLime}
-#' @template args_experiment_wrap
-#' @template args_x.interest
-#' @param sample.size Number of samples to be drawn to estimate the Shapley value. The higher the more accurate the estimations.
-#' @return 
-#' A Shapley object (R6). Its methods and variables can be accessed with the \code{$}-operator:
+#' plot(shapley)
+#' shapley$data()
+#' print(shapley)
+#' }
+#' 
+#' @section Arguments: 
+#' #' For Shapley$new():
+#' \describe{
+#' \item{predictor}{
+#' The machine learning model. Different types are allowed. 
+#' Recommended are mlr WrappedModel and caret train objects. The \code{object} can also be 
+#' a function that predicts the outcome given features or anything with an S3 predict function,
+#' like an object from class \code{lm}.}
+#' \item{data}{data.frame with the data for the prediction model}
+#' \item{x.interest}{data.frame with a single row for the instance to be explained.}
+#' \item{class}{In case of classification, class specifies the class for which to predict the probability. 
+#' By default the multiclass classification is done.}
+#' \item{sample.size}{The number of instances to be sampled from X.} 
+#' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
+#' \item{class}{The class column that should be looked at from the prediction model. 
+#' Ignored if output one-dimensional}
+#' \item{run}{logical. Should the Interpretation method be run?}
+#' }
+#' 
+#' @section Details
+#' For more details on the algorithm see https://christophm.github.io/interpretable-ml-book/shapley.html
+#' 
+#' @section Fields:
+#' \describe{
 #' \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
 #' \item{x.interest}{data.frame with the instance of interest}
 #' \item{y.hat.interest}{predicted value for instance of interest}
 #' \item{y.hat.averate}{average predicted value for data \code{X}} 
+#' }
+#' 
+#' @section Methods:
+#' \describe{
 #' \item{x}{method to get/set the instance. See examples for usage.}
-#' \item{data()}{method to extract the results of the shapley estimations. 
-#' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction (\code{phi})}
+#' \item{data()}{method to extract the results of the tree. 
+#' Returns the sampled feature X together with the leaf node information (columns ..node and ..path) 
+#' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
-#' @template args_internal_methods
+#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
+#' General R6 methods
+#' \item{\code{clone()}}{[internal] method to clone the R6 object.}
+#' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+#' }
+#' 
+#' 
 #' @references 
 #' Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x
 #' @seealso 
-#' \link{makeLime}
+#' \link{Lime}
+#' 
+#' @seealso 
+#' A different way to explain predictions: \link{Lime}
+#' 
 #' @export
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data
@@ -37,51 +79,34 @@
 #' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' X = Boston[-which(names(Boston) == "medv")]
 #' 
-#' # Then we explain the first instance of the dataset with the makeShapley() method:
+#' # Then we explain the first instance of the dataset with the Shapley method:
 #' x.interest = X[1,]
-#' shap = makeShapley(mod, X, x.interest = x.interest)
-#' shap
+#' shapley = Shapley$new(mod, X, x.interest = x.interest)
+#' shapley
 #' 
 #' # Look at the results in a table
-#' shap$data()
+#' shapley$data()
 #' # Or as a plot
-#' plot(shap)
+#' plot(shapley)
 #' 
-#' # makeShapley() also works with multiclass classification
+#' # Shapley() also works with multiclass classification
 #' library("randomForest")
 #' mod = randomForest(Species ~ ., data= iris, ntree=50)
 #' X = iris[-which(names(iris) == "Species")]
 #' 
 #' # Then we explain the first instance of the dataset with the makeShapley() method:
-#' shap = makeShapley(mod, X, x.interest = X[1,], predict.args = list(type='prob'))
-#' shap$data()
-#' plot(shap) 
+#' shapley = Shapley$new(mod, X, x.interest = X[1,], predict.args = list(type='prob'))
+#' shapley$data()
+#' plot(shapley) 
 #' 
 #'# You can also focus on one class
-#' shap = makeShapley(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'))
-#' shap$data()
-#' plot(shap) 
+#' shapley = Shapley$new(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'))
+#' shapley$data()
+#' plot(shapley) 
 #' 
-makeShapley = function(object, X, x.interest, sample.size=100, class=NULL, ...) {
-  samp = Data$new(X)
-  pred = makePredictor(object, class = class, ...)
-  
-  Shapley$new(predictor = pred, sampler = samp, x.interest = x.interest, sample.size = sample.size)$run()
-}
+NULL
 
-
-#' Shapley plot
-#' 
-#' plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction. 
-#' 
-#' For examples see \link{makeShapley}
-#' @param object  A Shapley R6 object
-#' @return ggplot2 plot object
-#' @seealso 
-#' \link{makeShapley}
-plot.Shapley = function(object) {
-  object$plot()
-}
+#'@export
 
 Shapley = R6::R6Class("Shapley", 
   inherit = Experiment,
@@ -90,12 +115,13 @@ Shapley = R6::R6Class("Shapley",
     y.hat.interest = NULL,
     y.hat.average = NULL,
     sample.size = NULL,
-    initialize = function(predictor, sampler, x.interest, sample.size) {
+    initialize = function(predictor, data, x.interest, sample.size = 100, class = NULL, run = TRUE, predict.args = NULL) {
       checkmate::assert_data_frame(x.interest)
-      super$initialize(predictor = predictor, sampler = sampler)
+      super$initialize(predictor = predictor, sampler = data, class = class, predict.args = predict.args)
       self$sample.size = sample.size
       private$set.x.interest(x.interest)
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
+      if(run) self$run()
     }
   ), 
   private = list(
@@ -166,7 +192,18 @@ Shapley = R6::R6Class("Shapley",
   )
 )
 
-
+#' Shapley plot
+#' 
+#' plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction. 
+#' 
+#' For examples see \link{makeShapley}
+#' @param object  A Shapley R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{makeShapley}
+plot.Shapley = function(object) {
+  object$plot()
+}
 
 
 
