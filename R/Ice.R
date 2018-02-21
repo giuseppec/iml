@@ -1,61 +1,80 @@
 #' Individual conditional expectations (Ice)
 #' 
-#' @description 
-#' makeIce() fits and plots individual conditional expectation function on an arbitrary machine learning model
+#' \code{Ice} fits and plots individual conditional expectation curves for prediction models.
 #' 
-#' @details
-#' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
-#' the learned \eqn{\hat{f}} directly for an individual, high-dimensional point \eqn{x_i}. 
+#' @format \code{\link{R6Class}} object.
+#' @name Ice
 #' 
-#' But we can take one of the input features of an observation and change its value. 
-#' We try out a grid of different values and observe the predicted outcome. 
-#' This gives us the predicted \eqn{\hat{y}} as a function of feature \eqn{X_j}, which we can plot as a line. 
-#' The \code{makeIce} method repeats this for all the observations in the dataset and plots all the lines in the same plot.
+#' @section Usage:
+#' \preformatted{
+#' ice = Ice$new(predictor, data, feature, grid.size = 10, center.at = NULL, run = TRUE)
 #' 
-#' Mathematically, we split up the learned function into its parts:
-#' \deqn{f(x_i) = f_1(x_{i,1}) + \ldots + f_p(x_{i,p}) + f_{1, 2}(x_{i,1}, x_{i,2}) + \ldots + f_{p-1, p}(x_{i,p-1}, x_{p}) + \ldots + f_{1\ldots p}(x_{i,1\ldots X_p})}, 
+#' plot(ice)
+#' ice$data
+#' print(ice)
+#' ice$feature = 2
+#' ice$center.at = 1
+#' }
 #' 
-#' And we can isolate the individual conditional expectation of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
+#' @section Arguments:
 #' 
-#' Partial dependence plots (\link{makePartialDependence}) are the averaged lines of ice curves. 
-#'  The returned object can be plotted is a \code{ggplot}
-#' object. This means it can be plotted directly or be extended using ggplots \code{+} operator.   
-#' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/ice.html
+#' For Ice$new():
+#' \describe{
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{data}{data.frame with the data for the prediction model.}
+#' \item{feature}{The feature index for which to compute the partial dependencies.}
+#' \item{grid.size}{The size of the grid for evaluating the predictions}
+#' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
+#' \item{run}{logical. Should the Interpretation method be run?}
+#' }
 #' 
-#' @param feature The index of the feature of interest.
-#' @template arg_grid.size 
-#' @param center.at The value for the centering of the plot. Numeric for numeric features, and the level name for factors.
-#' @return An individual conditional expectation object
-#' @template args_experiment_wrap
-#' @return 
-#' An Ice object (R6). Its methods and variables can be accessed with the \code{$}-operator:
-#' \item{feature.name}{The feature name for which the partial dependence was computed.}
-#' \item{feature.type}{The detected type of the feature, either "categorical" or "numerical".}
-#' \item{feature.index}{The index of the feature for which the individual conditional expectations weree computed.}
-#' \item{center.at}{The features value(s) at which the ice computations are centered.}
+#' 
+#' @section Details:
+#' The individual conditional expectation curves show how the prediction for each instance changes
+#' when we vary a single feature.
+#' 
+#' To learn more about individual conditional expectation, 
+#' read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/ice.html
+#' 
+#' 
+#' @section Fields:
+#' \describe{
+#' \item{feature.index}{The index of the features for which the partial dependence was computed.}
+#' \item{feature.names}{The names of the features for which the partial dependence was computed.}
+#' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
+#' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 #' \item{grid.size}{The size of the grid.}
-#' \item{sample.size}{The number of instances sampled from data X.}
+#' \item{n.features}{The number of features (either 1 or 2)}
+#' }
+#' 
+#' @section Methods:
+#' \describe{
+#' \item{center.at}{method to set the value(s) at which the ice computations are centered. See examples.}
+#' \item{grid.size}{The size of the grid.}
 #' \item{center}{method to get/set the feature value at which the ice computation should be centered. See examples for usage.}
 #' \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
-#' \item{data()}{method to extract the results of the partial dependence plot. 
+#' \item{data()}{method to extract the results of the individual conditional expectation. 
 #' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-#' Can be used for creating custom partial dependence plots.}
-#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
+#' Can be used for creating custom Ice plots.}
+#' \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
+#' }
 #' @references 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
 #' @seealso 
-#' \link{makePartialDependence} for partial dependence plots (aggregated ice plots)
-#' 
+#' \link{PartialDependence} for partial dependence plots (aggregated ice plots)
+#' @importFrom dplyr left_join
+
 #' @examples
 #' # We train a random forest on the Boston dataset:
 #' if (require("randomForest")) {
 #' 
 #' data("Boston", package  = "MASS")
-#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = makePredictor(rf)
 #' 
 #' # Compute the individual conditional expectations for the first feature
-#' ice = makeIce(mod, Boston, feature = 1)
+#' ice = Ice$new(mod, Boston, feature = 1)
 #' 
 #' # Plot the results directly
 #' plot(ice)
@@ -65,7 +84,7 @@
 #' plot(ice)
 #' 
 #' # Ice plots can be centered at initialization
-#' ice = makeIce(mod, Boston, feature = 1, center=75)
+#' ice = Ice$new(mod, Boston, feature = 1, center=75)
 #' plot(ice)
 #' 
 #' # Centering can also be removed
@@ -89,18 +108,19 @@
 #' 
 #' # Ice also works with multiclass classification
 #' library("randomForest")
-#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' rf = randomForest(Species ~ ., data= iris, ntree=50)
+#' mod = makePredictor(rf, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(makeIce(mod, iris, feature = 1, predict.args = list(type = 'prob')))
+#' plot(Ice$new(mod, iris, feature = 1))
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' plot(makeIce(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
+#' mod = makePredictor(rf, predict.args = list(type = 'prob'), class = 1)
+#' plot(Ice$new(mod, iris, feature = 1))
 #' 
 #' # Ice plots can be centered: 
-#' plot(makeIce(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
+#' plot(Ice$new(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
 #' }
-#' @importFrom dplyr left_join
 #' @export
 NULL
 
@@ -109,8 +129,7 @@ NULL
 Ice = R6::R6Class("Ice",
   inherit = PartialDependence,
   public = list( 
-    initialize = function(predictor, data, feature, grid.size = 10, 
-      anchor.value = NULL, center.at = NULL, run = TRUE) {
+    initialize = function(predictor, data, feature, grid.size = 10, center.at = NULL, run = TRUE) {
       checkmate::assert_number(center.at, null.ok = TRUE)
       private$anchor.value = center.at
       assert_count(feature)
