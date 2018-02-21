@@ -1,68 +1,82 @@
 #' Partial Dependence Plot
 #' 
-#' \code{PartialDependence} computes partial dependence functions of prediction models. 
+#' \code{PartialDependence} computes and plots partial dependence functions of prediction models. 
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name PartialDependence
 #' 
-#' @details
-#' Machine learning model try to learn the relationship \eqn{y = f(X)}. We can't visualize 
-#' the learned \eqn{\hat{f}} directly for high-dimensional X. 
-#' But we can split it into parts and plot the depependence of f(X) on a single or two features.
-#' \deqn{f(X) = f_1(X_1) + \ldots + f_p(X_p) + f_{1, 2}(X_1, X_2) + \ldots + f_{p-1, p}(X_{p-1}, X_p) + \ldots + f_{1\ldots p}(X_1\ldots X_p)}, 
+#' @section Usage:
+#' \preformatted{
+#' pdp = PartialDependence$new(predictor, data, feature, grid.size = 10, run = TRUE)
 #' 
-#' And we can isolate the partial dependence of \eqn{y} on a single \eqn{X_j}: \eqn{f_j(X_j)} and plot it. 
-#' We can even do this for higher dimensions, but a maximum of 2 features makes sense: \eqn{f_j(X_j) + f_k(X_k) + f_{jk}(X_{jk})}
+#' plot(pdp)
+#' pdp$data
+#' print(pdp)
+#' pdp$feature = 2
+#' }
 #' 
-#' The partial dependence for a feature \eqn{X_j} is estimated by spanning a grid over the feature space. 
-#' For each value of the grid, we replace in the whole dataset the \eqn{X_j}-value with the grid value, 
-#' predict the outcomes \eqn{\hat{y}} with the machine learning models and average the predictions. 
-#' This generate one point of the partial dependence curve. After doing this for the whole grid, 
-#' the outcome is a curve (or 2D plane), that then can be plotted. 
+#' @section Arguments:
 #' 
-#' To learn more about partial dependence plot, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/pdp.html
+#' For PartialDependence$new():
+#' \describe{
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{data}{data.frame with the data for the prediction model.}
+#' \item{feature}{The feature index for which to compute the partial dependencies. 
+#' Either a single number or vector of two numbers.}
+#' \item{grid.size}{The size of the grid for evaluating the predictions}
+#' \item{run}{logical. Should the Interpretation method be run?}
+#' }
+#' 
+#' @section Details:
+#' The partial dependence plot calculates and plots the dependence of f(X) on a single or two features.
+#' To learn more about partial dependence plot, read the Interpretable Machine Learning book: 
+#' https://christophm.github.io/interpretable-ml-book/pdp.html
 #' 
 #' 
-#' @seealso 
-#' \link{plot.PartialDependence}
-#' 
-#' \code{\link{makeIce}} for individual conditional expectation plots. 
-#' 
-#' 
-#' @template args_experiment_wrap
-#' @param feature The feature index for which to compute the partial dependencies. 
-#' Either a single number or vector of two numbers
-#' 
-#' @references 
-#' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
-#' @return 
-#' A PartialDependence object (R6). Its methods and variables can be accessed with the \code{$}-operator:
-#' \item{feature}{The feature names for which the partial dependence was computed.}
-#' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
+#' @section Fields:
+#' \describe{
 #' \item{feature.index}{The index of the features for which the partial dependence was computed.}
+#' \item{feature.names}{The names of the features for which the partial dependence was computed.}
+#' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 #' \item{grid.size}{The size of the grid.}
-#' \item{sample.size}{The number of instances sampled from data X.}
-#' \item{feature(index)}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
+#' \item{n.features}{The number of features (either 1 or 2)}
+#' }
+#' 
+#' @section Methods:
+#' \describe{
+#' \item{feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 #' \item{data()}{method to extract the results of the partial dependence plot. 
 #' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
 #' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
-#' @template args_internal_methods
-#' @template arg_grid.size 
+#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
+#' General R6 methods
+#' \item{\code{clone()}}{[internal] method to clone the R6 object.}
+#' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+#' }
+#' @seealso 
+#' \link{plot.PartialDependence}
+#' 
+#' \code{\link{Ice}} for individual conditional expectation plots. 
+#' 
+#' 
+#' 
+#' @references 
+#' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 #' 
 #' @importFrom tidyr gather
 #' @importFrom dplyr one_of group_by group_by_at summarise
 #' @import ggplot2
 #' @export
 #' @examples
-#' 
 #' # We train a random forest on the Boston dataset:
 #' library("randomForest")
 #' data("Boston", package  = "MASS")
-#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = makePredictor(rf)
 #' 
 #' # Compute the partial dependence for the first feature
-#' pdp.obj = makePartialDependence(mod, Boston, feature = 1)
+#' pdp.obj = PartialDependence$new(mod, Boston, feature = 1)
 #' 
 #' # Plot the results directly
 #' plot(pdp.obj)
@@ -81,21 +95,23 @@
 #' plot(pdp.obj)
 #' 
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = makePartialDependence(mod, Boston, feature = c(1,2))  
+#' pdp.obj = PartialDependence$new(mod, Boston, feature = c(1,2))  
 #' 
 #' # Partial dependence plots also works with multiclass classification
 #' library("randomForest")
-#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' rf = randomForest(Species ~ ., data= iris, ntree=50)
+#' mod = makePredictor(rf, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(makePartialDependence(mod, iris, feature = 1, predict.args = list(type = 'prob')))
+#' plot(makePartialDependence(mod, iris, feature = 1)
+#'
+#'  # Partial dependence plots support up to two features: 
+#' pdp.obj = PartialDependence$new(mod, iris, feature = c(1,3))
+#' pdp.obj$plot()   
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' plot(makePartialDependence(mod, iris, feature = 1, class = 1, predict.args = list(type = 'prob')))
-#' 
-#' # Partial dependence plots support up to two features: 
-#' pdp.obj = makePartialDependence(mod, iris, feature = c(1,3), predict.args = list(type = 'prob'))
-#' pdp.obj$plot()  
+#' mod = makePredictor(rf, predict.args = list(type = 'prob'), class = 1)
+#' plot(PartialDependence$new(mod, iris, feature = 1))
 #' 
 NULL
 
