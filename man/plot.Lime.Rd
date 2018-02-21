@@ -16,8 +16,8 @@ ggplot2 plot object
 plot.Lime() plots the feature effects of the Lime model.
 }
 \details{
-For examples see \link{makeLime}
+For examples see \link{Lime}
 }
 \seealso{
-\link{makeLime}
+\link{Lime}
 }

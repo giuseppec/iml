@@ -1,25 +1,69 @@
 #' Lime
 #' 
-#' @description 
-#' \code{makeLime()} fits a locally weighted linear regression model (logistic for classification) to explain a single machine learning prediction.
+#' \code{Lime} fits a locally weighted linear regression model (logistic for classification) to explain a single machine learning prediction.
 #' 
-#' @details 
+#' 
+#' @format \code{\link{R6Class}} object.
+#' @name Lime
+#' @section Usage:
+#' \preformatted{
+#' lime = Lime$new(predictor, data, x.interest, run = TRUE)
+#' 
+#' plot(lime)
+#' predict(lime, newdata)
+#' lime$data()
+#' print(lime)
+#' }
+#' 
+#' @section Arguments:
+#' 
+#' For Lime$new():
+#' \describe{
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
+#' \item{data}{data.frame with the data for the prediction model.}
+#' \item{x.interest}{data.frame with a single row for the instance to be explained.}
+#' \item{k}{the (maximum) number of features to be used for the surrogate model.}
+#' \item{run}{logical. Should the Interpretation method be run?}
+#' }
+#' 
+#' @section Details: 
 #' Data points are sampled and weighted by their proximity to the instance to be explained. 
 #' A weighted glm is fitted with the machine learning model prediction as target. 
 #' L1-regularisation is used to make the results sparse. 
 #' The resulting model can be seen as a surrogate for the machine learning model, which is only valid for that one point.
 #' Categorical features are binarized, depending on the category of the instance to be explained: 1 if the category is the same, 0 otherwise.
-#' 
+#' To learn more about local models, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/lime.html
+#'
 #' Differences to the original Lime implementation: 
 #' \itemize{
 #' \item Distance measure: Uses gower proximity (= 1 - gower distance) instead of a kernel based on the Euclidean distance. Has the advantage to have a meaningful neighbourhood and no kernel width to tune.
-#' \item Sampling: Sample from X instead of from normal distributions. 
+#' \item Sampling: Uses the original data instead of sampling from normal distributions. 
 #' Has the advantage to follow the original data distribution. 
 #' \item Visualisation: Plots effects instead of betas. Is the same for binary features, but makes a difference for numerical features. 
 #' For numerical features, plotting the betas makes no sense, 
 #' because a negative beta might still increase the prediction when the feature value is also negative.
 #' }
-#' To learn more about local models, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/lime.html
+#' 
+#' @section Fields:
+#' \describe{
+#' \item{model}{the glmnet object.}
+#' \item{best.fit.index}{the index of the best glmnet fit}
+#' \item{k}{The number of features as set by the user.}
+#' }
+#' 
+#' @section Methods:
+#' \describe{
+#' \item{x.interest}{method to get/set the instance. See examples for usage.}
+#' \item{data()}{method to extract the results of the local feature effects 
+#' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
+#' \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
+#' \item{predict()}{method to predict new data with the local model See also \link{predict.Lime}}
+#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
+#' General R6 methods
+#' \item{\code{clone()}}{[internal] method to clone the R6 object.}
+#' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+#' }
+#' 
 #' 
 #' @references 
 #' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
@@ -32,32 +76,17 @@
 #' \code{\link[lime]{lime}}, the original implementation
 #' @export
 #' @importFrom glmnet glmnet
-#' @template args_experiment_wrap
-#' @template arg_sample.size
-#' @template args_x.interest
-#' @param k the (maximum) number of features to be used for the surrogate model
-#' @return 
-#' A Lime object (R6). Its methods and variables can be accessed with the \code{$}-operator:
-#' \item{sample.size}{The number of samples from data X. The higher the more accurate the explanations become.}
-#' \item{model}{the glmnet object.}
-#' \item{best.fit.index}{the index of the best glmnet fit}
-#' \item{k}{The number of features as set by the user.}
-#' \item{x.interest}{method to get/set the instance. See examples for usage.}
-#' \item{data()}{method to extract the results of the local feature effects 
-#' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
-#' \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
-#' \item{predict()}{method to predict new data with the local model See also \link{predict.Lime}}
-#' @template args_internal_methods
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data
 #' library("randomForest")
 #' data("Boston", package  = "MASS")
-#' mod = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' X = Boston[-which(names(Boston) == "medv")]
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = makePredictor(rf)
 #' 
-#' # Then we explain the first instance of the dataset with the makeLime() method:
+#' # Then we explain the first instance of the dataset with the Lime method:
 #' x.interest = X[1,]
-#' lemon = makeLime(mod, X, x.interest = x.interest, k = 2)
+#' lemon = Lime$new(mod, X, x.interest = x.interest, k = 2)
 #' lemon
 #' 
 #' # Look at the results in a table
@@ -69,18 +98,14 @@
 #' lemon$x.interest = X[2,]
 #' plot(lemon)
 #'   
-#' # makeLime() also works with multiclass classification
+#' # Lime also works with multiclass classification
 #' library("randomForest")
-#' mod = randomForest(Species ~ ., data= iris, ntree=50)
+#' rf = randomForest(Species ~ ., data= iris, ntree=50)
+#' mod = makePredictor(rf,predict.args = list(type='prob'), class = 2)
 #' X = iris[-which(names(iris) == 'Species')]
 #' 
-#' # Then we explain the first instance of the dataset with the makeLime() method:
-#' lemon = makeLime(mod, X, x.interest = X[1,], predict.args = list(type='prob'), k = 3)
-#' lemon$data()
-#' plot(lemon) 
-#' 
-#'# You can also focus on one class
-#' lemon = makeLime(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'), k = 2)
+#' # Then we explain the first instance of the dataset with the Lime method:
+#' lemon = Lime$new(mod, X, x.interest = X[1,], k = 2)
 #' lemon$data()
 #' plot(lemon) 
 #' 
@@ -94,13 +119,13 @@ NULL
 #' 
 #' This function makes the Lime object call 
 #' its iternal object$predict() method. 
-#' For examples see \link{makeLime}
+#' For examples see \link{Lime}
 #' @param object A Lime R6 object
 #' @param newdata A data.frame for which to predict
 #' @param ... Further arguments for the objects predict function
 #' @return A data.frame with the predicted outcome. 
 #' @seealso 
-#' \link{makeLime}
+#' \link{Lime}
 #' @importFrom stats predict
 #' @export
 predict.Lime = function(object, newdata = NULL, ...) {
@@ -111,11 +136,11 @@ predict.Lime = function(object, newdata = NULL, ...) {
 #' 
 #' plot.Lime() plots the feature effects of the Lime model.
 #' 
-#' For examples see \link{makeLime}
+#' For examples see \link{Lime}
 #' @param object  A Lime R6 object
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{makeLime}
+#' \link{Lime}
 plot.Lime = function(object) {
   object$plot()
 }
@@ -129,7 +154,6 @@ Lime = R6::R6Class("Lime",
     k = NULL,
     model = NULL,
     best.fit.index = NULL,
-    sample.size = NULL,
     predict = function(newdata = NULL, ...) {
       if (is.null(newdata)) newdata = self$x
       X.recode = recode(newdata, self$x)
@@ -142,17 +166,16 @@ Lime = R6::R6Class("Lime",
         data.frame(prediction = pred)
       }
     },
-    initialize = function(predictor, data, x.interest, sample.size = 1000, k = 3, run = TRUE) {
+    initialize = function(predictor, data, x.interest, k = 3, run = TRUE) {
       checkmate::assert_number(k, lower = 1, upper = ncol(data))
       checkmate::assert_data_frame(x.interest)
       if (!require("glmnet")) {
         stop("Please install glmnet.")
       }
       super$initialize(predictor = predictor, data = data)
-      self$sample.size = sample.size
       self$k = k
       self$x = x.interest
-      private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
+      private$get.data = function(...) private$sampler$get.x(...)
       if(run) self$run()
     }
   ),

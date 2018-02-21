@@ -22,8 +22,8 @@ Predict the response for newdata with the Lime model.
 \details{
 This function makes the Lime object call 
 its iternal object$predict() method. 
-For examples see \link{makeLime}
+For examples see \link{Lime}
 }
 \seealso{
-\link{makeLime}
+\link{Lime}
 }
