@@ -103,9 +103,9 @@
 #' mod = makePredictor(rf, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(makePartialDependence(mod, iris, feature = 1)
+#' plot(PartialDependence$new(mod, iris, feature = 1))
 #'
-#'  # Partial dependence plots support up to two features: 
+#' # Partial dependence plots support up to two features: 
 #' pdp.obj = PartialDependence$new(mod, iris, feature = c(1,3))
 #' pdp.obj$plot()   
 #' 
@@ -246,12 +246,12 @@ PartialDependence = R6::R6Class("PartialDependence",
 #' 
 #' plot.PartialDependence() plots a line for a single feature and a tile plot for 2 features.
 #' 
-#' For examples see \link{makePartialDependence}
+#' For examples see \link{PartialDependence}
 #' @param x The partial dependence. A PartialDependence R6 object
 #' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{makePartialDependence}
+#' \link{PartialDependence}
 plot.PartialDependence = function(x, ...) {
   x$plot(...)
 }

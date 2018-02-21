@@ -123,7 +123,7 @@ mod = makePredictor(rf, predict.args = list(type = 'prob'), class = 1)
 plot(Ice$new(mod, iris, feature = 1))
 
 # Ice plots can be centered: 
-plot(Ice$new(mod, iris, feature = 1, center = 1, predict.args = list(type = 'prob')))
+plot(Ice$new(mod, iris, feature = 1, center = 1))
 }
 }
 \references{

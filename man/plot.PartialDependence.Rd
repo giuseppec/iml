@@ -18,8 +18,8 @@ ggplot2 plot object
 plot.PartialDependence() plots a line for a single feature and a tile plot for 2 features.
 }
 \details{
-For examples see \link{makePartialDependence}
+For examples see \link{PartialDependence}
 }
 \seealso{
-\link{makePartialDependence}
+\link{PartialDependence}
 }

@@ -101,9 +101,9 @@ rf = randomForest(Species ~ ., data= iris, ntree=50)
 mod = makePredictor(rf, predict.args = list(type = 'prob'))
 
 # For some models we have to specify additional arguments for the predict function
-plot(makePartialDependence(mod, iris, feature = 1)
+plot(PartialDependence$new(mod, iris, feature = 1))
 
- # Partial dependence plots support up to two features: 
+# Partial dependence plots support up to two features: 
 pdp.obj = PartialDependence$new(mod, iris, feature = c(1,3))
 pdp.obj$plot()   
 
