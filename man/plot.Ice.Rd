@@ -18,8 +18,8 @@ ggplot2 plot object
 plot.Ice() plots individiual expectation curves for each observation for one feature.
 }
 \details{
-For examples see \link{makeIce}
+For examples see \link{Ice}
 }
 \seealso{
-\link{makeIce}
+\link{Ice}
 }

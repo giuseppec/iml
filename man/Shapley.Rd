@@ -69,7 +69,8 @@ General R6 methods
 # First we fit a machine learning model on the Boston housing data
 library("randomForest")
 data("Boston", package  = "MASS")
-mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
+mod = makePredictor(rf)
 X = Boston[-which(names(Boston) == "medv")]
 
 # Then we explain the first instance of the dataset with the Shapley method:
@@ -84,16 +85,18 @@ plot(shapley)
 
 # Shapley() also works with multiclass classification
 library("randomForest")
-mod = randomForest(Species ~ ., data= iris, ntree=50)
+rf = randomForest(Species ~ ., data= iris, ntree=50)
+mod = makePredictor(rf, predict.args = list(type='prob'))
 X = iris[-which(names(iris) == "Species")]
 
-# Then we explain the first instance of the dataset with the makeShapley() method:
-shapley = Shapley$new(mod, X, x.interest = X[1,], predict.args = list(type='prob'))
+# Then we explain the first instance of the dataset with the Shapley() method:
+shapley = Shapley$new(mod, X, x.interest = X[1,])
 shapley$data()
 plot(shapley) 
 
 # You can also focus on one class
-shapley = Shapley$new(mod, X, x.interest = X[1,], class = 2, predict.args = list(type='prob'))
+mod = makePredictor(rf, predict.args = list(type='prob'), class = 2)
+shapley = Shapley$new(mod, X, x.interest = X[1,])
 shapley$data()
 plot(shapley) 
 

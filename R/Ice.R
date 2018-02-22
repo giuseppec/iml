@@ -204,12 +204,12 @@ Ice = R6::R6Class("Ice",
 #' 
 #' plot.Ice() plots individiual expectation curves for each observation for one feature.
 #' 
-#' For examples see \link{makeIce}
+#' For examples see \link{Ice}
 #' @param x The individual conditional expectation curves. An Ice R6 object
 #' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{makeIce}
+#' \link{Ice}
 plot.Ice = function(x, ...) {
   x$plot()
 }

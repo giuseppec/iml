@@ -16,8 +16,8 @@ ggplot2 plot object
 plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction.
 }
 \details{
-For examples see \link{makeShapley}
+For examples see \link{Shapley}
 }
 \seealso{
-\link{makeShapley}
+\link{Shapley}
 }

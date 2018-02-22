@@ -116,7 +116,7 @@ Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Exp
 \seealso{
 \code{\link{plot.Lime}} and \code{\link{predict.Lime}}
 
-\code{\link{makeShapley}} can also be used to explain single predictions
+\code{\link{Shapley}} can also be used to explain single predictions
 
 \code{\link[lime]{lime}}, the original implementation
 }

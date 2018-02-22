@@ -20,8 +20,8 @@ ggplot2 plot object
 plot.FeatureImp() plots the feature importance results of an FeatureImp object.
 }
 \details{
-For examples see \link{makeFeatureImp}
+For examples see \link{FeatureImp}
 }
 \seealso{
-\link{makeFeatureImp}
+\link{FeatureImp}
 }

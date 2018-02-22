@@ -6,8 +6,7 @@
 #' @name TreeSurrogate
 #' @section Usage:
 #' \preformatted{
-#' tree = TreeSurrogate$new(predictor, data, sample.size = 100, maxdepth = 2, 
-#'   tree.args = NULL, run = TRUE)
+#' tree = TreeSurrogate$new(predictor, data, maxdepth = 2, tree.args = NULL, run = TRUE)
 #' 
 #' plot(tree)
 #' predict(tree, newdata)
@@ -21,7 +20,6 @@
 #' \describe{
 #' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 #' \item{data}{data.frame with the data for the prediction model.}
-#' \item{sample.size}{The number of instances to be sampled from the data.} 
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' \item{tree.args}{A list with further arguments for \code{ctree}}
@@ -35,7 +33,6 @@
 #' @section Fields:
 #' \describe{
 #' \item{maxdepth}{the maximal tree depth set by the user.}
-#' \item{sample.size}{The sample size used.}
 #' \item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
 #' }
 #'  
@@ -61,7 +58,7 @@
 #' mod = makePredictor(rf) 
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
-#' dt = TreeSurrogate$new(mod, Boston[-which(names(Boston) == "medv")], 200)
+#' dt = TreeSurrogate$new(mod, Boston[-which(names(Boston) == "medv")])
 #' 
 #' # Plot the resulting leaf nodes
 #' plot(dt) 
@@ -76,11 +73,11 @@
 #' 
 #' # It also works for classification
 #' rf = randomForest(Species ~ ., data = iris, ntree = 50)
-#' mod = makePredictor(rf, predict.args = list(type + "prob"), class = 3)
+#' mod = makePredictor(rf, predict.args = list(type = "prob"), class = 3)
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
 #' X = iris[-which(names(iris) == "Species")]
-#' dt = TreeSurrogate$new(mod, X, 200,  maxdepth=2)
+#' dt = TreeSurrogate$new(mod, X,  maxdepth=2)
 #'
 #' # Plot the resulting leaf nodes
 #' plot(dt) 
@@ -115,14 +112,10 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     tree = NULL,
     # Maximal depth as set by the user
     maxdepth = NULL,
-    sample.size = NULL,
-    initialize = function(predictor, data, sample.size = 100, maxdepth = 2, 
-      tree.args = NULL, run = TRUE) {
+    initialize = function(predictor, data, maxdepth = 2, tree.args = NULL, run = TRUE) {
       super$initialize(predictor, data)
-      self$sample.size = sample.size
       private$tree.args = tree.args
       self$maxdepth = maxdepth
-      private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
       if(run) self$run()
     }, 
     predict = function(newdata, type = "prob", ...) {
