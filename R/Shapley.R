@@ -94,7 +94,7 @@
 #'# You can also focus on one class
 #' mod = Model$new(rf, predict.args = list(type='prob'), class = 2)
 #' shapley = Shapley$new(mod, X, x.interest = X[1,])
-#' shapley$data()
+#' shapley$results
 #' plot(shapley) 
 #' 
 NULL
