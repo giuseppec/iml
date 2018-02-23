@@ -45,7 +45,7 @@
 #' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 #' \item{grid.size}{The size of the grid.}
 #' \item{n.features}{The number of features (either 1 or 2)}
-#' \item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+#' \item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}.} 
 #' }
 #' 
 #' @section Methods:
@@ -54,7 +54,6 @@
 #' \item{grid.size}{The size of the grid.}
 #' \item{center}{method to get/set the feature value at which the ice computation should be centered. See examples for usage.}
 #' \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
-#' Can be used for creating custom Ice plots.}
 #' \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
 #' }
 #' @references 

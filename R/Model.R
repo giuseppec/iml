@@ -10,6 +10,7 @@
 #' model = Model$new(object, class=NULL, predict.args = NULL)
 #' 
 #' model$predict(newdata)
+#' }
 #' 
 #' @section Arguments:
 #' \describe{

@@ -1,8 +1,3 @@
-
-#' Generic InterpretationMethod class
-#' 
-NULL
-
 InterpretationMethod = R6::R6Class("InterpretationMethod",
   public = list(
     # The aggregated results of the experiment

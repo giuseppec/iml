@@ -11,6 +11,15 @@ object of type Model
 A \code{Model} object wraps any machine learning model (mlr, caret, randomForest, ...). 
 The object is to be used for the interpretation methods.
 }
+\section{Usage}{
+
+\preformatted{
+model = Model$new(object, class=NULL, predict.args = NULL)
+
+model$predict(newdata)
+}
+}
+
 \section{Details}{
  
 In case of classification, the model must return the probabilities. Model doesn't handle machine learning
