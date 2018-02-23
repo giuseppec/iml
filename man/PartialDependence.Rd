@@ -13,7 +13,7 @@
 pdp = PartialDependence$new(model, data, feature, grid.size = 10, run = TRUE)
 
 plot(pdp)
-pdp$data
+pdp$results
 print(pdp)
 pdp$feature = 2
 }
@@ -48,6 +48,8 @@ https://christophm.github.io/interpretable-ml-book/pdp.html
 \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 \item{grid.size}{The size of the grid.}
 \item{n.features}{The number of features (either 1 or 2)}
+\item{data()}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+Can be used for creating custom partial dependence plots.}
 }
 }
 
@@ -55,9 +57,6 @@ https://christophm.github.io/interpretable-ml-book/pdp.html
 
 \describe{
 \item{feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
-\item{data()}{method to extract the results of the partial dependence plot. 
-Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-Can be used for creating custom partial dependence plots.}
 \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 General R6 methods
@@ -85,7 +84,7 @@ library("ggplot2")
 plot(pdp.obj) + theme_bw()
 
 # If you want to do your own thing, just extract the data: 
-pdp.dat = pdp.obj$data()
+pdp.dat = pdp.obj$results
 head(pdp.dat)
 
 # You can reuse the pdp object for other features: 

@@ -13,7 +13,7 @@
 #'   sample.size = 100, run = TRUE)
 #' 
 #' plot(shapley)
-#' shapley$data()
+#' shapley$results
 #' print(shapley)
 #' }
 #' 
@@ -37,15 +37,14 @@
 #' \item{x.interest}{data.frame with the instance of interest}
 #' \item{y.hat.interest}{predicted value for instance of interest}
 #' \item{y.hat.averate}{average predicted value for data \code{X}} 
+#' \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
+#' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
 #' \item{explain(x.interest)}{method to set a new data point which to explain.}
-#' \item{data()}{method to extract the results of the tree. 
-#' Returns the sampled feature X together with the leaf node information (columns ..node and ..path) 
-#' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' General R6 methods
@@ -77,7 +76,7 @@
 #' shapley
 #' 
 #' # Look at the results in a table
-#' shapley$data()
+#' shapley$results
 #' # Or as a plot
 #' plot(shapley)
 #' 
@@ -89,7 +88,7 @@
 #' 
 #' # Then we explain the first instance of the dataset with the Shapley() method:
 #' shapley = Shapley$new(mod, X, x.interest = X[1,])
-#' shapley$data()
+#' shapley$results
 #' plot(shapley) 
 #' 
 #'# You can also focus on one class
@@ -174,7 +173,7 @@ Shapley = R6::R6Class("Shapley",
       self$y.hat.average = colMeans(private$model$predict(private$sampler$get.x()))
     },
     generate.plot = function() {
-      p = ggplot(private$results) + geom_point(aes(y = feature, x = phi))
+      p = ggplot(self$results) + geom_point(aes(y = feature, x = phi))
       if (private$multi.class) p = p + facet_wrap("class")
       p
     },

@@ -14,7 +14,7 @@ Importance is measured as the factor by which the model's prediction error incre
 imp = FeatureImp$new(model, data, y, loss, method = "shuffle", run = TRUE)
 
 plot(imp)
-imp$data()
+imp$results
 imp$tree
 print(imp)
 }
@@ -56,14 +56,13 @@ You can also provide a function directly. It has to take the actual value as its
 \describe{
 \item{error.original}{The loss of the model before perturbing features.}
 \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
+\item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
 }
 }
 
 \section{Methods}{
 
 \describe{
-\item{data()}{method to extract the results of the feature importance computation.
-Returns a data.frame with importance and permutation error measurements per feature.}
 \item{plot()}{method to plot the feature importances. See \link{plot.FeatureImp}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 General R6 methods
@@ -95,7 +94,7 @@ library("ggplot2")
 plot(imp) + theme_bw()
 
 # If you want to do your own thing, just extract the data: 
-imp.dat = imp$data()
+imp.dat = imp$results
 head(imp.dat)
 ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
 theme_bw()
@@ -111,7 +110,7 @@ imp = FeatureImp$new(mod, X, y, loss = "ce")
 plot(imp)
 # Here we encounter the special case that the machine learning model perfectly predicts
 # The importance becomes infinite
-imp$data()
+imp$results
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y

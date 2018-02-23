@@ -10,7 +10,7 @@
 #' 
 #' plot(tree)
 #' predict(tree, newdata)
-#' tree$data()
+#' tree$results
 #' print(tree)
 #' }
 #' 
@@ -33,14 +33,13 @@
 #' @section Fields:
 #' \describe{
 #' \item{maxdepth}{the maximal tree depth set by the user.}
+#' \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
+#' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
 #' }
 #'  
 #' @section Methods:
 #' \describe{
-#' \item{data()}{method to extract the results of the tree. 
-#' Returns the sampled feature X together with the leaf node information (columns ..node and ..path) 
-#' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}}
 #' \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
@@ -67,7 +66,7 @@
 #' predict(dt, Boston[1:10,])
 #' 
 #' # Extract the results
-#' dat = dt$data()
+#' dat = dt$results
 #' head(dat)
 #' 
 #' 
@@ -92,7 +91,7 @@
 #' predict(dt, iris.sample, type = "class")
 #' 
 #' # Extract the dataset
-#' dat = dt$data()
+#' dat = dt$results
 #' head(dat)
 #' @seealso 
 #' \link{predict.TreeSurrogate}
@@ -174,12 +173,12 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
       cbind(design, result)
     }, 
     generate.plot = function() {
-      p = ggplot(private$results) + 
+      p = ggplot(self$results) + 
         geom_boxplot(aes(y = ..y.hat, x = "")) + 
         scale_x_discrete("") + 
         facet_wrap("..path")
       if (private$multi.class) {
-        plot.data = private$results
+        plot.data = self$results
         # max class for model
         plot.data$..class = private$object.predict.colnames[apply(plot.data[private$object.predict.colnames], 1, which.max)]
         plot.data$..class = gsub("..y.hat:", "", plot.data$..class)

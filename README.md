@@ -37,21 +37,21 @@ library("iml")
 
 library("randomForest")
 data("Boston", package  = "MASS")
-mod = randomForest(medv ~ ., data = Boston, ntree = 50)
-predictor = makePredictor(mod)
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+model = Model$new(rf)
 ```
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 
 ``` r
-imp = FeatureImp$new(predictor, Boston, y = Boston$medv, loss = "mae")
+imp = FeatureImp$new(model, Boston, y = Boston$medv, loss = "mae")
 plot(imp)
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 ``` r
-imp$data()
+imp$results
 ```
 
     ## # A tibble: 14 x 3
@@ -75,7 +75,7 @@ imp$data()
 ### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
 
 ``` r
-tree = TreeSurrogate$new(predictor, Boston[which(names(Boston) != "medv")], maxdepth = 2)
+tree = TreeSurrogate$new(model, Boston[which(names(Boston) != "medv")], maxdepth = 2)
 plot(tree)
 ```
 
@@ -84,7 +84,7 @@ plot(tree)
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 
 ``` r
-pdp.obj = PartialDependence$new(predictor, Boston, feature = 13)
+pdp.obj = PartialDependence$new(model, Boston, feature = 13)
 plot(pdp.obj)
 ```
 
@@ -93,7 +93,7 @@ plot(pdp.obj)
 ### How does lstat influence the individual predictions? (ICE)
 
 ``` r
-ice.curves = Ice$new(predictor, Boston[1:100,], feature = 13)
+ice.curves = Ice$new(model, Boston[1:100,], feature = 13)
 plot(ice.curves) 
 ```
 
@@ -102,14 +102,14 @@ plot(ice.curves)
 ### Explain a single prediction with a local linear model. (LIME)
 
 ``` r
-lime.explain = Lime$new(predictor, Boston, x.interest = Boston[1,])
-lime.explain$data()
+lime.explain = Lime$new(model, Boston, x.interest = Boston[1,])
+lime.explain$results
 ```
 
-    ##              beta x.scaled     effect x.original feature feature.value
-    ## rm     0.45640527    6.575  3.0008647      6.575      rm      rm=6.575
-    ## lstat -0.04312273    4.980 -0.2147512       4.98   lstat    lstat=4.98
-    ## medv   0.78621621   24.000 18.8691890         24    medv       medv=24
+    ##             beta x.scaled     effect x.original feature feature.value
+    ## rm     0.6352285    6.575  4.1766275      6.575      rm      rm=6.575
+    ## lstat -0.0516669    4.980 -0.2573012       4.98   lstat    lstat=4.98
+    ## medv   0.7919096   24.000 19.0058305         24    medv       medv=24
 
 ``` r
 plot(lime.explain)
@@ -120,28 +120,28 @@ plot(lime.explain)
 ### Explain a single prediction with game theory. (Shapley)
 
 ``` r
-shapley.explain = Shapley$new(predictor, Boston, x.interest = Boston[1, ])
-shapley.explain$data()
+shapley.explain = Shapley$new(model, Boston, x.interest = Boston[1, ])
+shapley.explain$results
 ```
 
     ## # A tibble: 14 x 3
     ## # Groups:   feature [?]
-    ##    feature     phi phi.var
-    ##    <fct>     <dbl>   <dbl>
-    ##  1 age     -0.0290  0.235 
-    ##  2 black    0.0203  0.124 
-    ##  3 chas    -0.0216  0.0158
-    ##  4 crim    -0.339   1.37  
-    ##  5 dis     -0.462   4.14  
-    ##  6 indus    0.590   1.10  
-    ##  7 lstat    2.13   12.6   
-    ##  8 medv     0       0     
-    ##  9 nox     -0.218   0.450 
-    ## 10 ptratio  0.427   1.01  
-    ## 11 rad     -0.237   0.0904
-    ## 12 rm      -1.37   25.7   
-    ## 13 tax      0.0216  0.136 
-    ## 14 zn       0.286   0.0978
+    ##    feature      phi  phi.var
+    ##    <fct>      <dbl>    <dbl>
+    ##  1 age     -0.0801   0.145  
+    ##  2 black   -0.00383  0.0983 
+    ##  3 chas    -0.00635  0.00660
+    ##  4 crim    -0.331    1.90   
+    ##  5 dis     -0.370    2.73   
+    ##  6 indus    0.595    1.30   
+    ##  7 lstat    3.87    23.5    
+    ##  8 medv     0        0      
+    ##  9 nox     -0.0175   1.25   
+    ## 10 ptratio  0.491    0.917  
+    ## 11 rad     -0.209    0.106  
+    ## 12 rm      -0.0712  10.4    
+    ## 13 tax      0.0147   0.140  
+    ## 14 zn       0.202    0.0937
 
 ``` r
 plot(shapley.explain)

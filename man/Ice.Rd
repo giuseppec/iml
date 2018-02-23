@@ -13,7 +13,7 @@
 ice = Ice$new(model, data, feature, grid.size = 10, center.at = NULL, run = TRUE)
 
 plot(ice)
-ice$data
+ice$results
 print(ice)
 ice$feature = 2
 ice$center.at = 1
@@ -41,32 +41,6 @@ when we vary a single feature.
 
 To learn more about individual conditional expectation, 
 read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/ice.html
-}
-
-\section{Fields}{
-
-\describe{
-\item{feature.index}{The index of the features for which the partial dependence was computed.}
-\item{feature.names}{The names of the features for which the partial dependence was computed.}
-\item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
-\item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
-\item{grid.size}{The size of the grid.}
-\item{n.features}{The number of features (either 1 or 2)}
-}
-}
-
-\section{Methods}{
-
-\describe{
-\item{center.at}{method to set the value(s) at which the ice computations are centered. See examples.}
-\item{grid.size}{The size of the grid.}
-\item{center}{method to get/set the feature value at which the ice computation should be centered. See examples for usage.}
-\item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
-\item{data()}{method to extract the results of the individual conditional expectation. 
-Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-Can be used for creating custom Ice plots.}
-\item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
-}
 }
 
 \examples{
@@ -100,7 +74,7 @@ library("ggplot2")
 plot(ice) + theme_bw()
 
 # If you want to do your own thing, just extract the data: 
-iceData = ice$data()
+iceData = ice$results
 head(iceData)
 ggplot(iceData) + 
 geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 

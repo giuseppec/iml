@@ -7,11 +7,11 @@
 #' @name Lime
 #' @section Usage:
 #' \preformatted{
-#' lime = Lime$new(model, data, x.interest = NULL, run = TRUE)
+#' lime = Lime$new(model, data, x.interest = NULL, k = 3 run = TRUE)
 #' 
 #' plot(lime)
 #' predict(lime, newdata)
-#' lime$data()
+#' lime$results
 #' lime$explain(x.interest)
 #' print(lime)
 #' }
@@ -47,17 +47,16 @@
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{model}{the glmnet object.}
 #' \item{best.fit.index}{the index of the best glmnet fit}
 #' \item{k}{The number of features as set by the user.}
+#' \item{model}{the glmnet object.}
+#' \item{results}{data.frame with the feature names (\code{feature}) and contributions to the prediction}
 #' \item{x.interest}{The data.frame with the instance to be explained See examples for usage.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
 #' \item{explain(x.interest)}{method to set a new data point which to explain.}
-#' \item{data()}{method to extract the results of the local feature effects 
-#' Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
 #' \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
 #' \item{predict()}{method to predict new data with the local model See also \link{predict.Lime}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
@@ -92,7 +91,7 @@
 #' lemon
 #' 
 #' # Look at the results in a table
-#' lemon$data()
+#' lemon$results
 #' # Or as a plot
 #' plot(lemon)
 #'
@@ -110,44 +109,11 @@
 #' 
 #' # Then we explain the first instance of the dataset with the Lime method:
 #' lemon = Lime$new(mod, X, x.interest = X[1,], k = 2)
-#' lemon$data()
+#' lemon$results
 #' plot(lemon) 
 #' 
 NULL
 
-
-
-#' Lime prediction
-#' 
-#' Predict the response for newdata with the Lime model.
-#' 
-#' This function makes the Lime object call 
-#' its iternal object$predict() method. 
-#' For examples see \link{Lime}
-#' @param object A Lime R6 object
-#' @param newdata A data.frame for which to predict
-#' @param ... Further arguments for the objects predict function
-#' @return A data.frame with the predicted outcome. 
-#' @seealso 
-#' \link{Lime}
-#' @importFrom stats predict
-#' @export
-predict.Lime = function(object, newdata = NULL, ...) {
-  object$predict(newdata = newdata, ...)
-}
-
-#' Lime plot
-#' 
-#' plot.Lime() plots the feature effects of the Lime model.
-#' 
-#' For examples see \link{Lime}
-#' @param object  A Lime R6 object
-#' @return ggplot2 plot object
-#' @seealso 
-#' \link{Lime}
-plot.Lime = function(object) {
-  object$plot()
-}
 
 #' @export
 
@@ -220,7 +186,7 @@ Lime = R6::R6Class("Lime",
     },
     intervene = function() private$X.sample, 
     generate.plot = function() {
-      p = ggplot(private$results) + geom_point(aes(y = feature.value, x = effect))
+      p = ggplot(self$results) + geom_point(aes(y = feature.value, x = effect))
       if (private$multi.class) p = p + facet_wrap("..class")
       p
     },
@@ -231,6 +197,39 @@ Lime = R6::R6Class("Lime",
   )
 )
 
+
+
+#' Lime prediction
+#' 
+#' Predict the response for newdata with the Lime model.
+#' 
+#' This function makes the Lime object call 
+#' its iternal object$predict() method. 
+#' For examples see \link{Lime}
+#' @param object A Lime R6 object
+#' @param newdata A data.frame for which to predict
+#' @param ... Further arguments for the objects predict function
+#' @return A data.frame with the predicted outcome. 
+#' @seealso 
+#' \link{Lime}
+#' @importFrom stats predict
+#' @export
+predict.Lime = function(object, newdata = NULL, ...) {
+  object$predict(newdata = newdata, ...)
+}
+
+#' Lime plot
+#' 
+#' plot.Lime() plots the feature effects of the Lime model.
+#' 
+#' For examples see \link{Lime}
+#' @param object  A Lime R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{Lime}
+plot.Lime = function(object) {
+  object$plot()
+}
 
 
 

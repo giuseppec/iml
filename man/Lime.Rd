@@ -10,11 +10,12 @@
 \section{Usage}{
 
 \preformatted{
-lime = Lime$new(model, data, x.interest, run = TRUE)
+lime = Lime$new(model, data, x.interest = NULL, run = TRUE)
 
 plot(lime)
 predict(lime, newdata)
-lime$data()
+lime$results
+lime$explain(x.interest)
 print(lime)
 }
 }
@@ -55,18 +56,18 @@ because a negative beta might still increase the prediction when the feature val
 \section{Fields}{
 
 \describe{
-\item{model}{the glmnet object.}
 \item{best.fit.index}{the index of the best glmnet fit}
 \item{k}{The number of features as set by the user.}
+\item{model}{the glmnet object.}
+\item{results}{data.frame with the feature names (\code{feature}) and contributions to the prediction}
+\item{x.interest}{The data.frame with the instance to be explained See examples for usage.}
 }
 }
 
 \section{Methods}{
 
 \describe{
-\item{x.interest}{method to get/set the instance. See examples for usage.}
-\item{data()}{method to extract the results of the local feature effects 
-Returns a data.frame with the feature names (\code{feature}) and contributions to the prediction}
+\item{explain(x.interest)}{method to set a new data point which to explain.}
 \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
 \item{predict()}{method to predict new data with the local model See also \link{predict.Lime}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
@@ -90,12 +91,14 @@ lemon = Lime$new(mod, X, x.interest = x.interest, k = 2)
 lemon
 
 # Look at the results in a table
-lemon$data()
+lemon$results
 # Or as a plot
 plot(lemon)
 
 # Reuse the object with a new instance to explain
-lemon$x.interest = X[2,]
+lemon$x.interest
+lemon$explain(X[2,])
+lemon$x.interest
 plot(lemon)
   
 # Lime also works with multiclass classification
@@ -106,7 +109,7 @@ X = iris[-which(names(iris) == 'Species')]
 
 # Then we explain the first instance of the dataset with the Lime method:
 lemon = Lime$new(mod, X, x.interest = X[1,], k = 2)
-lemon$data()
+lemon$results
 plot(lemon) 
 
 }

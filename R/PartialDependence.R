@@ -10,7 +10,7 @@
 #' pdp = PartialDependence$new(model, data, feature, grid.size = 10, run = TRUE)
 #' 
 #' plot(pdp)
-#' pdp$data
+#' pdp$results
 #' print(pdp)
 #' pdp$feature = 2
 #' }
@@ -40,14 +40,13 @@
 #' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 #' \item{grid.size}{The size of the grid.}
 #' \item{n.features}{The number of features (either 1 or 2)}
+#' \item{data()}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+#' Can be used for creating custom partial dependence plots.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
 #' \item{feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
-#' \item{data()}{method to extract the results of the partial dependence plot. 
-#' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-#' Can be used for creating custom partial dependence plots.}
 #' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' General R6 methods
@@ -87,7 +86,7 @@
 #' plot(pdp.obj) + theme_bw()
 #' 
 #' # If you want to do your own thing, just extract the data: 
-#' pdp.dat = pdp.obj$data()
+#' pdp.dat = pdp.obj$results
 #' head(pdp.dat)
 #' 
 #' # You can reuse the pdp object for other features: 
@@ -187,7 +186,7 @@ PartialDependence = R6::R6Class("PartialDependence",
     },
     generate.plot = function() {
       if (self$n.features == 1) {
-        p = ggplot(private$results, mapping = aes_string(x = self$feature.names,"y.hat"))
+        p = ggplot(self$results, mapping = aes_string(x = self$feature.names,"y.hat"))
         if (self$feature.type == "numerical") {
           p = p + geom_path() 
         } else if (self$feature.type == "categorical") {
@@ -195,14 +194,14 @@ PartialDependence = R6::R6Class("PartialDependence",
         }
       } else if (self$n.features == 2) {
         if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
-          p = ggplot(private$results) + 
+          p = ggplot(self$results) + 
             geom_tile(aes_string(x = self$feature.names[1], 
               y = self$feature.names[2], 
               fill = "y.hat"))
         } else {
           categorical.feature = self$feature.names[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.names, categorical.feature)
-          p = ggplot(private$results) + 
+          p = ggplot(self$results) + 
             geom_line(aes_string(x = numerical.feature, y = "y.hat", 
               group = categorical.feature, color = categorical.feature))
         }
@@ -256,19 +255,6 @@ plot.PartialDependence = function(x, ...) {
   x$plot(...)
 }
 
-## TODO:document
-## TODO: Write test
-
-get.1D.grid = function(feature, feature.type, grid.size) {
-  checkmate::assert_vector(feature)
-  if (feature.type == "numerical") {
-    grid = seq(from = min(feature), 
-      to = max(feature), 
-      length.out = grid.size)
-  } else if (feature.type == "categorical") {
-    grid = unique(feature)
-  }
-}
 
 
 

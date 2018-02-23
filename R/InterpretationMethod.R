@@ -1,12 +1,12 @@
 
 #' Generic InterpretationMethod class
 #' 
-#' All Interp
-#' 
 NULL
 
 InterpretationMethod = R6::R6Class("InterpretationMethod",
   public = list(
+    # The aggregated results of the experiment
+    results = NULL,
     plot = function(...) {
       private$plot.data = private$generate.plot(...)
       if (!is.null(private$plot.data)) {
@@ -22,9 +22,6 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       private$sampler = data
       private$get.data = private$sampler$get.x
     },
-    data = function() {
-      private$results
-    },
     print = function() {
       cat("Interpretation method: ", class(self)[1], "\n")
       private$print.parameters()
@@ -34,7 +31,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       print(private$sampler)
       cat("\n\nHead of results:\n")
       if (private$finished) {
-        print(head(self$data()))
+        print(head(self$results))
       }
     },
     run = function(force = FALSE, ...) {
@@ -48,7 +45,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         private$multi.class = ifelse(ncol(predict.results) > 1, TRUE, FALSE)
         private$Q.results = private$Q(predict.results)
         # AGGREGATE measurements
-        private$results = private$aggregate()
+        self$results = private$aggregate()
         private$finished = TRUE
       }
       self
@@ -76,8 +73,6 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     weight.samples = function() 1,
     # The aggregation function for the results
     aggregate = function() cbind(private$X.design, private$Q.results),
-    # The aggregated results of the experiment
-    results = NULL,
     # Flag if the experiment is finished
     finished = FALSE,
     # Removes experiment results as preparation for running experiment again
@@ -85,7 +80,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       private$X.sample = NULL
       private$X.design = NULL
       private$Q.results = NULL
-      private$results = NULL
+      self$results = NULL
       private$finished = FALSE
     }, 
     # The data need for plotting of results

@@ -106,3 +106,17 @@ is.label.output = function(pred) {
   FALSE
 }
 
+
+## TODO:document
+## TODO: Write test
+
+get.1D.grid = function(feature, feature.type, grid.size) {
+  checkmate::assert_vector(feature)
+  if (feature.type == "numerical") {
+    grid = seq(from = min(feature), 
+      to = max(feature), 
+      length.out = grid.size)
+  } else if (feature.type == "categorical") {
+    grid = unique(feature)
+  }
+}

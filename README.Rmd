@@ -40,33 +40,33 @@ library("iml")
 
 library("randomForest")
 data("Boston", package  = "MASS")
-mod = randomForest(medv ~ ., data = Boston, ntree = 50)
-predictor = makePredictor(mod)
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+model = Model$new(rf)
 ```
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 ```{r}
-imp = FeatureImp$new(predictor, Boston, y = Boston$medv, loss = "mae")
+imp = FeatureImp$new(model, Boston, y = Boston$medv, loss = "mae")
 plot(imp)
-imp$data()
+imp$results
 ```
 
 ### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
 ```{r}
-tree = TreeSurrogate$new(predictor, Boston[which(names(Boston) != "medv")], maxdepth = 2)
+tree = TreeSurrogate$new(model, Boston[which(names(Boston) != "medv")], maxdepth = 2)
 plot(tree)
 ```
 
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 ```{r}
-pdp.obj = PartialDependence$new(predictor, Boston, feature = 13)
+pdp.obj = PartialDependence$new(model, Boston, feature = 13)
 plot(pdp.obj)
 ```
 
 
 ### How does lstat influence the individual predictions? (ICE)
 ```{r}
-ice.curves = Ice$new(predictor, Boston[1:100,], feature = 13)
+ice.curves = Ice$new(model, Boston[1:100,], feature = 13)
 plot(ice.curves) 
 ```
 
@@ -74,8 +74,8 @@ plot(ice.curves)
 
 ### Explain a single prediction with a local linear model. (LIME) 
 ```{r}
-lime.explain = Lime$new(predictor, Boston, x.interest = Boston[1,])
-lime.explain$data()
+lime.explain = Lime$new(model, Boston, x.interest = Boston[1,])
+lime.explain$results
 plot(lime.explain)
 ```
 
@@ -83,8 +83,8 @@ plot(lime.explain)
 
 ### Explain a single prediction with game theory. (Shapley)
 ```{r}
-shapley.explain = Shapley$new(predictor, Boston, x.interest = Boston[1, ])
-shapley.explain$data()
+shapley.explain = Shapley$new(model, Boston, x.interest = Boston[1, ])
+shapley.explain$results
 plot(shapley.explain)
 
 ```

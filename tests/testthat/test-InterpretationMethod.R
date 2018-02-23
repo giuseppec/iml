@@ -11,10 +11,10 @@ test_that("InterpretationMethods work",{
   pred = Model$new(f)
   e = InterpretationMethod$new(pred, ds)
   set.seed(1)
-  dat = e$run()$data()
+  dat = e$run()$results
   
   set.seed(2)
-  dat3 = e$run(force=TRUE)$data()
+  dat3 = e$run(force=TRUE)$results
   
 })
   

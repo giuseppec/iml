@@ -14,7 +14,7 @@ tree = TreeSurrogate$new(model, data, maxdepth = 2, tree.args = NULL, run = TRUE
 
 plot(tree)
 predict(tree, newdata)
-tree$data()
+tree$results
 print(tree)
 }
 }
@@ -43,6 +43,8 @@ By default a tree of maximum depth of 2 is fitted to improve interpretability.
 
 \describe{
 \item{maxdepth}{the maximal tree depth set by the user.}
+\item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
+and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 \item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
 }
 }
@@ -50,9 +52,6 @@ By default a tree of maximum depth of 2 is fitted to improve interpretability.
 \section{Methods}{
 
 \describe{
-\item{data()}{method to extract the results of the tree. 
-Returns the sampled feature X together with the leaf node information (columns ..node and ..path) 
-and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}}
 \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
@@ -80,7 +79,7 @@ plot(dt)
 predict(dt, Boston[1:10,])
 
 # Extract the results
-dat = dt$data()
+dat = dt$results
 head(dat)
 
 
@@ -105,7 +104,7 @@ predict(dt, iris.sample)
 predict(dt, iris.sample, type = "class")
 
 # Extract the dataset
-dat = dt$data()
+dat = dt$results
 head(dat)
 }
 \seealso{

@@ -10,7 +10,7 @@ test_that("Lime works for single output and single feature", {
   k = 2
   set.seed(42)
   lime1 = Lime$new(predictor1, X, x.interest=x.interest, k = k)
-  dat = lime1$data()
+  dat = lime1$results
   expect_equal(colnames(dat), expected.colnames)
   expect_equal(nrow(dat), k)
   p = plot(lime1)
@@ -19,7 +19,7 @@ test_that("Lime works for single output and single feature", {
   
   x.interest2 = X[4,]
   lime1$explain(x.interest2)
-  dat = lime1$data()
+  dat = lime1$results
   expect_equal(colnames(dat), expected.colnames)
   expect_equal(nrow(dat), k)  
 
@@ -35,7 +35,7 @@ test_that("Lime works for multiple output", {
   k = 1
   set.seed(42)
   lime1 = Lime$new(predictor2, X, x.interest, k = k)
-  dat = lime1$data()
+  dat = lime1$results
   expect_equal(colnames(dat), c(expected.colnames, "..class"))
   expect_equal(nrow(dat), k * 2)  
   pred2 = predict(lime1, X[c(2,3),])

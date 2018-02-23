@@ -10,7 +10,7 @@
 #' ice = Ice$new(model, data, feature, grid.size = 10, center.at = NULL, run = TRUE)
 #' 
 #' plot(ice)
-#' ice$data
+#' ice$results
 #' print(ice)
 #' ice$feature = 2
 #' ice$center.at = 1
@@ -45,6 +45,7 @@
 #' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 #' \item{grid.size}{The size of the grid.}
 #' \item{n.features}{The number of features (either 1 or 2)}
+#' \item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' }
 #' 
 #' @section Methods:
@@ -53,8 +54,6 @@
 #' \item{grid.size}{The size of the grid.}
 #' \item{center}{method to get/set the feature value at which the ice computation should be centered. See examples for usage.}
 #' \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
-#' \item{data()}{method to extract the results of the individual conditional expectation. 
-#' Returns a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom Ice plots.}
 #' \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
 #' }
@@ -96,7 +95,7 @@
 #' plot(ice) + theme_bw()
 #' 
 #' # If you want to do your own thing, just extract the data: 
-#' iceData = ice$data()
+#' iceData = ice$results
 #' head(iceData)
 #' ggplot(iceData) + 
 #' geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 
@@ -139,7 +138,7 @@ Ice = R6::R6Class("Ice",
   ),
   private = list(
     generate.plot = function() {
-      p = ggplot(private$results, mapping = aes_string(x = names(private$results)[1], 
+      p = ggplot(self$results, mapping = aes_string(x = names(self$results)[1], 
         y = "y.hat", group = "..individual"))
       if (self$feature.type == "numerical") p = p + geom_line()
       else if (self$feature.type == "categorical") p = p + geom_line(alpha = 0.2) + geom_point()

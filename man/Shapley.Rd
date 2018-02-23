@@ -13,11 +13,11 @@ A features contribution can be negative.
 \section{Usage}{
 
 \preformatted{
-shapley = Shapley$new(model, data, x.interest, 
+shapley = Shapley$new(model, data, x.interest = NULL, 
   sample.size = 100, run = TRUE)
 
 plot(shapley)
-shapley$data()
+shapley$results
 print(shapley)
 }
 }
@@ -26,8 +26,8 @@ print(shapley)
  
 For Shapley$new():
 \describe{
-\item{model}{Object of type \code{Model}. See \link{Model}.}
-\item{data}{data.frame with the data for the prediction model}
+\item{model}{object of type \code{Model}. See \link{Model}.}
+\item{data}{data.frame with the data to which compare the x.interest.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
 \item{sample.size}{The number of instances to be sampled from the data.} 
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
@@ -47,16 +47,16 @@ For more details on the algorithm see https://christophm.github.io/interpretable
 \item{x.interest}{data.frame with the instance of interest}
 \item{y.hat.interest}{predicted value for instance of interest}
 \item{y.hat.averate}{average predicted value for data \code{X}} 
+\item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
+and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
+\item{x.interest}{data.frame with a single row for the instance to be explained.}
 }
 }
 
 \section{Methods}{
 
 \describe{
-\item{x}{method to get/set the instance. See examples for usage.}
-\item{data()}{method to extract the results of the tree. 
-Returns the sampled feature X together with the leaf node information (columns ..node and ..path) 
-and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
+\item{explain(x.interest)}{method to set a new data point which to explain.}
 \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 General R6 methods
@@ -79,7 +79,7 @@ shapley = Shapley$new(mod, X, x.interest = x.interest)
 shapley
 
 # Look at the results in a table
-shapley$data()
+shapley$results
 # Or as a plot
 plot(shapley)
 
@@ -91,7 +91,7 @@ X = iris[-which(names(iris) == "Species")]
 
 # Then we explain the first instance of the dataset with the Shapley() method:
 shapley = Shapley$new(mod, X, x.interest = X[1,])
-shapley$data()
+shapley$results
 plot(shapley) 
 
 # You can also focus on one class
