@@ -97,3 +97,12 @@ pathpred <- function(object, ...)
   
   return(rules)
 }
+
+
+is.label.output = function(pred) {
+  if (inherits(pred, c("character", "factor"))) return(TRUE)
+  if (inherits(pred, c("data.frame", "matrix")) && inherits(pred[,1], "character")) {
+    return(TRUE)
+  }
+  FALSE
+}

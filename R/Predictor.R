@@ -190,19 +190,12 @@ PredictorS3 = R6::R6Class("PredictorS3",
       predict.args = c(list(object = private$object, newdata = x), private$predict.args)
       pred = do.call(predict, predict.args)
       ## TODO: warning instead of error and reshape output to conform numeric data.frame type
-      if (private$is.label.output(pred)) {
+      if (is.label.output(pred)) {
         stop("Output seems to be class instead of probabilities. 
           Please use the predict.args argument.")
       }
       if (self$type == "unknown") private$infer.f.type(pred)
       pred 
-    },
-    is.label.output = function(pred) {
-      if (inherits(pred, c("character", "factor"))) return(TRUE)
-      if (inherits(pred, c("data.frame", "matrix")) && inherits(pred[,1], "character")) {
-        return(TRUE)
-      }
-      FALSE
     }
   )
 )
