@@ -79,7 +79,7 @@ General R6 methods
 
 \examples{
 # First we fit a machine learning model on the Boston housing data
-library("randomForest")
+if (require("randomForest")) {
 data("Boston", package  = "MASS")
 X = Boston[-which(names(Boston) == "medv")]
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
@@ -111,7 +111,7 @@ X = iris[-which(names(iris) == 'Species')]
 lemon = Lime$new(mod, X, x.interest = X[1,], k = 2)
 lemon$results
 plot(lemon) 
-
+}
 }
 \references{
 Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938

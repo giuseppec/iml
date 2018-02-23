@@ -14,7 +14,7 @@
 #' 
 #' @section Arguments:
 #' \describe{
-#' \item{object}{The machine learning model. Recommended are models from mlr and caret.}
+#' \item{object}{The machine learning model. Recommended are models from mlr and caret.
 #' Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).
 #' \code{object} can also be a function that returns the prediction as a data.frame, given the features.}
 #' \item{class}{The class column to be returned in case of multi.class output.}
@@ -44,6 +44,23 @@
 #' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
 #' @export
 #' @return object of type Model
+#' @examples
+#' if (require("mlr")){
+#' task = makeClassifTask(data = iris, target = "Species")
+#' learner = makeLearner("classif.rpart", minsplit = 7, predict.type = "prob")
+#' mod.mlr = train(learner, task)
+#' mod = Model$new(mod.mlr)
+#' mod$predict(iris[1:5,])
+#' 
+#' mod = Model$new(mod.mlr, class = "setosa")
+#' mod$predict(iris[1:5,])
+#' }
+#' 
+#' if (require("randomForest")) {
+#' rf = randomForest(Species ~ ., data = iris, ntree = 20)
+#' mod = Model$new(rf, predict.args = list(type = "prob"))
+#' mod$predict(iris[50:55,])
+#' }
 NULL
 
 #' @export

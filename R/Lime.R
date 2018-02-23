@@ -79,7 +79,7 @@
 #' @importFrom glmnet glmnet
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data
-#' library("randomForest")
+#' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
 #' X = Boston[-which(names(Boston) == "medv")]
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
@@ -111,7 +111,7 @@
 #' lemon = Lime$new(mod, X, x.interest = X[1,], k = 2)
 #' lemon$results
 #' plot(lemon) 
-#' 
+#' }
 NULL
 
 
