@@ -118,7 +118,7 @@ NULL
 #' @export
 
 FeatureImp = R6::R6Class("FeatureImp", 
-  inherit = Experiment,
+  inherit = InterpretationMethod,
   public = list(
     loss = NULL,
     error.original = NULL,

@@ -102,7 +102,7 @@ NULL
 #'@export
 
 Shapley = R6::R6Class("Shapley", 
-  inherit = Experiment,
+  inherit = InterpretationMethod,
   public = list(
     x.interest = NULL,
     y.hat.interest = NULL,

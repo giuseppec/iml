@@ -1,4 +1,10 @@
-Experiment = R6::R6Class("Experiment",
+
+#' Generic InterpretationMethod class
+#' 
+#' 
+NULL
+
+InterpretationMethod = R6::R6Class("InterpretationMethod",
   public = list(
     plot = function(...) {
       private$plot.data = private$generate.plot(...)

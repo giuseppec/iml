@@ -148,7 +148,7 @@ plot.Lime = function(object) {
 #' @export
 
 Lime = R6::R6Class("Lime", 
-  inherit = Experiment,
+  inherit = InterpretationMethod,
   public = list(
     x = NULL, 
     k = NULL,

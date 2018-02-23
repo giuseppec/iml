@@ -106,7 +106,7 @@ NULL
 
 #' @export
 TreeSurrogate = R6::R6Class("TreeSurrogate",
-  inherit = Experiment,
+  inherit = InterpretationMethod,
   public = list(
     # The fitted tree
     tree = NULL,

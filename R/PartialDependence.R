@@ -120,7 +120,7 @@ NULL
 #' @export
 
 PartialDependence = R6::R6Class("PartialDependence", 
-  inherit = Experiment,
+  inherit = InterpretationMethod,
   public = list(
     grid.size = NULL, 
     feature.index = NULL, 
