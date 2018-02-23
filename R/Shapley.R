@@ -64,7 +64,7 @@
 #' @export
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data
-#' library("randomForest")
+#' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
 #' rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Model$new(rf)
@@ -91,12 +91,12 @@
 #' shapley$results
 #' plot(shapley) 
 #' 
-#'# You can also focus on one class
+#' # You can also focus on one class
 #' mod = Model$new(rf, predict.args = list(type='prob'), class = 2)
 #' shapley = Shapley$new(mod, X, x.interest = X[1,])
 #' shapley$results
 #' plot(shapley) 
-#' 
+#' }
 NULL
 
 #'@export

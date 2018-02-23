@@ -50,7 +50,7 @@
 #' 
 #' @examples 
 #' # Fit a Random Forest on the Boston housing data set
-#' library("randomForest")
+#' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' # Create a model object
@@ -93,6 +93,7 @@
 #' # Extract the dataset
 #' dat = dt$results
 #' head(dat)
+#' }
 #' @seealso 
 #' \link{predict.TreeSurrogate}
 #' \link{plot.TreeSurrogate}

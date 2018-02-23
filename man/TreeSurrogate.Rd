@@ -63,7 +63,7 @@ General R6 methods
 
 \examples{
 # Fit a Random Forest on the Boston housing data set
-library("randomForest")
+if (require("randomForest")) {
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 # Create a model object
@@ -106,6 +106,7 @@ predict(dt, iris.sample, type = "class")
 # Extract the dataset
 dat = dt$results
 head(dat)
+}
 }
 \seealso{
 \link{predict.TreeSurrogate}

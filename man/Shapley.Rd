@@ -67,7 +67,7 @@ General R6 methods
 
 \examples{
 # First we fit a machine learning model on the Boston housing data
-library("randomForest")
+if (require("randomForest")) {
 data("Boston", package  = "MASS")
 rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
 mod = Model$new(rf)
@@ -99,7 +99,7 @@ mod = Model$new(rf, predict.args = list(type='prob'), class = 2)
 shapley = Shapley$new(mod, X, x.interest = X[1,])
 shapley$results
 plot(shapley) 
-
+}
 }
 \references{
 Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x

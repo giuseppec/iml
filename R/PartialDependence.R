@@ -69,7 +69,7 @@
 #' @export
 #' @examples
 #' # We train a random forest on the Boston dataset:
-#' library("randomForest")
+#' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Model$new(rf)
@@ -111,7 +111,7 @@
 #' # For multiclass classification models, you can choose to only show one class:
 #' mod = Model$new(rf, predict.args = list(type = 'prob'), class = 1)
 #' plot(PartialDependence$new(mod, iris, feature = 1))
-#' 
+#' }
 NULL
 
 
