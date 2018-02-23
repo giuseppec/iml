@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-tree = TreeSurrogate$new(predictor, data, maxdepth = 2, tree.args = NULL, run = TRUE)
+tree = TreeSurrogate$new(model, data, maxdepth = 2, tree.args = NULL, run = TRUE)
 
 plot(tree)
 predict(tree, newdata)
@@ -24,7 +24,7 @@ print(tree)
 
 For TreeSurrogate$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+\item{model}{Object of type \code{Model}. See \link{Model}}
 \item{data}{data.frame with the data for the prediction model.}
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 \item{run}{logical. Should the Interpretation method be run?}
@@ -67,8 +67,8 @@ General R6 methods
 library("randomForest")
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-# Create a Predictor object
-mod = makePredictor(rf) 
+# Create a model object
+mod = Model$new(rf) 
 
 # Fit a decision tree as a surrogate for the whole random forest
 dt = TreeSurrogate$new(mod, Boston[-which(names(Boston) == "medv")])
@@ -86,7 +86,7 @@ head(dat)
 
 # It also works for classification
 rf = randomForest(Species ~ ., data = iris, ntree = 50)
-mod = makePredictor(rf, predict.args = list(type = "prob"), class = 3)
+mod = Model$new(rf, predict.args = list(type = "prob"), class = 3)
 
 # Fit a decision tree as a surrogate for the whole random forest
 X = iris[-which(names(iris) == "Species")]

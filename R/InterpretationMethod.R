@@ -1,6 +1,7 @@
 
 #' Generic InterpretationMethod class
 #' 
+#' All Interp
 #' 
 NULL
 
@@ -12,13 +13,12 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         return(private$plot.data)} else {warning("no plot data generated")
         }
     },
-    initialize = function(predictor, data) {
-      checkmate::assert_class(predictor, "Predictor")
+    initialize = function(model, data) {
+      checkmate::assert_class(model, "Model")
       if(inherits(data, "data.frame")){
         data = Data$new(data)
       }      
-      private$predictor = predictor
-      private$predict = predictor$predict
+      private$model = model
       private$sampler = data
       private$get.data = private$sampler$get.x
     },
@@ -29,7 +29,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       cat("Interpretation method: ", class(self)[1], "\n")
       private$print.parameters()
       cat("\n\nAnalysed model: \n")
-      private$predictor$print()
+      private$model$print()
       cat("\n\nAnalysed data:\n")
       print(private$sampler)
       cat("\n\nHead of results:\n")
@@ -44,7 +44,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         private$X.sample = private$get.data()
         private$X.design = private$intervene()
         # EXECUTE experiment
-        predict.results = private$predict(private$X.design)
+        predict.results = private$model$predict(private$X.design)
         private$multi.class = ifelse(ncol(predict.results) > 1, TRUE, FALSE)
         private$Q.results = private$Q(predict.results)
         # AGGREGATE measurements
@@ -65,10 +65,8 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     intervene = function() private$X.sample,
     # The design matrix after intervention
     X.design = NULL,
-    # The predictor
-    predictor = NULL,
-    # The wrapper for the predictor
-    predict = NULL,
+    # The model
+    model = NULL,
     # The quantity of interest from black box model prediction
     Q = function(x) x,
     Q.results = NULL,

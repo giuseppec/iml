@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' pdp = PartialDependence$new(predictor, data, feature, grid.size = 10, run = TRUE)
+#' pdp = PartialDependence$new(model, data, feature, grid.size = 10, run = TRUE)
 #' 
 #' plot(pdp)
 #' pdp$data
@@ -19,7 +19,7 @@
 #' 
 #' For PartialDependence$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{model}{Object of type \code{Model}. See \link{Model}}
 #' \item{data}{data.frame with the data for the prediction model.}
 #' \item{feature}{The feature index for which to compute the partial dependencies. 
 #' Either a single number or vector of two numbers.}
@@ -73,7 +73,7 @@
 #' library("randomForest")
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-#' mod = makePredictor(rf)
+#' mod = Model$new(rf)
 #' 
 #' # Compute the partial dependence for the first feature
 #' pdp.obj = PartialDependence$new(mod, Boston, feature = 1)
@@ -100,7 +100,7 @@
 #' # Partial dependence plots also works with multiclass classification
 #' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = makePredictor(rf, predict.args = list(type = 'prob'))
+#' mod = Model$new(rf, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
 #' plot(PartialDependence$new(mod, iris, feature = 1))
@@ -110,7 +110,7 @@
 #' pdp.obj$plot()   
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' mod = makePredictor(rf, predict.args = list(type = 'prob'), class = 1)
+#' mod = Model$new(rf, predict.args = list(type = 'prob'), class = 1)
 #' plot(PartialDependence$new(mod, iris, feature = 1))
 #' 
 NULL
@@ -127,11 +127,11 @@ PartialDependence = R6::R6Class("PartialDependence",
     feature.names = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(predictor, data, feature, grid.size = 10, run = TRUE) {
+    initialize = function(model, data, feature, grid.size = 10, run = TRUE) {
       checkmate::assert_numeric(feature, lower = 1, upper = ncol(data), min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       if (length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
-      super$initialize(predictor, data)
+      super$initialize(model, data)
       private$set.feature(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
@@ -148,7 +148,7 @@ PartialDependence = R6::R6Class("PartialDependence",
         results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
       } else {
         results["y.hat"]= private$Q.results
-        results["..class.name"] = private$predictor$class
+        results["..class.name"] = private$model$class
       }
       results.grouped = group_by_at(results, self$feature.names)
       if ("..class.name" %in% colnames(results)) {

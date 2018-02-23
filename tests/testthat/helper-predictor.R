@@ -11,9 +11,9 @@ X = data.frame(a = c(1, 2, 3, 4, 5),
   c = factor(c("a", "b", "c", "a", "b")), 
   d = factor(c("A", "A", "B", "B", "B")))
 
-predictor1 = makePredictor(f)
-predictor2 = makePredictor(f, predict.args = list(multi = TRUE))
-predictor3 = makePredictor(f, predict.args = list(multi = TRUE), class = 2)
+predictor1 = Model$new(f)
+predictor2 = Model$new(f, predict.args = list(multi = TRUE))
+predictor3 = Model$new(f, predict.args = list(multi = TRUE), class = 2)
 
 
 y = f(X)[[1]]

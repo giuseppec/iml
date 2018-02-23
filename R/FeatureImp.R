@@ -9,7 +9,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' imp = FeatureImp$new(predictor, data, y, loss, method = "shuffle", run = TRUE)
+#' imp = FeatureImp$new(model, data, y, loss, method = "shuffle", run = TRUE)
 #' 
 #' plot(imp)
 #' imp$data()
@@ -21,7 +21,7 @@
 #' 
 #' For FeatureImp$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{model}{Object of type \code{model}. See \link{Model}}
 #' \item{data}{data.frame with the data for the prediction model.}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details.}
@@ -71,7 +71,7 @@
 #' if (require("rpart")) {
 #' data("Boston", package  = "MASS")
 #' tree = rpart(medv ~ ., data = Boston)
-#' mod = makePredictor(tree)
+#' mod = Model$new(tree)
 #' 
 #' # Compute the individual conditional expectations for the first feature
 #' X = Boston[-which(names(Boston) == "medv")]
@@ -97,7 +97,7 @@
 #' # FeatureImp also works with multiclass classification. 
 #' # In this case, the importance measurement regards all classes
 #' tree = rpart(Species ~ ., data= iris)
-#' mod = makePredictor(tree, predict.args = list(type = "prob")) 
+#' mod = Model$new(tree, predict.args = list(type = "prob")) 
 #' X = iris[-which(names(iris) == "Species")]
 #' y = iris$Species
 #' # For some models we have to specify additional arguments for the predict function
@@ -109,7 +109,7 @@
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
-#' mod = makePredictor(tree, predict.args = list(type = "prob"), class = 3) 
+#' mod = Model$new(tree, predict.args = list(type = "prob"), class = 3) 
 #' imp = FeatureImp$new(mod, X, y == "virginica",loss = "ce")
 #' plot(imp)
 #' }
@@ -122,7 +122,7 @@ FeatureImp = R6::R6Class("FeatureImp",
   public = list(
     loss = NULL,
     error.original = NULL,
-    initialize = function(predictor, data, y = NULL, loss, method = "shuffle", run = TRUE) {
+    initialize = function(model, data, y = NULL, loss, method = "shuffle", run = TRUE) {
       checkmate::assert_choice(method, c("shuffle", "cartesian"))
       if (!inherits(data, 'Data')) {
         assert_vector(y, any.missing = FALSE)
@@ -135,12 +135,12 @@ FeatureImp = R6::R6Class("FeatureImp",
       } else {
         private$loss.string = head(loss)
       }
-      super$initialize(predictor = predictor, data = data)
+      super$initialize(model = model, data = data)
       self$loss = private$set.loss(loss)
       private$method = method
       private$get.data = private$sampler$get.xy
       actual = private$sampler$y[[1]]
-      predicted = private$Q(private$predict(private$sampler$X))[[1]]
+      predicted = private$Q(private$model$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$error.original = loss(actual, predicted)
       if(run) self$run()

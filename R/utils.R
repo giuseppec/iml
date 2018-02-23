@@ -83,8 +83,7 @@ recode = function(dat, x.interest) {
 }
 
 # Return the paths of a ctree for each training data point
-pathpred <- function(object, ...)
-{
+pathpred = function(object, ...) {
   ## coerce to "party" object if necessary
   if (!inherits(object, "party")) object = partykit::as.party(object)
   
@@ -106,3 +105,4 @@ is.label.output = function(pred) {
   }
   FALSE
 }
+

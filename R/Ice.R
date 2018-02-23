@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' ice = Ice$new(predictor, data, feature, grid.size = 10, center.at = NULL, run = TRUE)
+#' ice = Ice$new(model, data, feature, grid.size = 10, center.at = NULL, run = TRUE)
 #' 
 #' plot(ice)
 #' ice$data
@@ -20,7 +20,7 @@
 #' 
 #' For Ice$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{model}{Object of type \code{Model}. See \link{Model}}
 #' \item{data}{data.frame with the data for the prediction model.}
 #' \item{feature}{The feature index for which to compute the partial dependencies.}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -71,7 +71,7 @@
 #' 
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-#' mod = makePredictor(rf)
+#' mod = Model$new(rf)
 #' 
 #' # Compute the individual conditional expectations for the first feature
 #' ice = Ice$new(mod, Boston, feature = 1)
@@ -109,13 +109,13 @@
 #' # Ice also works with multiclass classification
 #' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = makePredictor(rf, predict.args = list(type = 'prob'))
+#' mod = Model$new(rf, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
 #' plot(Ice$new(mod, iris, feature = 1))
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' mod = makePredictor(rf, predict.args = list(type = 'prob'), class = 1)
+#' mod = Model$new(rf, predict.args = list(type = 'prob'), class = 1)
 #' plot(Ice$new(mod, iris, feature = 1))
 #' 
 #' # Ice plots can be centered: 
@@ -129,11 +129,11 @@ NULL
 Ice = R6::R6Class("Ice",
   inherit = PartialDependence,
   public = list( 
-    initialize = function(predictor, data, feature, grid.size = 10, center.at = NULL, run = TRUE) {
+    initialize = function(model, data, feature, grid.size = 10, center.at = NULL, run = TRUE) {
       checkmate::assert_number(center.at, null.ok = TRUE)
       private$anchor.value = center.at
       assert_count(feature)
-      super$initialize(predictor = predictor, data = data, feature=feature, run = run, 
+      super$initialize(model = model, data = data, feature=feature, run = run, 
         grid.size = grid.size)
     }
   ),

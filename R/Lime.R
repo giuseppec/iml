@@ -7,7 +7,7 @@
 #' @name Lime
 #' @section Usage:
 #' \preformatted{
-#' lime = Lime$new(predictor, data, x.interest, run = TRUE)
+#' lime = Lime$new(model, data, x.interest, run = TRUE)
 #' 
 #' plot(lime)
 #' predict(lime, newdata)
@@ -19,7 +19,7 @@
 #' 
 #' For Lime$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
+#' \item{model}{Object of type \code{Model}. See \link{Model}.}
 #' \item{data}{data.frame with the data for the prediction model.}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
 #' \item{k}{the (maximum) number of features to be used for the surrogate model.}
@@ -82,7 +82,7 @@
 #' data("Boston", package  = "MASS")
 #' X = Boston[-which(names(Boston) == "medv")]
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-#' mod = makePredictor(rf)
+#' mod = Model$new(rf)
 #' 
 #' # Then we explain the first instance of the dataset with the Lime method:
 #' x.interest = X[1,]
@@ -101,7 +101,7 @@
 #' # Lime also works with multiclass classification
 #' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = makePredictor(rf,predict.args = list(type='prob'), class = 2)
+#' mod = Model$new(rf,predict.args = list(type='prob'), class = 2)
 #' X = iris[-which(names(iris) == 'Species')]
 #' 
 #' # Then we explain the first instance of the dataset with the Lime method:
@@ -166,13 +166,13 @@ Lime = R6::R6Class("Lime",
         data.frame(prediction = pred)
       }
     },
-    initialize = function(predictor, data, x.interest, k = 3, run = TRUE) {
+    initialize = function(model, data, x.interest, k = 3, run = TRUE) {
       checkmate::assert_number(k, lower = 1, upper = ncol(data))
       checkmate::assert_data_frame(x.interest)
       if (!require("glmnet")) {
         stop("Please install glmnet.")
       }
-      super$initialize(predictor = predictor, data = data)
+      super$initialize(model = model, data = data)
       self$k = k
       self$x = x.interest
       private$get.data = function(...) private$sampler$get.x(...)

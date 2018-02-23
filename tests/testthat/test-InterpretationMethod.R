@@ -8,7 +8,7 @@ test_that("InterpretationMethods work",{
   }
   X = data.frame(a = c(1,2,3), b = c(2,3,4))
   ds = Data$new(X)
-  pred = makePredictor(f)
+  pred = Model$new(f)
   e = InterpretationMethod$new(pred, ds)
   set.seed(1)
   dat = e$run()$data()

@@ -13,7 +13,7 @@ A features contribution can be negative.
 \section{Usage}{
 
 \preformatted{
-shapley = Shapley$new(predictor, data, x.interest, 
+shapley = Shapley$new(model, data, x.interest, 
   sample.size = 100, run = TRUE)
 
 plot(shapley)
@@ -26,7 +26,7 @@ print(shapley)
  
 For Shapley$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{makePredictor}.}
+\item{model}{Object of type \code{Model}. See \link{Model}.}
 \item{data}{data.frame with the data for the prediction model}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
 \item{sample.size}{The number of instances to be sampled from the data.} 
@@ -70,7 +70,7 @@ General R6 methods
 library("randomForest")
 data("Boston", package  = "MASS")
 rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = makePredictor(rf)
+mod = Model$new(rf)
 X = Boston[-which(names(Boston) == "medv")]
 
 # Then we explain the first instance of the dataset with the Shapley method:
@@ -86,7 +86,7 @@ plot(shapley)
 # Shapley() also works with multiclass classification
 library("randomForest")
 rf = randomForest(Species ~ ., data= iris, ntree=50)
-mod = makePredictor(rf, predict.args = list(type='prob'))
+mod = Model$new(rf, predict.args = list(type='prob'))
 X = iris[-which(names(iris) == "Species")]
 
 # Then we explain the first instance of the dataset with the Shapley() method:
@@ -95,7 +95,7 @@ shapley$data()
 plot(shapley) 
 
 # You can also focus on one class
-mod = makePredictor(rf, predict.args = list(type='prob'), class = 2)
+mod = Model$new(rf, predict.args = list(type='prob'), class = 2)
 shapley = Shapley$new(mod, X, x.interest = X[1,])
 shapley$data()
 plot(shapley) 

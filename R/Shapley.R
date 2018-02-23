@@ -9,7 +9,7 @@
 #' @name Shapley
 #' @section Usage:
 #' \preformatted{
-#' shapley = Shapley$new(predictor, data, x.interest, 
+#' shapley = Shapley$new(model, data, x.interest, 
 #'   sample.size = 100, run = TRUE)
 #' 
 #' plot(shapley)
@@ -20,7 +20,7 @@
 #' @section Arguments: 
 #' For Shapley$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{makePredictor}.}
+#' \item{model}{Object of type \code{Model}. See \link{Model}.}
 #' \item{data}{data.frame with the data for the prediction model}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
 #' \item{sample.size}{The number of instances to be sampled from the data.} 
@@ -67,7 +67,7 @@
 #' library("randomForest")
 #' data("Boston", package  = "MASS")
 #' rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
-#' mod = makePredictor(rf)
+#' mod = Model$new(rf)
 #' X = Boston[-which(names(Boston) == "medv")]
 #' 
 #' # Then we explain the first instance of the dataset with the Shapley method:
@@ -83,7 +83,7 @@
 #' # Shapley() also works with multiclass classification
 #' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = makePredictor(rf, predict.args = list(type='prob'))
+#' mod = Model$new(rf, predict.args = list(type='prob'))
 #' X = iris[-which(names(iris) == "Species")]
 #' 
 #' # Then we explain the first instance of the dataset with the Shapley() method:
@@ -92,7 +92,7 @@
 #' plot(shapley) 
 #' 
 #'# You can also focus on one class
-#' mod = makePredictor(rf, predict.args = list(type='prob'), class = 2)
+#' mod = Model$new(rf, predict.args = list(type='prob'), class = 2)
 #' shapley = Shapley$new(mod, X, x.interest = X[1,])
 #' shapley$data()
 #' plot(shapley) 
@@ -108,9 +108,9 @@ Shapley = R6::R6Class("Shapley",
     y.hat.interest = NULL,
     y.hat.average = NULL,
     sample.size = NULL,
-    initialize = function(predictor, data, x.interest, sample.size = 100,  run = TRUE) {
+    initialize = function(model, data, x.interest, sample.size = 100,  run = TRUE) {
       checkmate::assert_data_frame(x.interest)
-      super$initialize(predictor = predictor, data = data)
+      super$initialize(model = model, data = data)
       self$sample.size = sample.size
       private$set.x.interest(x.interest)
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
@@ -162,8 +162,8 @@ Shapley = R6::R6Class("Shapley",
     }, 
     set.x.interest = function(x.interest) {
       self$x.interest = x.interest
-      self$y.hat.interest = private$predict(x.interest)[1,]
-      self$y.hat.average = colMeans(private$predict(private$sampler$get.x()))
+      self$y.hat.interest = private$model$predict(x.interest)[1,]
+      self$y.hat.average = colMeans(private$model$predict(private$sampler$get.x()))
     },
     generate.plot = function() {
       p = ggplot(private$results) + geom_point(aes(y = feature, x = phi))
