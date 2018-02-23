@@ -3,7 +3,6 @@
 S3method(plot,FeatureImp)
 S3method(predict,Lime)
 S3method(predict,TreeSurrogate)
-export()
 export(FeatureImp)
 export(Ice)
 export(Lime)
