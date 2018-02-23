@@ -28,7 +28,7 @@ For FeatureImp$new():
 \item{model}{Object of type \code{model}. See \link{Model}}
 \item{data}{data.frame with the data for the prediction model.}
 \item{run}{logical. Should the Interpretation method be run?}
-\item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details.}
+\item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
 \item{method}{Either "shuffle" or "cartesian". See Details.}
 \item{y}{The vector or data.frame with the actual target values associated with X.}
 }
@@ -46,6 +46,9 @@ Two permutation schemes are implemented:
 }
 The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
 Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
+Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
+"msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
+
 See \code{library(help = "Metrics")} to get a list of functions. 
 Only use functions that return a single performance value, not a vector. 
 You can also provide a function directly. It has to take the actual value as its first argument and the prediction as its second.
