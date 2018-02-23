@@ -18,7 +18,7 @@ test_that("Lime works for single output and single feature", {
   p
   
   x.interest2 = X[4,]
-  lime1$x = x.interest2
+  lime1$explain(x.interest2)
   dat = lime1$data()
   expect_equal(colnames(dat), expected.colnames)
   expect_equal(nrow(dat), k)  

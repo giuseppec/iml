@@ -15,11 +15,14 @@ test_that("Shapley works for single output and single feature",{
   p
   
   x.interest2 = X[2,]
-  shap$x = x.interest2
+  shap$explain(x.interest2)
   dat = shap$data()
   expect_equal(colnames(dat), c("feature", "phi", "phi.var"))
   expect_equal(nrow(dat), ncol(X))  
   expect_equal(sum(dat$phi), unlist(f(x.interest2) - mean(f(X)$pred), use.names = FALSE), tolerance = 0.02)
+  
+  shap = Shapley$new(predictor1, X,  sample.size = 400)
+  shap$explain(x.interest)
   
 })
 

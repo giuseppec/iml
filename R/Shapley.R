@@ -9,7 +9,7 @@
 #' @name Shapley
 #' @section Usage:
 #' \preformatted{
-#' shapley = Shapley$new(model, data, x.interest, 
+#' shapley = Shapley$new(model, data, x.interest = NULL, 
 #'   sample.size = 100, run = TRUE)
 #' 
 #' plot(shapley)
@@ -20,8 +20,8 @@
 #' @section Arguments: 
 #' For Shapley$new():
 #' \describe{
-#' \item{model}{Object of type \code{Model}. See \link{Model}.}
-#' \item{data}{data.frame with the data for the prediction model}
+#' \item{model}{object of type \code{Model}. See \link{Model}.}
+#' \item{data}{data.frame with the data to which compare the x.interest.}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
 #' \item{sample.size}{The number of instances to be sampled from the data.} 
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
@@ -37,11 +37,12 @@
 #' \item{x.interest}{data.frame with the instance of interest}
 #' \item{y.hat.interest}{predicted value for instance of interest}
 #' \item{y.hat.averate}{average predicted value for data \code{X}} 
+#' \item{x.interest}{data.frame with a single row for the instance to be explained.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
-#' \item{x}{method to get/set the instance. See examples for usage.}
+#' \item{explain(x.interest)}{method to set a new data point which to explain.}
 #' \item{data()}{method to extract the results of the tree. 
 #' Returns the sampled feature X together with the leaf node information (columns ..node and ..path) 
 #' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
@@ -108,13 +109,20 @@ Shapley = R6::R6Class("Shapley",
     y.hat.interest = NULL,
     y.hat.average = NULL,
     sample.size = NULL,
-    initialize = function(model, data, x.interest, sample.size = 100,  run = TRUE) {
-      checkmate::assert_data_frame(x.interest)
+    explain = function(x.interest) {
+      private$flush()
+      private$set.x.interest(x.interest)
+      self$run()
+    },
+    initialize = function(model, data, x.interest = NULL, sample.size = 100,  run = TRUE) {
+      checkmate::assert_data_frame(x.interest, null.ok = TRUE)
       super$initialize(model = model, data = data)
       self$sample.size = sample.size
-      private$set.x.interest(x.interest)
+      if (!is.null(x.interest)) {
+        private$set.x.interest(x.interest)
+      }
       private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
-      if(run) self$run()
+      if (run & !is.null(x.interest)) self$run()
     }
   ), 
   private = list(
@@ -173,14 +181,6 @@ Shapley = R6::R6Class("Shapley",
     print.parameters = function() {
       cat(sprintf("Predicted value: %f, Average prediction: %f (diff = %f)", 
         self$y.hat.interest, self$y.hat.average, self$y.hat.interest - self$y.hat.average))
-    }
-  ),
-  active = list(
-    x = function(x.interest) {
-      private$flush()
-      private$set.x.interest(x.interest)
-      self$run()
-      self
     }
   )
 )
