@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-lime = Lime$new(model, data, x.interest = NULL, run = TRUE)
+lime = Lime$new(model, data, x.interest = NULL, k = 3 run = TRUE)
 
 plot(lime)
 predict(lime, newdata)
