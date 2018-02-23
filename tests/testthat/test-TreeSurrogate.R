@@ -2,12 +2,11 @@ context("TreeSurrogate")
 
 test_that("TreeSurrogate works for single output and single feature", {
   
-  sample.size = 100
-  tree = TreeSurrogate$new(predictor1, X, sample.size = sample.size)
+    tree = TreeSurrogate$new(predictor1, X)
   
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path", "..y.hat", "..y.hat.tree"))
-  expect_equal(nrow(dat), sample.size)  
+  expect_equal(nrow(dat), nrow(X))  
   p = plot(tree)
   expect_s3_class(p, c("gg", "ggplot"))
   expect_s3_class(tree$predict(X), c("data.frame"))
@@ -16,11 +15,10 @@ test_that("TreeSurrogate works for single output and single feature", {
 })
 
 test_that("TreeSurrogate works for multiple output", {
-  sample.size = 50
-  tree = TreeSurrogate$new(predictor2, X, sample.size = sample.size)
+  tree = TreeSurrogate$new(predictor2, X)
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat:pred", "..y.hat:pred2", "..y.hat.tree:pred", "..y.hat.tree:pred2"))
-  expect_equal(nrow(dat), sample.size)  
+  expect_equal(nrow(dat), nrow(X))  
   p = plot(tree)
   expect_s3_class(p, c("gg", "ggplot"))
   expect_s3_class(tree$predict(X), c("data.frame"))
@@ -35,11 +33,10 @@ test_that("TreeSurrogate works for multiple output", {
 })
 
 test_that("TreeSurrogate works for multiple output with selected class", {
-  sample.size = 50
-  tree = TreeSurrogate$new(predictor3, X, sample.size = sample.size)
+  tree = TreeSurrogate$new(predictor3, X)
   dat = tree$data()
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat", "..y.hat.tree"))
-  expect_equal(nrow(dat), sample.size )  
+  expect_equal(nrow(dat), nrow(X))  
   p = plot(tree)
   expect_s3_class(p, c("gg", "ggplot"))
   expect_s3_class(tree$predict(X), c("data.frame"))
