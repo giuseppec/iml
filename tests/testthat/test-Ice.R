@@ -19,7 +19,7 @@ test_that("Ice works for single output and single feature", {
 test_that("Ice works for multiple output", {
   
   grid.size = 10
-  ice.obj = Ice$new(predictor2, X, feature = c(1), grid.size = grid.size)
+  ice.obj = Ice$new(predictor2, X, feature = "a", grid.size = grid.size)
   dat = ice.obj$results
   expect_equal(colnames(dat), c("a", "..individual", "..class.name", "y.hat"))
   expect_equal(nrow(dat), grid.size * nrow(X)*2)  

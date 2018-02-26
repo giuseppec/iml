@@ -26,7 +26,7 @@ For PartialDependence$new():
 \describe{
 \item{model}{Object of type \code{Model}. See \link{Model}}
 \item{data}{data.frame with the data for the prediction model.}
-\item{feature}{The feature index for which to compute the partial dependencies. 
+\item{feature}{The feature name or index for which to compute the partial dependencies. 
 Either a single number or vector of two numbers.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
 \item{run}{logical. Should the Interpretation method be run?}
@@ -73,7 +73,7 @@ rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 mod = Model$new(rf)
 
 # Compute the partial dependence for the first feature
-pdp.obj = PartialDependence$new(mod, Boston, feature = 1)
+pdp.obj = PartialDependence$new(mod, Boston, feature = "crim")
 
 # Plot the results directly
 plot(pdp.obj)
@@ -92,7 +92,8 @@ pdp.obj$feature = 2
 plot(pdp.obj)
 
 # Partial dependence plots support up to two features: 
-pdp.obj = PartialDependence$new(mod, Boston, feature = c(1,2))  
+pdp.obj = PartialDependence$new(mod, Boston, feature = c("crim", "lstat"))  
+plot(pdp.obj)
 
 # Partial dependence plots also works with multiclass classification
 library("randomForest")
@@ -100,15 +101,15 @@ rf = randomForest(Species ~ ., data= iris, ntree=50)
 mod = Model$new(rf, predict.args = list(type = 'prob'))
 
 # For some models we have to specify additional arguments for the predict function
-plot(PartialDependence$new(mod, iris, feature = 1))
+plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
 
 # Partial dependence plots support up to two features: 
-pdp.obj = PartialDependence$new(mod, iris, feature = c(1,3))
+pdp.obj = PartialDependence$new(mod, iris, feature = c("Sepal.Length", "Petal.Length"))
 pdp.obj$plot()   
 
 # For multiclass classification models, you can choose to only show one class:
 mod = Model$new(rf, predict.args = list(type = 'prob'), class = 1)
-plot(PartialDependence$new(mod, iris, feature = 1))
+plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
 }
 }
 \references{

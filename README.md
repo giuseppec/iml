@@ -84,7 +84,7 @@ plot(tree)
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 
 ``` r
-pdp.obj = PartialDependence$new(model, Boston, feature = 13)
+pdp.obj = PartialDependence$new(model, Boston, feature = "lstat")
 plot(pdp.obj)
 ```
 
@@ -93,7 +93,7 @@ plot(pdp.obj)
 ### How does lstat influence the individual predictions? (ICE)
 
 ``` r
-ice.curves = Ice$new(model, Boston[1:100,], feature = 13)
+ice.curves = Ice$new(model, Boston[1:100,], feature = "lstat")
 plot(ice.curves) 
 ```
 

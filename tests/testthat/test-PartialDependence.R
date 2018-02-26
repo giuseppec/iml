@@ -29,7 +29,7 @@ test_that("PartialDependence works for single output and 2 features, 2D grid.siz
   
   ## two numerical features with 2 grid.sizes
   grid.size = c(10,2)
-  pdp.obj = PartialDependence$new(predictor1, X, feature = c(1,2), grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor1, X, feature = c("a", "b"), grid.size = grid.size)
   dat = pdp.obj$results
   expect_equal(colnames(dat), c("a", "b", "y.hat"))
   expect_equal(nrow(dat), grid.size[1] * grid.size[2])  
@@ -95,7 +95,7 @@ test_that("PartialDependence works for single output and numerical + categorical
 test_that("PartialDependence works for multiple output", {
   
   grid.size = 10
-  pdp.obj = PartialDependence$new(predictor2, X, feature = c(1), grid.size = grid.size)
+  pdp.obj = PartialDependence$new(predictor2, X, feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
   expect_equal(colnames(dat), c("a", "..class.name", "y.hat"))
   expect_equal(nrow(dat), grid.size * 2)  

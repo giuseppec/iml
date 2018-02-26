@@ -22,7 +22,7 @@
 #' \describe{
 #' \item{model}{Object of type \code{Model}. See \link{Model}}
 #' \item{data}{data.frame with the data for the prediction model.}
-#' \item{feature}{The feature index for which to compute the partial dependencies.}
+#' \item{feature}{The feature name or index for which to compute the partial dependencies.}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
 #' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 #' \item{run}{logical. Should the Interpretation method be run?}
@@ -72,7 +72,7 @@
 #' mod = Model$new(rf)
 #' 
 #' # Compute the individual conditional expectations for the first feature
-#' ice = Ice$new(mod, Boston, feature = 1)
+#' ice = Ice$new(mod, Boston, feature = "crim")
 #' 
 #' # Plot the results directly
 #' plot(ice)
@@ -82,7 +82,7 @@
 #' plot(ice)
 #' 
 #' # Ice plots can be centered at initialization
-#' ice = Ice$new(mod, Boston, feature = 1, center=75)
+#' ice = Ice$new(mod, Boston, feature = "crim", center=75)
 #' plot(ice)
 #' 
 #' # Centering can also be removed
@@ -101,7 +101,7 @@
 #' scale_color_discrete(guide = "none")
 #' 
 #' # You can reuse the ice object for other features: 
-#' ice$feature = 2
+#' ice$feature = "lstat"
 #' plot(ice)
 #' 
 #' # Ice also works with multiclass classification
@@ -110,11 +110,11 @@
 #' mod = Model$new(rf, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(Ice$new(mod, iris, feature = 1))
+#' plot(Ice$new(mod, iris, feature = "Sepal.Length"))
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
 #' mod = Model$new(rf, predict.args = list(type = 'prob'), class = 1)
-#' plot(Ice$new(mod, iris, feature = 1))
+#' plot(Ice$new(mod, iris, feature = "Sepal.Length"))
 #' 
 #' # Ice plots can be centered: 
 #' plot(Ice$new(mod, iris, feature = 1, center = 1))
@@ -130,7 +130,6 @@ Ice = R6::R6Class("Ice",
     initialize = function(model, data, feature, grid.size = 10, center.at = NULL, run = TRUE) {
       checkmate::assert_number(center.at, null.ok = TRUE)
       private$anchor.value = center.at
-      assert_count(feature)
       super$initialize(model = model, data = data, feature=feature, run = run, 
         grid.size = grid.size)
     }
