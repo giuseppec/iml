@@ -80,10 +80,10 @@
 #' # Plot the results directly
 #' plot(pdp.obj)
 #' 
-#' 
 #' # Since the result is a ggplot object, you can extend it: 
-#' library("ggplot2")
-#' plot(pdp.obj) + theme_bw()
+#' if (require("ggplot2")) {
+#'  plot(pdp.obj) + theme_bw()
+#' }
 #' 
 #' # If you want to do your own thing, just extract the data: 
 #' pdp.dat = pdp.obj$results
@@ -98,7 +98,6 @@
 #' plot(pdp.obj)
 #' 
 #' # Partial dependence plots also works with multiclass classification
-#' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
 #' mod = Model$new(rf, predict.args = list(type = 'prob'))
 #' 
@@ -149,7 +148,6 @@ PartialDependence = R6::R6Class("PartialDependence",
   private = list(
     aggregate = function() {
       results = private$X.design[self$feature.index]
-      
       if (private$multi.class) {
         y.hat.names = colnames(private$Q.results)
         results = cbind(results, private$Q.results)

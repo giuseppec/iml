@@ -90,8 +90,9 @@
 #' plot(ice)
 #' 
 #' # Since the result is a ggplot object, you can extend it: 
-#' library("ggplot2")
+#' if (require("ggplot2")) {
 #' plot(ice) + theme_bw()
+#' 
 #' 
 #' # If you want to do your own thing, just extract the data: 
 #' iceData = ice$results
@@ -99,13 +100,12 @@
 #' ggplot(iceData) + 
 #' geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 
 #' scale_color_discrete(guide = "none")
-#' 
+#' }
 #' # You can reuse the ice object for other features: 
 #' ice$feature = "lstat"
 #' plot(ice)
 #' 
 #' # Ice also works with multiclass classification
-#' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
 #' mod = Model$new(rf, predict.args = list(type = 'prob'))
 #' 
@@ -113,11 +113,11 @@
 #' plot(Ice$new(mod, iris, feature = "Sepal.Length"))
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' mod = Model$new(rf, predict.args = list(type = 'prob'), class = 1)
+#' mod = Model$new(rf, predict.args = list(type = 'prob'), class = "virginica")
 #' plot(Ice$new(mod, iris, feature = "Sepal.Length"))
 #' 
 #' # Ice plots can be centered: 
-#' plot(Ice$new(mod, iris, feature = 1, center = 1))
+#' plot(Ice$new(mod, iris, feature = "Sepal.Length", center = 1))
 #' }
 #' @export
 NULL
