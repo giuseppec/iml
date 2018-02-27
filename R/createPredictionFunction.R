@@ -62,14 +62,17 @@ createPredictionFunction.function = function(object, task, predict.args = NULL){
   }
 }
 
+
+#' @importFrom stats model.matrix
 createPredictionFunction.default = function(object, task, predict.args = NULL){
   function(newdata) {
     predict.args = c(list(object = object, newdata = newdata), predict.args)
     pred = do.call(predict, predict.args)
-    ## TODO: warning instead of error and reshape output to conform numeric data.frame task
     if (is.label.output(pred)) {
-      stop("Output seems to be class instead of probabilities. 
+      warning("Output seems to be class instead of probabilities. 
+          Automatically transformed to 0 and 1 probabilities.
           Please use the predict.args argument.")
+      pred =  data.frame(model.matrix(~prediction-1, data.frame(prediction = pred), sep = ":"))
     }
     data.frame(pred)
   }

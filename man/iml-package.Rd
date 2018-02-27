@@ -8,9 +8,6 @@
 \description{
 The iml package provides tools to analyse machine learning models and predictions.
 }
-\details{
-TODO
-}
 \seealso{
 \href{https://christophm.github.io/interpretable-ml-book/agnostic}{Book on Interpretable Machine Learning}
 }

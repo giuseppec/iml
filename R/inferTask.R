@@ -36,9 +36,12 @@ inferTaskFromModel.default = function(object){
 
 
 inferTaskFromPrediction  = function(prediction){
-  assert_true(any(class(prediction) %in% c("integer", "numeric", "data.frame", "matrix")))
+  assert_true(any(class(prediction) %in% 
+      c("integer", "numeric", "data.frame", "matrix", "factor", "character")))
   if (inherits(prediction, c("data.frame", "matrix")) && dim(prediction)[2] > 1) {
     "classification" 
+  } else if (inherits(prediction, c("factor", "character"))) {
+    "classification"
   } else {
     "regression"
   }

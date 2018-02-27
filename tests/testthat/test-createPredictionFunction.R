@@ -52,6 +52,14 @@ test_that("f works", {
 })
 
 
+predictor.S3.2 = createPredictionFunction(mod.S3, predict.args = list(type="class"))
+
+test_that("output is label", {
+  expect_warning({pred = predictor.S3.2(iris)})
+  checkmate::expect_data_frame(pred, nrows = nrow(iris), ncols = 3)
+})
+
+
 # Test numeric predictions
 
 data(Boston, package="MASS")
@@ -91,8 +99,6 @@ test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret(boston.test))
   expect_equivalent(predictor.mlr(boston.test), predictor.S3(boston.test))
 })
-
-
 
 
 

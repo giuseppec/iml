@@ -1,8 +1,7 @@
 context("utility functions")
 
 
-test_that("get.feature.type function works", {
-  
+test_that("get.feature.type", {
   f1 = c("a", "b")
   expect_equal(get.feature.type(class(f1)), c("character"="categorical"))
   expect_error(get.feature.type(data.frame(f1)))
@@ -16,7 +15,6 @@ test_that("get.feature.type function works", {
 
 
 test_that("probs.to.labels",{
-  
   probs = data.frame(a = c(0.1, 0.2, 0.7), b = c(0.9, 0.8, 0.3), c = c(0,1,0))
   labels = data.frame(..class = c("b", "c", "a"))
   expect_equal(probs.to.labels(probs), labels)
@@ -37,4 +35,21 @@ test_that("recode",{
   expect_equal(X.recode$x2, c(1,1,0,0,0,0,0,0,1,1))
   expect_equal(X.recode$x4, rep(1,10))
   expect_equal(colnames(X.recode), c("x1", "x2=a", "x3", "x4=c"))
+})
+
+      
+test_that("get.1D.grid", {
+  expect_equal(get.1D.grid(1:10, "numerical", 4), c(1, 4, 7, 10))
+  expect_equal(get.1D.grid(1:10, "categorical", 1), 1:10)
+  expect_equal(get.1D.grid(letters, "categorical", 4), letters)
+  expect_error(get.1D.grid(letters, "numerical", 4))
+  expect_equal(get.1D.grid(1:10, "numerical", 2), c(1, 10))
+})
+
+test_that("is.label.output", {
+  expect_equal(is.label.output(letters), TRUE)
+  expect_equal(is.label.output(as.factor(letters)), TRUE)
+  expect_equal(is.label.output(1:10), FALSE)
+  expect_equal(is.label.output(c(NA, 1:10)), FALSE)
+  expect_equal(is.label.output(iris), FALSE)
 })

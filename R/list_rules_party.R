@@ -1,7 +1,5 @@
-
 # Copied from internal partykit function
-list.rules.party = function (x, i = NULL, ...) 
-{
+list.rules.party = function (x, i = NULL, ...){
   if (is.null(i)) 
     i <- nodeids(x, terminal = TRUE)
   if (length(i) > 1) {

@@ -58,7 +58,6 @@ extract.glmnet.effects = function(betas, best.index, x.recoded, x.original) {
 
 
 # binarizes categorical variables: TRUE if same level as x.interest, else FALSE
-# TODO: Keep level names for factors
 # used in lime
 recode = function(dat, x.interest) {
   checkmate::assert_data_frame(dat)
@@ -100,18 +99,18 @@ pathpred = function(object, ...) {
 
 is.label.output = function(pred) {
   if (inherits(pred, c("character", "factor"))) return(TRUE)
-  if (inherits(pred, c("data.frame", "matrix")) && inherits(pred[,1], "character")) {
+  if (inherits(pred, c("data.frame", "matrix")) && 
+      inherits(pred[,1], "character") && ncol(pred) == 1) {
     return(TRUE)
   }
   FALSE
 }
 
 
-## TODO:document
-## TODO: Write test
-
 get.1D.grid = function(feature, feature.type, grid.size) {
   checkmate::assert_vector(feature)
+  checkmate::assert_choice(feature.type, c("numerical", "categorical"))
+  checkmate::assert_numeric(grid.size)
   if (feature.type == "numerical") {
     grid = seq(from = min(feature), 
       to = max(feature), 
@@ -119,4 +118,5 @@ get.1D.grid = function(feature, feature.type, grid.size) {
   } else if (feature.type == "categorical") {
     grid = unique(feature)
   }
+  grid
 }
