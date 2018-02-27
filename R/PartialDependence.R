@@ -193,24 +193,28 @@ PartialDependence = R6::R6Class("PartialDependence",
     },
     generate.plot = function() {
       if (self$n.features == 1) {
-        p = ggplot(self$results, mapping = aes_string(x = self$feature.names,"y.hat"))
+        p = ggplot(self$results, mapping = aes_string(x = self$feature.names,"y.hat")) + 
+          scale_y_continuous(expression(hat(y)))
         if (self$feature.type == "numerical") {
           p = p + geom_path() 
         } else if (self$feature.type == "categorical") {
           p = p + geom_point()
         }
+        
       } else if (self$n.features == 2) {
         if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results) + 
             geom_tile(aes_string(x = self$feature.names[1], 
               y = self$feature.names[2], 
-              fill = "y.hat"))
+              fill = "y.hat")) + 
+            scale_fill_continuous(expression(hat(y)))
         } else {
           categorical.feature = self$feature.names[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.names, categorical.feature)
           p = ggplot(self$results) + 
             geom_line(aes_string(x = numerical.feature, y = "y.hat", 
-              group = categorical.feature, color = categorical.feature))
+              group = categorical.feature, color = categorical.feature)) + 
+            scale_y_continuous(expression(hat(y)))
         }
       }
       if (private$multi.class) {

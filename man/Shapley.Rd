@@ -83,8 +83,11 @@ shapley$results
 # Or as a plot
 plot(shapley)
 
+# Explain another instance
+shapley$explain(X[2,])
+plot(shapley)
+
 # Shapley() also works with multiclass classification
-library("randomForest")
 rf = randomForest(Species ~ ., data= iris, ntree=50)
 mod = Model$new(rf, predict.args = list(type='prob'))
 X = iris[-which(names(iris) == "Species")]
@@ -95,7 +98,7 @@ shapley$results
 plot(shapley) 
 
 # You can also focus on one class
-mod = Model$new(rf, predict.args = list(type='prob'), class = 2)
+mod = Model$new(rf, predict.args = list(type = "prob"), class = "setosa")
 shapley = Shapley$new(mod, X, x.interest = X[1,])
 shapley$results
 plot(shapley) 

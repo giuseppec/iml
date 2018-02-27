@@ -72,7 +72,7 @@
 #' 
 #' # It also works for classification
 #' rf = randomForest(Species ~ ., data = iris, ntree = 50)
-#' mod = Model$new(rf, predict.args = list(type = "prob"), class = 3)
+#' mod = Model$new(rf, predict.args = list(type = "prob"))
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
 #' X = iris[-which(names(iris) == "Species")]
@@ -177,7 +177,8 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
       p = ggplot(self$results) + 
         geom_boxplot(aes(y = ..y.hat, x = "")) + 
         scale_x_discrete("") + 
-        facet_wrap("..path")
+        facet_wrap("..path") + 
+        scale_y_continuous(expression(hat(y)))
       if (private$multi.class) {
         plot.data = self$results
         # max class for model

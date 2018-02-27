@@ -85,7 +85,7 @@ head(dat)
 
 # It also works for classification
 rf = randomForest(Species ~ ., data = iris, ntree = 50)
-mod = Model$new(rf, predict.args = list(type = "prob"), class = 3)
+mod = Model$new(rf, predict.args = list(type = "prob"))
 
 # Fit a decision tree as a surrogate for the whole random forest
 X = iris[-which(names(iris) == "Species")]

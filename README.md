@@ -106,10 +106,10 @@ lime.explain = Lime$new(model, Boston, x.interest = Boston[1,])
 lime.explain$results
 ```
 
-    ##             beta x.scaled     effect x.original feature feature.value
-    ## rm     0.6352285    6.575  4.1766275      6.575      rm      rm=6.575
-    ## lstat -0.0516669    4.980 -0.2573012       4.98   lstat    lstat=4.98
-    ## medv   0.7919096   24.000 19.0058305         24    medv       medv=24
+    ##             beta x.recoded     effect x.original feature feature.value
+    ## rm     0.6352285     6.575  4.1766275      6.575      rm      rm=6.575
+    ## lstat -0.0516669     4.980 -0.2573012       4.98   lstat    lstat=4.98
+    ## medv   0.7919096    24.000 19.0058305         24    medv       medv=24
 
 ``` r
 plot(lime.explain)
@@ -124,24 +124,24 @@ shapley.explain = Shapley$new(model, Boston, x.interest = Boston[1, ])
 shapley.explain$results
 ```
 
-    ## # A tibble: 14 x 3
+    ## # A tibble: 14 x 4
     ## # Groups:   feature [?]
-    ##    feature      phi  phi.var
-    ##    <fct>      <dbl>    <dbl>
-    ##  1 age     -0.0801   0.145  
-    ##  2 black   -0.00383  0.0983 
-    ##  3 chas    -0.00635  0.00660
-    ##  4 crim    -0.331    1.90   
-    ##  5 dis     -0.370    2.73   
-    ##  6 indus    0.595    1.30   
-    ##  7 lstat    3.87    23.5    
-    ##  8 medv     0        0      
-    ##  9 nox     -0.0175   1.25   
-    ## 10 ptratio  0.491    0.917  
-    ## 11 rad     -0.209    0.106  
-    ## 12 rm      -0.0712  10.4    
-    ## 13 tax      0.0147   0.140  
-    ## 14 zn       0.202    0.0937
+    ##    feature      phi  phi.var featureValue
+    ##    <fct>      <dbl>    <dbl> <chr>       
+    ##  1 age     -0.0801   0.145   crim=0.00632
+    ##  2 black   -0.00383  0.0983  zn=18       
+    ##  3 chas    -0.00635  0.00660 indus=2.31  
+    ##  4 crim    -0.331    1.90    chas=0      
+    ##  5 dis     -0.370    2.73    nox=0.538   
+    ##  6 indus    0.595    1.30    rm=6.575    
+    ##  7 lstat    3.87    23.5     age=65.2    
+    ##  8 medv     0        0       dis=4.09    
+    ##  9 nox     -0.0175   1.25    rad=1       
+    ## 10 ptratio  0.491    0.917   tax=296     
+    ## 11 rad     -0.209    0.106   ptratio=15.3
+    ## 12 rm      -0.0712  10.4     black=396.9 
+    ## 13 tax      0.0147   0.140   lstat=4.98  
+    ## 14 zn       0.202    0.0937  medv=24
 
 ``` r
 plot(shapley.explain)

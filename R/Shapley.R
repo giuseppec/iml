@@ -61,7 +61,6 @@
 #' @seealso 
 #' A different way to explain predictions: \link{Lime}
 #' 
-#' @export
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data
 #' if (require("randomForest")) {
@@ -80,8 +79,11 @@
 #' # Or as a plot
 #' plot(shapley)
 #' 
+#' # Explain another instance
+#' shapley$explain(X[2,])
+#' plot(shapley)
+#' 
 #' # Shapley() also works with multiclass classification
-#' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
 #' mod = Model$new(rf, predict.args = list(type='prob'))
 #' X = iris[-which(names(iris) == "Species")]
@@ -92,7 +94,7 @@
 #' plot(shapley) 
 #' 
 #' # You can also focus on one class
-#' mod = Model$new(rf, predict.args = list(type='prob'), class = 2)
+#' mod = Model$new(rf, predict.args = list(type = "prob"), class = "setosa")
 #' shapley = Shapley$new(mod, X, x.interest = X[1,])
 #' shapley$results
 #' plot(shapley) 
@@ -136,6 +138,7 @@ Shapley = R6::R6Class("Shapley",
       y.hat.diff.grouped  =   group_by(y.hat.diff, feature, class)
       y.hat.diff = summarise(y.hat.diff.grouped, phi = mean(value), phi.var = var(value))
       if (!private$multi.class) y.hat.diff$class = NULL
+      y.hat.diff$featureValue = sprintf('%s=%s', colnames(self$x.interest), self$x.interest)
       y.hat.diff
     },
     intervene = function() {
@@ -172,8 +175,13 @@ Shapley = R6::R6Class("Shapley",
       self$y.hat.interest = private$model$predict(x.interest)[1,]
       self$y.hat.average = colMeans(private$model$predict(private$sampler$get.x()))
     },
-    generate.plot = function() {
-      p = ggplot(self$results) + geom_point(aes(y = feature, x = phi))
+    generate.plot = function(sort = TRUE, ...) {
+      res = self$results
+      if (sort & !private$multi.class) {
+        res$featureValue = factor(res$featureValue, levels = res$featureValue[order(res$phi)])
+      }
+      p = ggplot(res) + 
+        geom_col(aes(y = phi, x=featureValue)) + coord_flip()
       if (private$multi.class) p = p + facet_wrap("class")
       p
     },
@@ -190,11 +198,12 @@ Shapley = R6::R6Class("Shapley",
 #' 
 #' For examples see \link{Shapley}
 #' @param object  A Shapley R6 object
+#' @param sort logical. Should the feature values be sorted by Shapley value? Only works for single model output.
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Shapley}
-plot.Shapley = function(object) {
-  object$plot()
+plot.Shapley = function(object, sort = TRUE) {
+  object$plot(sort = sort)
 }
 
 

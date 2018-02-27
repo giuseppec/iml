@@ -4,10 +4,12 @@
 \alias{plot.Shapley}
 \title{Shapley plot}
 \usage{
-\method{plot}{Shapley}(object)
+\method{plot}{Shapley}(object, sort = TRUE)
 }
 \arguments{
 \item{object}{A Shapley R6 object}
+
+\item{sort}{logical. Should the feature values be sorted by Shapley value? Only works for single model output.}
 }
 \value{
 ggplot2 plot object

@@ -93,7 +93,7 @@ plot(imp)
 
 
 # Since the result is a ggplot object, you can extend it: 
-library("ggplot2")
+if (require("ggplot2")) {
 plot(imp) + theme_bw()
 
 # If you want to do your own thing, just extract the data: 
@@ -101,6 +101,7 @@ imp.dat = imp$results
 head(imp.dat)
 ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
 theme_bw()
+}
 
 # FeatureImp also works with multiclass classification. 
 # In this case, the importance measurement regards all classes
@@ -111,13 +112,10 @@ y = iris$Species
 # For some models we have to specify additional arguments for the predict function
 imp = FeatureImp$new(mod, X, y, loss = "ce")
 plot(imp)
-# Here we encounter the special case that the machine learning model perfectly predicts
-# The importance becomes infinite
-imp$results
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y
-mod = Model$new(tree, predict.args = list(type = "prob"), class = 3) 
+mod = Model$new(tree, predict.args = list(type = "prob"), class = "virginica") 
 imp = FeatureImp$new(mod, X, y == "virginica",loss = "ce")
 plot(imp)
 }

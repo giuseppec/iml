@@ -4,14 +4,14 @@
 \alias{extract.glmnet.effects}
 \title{Extract glmnet effects}
 \usage{
-extract.glmnet.effects(betas, best.index, x.scaled, x.original)
+extract.glmnet.effects(betas, best.index, x.recoded, x.original)
 }
 \arguments{
 \item{betas}{glmnet$beta}
 
 \item{best.index}{index k}
 
-\item{x.scaled}{the scaled version of x}
+\item{x.recoded}{the recoded version of x}
 
 \item{x.original}{the original x
 Assuming that the first row is the x.interest}

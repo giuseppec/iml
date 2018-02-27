@@ -139,13 +139,13 @@ Ice = R6::R6Class("Ice",
       p = ggplot(self$results, mapping = aes_string(x = names(self$results)[1], 
         y = "y.hat", group = "..individual"))
       if (self$feature.type == "numerical") p = p + geom_line()
-      else if (self$feature.type == "categorical") p = p + geom_line(alpha = 0.2) + geom_point()
-      
-      if (private$multi.class) {
-        p + facet_wrap("..class.name")
-      } else {
-        p
+      else if (self$feature.type == "categorical") {
+        p = p + geom_line(alpha = 0.2) 
       }
+      if (private$multi.class) {
+        p = p + facet_wrap("..class.name")
+      } 
+      p +  scale_y_continuous(expression(hat(y)))
     }, 
     intervene = function() {
       X.design = super$intervene()

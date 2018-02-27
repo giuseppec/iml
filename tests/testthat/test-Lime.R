@@ -2,7 +2,7 @@ context("Lime()")
 
 set.seed(1)
 n = 100
-expected.colnames = c("beta", "x.scaled", "effect", "x.original", "feature", "feature.value")
+expected.colnames = c("beta", "x.recoded", "effect", "x.original", "feature", "feature.value")
 
 test_that("Lime works for single output and single feature", {
   

@@ -78,10 +78,10 @@ pdp.obj = PartialDependence$new(mod, Boston, feature = "crim")
 # Plot the results directly
 plot(pdp.obj)
 
-
 # Since the result is a ggplot object, you can extend it: 
-library("ggplot2")
-plot(pdp.obj) + theme_bw()
+if (require("ggplot2")) {
+ plot(pdp.obj) + theme_bw()
+}
 
 # If you want to do your own thing, just extract the data: 
 pdp.dat = pdp.obj$results
@@ -96,7 +96,6 @@ pdp.obj = PartialDependence$new(mod, Boston, feature = c("crim", "lstat"))
 plot(pdp.obj)
 
 # Partial dependence plots also works with multiclass classification
-library("randomForest")
 rf = randomForest(Species ~ ., data= iris, ntree=50)
 mod = Model$new(rf, predict.args = list(type = 'prob'))
 

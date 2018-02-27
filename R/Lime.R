@@ -160,7 +160,7 @@ Lime = R6::R6Class("Lime",
     best.index = NULL,
     aggregate = function() {
       X.recode = recode(private$X.design, self$x.interest)
-      x.scaled = recode(self$x.interest, self$x.interest)
+      x.recoded = recode(self$x.interest, self$x.interest)
       fam = ifelse(private$multi.class, "multinomial", "gaussian")
       self$model = glmnet(x = as.matrix(X.recode), y = unlist(private$Q.results[1]), 
         family = fam, w = private$weight.samples(), 
@@ -176,17 +176,18 @@ Lime = R6::R6Class("Lime",
       self$best.fit.index = best.index
       if (private$multi.class) {
         class.results = lapply(res$beta, extract.glmnet.effects, 
-          best.index = best.index, x.scaled = x.scaled, x.original = self$x.interest)
+          best.index = best.index, x.recoded = x.recoded, x.original = self$x.interest)
         res = data.table::rbindlist(class.results)
         res$..class = rep(names(class.results), each = ncol(X.recode))
       } else {
-        res = extract.glmnet.effects(res$beta, best.index, x.scaled, self$x.interest)
+        res = extract.glmnet.effects(res$beta, best.index, x.recoded, self$x.interest)
       }
       res[res$beta != 0, ]
     },
     intervene = function() private$X.sample, 
     generate.plot = function() {
-      p = ggplot(self$results) + geom_point(aes(y = feature.value, x = effect))
+      p = ggplot(self$results) + 
+        geom_col(aes(y = effect, x=feature.value)) + coord_flip()
       if (private$multi.class) p = p + facet_wrap("..class")
       p
     },
