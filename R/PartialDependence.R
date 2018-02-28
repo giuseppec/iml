@@ -147,13 +147,13 @@ PartialDependence = R6::R6Class("PartialDependence",
   ), 
   private = list(
     aggregate = function() {
-      results = private$X.design[self$feature.index]
-      if (private$multi.class) {
-        y.hat.names = colnames(private$Q.results)
-        results = cbind(results, private$Q.results)
+      results = private$dataDesign[self$feature.index]
+      if (private$multiClass) {
+        y.hat.names = colnames(private$qResults)
+        results = cbind(results, private$qResults)
         results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
       } else {
-        results["y.hat"]= private$Q.results
+        results["y.hat"]= private$qResults
         results["..class.name"] = private$model$class
       }
       results.grouped = group_by_at(results, self$feature.names)
@@ -164,22 +164,22 @@ PartialDependence = R6::R6Class("PartialDependence",
       results 
     },
     intervene = function() {
-      grid = get.1D.grid(private$X.sample[[self$feature.index[1]]], self$feature.type[1], self$grid.size[1])
+      grid = get.1D.grid(private$dataSample[[self$feature.index[1]]], self$feature.type[1], self$grid.size[1])
       
-      private$X.design.ids = rep(1:nrow(private$X.sample), times = length(grid))
-      X.design = private$X.sample[private$X.design.ids,]
-      X.design[self$feature.index[1]] = rep(grid, each = nrow(private$X.sample))
+      private$dataDesign.ids = rep(1:nrow(private$dataSample), times = length(grid))
+      dataDesign = private$dataSample[private$dataDesign.ids,]
+      dataDesign[self$feature.index[1]] = rep(grid, each = nrow(private$dataSample))
       
       if (self$n.features == 2) {
-        grid2 = get.1D.grid(private$X.sample[[self$feature.index[2]]], self$feature.type[2], self$grid.size[2])
-        private$X.design.ids = rep(private$X.design.ids, times = length(grid2))
-        X.design2 = X.design[rep(1:nrow(X.design), times = length(grid2)), ]
-        X.design2[self$feature.index[2]] = rep(grid2, each = nrow(X.design))
-        return(X.design2)
+        grid2 = get.1D.grid(private$dataSample[[self$feature.index[2]]], self$feature.type[2], self$grid.size[2])
+        private$dataDesign.ids = rep(private$dataDesign.ids, times = length(grid2))
+        dataDesign2 = dataDesign[rep(1:nrow(dataDesign), times = length(grid2)), ]
+        dataDesign2[self$feature.index[2]] = rep(grid2, each = nrow(dataDesign))
+        return(dataDesign2)
       }
-      X.design
+      dataDesign
     }, 
-    X.design.ids = NULL, 
+    dataDesign.ids = NULL, 
     grid.size.original = NULL,
     set.feature = function(feature.index) {
       self$feature.index = feature.index
@@ -187,11 +187,11 @@ PartialDependence = R6::R6Class("PartialDependence",
       self$feature.type = private$sampler$feature.types[feature.index]
       self$feature.names = private$sampler$feature.names[feature.index]
     },
-    print.parameters = function() {
+    printParameters = function() {
       cat("features:", paste(sprintf("%s[%s]", self$feature.names, self$feature.type), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
-    generate.plot = function() {
+    generatePlot = function() {
       if (self$n.features == 1) {
         p = ggplot(self$results, mapping = aes_string(x = self$feature.names,"y.hat")) + 
           scale_y_continuous(expression(hat(y)))
@@ -217,7 +217,7 @@ PartialDependence = R6::R6Class("PartialDependence",
             scale_y_continuous(expression(hat(y)))
         }
       }
-      if (private$multi.class) {
+      if (private$multiClass) {
         p = p + facet_wrap("..class.name")
       } 
       p

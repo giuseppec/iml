@@ -127,8 +127,13 @@ Lime = R6::R6Class("Lime",
     predict = function(newdata = NULL, ...) {
       if (is.null(newdata)) newdata = self$x.interest
       X.recode = recode(newdata, self$x.interest)
-      prediction = predict(self$model, newx=as.matrix(X.recode))
-      if (private$multi.class) {
+      if (private$multiClass) {
+        prediction = predict(self$model, newx=as.matrix(X.recode), type = "response")
+        colnames(prediction) = colnames(private$predictResults)
+      } else {
+        prediction = predict(self$model, newx=as.matrix(X.recode))
+      }
+      if (private$multiClass) {
         data.frame(prediction[,,self$best.fit.index])
       } else {
         pred = prediction[,self$best.fit.index, drop=FALSE]
@@ -156,14 +161,15 @@ Lime = R6::R6Class("Lime",
     }
   ),
   private = list(
-    Q = function(pred) probs.to.labels(pred),
+    q = function(pred) probs.to.labels(pred),
     best.index = NULL,
     aggregate = function() {
-      X.recode = recode(private$X.design, self$x.interest)
+      X.recode = recode(private$dataDesign, self$x.interest)
       x.recoded = recode(self$x.interest, self$x.interest)
-      fam = ifelse(private$multi.class, "multinomial", "gaussian")
-      self$model = glmnet(x = as.matrix(X.recode), y = unlist(private$Q.results[1]), 
-        family = fam, w = private$weight.samples(), 
+      fam = ifelse(private$multiClass, "multinomial", "gaussian")
+      y = unlist(private$qResults[1])
+      self$model = glmnet(x = as.matrix(X.recode), y = y, 
+        family = fam, w = private$weightSamples(), 
         intercept = TRUE, standardize = TRUE, type.multinomial = "grouped")
       res = self$model
       ## It can happen, that no n.vars matching k occurs
@@ -174,7 +180,7 @@ Lime = R6::R6Class("Lime",
         warning("Had to choose a smaller k")
       }
       self$best.fit.index = best.index
-      if (private$multi.class) {
+      if (private$multiClass) {
         class.results = lapply(res$beta, extract.glmnet.effects, 
           best.index = best.index, x.recoded = x.recoded, x.original = self$x.interest)
         res = data.table::rbindlist(class.results)
@@ -184,16 +190,16 @@ Lime = R6::R6Class("Lime",
       }
       res[res$beta != 0, ]
     },
-    intervene = function() private$X.sample, 
-    generate.plot = function() {
+    intervene = function() private$dataSample, 
+    generatePlot = function() {
       p = ggplot(self$results) + 
         geom_col(aes(y = effect, x=feature.value)) + coord_flip()
-      if (private$multi.class) p = p + facet_wrap("..class")
+      if (private$multiClass) p = p + facet_wrap("..class")
       p
     },
-    weight.samples = function() {
+    weightSamples = function() {
       require("gower")
-      1 - gower_dist(private$X.design, self$x.interest)
+      1 - gower_dist(private$dataDesign, self$x.interest)
     }
   )
 )

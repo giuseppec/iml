@@ -135,38 +135,38 @@ Ice = R6::R6Class("Ice",
     }
   ),
   private = list(
-    generate.plot = function() {
+    generatePlot = function() {
       p = ggplot(self$results, mapping = aes_string(x = names(self$results)[1], 
         y = "y.hat", group = "..individual"))
       if (self$feature.type == "numerical") p = p + geom_line()
       else if (self$feature.type == "categorical") {
         p = p + geom_line(alpha = 0.2) 
       }
-      if (private$multi.class) {
+      if (private$multiClass) {
         p = p + facet_wrap("..class.name")
       } 
       p +  scale_y_continuous(expression(hat(y)))
     }, 
     intervene = function() {
-      X.design = super$intervene()
+      dataDesign = super$intervene()
       if (!is.null(private$anchor.value)) {
-        X.design.anchor = private$X.sample
-        X.design.anchor[self$feature.index] = private$anchor.value
-        private$X.design.ids = c(private$X.design.ids, 1:nrow(private$X.sample))
-        X.design = rbind(X.design, X.design.anchor)
+        dataDesign.anchor = private$dataSample
+        dataDesign.anchor[self$feature.index] = private$anchor.value
+        private$dataDesign.ids = c(private$dataDesign.ids, 1:nrow(private$dataSample))
+        dataDesign = rbind(dataDesign, dataDesign.anchor)
       }
-      X.design
+      dataDesign
     },
     aggregate = function() {
-      X.id = private$X.design.ids
-      X.results = private$X.design[self$feature.index]
+      X.id = private$dataDesign.ids
+      X.results = private$dataDesign[self$feature.index]
       X.results$..individual = X.id
-      if (private$multi.class) {
-        y.hat.names = colnames(private$Q.results)
-        X.results = cbind(X.results, private$Q.results)
+      if (private$multiClass) {
+        y.hat.names = colnames(private$qResults)
+        X.results = cbind(X.results, private$qResults)
         X.results = gather(X.results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
       } else {
-        X.results["y.hat"]= private$Q.results
+        X.results["y.hat"]= private$qResults
         X.results["..class.name"] = 1
       }
       
@@ -179,7 +179,7 @@ Ice = R6::R6Class("Ice",
       }
       
       # Remove class name column again if single output
-      if (!private$multi.class) {
+      if (!private$multiClass) {
         X.results$..class.name = NULL
       }
       

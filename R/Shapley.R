@@ -122,22 +122,22 @@ Shapley = R6::R6Class("Shapley",
       if (!is.null(x.interest)) {
         private$set.x.interest(x.interest)
       }
-      private$get.data = function(...) private$sampler$sample(n = self$sample.size, ...)
+      private$getData = function(...) private$sampler$sample(n = self$sample.size, ...)
       if (run & !is.null(x.interest)) self$run()
     }
   ), 
   private = list(
     aggregate = function() {
-      y.hat.with.k = private$Q.results[1:(nrow(private$Q.results)/2), , drop = FALSE]
-      y.hat.without.k = private$Q.results[(nrow(private$Q.results)/2 + 1):nrow(private$Q.results), , drop = FALSE]
+      y.hat.with.k = private$qResults[1:(nrow(private$qResults)/2), , drop = FALSE]
+      y.hat.without.k = private$qResults[(nrow(private$qResults)/2 + 1):nrow(private$qResults), , drop = FALSE]
       y.hat.diff = y.hat.with.k - y.hat.without.k
       cnames = colnames(y.hat.diff)
-      y.hat.diff = cbind(data.frame(feature = rep(colnames(private$X.design), times = self$sample.size)), 
+      y.hat.diff = cbind(data.frame(feature = rep(colnames(private$dataDesign), times = self$sample.size)), 
         y.hat.diff)
       y.hat.diff = gather(y.hat.diff, key = "class", "value", one_of(cnames))
       y.hat.diff.grouped  =   group_by(y.hat.diff, feature, class)
       y.hat.diff = summarise(y.hat.diff.grouped, phi = mean(value), phi.var = var(value))
-      if (!private$multi.class) y.hat.diff$class = NULL
+      if (!private$multiClass) y.hat.diff$class = NULL
       y.hat.diff$featureValue = sprintf('%s=%s', colnames(self$x.interest), self$x.interest)
       y.hat.diff
     },
@@ -147,7 +147,7 @@ Shapley = R6::R6Class("Shapley",
         # randomly order features
         new.feature.order = sample(1:private$sampler$n.features)
         # randomly choose sample instance from X
-        sample.instance.shuffled = private$X.sample[sample(1:nrow(private$X.sample), 1), new.feature.order]
+        sample.instance.shuffled = private$dataSample[sample(1:nrow(private$dataSample), 1), new.feature.order]
         x.interest.shuffled = self$x.interest[new.feature.order]
         
         featurewise = lapply(1:private$sampler$n.features, function(k) {
@@ -175,17 +175,17 @@ Shapley = R6::R6Class("Shapley",
       self$y.hat.interest = private$model$predict(x.interest)[1,]
       self$y.hat.average = colMeans(private$model$predict(private$sampler$get.x()))
     },
-    generate.plot = function(sort = TRUE, ...) {
+    generatePlot = function(sort = TRUE, ...) {
       res = self$results
-      if (sort & !private$multi.class) {
+      if (sort & !private$multiClass) {
         res$featureValue = factor(res$featureValue, levels = res$featureValue[order(res$phi)])
       }
       p = ggplot(res) + 
         geom_col(aes(y = phi, x=featureValue)) + coord_flip()
-      if (private$multi.class) p = p + facet_wrap("class")
+      if (private$multiClass) p = p + facet_wrap("class")
       p
     },
-    print.parameters = function() {
+    printParameters = function() {
       cat(sprintf("Predicted value: %f, Average prediction: %f (diff = %f)", 
         self$y.hat.interest, self$y.hat.average, self$y.hat.interest - self$y.hat.average))
     }

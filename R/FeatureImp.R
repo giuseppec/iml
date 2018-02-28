@@ -141,9 +141,9 @@ FeatureImp = R6::R6Class("FeatureImp",
       super$initialize(model = model, data = data)
       self$loss = private$set.loss(loss)
       private$method = method
-      private$get.data = private$sampler$get.xy
+      private$getData = private$sampler$get.xy
       actual = private$sampler$y[[1]]
-      predicted = private$Q(private$model$predict(private$sampler$X))[[1]]
+      predicted = private$q(private$model$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$error.original = loss(actual, predicted)
       if(run) self$run()
@@ -155,15 +155,15 @@ FeatureImp = R6::R6Class("FeatureImp",
     loss.string = NULL,
     shuffle.feature = function(feature.name, method) {
       if (method == "shuffle") {
-        X.inter = private$X.sample
-        X.inter[feature.name] = X.inter[sample(1:nrow(private$X.sample)), feature.name]
+        X.inter = private$dataSample
+        X.inter[feature.name] = X.inter[sample(1:nrow(private$dataSample)), feature.name]
       } else if (method == "cartesian") {
-        n = nrow(private$X.sample)
+        n = nrow(private$dataSample)
         row.indices = rep(1:n, times = n)
         replace.indices = rep(1:n, each = n)
         # Indices of instances to keep. Removes those where instance matched with own value
         keep.indices = as.logical(as.vector(1 - diag(n)))
-        X.inter = private$X.sample[row.indices, ]
+        X.inter = private$dataSample[row.indices, ]
         X.inter[feature.name] = X.inter[replace.indices, feature.name]
         X.inter = X.inter[keep.indices,]
       } else {
@@ -172,17 +172,17 @@ FeatureImp = R6::R6Class("FeatureImp",
       X.inter$..feature = feature.name
       X.inter 
     },
-    Q = function(pred) probs.to.labels(pred),
+    q = function(pred) probs.to.labels(pred),
     intervene = function() {
       X.inter.list = lapply(private$sampler$feature.names, 
         function(i) private$shuffle.feature(i, method = private$method))
       data.frame(data.table::rbindlist(X.inter.list))
     },
     aggregate = function() {
-      y = private$X.design[private$sampler$y.names]
-      y.hat = private$Q.results
+      y = private$dataDesign[private$sampler$y.names]
+      y.hat = private$qResults
       # For classification we work with the class labels instead of probs
-      result = data.frame(..feature = private$X.design$..feature, ..actual = y[[1]], 
+      result = data.frame(..feature = private$dataDesign$..feature, ..actual = y[[1]], 
         ..predicted = y.hat[[1]])
       
       result.grouped  = group_by_(result, "..feature")
@@ -191,7 +191,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       result = result[order(result$importance, decreasing = TRUE),]
       result
     },
-    generate.plot = function(sort = TRUE, ...) {
+    generatePlot = function(sort = TRUE, ...) {
       res = self$results
       if (sort) {
         res$..feature = factor(res$..feature, levels = res$..feature[order(res$importance)])
@@ -204,7 +204,7 @@ FeatureImp = R6::R6Class("FeatureImp",
     set.loss = function(loss) {
       self$loss = loss
     }, 
-    print.parameters = function() {
+    printParameters = function() {
       cat("error function:", private$loss.string)
     }
   )

@@ -121,7 +121,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     predict = function(newdata, type = "prob", ...) {
       assert_choice(type, c("prob", "class"))
       res = data.frame(predict(self$tree, newdata = newdata, type = "response", ...))
-      if (private$multi.class) {
+      if (private$multiClass) {
         if (type == "class") {
           res = data.frame(..class = colnames(res)[apply(res, 1, which.max)])
         }
@@ -133,59 +133,59 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
   ), 
   private = list(
     tree.args = NULL,
-    # Only relevant in multi.class case
+    # Only relevant in multiClass case
     tree.predict.colnames = NULL,
-    # Only relevant in multi.class case
+    # Only relevant in multiClass case
     object.predict.colnames = NULL,
 
-    intervene = function() private$X.sample,
+    intervene = function() private$dataSample,
     aggregate = function() {
-      y.hat = private$Q.results
-      if (private$multi.class) {
+      y.hat = private$qResults
+      if (private$multiClass) {
         classes = colnames(y.hat)
         form = formula(sprintf("%s ~ .", paste(classes, collapse = "+")))       
       } else {
         y.hat = unlist(y.hat[1])
         form = y.hat ~ .
       }
-      dat = cbind(y.hat, private$X.design)
+      dat = cbind(y.hat, private$dataDesign)
       tree.args = c(list(formula = form, data = dat, maxdepth = self$maxdepth), private$tree.args)
       self$tree = do.call(partykit::ctree, tree.args)
       result = data.frame(..node = predict(self$tree, type = "node"), 
         ..path = pathpred(self$tree))
-      if (private$multi.class) {
-        outcome = private$Q.results
+      if (private$multiClass) {
+        outcome = private$qResults
         colnames(outcome) = paste("..y.hat:", colnames(outcome), sep="")
         private$object.predict.colnames = colnames(outcome)
         
         # result = gather(result, key = "..class", value = "..y.hat", one_of(cnames))
-        ..y.hat.tree = self$predict(private$X.design, type = "prob")
+        ..y.hat.tree = self$predict(private$dataDesign, type = "prob")
         colnames(..y.hat.tree) = paste("..y.hat.tree:", colnames(..y.hat.tree), sep="")
         private$tree.predict.colnames = colnames(..y.hat.tree)
         
         #..y.hat.tree = gather(..y.hat.tree, "..class.tree", "..y.hat.tree")
         result = cbind(result, outcome, ..y.hat.tree)
       } else {
-        result$..y.hat = private$Q.results[[1]]
-        result$..y.hat.tree = self$predict(private$X.design)[[1]]
+        result$..y.hat = private$qResults[[1]]
+        result$..y.hat.tree = self$predict(private$dataDesign)[[1]]
       }
-      design = private$X.design
+      design = private$dataDesign
       rownames(design) = NULL
       cbind(design, result)
     }, 
-    generate.plot = function() {
+    generatePlot = function() {
       p = ggplot(self$results) + 
         geom_boxplot(aes(y = ..y.hat, x = "")) + 
         scale_x_discrete("") + 
         facet_wrap("..path") + 
         scale_y_continuous(expression(hat(y)))
-      if (private$multi.class) {
-        plot.data = self$results
+      if (private$multiClass) {
+        plotData = self$results
         # max class for model
-        plot.data$..class = private$object.predict.colnames[apply(plot.data[private$object.predict.colnames], 1, which.max)]
-        plot.data$..class = gsub("..y.hat:", "", plot.data$..class)
-        plot.data = plot.data[setdiff(names(plot.data), private$object.predict.colnames)]
-        p = ggplot(plot.data) + 
+        plotData$..class = private$object.predict.colnames[apply(plotData[private$object.predict.colnames], 1, which.max)]
+        plotData$..class = gsub("..y.hat:", "", plotData$..class)
+        plotData = plotData[setdiff(names(plotData), private$object.predict.colnames)]
+        p = ggplot(plotData) + 
           geom_bar(aes(x = ..class)) + 
           facet_wrap("..path")
       }

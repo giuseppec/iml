@@ -3,9 +3,11 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     # The aggregated results of the experiment
     results = NULL,
     plot = function(...) {
-      private$plot.data = private$generate.plot(...)
-      if (!is.null(private$plot.data)) {
-        return(private$plot.data)} else {warning("no plot data generated")
+      private$plotData = private$generatePlot(...)
+      if (!is.null(private$plotData)) {
+        return(private$plotData)
+        } else {
+          warning("call run() first!")
         }
     },
     initialize = function(model, data) {
@@ -15,11 +17,11 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       }      
       private$model = model
       private$sampler = data
-      private$get.data = private$sampler$get.x
+      private$getData = private$sampler$get.x
     },
     print = function() {
       cat("Interpretation method: ", class(self)[1], "\n")
-      private$print.parameters()
+      private$printParameters()
       cat("\n\nAnalysed model: \n")
       private$model$print()
       cat("\n\nAnalysed data:\n")
@@ -33,12 +35,12 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       if (force) private$flush()
       if (!private$finished) {
         # DESIGN experiment
-        private$X.sample = private$get.data()
-        private$X.design = private$intervene()
+        private$dataSample = private$getData()
+        private$dataDesign = private$intervene()
         # EXECUTE experiment
-        predict.results = private$model$predict(private$X.design)
-        private$multi.class = ifelse(ncol(predict.results) > 1, TRUE, FALSE)
-        private$Q.results = private$Q(predict.results)
+        private$predictResults = private$model$predict(private$dataDesign)
+        private$multiClass = ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
+        private$qResults = private$q(private$predictResults)
         # AGGREGATE measurements
         self$results = private$aggregate()
         private$finished = TRUE
@@ -50,40 +52,41 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     # The sampling object for sampling from X
     sampler = NULL,
     # Wrapper for sampler
-    get.data = NULL,
+    getData = NULL,
     # The sampled data
-    X.sample = NULL,
+    dataSample = NULL,
     # The intervention on the sample
-    intervene = function() private$X.sample,
+    intervene = function() private$dataSample,
     # The design matrix after intervention
-    X.design = NULL,
+    dataDesign = NULL,
     # The model
     model = NULL,
     # The quantity of interest from black box model prediction
-    Q = function(x) x,
-    Q.results = NULL,
-    # Flag if the prediction is multi.class (more than one column)
-    multi.class = NULL,
+    predictResults = NULL,
+    q = function(x) x,
+    qResults = NULL,
+    # Flag if the prediction is multiClass (more than one column)
+    multiClass = NULL,
     # Weights for the aggregation step
-    weight.samples = function() 1,
+    weightSamples = function() 1,
     # The aggregation function for the results
-    aggregate = function() cbind(private$X.design, private$Q.results),
+    aggregate = function() cbind(private$dataDesign, private$qResults),
     # Flag if the experiment is finished
     finished = FALSE,
     # Removes experiment results as preparation for running experiment again
     flush = function() {
-      private$X.sample = NULL
-      private$X.design = NULL
-      private$Q.results = NULL
+      private$dataSample = NULL
+      private$dataDesign = NULL
+      private$qResults = NULL
       self$results = NULL
       private$finished = FALSE
     }, 
     # The data need for plotting of results
-    plot.data = NULL,
+    plotData = NULL,
     # Function to generate the plot
-    generate.plot = function() NULL,
+    generatePlot = function() NULL,
     # Feature names of X
     feature.names = NULL, 
-    print.parameters = function() {}
+    printParameters = function() {}
   )
 )
