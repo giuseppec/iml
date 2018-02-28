@@ -37,13 +37,17 @@ test_that("recode",{
   expect_equal(colnames(X.recode), c("x1", "x2=a", "x3", "x4=c"))
 })
 
-      
+
 test_that("get.1D.grid", {
   expect_equal(get.1D.grid(1:10, "numerical", 4), c(1, 4, 7, 10))
   expect_equal(get.1D.grid(1:10, "categorical", 1), 1:10)
   expect_equal(get.1D.grid(letters, "categorical", 4), letters)
   expect_error(get.1D.grid(letters, "numerical", 4))
   expect_equal(get.1D.grid(1:10, "numerical", 2), c(1, 10))
+  expect_equal(get.1D.grid(c(NA, 1:10), "numerical", 2), c(1,10))
+  expect_equal(get.1D.grid(c(NaN, 1:10), "numerical", 2), c(1,10))
+  expect_equal(get.1D.grid(c(Inf, 1:10), "numerical", 2), c(1,10))
+  expect_equal(get.1D.grid(c(-Inf, 1:10), "numerical", 2), c(1,10))
 })
 
 test_that("is.label.output", {
