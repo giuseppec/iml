@@ -13,7 +13,6 @@
 #' 
 #' plot(imp)
 #' imp$results
-#' imp$tree
 #' print(imp)
 #' } 
 #' 
