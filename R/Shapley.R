@@ -33,13 +33,12 @@
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
-#' \item{x.interest}{data.frame with the instance of interest}
-#' \item{y.hat.interest}{predicted value for instance of interest}
-#' \item{y.hat.averate}{average predicted value for data \code{X}} 
 #' \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 #' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
+#' \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
+#' \item{y.hat.interest}{predicted value for instance of interest}
+#' \item{y.hat.averate}{average predicted value for data \code{X}} 
 #' }
 #' 
 #' @section Methods:

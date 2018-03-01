@@ -40,19 +40,16 @@
 #' @section Fields:
 #' \describe{
 #' \item{feature.index}{The index of the features for which the partial dependence was computed.}
-#' \item{feature.names}{The names of the features for which the partial dependence was computed.}
+#' \item{feature.name}{The names of the features for which the partial dependence was computed.}
 #' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 #' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 #' \item{grid.size}{The size of the grid.}
-#' \item{n.features}{The number of features (either 1 or 2)}
 #' \item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}.} 
 #' }
 #' 
 #' @section Methods:
 #' \describe{
 #' \item{center.at}{method to set the value(s) at which the ice computations are centered. See examples.}
-#' \item{grid.size}{The size of the grid.}
-#' \item{center}{method to get/set the feature value at which the ice computation should be centered. See examples for usage.}
 #' \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
 #' \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
 #' }
@@ -171,7 +168,7 @@ Ice = R6::R6Class("Ice",
       }
       
       if (!is.null(private$anchor.value)) {
-        X.aggregated.anchor = X.results[X.results[self$feature.names] == private$anchor.value, c("y.hat", "..individual", "..class.name")]
+        X.aggregated.anchor = X.results[X.results[self$feature.name] == private$anchor.value, c("y.hat", "..individual", "..class.name")]
         names(X.aggregated.anchor) = c("anchor.yhat", "..individual", "..class.name")
         X.results = left_join(X.results, X.aggregated.anchor, by = c("..individual", "..class.name"))
         X.results$y.hat = X.results$y.hat - X.results$anchor.yhat

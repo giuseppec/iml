@@ -6,10 +6,12 @@ inferTaskFromModel.WrappedModel = function(object){
   if(inherits(object, "WrappedModel"))
     tsk = mlr::getTaskType(object)
   if (tsk == "classif") {
-    return("classification")
     if (object$learner$predict.type != "prob") {
-      stop("Set predict.type = 'prob' when creating the learner with makeLearner")
+      warning("Output seems to be class instead of probabilities. 
+               Automatically transformed to 0 and 1 probabilities.
+               You might want to set predict.type = 'prob' for Learner!")    
     }
+    return("classification")
   } else if (tsk == "regr") {
     return("regression")
   } else {

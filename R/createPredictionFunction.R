@@ -5,12 +5,14 @@ createPredictionFunction = function(object, task, predict.args = NULL){
 
 createPredictionFunction.WrappedModel = function(object, task, predict.args = NULL){
   if (task == "classification") {
-    if (object$learner$predict.type == "response") {
-      stop("Set predict.type = 'prob' for Learner!")
-    }
     function(newdata){
       pred = predict(object, newdata = newdata)
-      mlr::getPredictionProbabilities(pred, cl = object$task.desc$class.levels)
+      if (object$learner$predict.type == "response") {
+        pred = getPredictionResponse(pred)
+        data.frame(model.matrix(~prediction-1, data.frame(prediction = pred), sep = ":"))
+      } else {
+        mlr::getPredictionProbabilities(pred, cl = object$task.desc$class.levels)
+      }
     }
   } else if (task == "regression") {      
     function(newdata){

@@ -70,6 +70,10 @@ Model = R6::R6Class("Model",
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
       prediction = self$prediction.function(newdata)
+      if (!private$predictionChecked) {
+        checkPrediction(prediction, newdata)
+        private$predictionChecked = TRUE
+      }
       # If S3 or function, we can only infer the task 
       # once we see the predictions
       if (is.null(self$task)) {
@@ -99,7 +103,8 @@ Model = R6::R6Class("Model",
     }
   ), 
   private = list(
-    object = NULL
+    object = NULL, 
+    predictionChecked = FALSE
   )
 )
 

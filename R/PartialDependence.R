@@ -36,7 +36,7 @@
 #' @section Fields:
 #' \describe{
 #' \item{feature.index}{The index of the features for which the partial dependence was computed.}
-#' \item{feature.names}{The names of the features for which the partial dependence was computed.}
+#' \item{feature.name}{The names of the features for which the partial dependence was computed.}
 #' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 #' \item{grid.size}{The size of the grid.}
 #' \item{n.features}{The number of features (either 1 or 2)}
@@ -123,7 +123,7 @@ PartialDependence = R6::R6Class("PartialDependence",
   public = list(
     grid.size = NULL, 
     feature.index = NULL, 
-    feature.names = NULL,
+    feature.name = NULL,
     n.features = NULL, 
     feature.type= NULL,
     initialize = function(model, data, feature, grid.size = 10, run = TRUE) {
@@ -156,7 +156,7 @@ PartialDependence = R6::R6Class("PartialDependence",
         results["y.hat"]= private$qResults
         results["..class.name"] = private$model$class
       }
-      results.grouped = group_by_at(results, self$feature.names)
+      results.grouped = group_by_at(results, self$feature.name)
       if ("..class.name" %in% colnames(results)) {
         results.grouped = group_by(results.grouped, ..class.name, add = TRUE)
       }
@@ -185,15 +185,15 @@ PartialDependence = R6::R6Class("PartialDependence",
       self$feature.index = feature.index
       self$n.features = length(feature.index)
       self$feature.type = private$sampler$feature.types[feature.index]
-      self$feature.names = private$sampler$feature.names[feature.index]
+      self$feature.name = private$sampler$feature.names[feature.index]
     },
     printParameters = function() {
-      cat("features:", paste(sprintf("%s[%s]", self$feature.names, self$feature.type), collapse = ", "))
+      cat("features:", paste(sprintf("%s[%s]", self$feature.name, self$feature.type), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
     generatePlot = function() {
       if (self$n.features == 1) {
-        p = ggplot(self$results, mapping = aes_string(x = self$feature.names,"y.hat")) + 
+        p = ggplot(self$results, mapping = aes_string(x = self$feature.name,"y.hat")) + 
           scale_y_continuous(expression(hat(y)))
         if (self$feature.type == "numerical") {
           p = p + geom_path() 
@@ -204,13 +204,13 @@ PartialDependence = R6::R6Class("PartialDependence",
       } else if (self$n.features == 2) {
         if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results) + 
-            geom_tile(aes_string(x = self$feature.names[1], 
-              y = self$feature.names[2], 
+            geom_tile(aes_string(x = self$feature.name[1], 
+              y = self$feature.name[2], 
               fill = "y.hat")) + 
             scale_fill_continuous(expression(hat(y)))
         } else {
-          categorical.feature = self$feature.names[self$feature.type=="categorical"]
-          numerical.feature = setdiff(self$feature.names, categorical.feature)
+          categorical.feature = self$feature.name[self$feature.type=="categorical"]
+          numerical.feature = setdiff(self$feature.name, categorical.feature)
           p = ggplot(self$results) + 
             geom_line(aes_string(x = numerical.feature, y = "y.hat", 
               group = categorical.feature, color = categorical.feature)) + 
@@ -224,7 +224,7 @@ PartialDependence = R6::R6Class("PartialDependence",
     }, 
     set.grid.size = function(size) {
       self$grid.size = numeric(length=self$n.features)
-      names(self$grid.size) = private$sampler$feature.names[self$feature.index]
+      names(self$grid.size) = private$sampler$feature.name[self$feature.index]
       private$set.grid.size.single(size[1], 1)
       if (self$n.features > 1) {
         if (length(size) == 1) {

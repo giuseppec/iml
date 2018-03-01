@@ -62,11 +62,11 @@ test_that("equivalence",{
   expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
 })
 
-test_that("Missing predict.type in mlr is stopped", {
+test_that("Missing predict.type gives warning", {
   task = mlr::makeClassifTask(data = iris, target = "Species")
   lrn = mlr::makeLearner("classif.randomForest")
   mod.mlr = mlr::train(lrn, task)
-  expect_error(Model$new(mod.mlr))
+  expect_warning(Model$new(mod.mlr))
 })
 
 

@@ -57,7 +57,7 @@ You can also provide a function directly. It has to take the actual value as its
 \section{Fields}{
 
 \describe{
-\item{error.original}{The loss of the model before perturbing features.}
+\item{original.error}{The loss of the model before perturbing features.}
 \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 \item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
 }
@@ -99,7 +99,7 @@ plot(imp) + theme_bw()
 # If you want to do your own thing, just extract the data: 
 imp.dat = imp$results
 head(imp.dat)
-ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
+ggplot(imp.dat, aes(x = feature, y = importance)) + geom_point() + 
 theme_bw()
 }
 

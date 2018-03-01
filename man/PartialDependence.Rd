@@ -44,7 +44,7 @@ https://christophm.github.io/interpretable-ml-book/pdp.html
 
 \describe{
 \item{feature.index}{The index of the features for which the partial dependence was computed.}
-\item{feature.names}{The names of the features for which the partial dependence was computed.}
+\item{feature.name}{The names of the features for which the partial dependence was computed.}
 \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 \item{grid.size}{The size of the grid.}
 \item{n.features}{The number of features (either 1 or 2)}

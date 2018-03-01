@@ -9,7 +9,8 @@ test_that("classificaton",{
   task = makeClassifTask(data = iris, target = "Species")
   learner = makeLearner("classif.lda", method = "mle")
   mod = mlr::train(learner, task)
-  expect_equal(inferTaskFromModel(mod), "classification")
+  expect_warning({tsk = inferTaskFromModel(mod)})
+  expect_equal(tsk, "classification")
   
   TrainData <- iris[,1:4]
   TrainClasses <- iris[,5]

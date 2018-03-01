@@ -50,7 +50,7 @@
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{error.original}{The loss of the model before perturbing features.}
+#' \item{original.error}{The loss of the model before perturbing features.}
 #' \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 #' \item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
 #' }
@@ -93,7 +93,7 @@
 #' # If you want to do your own thing, just extract the data: 
 #' imp.dat = imp$results
 #' head(imp.dat)
-#' ggplot(imp.dat, aes(x = ..feature, y = importance)) + geom_point() + 
+#' ggplot(imp.dat, aes(x = feature, y = importance)) + geom_point() + 
 #' theme_bw()
 #' }
 #' 
@@ -121,7 +121,7 @@ FeatureImp = R6::R6Class("FeatureImp",
   inherit = InterpretationMethod,
   public = list(
     loss = NULL,
-    error.original = NULL,
+    original.error = NULL,
     initialize = function(model, data, y = NULL, loss, method = "shuffle", run = TRUE) {
       checkmate::assert_choice(method, c("shuffle", "cartesian"))
       if (!inherits(data, 'Data')) {
@@ -145,7 +145,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       actual = private$sampler$y[[1]]
       predicted = private$q(private$model$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
-      self$error.original = loss(actual, predicted)
+      self$original.error = loss(actual, predicted)
       if(run) self$run()
     }
   ),
@@ -153,7 +153,7 @@ FeatureImp = R6::R6Class("FeatureImp",
     method = NULL,
     # for printing
     loss.string = NULL,
-    shuffle.feature = function(feature.name, method) {
+    shuffleFeature = function(feature.name, method) {
       if (method == "shuffle") {
         X.inter = private$dataSample
         X.inter[feature.name] = X.inter[sample(1:nrow(private$dataSample)), feature.name]
@@ -175,29 +175,29 @@ FeatureImp = R6::R6Class("FeatureImp",
     q = function(pred) probs.to.labels(pred),
     intervene = function() {
       X.inter.list = lapply(private$sampler$feature.names, 
-        function(i) private$shuffle.feature(i, method = private$method))
+        function(i) private$shuffleFeature(i, method = private$method))
       data.frame(data.table::rbindlist(X.inter.list))
     },
     aggregate = function() {
       y = private$dataDesign[private$sampler$y.names]
       y.hat = private$qResults
       # For classification we work with the class labels instead of probs
-      result = data.frame(..feature = private$dataDesign$..feature, ..actual = y[[1]], 
-        ..predicted = y.hat[[1]])
+      result = data.frame(feature = private$dataDesign$..feature, actual = y[[1]], 
+        predicted = y.hat[[1]])
       
-      result.grouped  = group_by_(result, "..feature")
-      result = summarise(result.grouped, error = self$loss(..actual, ..predicted), 
-        importance = error / self$error.original)
+      result.grouped  = group_by_(result, "feature")
+      result = summarise(result.grouped, original.error = self$original.error, permutationError = self$loss(actual, predicted), 
+        importance = permutationError / self$original.error)
       result = result[order(result$importance, decreasing = TRUE),]
       result
     },
     generatePlot = function(sort = TRUE, ...) {
       res = self$results
       if (sort) {
-        res$..feature = factor(res$..feature, levels = res$..feature[order(res$importance)])
+        res$feature = factor(res$feature, levels = res$feature[order(res$importance)])
       }
-      ggplot(res, aes(y = ..feature, x = importance)) + geom_point()+ 
-        geom_segment(aes(y = ..feature, yend = ..feature, x=1, xend = importance)) + 
+      ggplot(res, aes(y = feature, x = importance)) + geom_point()+ 
+        geom_segment(aes(y = feature, yend = feature, x=1, xend = importance)) + 
         scale_x_continuous("Feature Importance") + 
         scale_y_discrete("Feature")
     }, 

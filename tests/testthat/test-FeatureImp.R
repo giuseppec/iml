@@ -4,11 +4,13 @@ context("FeatureImp()")
 y = f(X) + rnorm(nrow(X))
 y2 = factor(ifelse(X$b + X$a < 20, "pred", "pred2"))
 
+expectedColnames = c("feature", "original.error", "permutationError", "importance")
+
 test_that("FeatureImp works for single output", {
   
   var.imp = FeatureImp$new(predictor1, X, y = y, loss = "mse")
   dat = var.imp$results
-  expect_equal(colnames(dat), c("..feature", "error", "importance"))
+  expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -19,7 +21,7 @@ test_that("FeatureImp works for single output", {
   dat = var.imp$results
   # Making sure the result is sorted by decreasing importance
   expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
-  expect_equal(colnames(dat), c("..feature", "error", "importance"))
+  expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -37,8 +39,8 @@ test_that("FeatureImp works for single output", {
   var.imp = FeatureImp$new(f.exact, X.exact, y = y.exact, loss = "mse", method = "cartesian")
   dat = var.imp$results
   expect_equal(dat$importance, c(cartesian.error, 1))
-  expect_equal(colnames(dat), c("..feature", "error", "importance"))
-  expect_equal(model.error, var.imp$error.original)
+  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(model.error, var.imp$original.error)
   expect_equal(nrow(dat), ncol(X.exact))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -60,7 +62,7 @@ test_that("FeatureImp works for single output and function as loss", {
   dat = var.imp$results
   # Making sure the result is sorted by decreasing importance
   expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
-  expect_equal(colnames(dat), c("..feature", "error", "importance"))
+  expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -72,7 +74,7 @@ test_that("FeatureImp works for multiple output",{
   
   var.imp = FeatureImp$new(predictor2, X, y = y2, loss = "ce")
   dat = var.imp$results
-  expect_equal(colnames(dat), c("..feature", "error", "importance"))
+  expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))

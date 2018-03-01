@@ -12,6 +12,11 @@ lrn = mlr::makeLearner("classif.randomForest", predict.type = "prob")
 mod.mlr = mlr::train(lrn, task)
 predictor.mlr = createPredictionFunction(mod.mlr, "classification")
 
+lrn.response = mlr::makeLearner("classif.randomForest", predict.type = "response")
+mod.mlr.response = mlr::train(lrn.response, task)
+predictor.mlr.response = createPredictionFunction(mod.mlr.response, "classification")
+
+
 # S3 predict
 mod.S3 = mod.mlr$learner.model
 predictor.S3 = createPredictionFunction(mod.S3, predict.args = list(type="prob"))
@@ -34,7 +39,7 @@ test_that("output shape", {
   checkmate::expect_data_frame(predictor.caret(iris.test), ncols = 3)
   checkmate::expect_data_frame(predictor.S3(iris.test), ncols = 3)
   checkmate::expect_data_frame(predictor.mlr(iris.test), ncols = 3)
-  
+  checkmate::expect_data_frame(predictor.mlr.response(iris.test), ncols = 3)
 })
 
 
