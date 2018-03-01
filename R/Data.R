@@ -30,13 +30,16 @@ Data  = R6::R6Class("Data",
     },
     initialize = function(X, y = NULL, prob = NULL) {
       assertDataFrame(X, all.missing = FALSE)
-      assert_named(X)
-      assertDataFrame(y, all.missing = FALSE, null.ok = TRUE)
+      assertNamed(X)
       self$X = X
-      if (!missing(y)) {
+      if(inherits(y, "data.frame")) {
+        assertDataFrame(y, all.missing = FALSE, null.ok = TRUE, nrows = nrow(X))
         self$y = y
-        self$y.names = names(y)
-        assert_true(nrow(X)==nrow(y))
+        self$y.names = colnames(self$y)
+      } else if (is.vector(y) | is.factor(y)) {
+        assert_vector(y, any.missing = FALSE, null.ok = TRUE, len = nrow(X))
+        self$y = data.frame(..y = y)
+        self$y.names = colnames(self$y)
       }
       self$prob = prob
       self$feature.types = get.feature.type(unlist(lapply(X, class)))

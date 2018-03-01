@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-lime = Lime$new(model, data, x.interest = NULL, k = 3 run = TRUE)
+lime = Lime$new(model, x.interest = NULL, k = 3 run = TRUE)
 
 plot(lime)
 predict(lime, newdata)
@@ -26,7 +26,6 @@ print(lime)
 For Lime$new():
 \describe{
 \item{model}{Object of type \code{Predictor}. See \link{Predictor}.}
-\item{data}{data.frame with the data for the prediction model.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
 \item{k}{the (maximum) number of features to be used for the surrogate model.}
 \item{run}{logical. Should the Interpretation method be run?}
@@ -83,11 +82,11 @@ if (require("randomForest")) {
 data("Boston", package  = "MASS")
 X = Boston[-which(names(Boston) == "medv")]
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Predictor$new(rf)
+mod = Predictor$new(rf, data = X)
 
 # Then we explain the first instance of the dataset with the Lime method:
 x.interest = X[1,]
-lemon = Lime$new(mod, X, x.interest = x.interest, k = 2)
+lemon = Lime$new(mod, x.interest = x.interest, k = 2)
 lemon
 
 # Look at the results in a table
@@ -104,11 +103,11 @@ plot(lemon)
 # Lime also works with multiclass classification
 library("randomForest")
 rf = randomForest(Species ~ ., data= iris, ntree=50)
-mod = Predictor$new(rf,predict.args = list(type='prob'), class = 2)
 X = iris[-which(names(iris) == 'Species')]
+mod = Predictor$new(rf, data = X, predict.args = list(type='prob'), class = 2)
 
 # Then we explain the first instance of the dataset with the Lime method:
-lemon = Lime$new(mod, X, x.interest = X[1,], k = 2)
+lemon = Lime$new(mod, x.interest = X[1,], k = 2)
 lemon$results
 plot(lemon) 
 }

@@ -6,7 +6,7 @@
 #' @name TreeSurrogate
 #' @section Usage:
 #' \preformatted{
-#' tree = TreeSurrogate$new(model, data, maxdepth = 2, tree.args = NULL, run = TRUE)
+#' tree = TreeSurrogate$new(model, maxdepth = 2, tree.args = NULL, run = TRUE)
 #' 
 #' plot(tree)
 #' predict(tree, newdata)
@@ -19,7 +19,6 @@
 #' For TreeSurrogate$new():
 #' \describe{
 #' \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
-#' \item{data}{data.frame with the data for the prediction model.}
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' \item{tree.args}{A list with further arguments for \code{ctree}}
@@ -54,10 +53,10 @@
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' # Create a model object
-#' mod = Predictor$new(rf) 
+#' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
-#' dt = TreeSurrogate$new(mod, Boston[-which(names(Boston) == "medv")])
+#' dt = TreeSurrogate$new(mod)
 #' 
 #' # Plot the resulting leaf nodes
 #' plot(dt) 
@@ -72,11 +71,11 @@
 #' 
 #' # It also works for classification
 #' rf = randomForest(Species ~ ., data = iris, ntree = 50)
-#' mod = Predictor$new(rf, predict.args = list(type = "prob"))
+#' X = iris[-which(names(iris) == "Species")]
+#' mod = Predictor$new(rf, data = X, predict.args = list(type = "prob"))
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
-#' X = iris[-which(names(iris) == "Species")]
-#' dt = TreeSurrogate$new(mod, X,  maxdepth=2)
+#' dt = TreeSurrogate$new(mod, maxdepth=2)
 #'
 #' # Plot the resulting leaf nodes
 #' plot(dt) 
@@ -112,8 +111,8 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     tree = NULL,
     # Maximal depth as set by the user
     maxdepth = NULL,
-    initialize = function(model, data, maxdepth = 2, tree.args = NULL, run = TRUE) {
-      super$initialize(model, data)
+    initialize = function(model, maxdepth = 2, tree.args = NULL, run = TRUE) {
+      super$initialize(model)
       private$tree.args = tree.args
       self$maxdepth = maxdepth
       if(run) self$run()

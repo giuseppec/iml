@@ -7,7 +7,7 @@
 #' @name Predictor
 #' @section Usage:
 #' \preformatted{
-#' model = Predictor$new(object, class=NULL, predict.args = NULL)
+#' model = Predictor$new(object, data, y = NULL, class=NULL, predict.args = NULL)
 #' 
 #' model$predict(newdata)
 #' }
@@ -17,6 +17,8 @@
 #' \item{model}{The machine learning model. Recommended are models from mlr and caret.
 #' Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).
 #' \code{model} can also be a function that returns the prediction as a data.frame, given the features.}
+#' \item{data}{the data to be used for the prediction}
+#' \item{y}{The target vector}
 #' \item{class}{The class column to be returned in case of multiClass output.}
 #' \item{predict.args}{Further arguments for the prediction function of each model. Depends on the class of the original machine learning model. 
 #' See examples.}
@@ -30,6 +32,7 @@
 #' @section Fields:
 #' \describe{
 #' \item{class}{The class column to be returned.}
+#' \item{data}{data.frame with the data for the model}
 #' \item{prediction.colnames}{The column names of the predictions.}
 #' \item{task}{The inferred prediction task: "classification" or "regression".}
 #' }
@@ -49,16 +52,18 @@
 #' task = makeClassifTask(data = iris, target = "Species")
 #' learner = makeLearner("classif.rpart", minsplit = 7, predict.type = "prob")
 #' mod.mlr = train(learner, task)
-#' mod = Predictor$new(mod.mlr)
+#' mod = Predictor$new(mod.mlr, data = iris)
+#' mod$predict()
 #' mod$predict(iris[1:5,])
 #' 
-#' mod = Predictor$new(mod.mlr, class = "setosa")
+#' mod = Predictor$new(mod.mlr, data = iris, class = "setosa")
+#' mod$predict()
 #' mod$predict(iris[1:5,])
 #' }
 #' 
 #' if (require("randomForest")) {
 #' rf = randomForest(Species ~ ., data = iris, ntree = 20)
-#' mod = Predictor$new(rf, predict.args = list(type = "prob"))
+#' mod = Predictor$new(rf, data = iris, predict.args = list(type = "prob"))
 #' mod$predict(iris[50:55,])
 #' }
 NULL
@@ -67,6 +72,7 @@ NULL
 
 Predictor = R6::R6Class("Predictor", 
   public = list(
+    data = NULL,
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
       prediction = self$prediction.function(newdata)
@@ -95,7 +101,8 @@ Predictor = R6::R6Class("Predictor",
         cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
       }
     },
-    initialize = function(model, class=NULL, predict.args = NULL) {
+    initialize = function(model, data, y = NULL, class=NULL, predict.args = NULL) {
+      self$data = Data$new(data, y = y)
       self$class = class
       private$model = model
       self$task = inferTaskFromModel(model)

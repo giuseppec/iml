@@ -11,9 +11,10 @@ X = data.frame(a = c(1, 2, 3, 4, 5),
   c = factor(c("a", "b", "c", "a", "b")), 
   d = factor(c("A", "A", "B", "B", "B")))
 
-predictor1 = Predictor$new(f)
-predictor2 = Predictor$new(f, predict.args = list(multi = TRUE))
-predictor3 = Predictor$new(f, predict.args = list(multi = TRUE), class = 2)
+set.seed(12)
+y = f(X) + rnorm(nrow(X))
+y2 = factor(ifelse(X$b + X$a < 20, "pred", "pred2"))
 
-
-y = f(X)[[1]]
+predictor1 = Predictor$new(f, data = X, y = y)
+predictor2 = Predictor$new(f, data = X, y = y2, predict.args = list(multi = TRUE))
+predictor3 = Predictor$new(f, data = X, predict.args = list(multi = TRUE), class = 2)

@@ -10,13 +10,10 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
           warning("call run() first!")
         }
     },
-    initialize = function(model, data) {
+    initialize = function(model) {
       checkmate::assert_class(model, "Predictor")
-      if(inherits(data, "data.frame")){
-        data = Data$new(data)
-      }      
       private$model = model
-      private$sampler = data
+      private$sampler = model$data
       private$getData = private$sampler$get.x
     },
     print = function() {

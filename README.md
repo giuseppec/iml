@@ -38,13 +38,14 @@ library("iml")
 library("randomForest")
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-model = Predictor$new(rf)
+X =  Boston[which(names(Boston) != "medv")]
+model = Predictor$new(rf, data = X, y = Boston$medv)
 ```
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 
 ``` r
-imp = FeatureImp$new(model, Boston[which(names(Boston) != "medv")], y = Boston$medv, loss = "mae")
+imp = FeatureImp$new(model, loss = "mae")
 plot(imp)
 ```
 
@@ -54,27 +55,25 @@ plot(imp)
 imp$results
 ```
 
-    ## # A tibble: 13 x 4
     ##    feature original.error permutationError importance
-    ##    <fct>            <dbl>            <dbl>      <dbl>
-    ##  1 lstat             1.00             4.24       4.22
-    ##  2 rm                1.00             3.27       3.26
-    ##  3 crim              1.00             1.73       1.72
-    ##  4 ptratio           1.00             1.73       1.72
-    ##  5 nox               1.00             1.66       1.65
-    ##  6 dis               1.00             1.65       1.65
-    ##  7 indus             1.00             1.61       1.60
-    ##  8 age               1.00             1.38       1.37
-    ##  9 tax               1.00             1.36       1.35
-    ## 10 black             1.00             1.25       1.24
-    ## 11 rad               1.00             1.16       1.16
-    ## 12 zn                1.00             1.06       1.06
-    ## 13 chas              1.00             1.03       1.03
+    ## 1    lstat       1.004678         4.235347   4.215628
+    ## 2       rm       1.004678         3.273892   3.258649
+    ## 3     crim       1.004678         1.731467   1.723405
+    ## 4  ptratio       1.004678         1.729005   1.720955
+    ## 5      nox       1.004678         1.661731   1.653994
+    ## 6      dis       1.004678         1.653906   1.646205
+    ## 7    indus       1.004678         1.608825   1.601335
+    ## 8      age       1.004678         1.378753   1.372334
+    ## 9      tax       1.004678         1.360375   1.354041
+    ## 10   black       1.004678         1.246488   1.240685
+    ## 11     rad       1.004678         1.161532   1.156124
+    ## 12      zn       1.004678         1.061880   1.056936
+    ## 13    chas       1.004678         1.034714   1.029897
 
 ### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
 
 ``` r
-tree = TreeSurrogate$new(model, Boston[which(names(Boston) != "medv")], maxdepth = 2)
+tree = TreeSurrogate$new(model, maxdepth = 2)
 plot(tree)
 ```
 
@@ -83,7 +82,7 @@ plot(tree)
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 
 ``` r
-pdp.obj = PartialDependence$new(model, Boston, feature = "lstat")
+pdp.obj = PartialDependence$new(model, feature = "lstat")
 plot(pdp.obj)
 ```
 
@@ -92,7 +91,7 @@ plot(pdp.obj)
 ### How does lstat influence the individual predictions? (ICE)
 
 ``` r
-ice.curves = Ice$new(model, Boston[1:100,], feature = "lstat")
+ice.curves = Ice$new(model, feature = "lstat")
 plot(ice.curves) 
 ```
 
@@ -101,14 +100,14 @@ plot(ice.curves)
 ### Explain a single prediction with a local linear model. (LIME)
 
 ``` r
-lime.explain = Lime$new(model, Boston, x.interest = Boston[1,])
+lime.explain = Lime$new(model, x.interest = X[1,])
 lime.explain$results
 ```
 
-    ##              beta x.recoded     effect x.original feature feature.value
-    ## rm     0.37823223     6.575  2.4868769      6.575      rm      rm=6.575
-    ## lstat -0.04662682     4.980 -0.2322016       4.98   lstat    lstat=4.98
-    ## medv   0.79049115    24.000 18.9717876         24    medv       medv=24
+    ##               beta x.recoded    effect x.original feature feature.value
+    ## rm       4.2445268     6.575 27.907764      6.575      rm      rm=6.575
+    ## ptratio -0.5224666    15.300 -7.993738       15.3 ptratio  ptratio=15.3
+    ## lstat   -0.4287899     4.980 -2.135374       4.98   lstat    lstat=4.98
 
 ``` r
 plot(lime.explain)
@@ -119,28 +118,24 @@ plot(lime.explain)
 ### Explain a single prediction with game theory. (Shapley)
 
 ``` r
-shapley.explain = Shapley$new(model, Boston, x.interest = Boston[1, ])
+shapley.explain = Shapley$new(model, x.interest = X[1, ])
 shapley.explain$results
 ```
 
-    ## # A tibble: 14 x 4
-    ## # Groups:   feature [?]
-    ##    feature     phi phi.var featureValue
-    ##    <fct>     <dbl>   <dbl> <chr>       
-    ##  1 age     -0.0504  0.396  crim=0.00632
-    ##  2 black    0.0291  0.266  zn=18       
-    ##  3 chas    -0.0201  0.0127 indus=2.31  
-    ##  4 crim    -0.198   1.35   chas=0      
-    ##  5 dis     -0.161   1.61   nox=0.538   
-    ##  6 indus    0.648   1.81   rm=6.575    
-    ##  7 lstat    3.80   21.1    age=65.2    
-    ##  8 medv     0       0      dis=4.09    
-    ##  9 nox      0.0631  1.39   rad=1       
-    ## 10 ptratio  0.813   1.10   tax=296     
-    ## 11 rad     -0.461   0.453  ptratio=15.3
-    ## 12 rm       0.117   8.07   black=396.9 
-    ## 13 tax     -0.147   0.514  lstat=4.98  
-    ## 14 zn      -0.102   0.0470 medv=24
+    ##    feature           phi      phi.var featureValue
+    ## 1      age -0.0850019791  0.333944689 crim=0.00632
+    ## 2    black -0.0008046753  0.267453217        zn=18
+    ## 3     chas -0.0240226667  0.009907358   indus=2.31
+    ## 4     crim -0.0723403620  1.236298269       chas=0
+    ## 5      dis -0.1753825842  1.089173160    nox=0.538
+    ## 6    indus  0.7402716277  1.556442963     rm=6.575
+    ## 7    lstat  3.7001500745 19.387675029     age=65.2
+    ## 8      nox -0.1974995303  0.727310327     dis=4.09
+    ## 9  ptratio  0.7285225750  1.220922649        rad=1
+    ## 10     rad -0.4722923333  0.407054214      tax=296
+    ## 11      rm -0.0752455000  7.788278183 ptratio=15.3
+    ## 12     tax -0.1853100000  0.393279176  black=396.9
+    ## 13      zn -0.0950710000  0.042044428   lstat=4.98
 
 ``` r
 plot(shapley.explain)

@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' pdp = PartialDependence$new(model, data, feature, grid.size = 10, run = TRUE)
+#' pdp = PartialDependence$new(model, feature, grid.size = 10, run = TRUE)
 #' 
 #' plot(pdp)
 #' pdp$results
@@ -20,7 +20,6 @@
 #' For PartialDependence$new():
 #' \describe{
 #' \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
-#' \item{data}{data.frame with the data for the prediction model.}
 #' \item{feature}{The feature name or index for which to compute the partial dependencies. 
 #' Either a single number or vector of two numbers.}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -72,10 +71,10 @@
 #' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-#' mod = Predictor$new(rf)
+#' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the partial dependence for the first feature
-#' pdp.obj = PartialDependence$new(mod, Boston, feature = "crim")
+#' pdp.obj = PartialDependence$new(mod, feature = "crim")
 #' 
 #' # Plot the results directly
 #' plot(pdp.obj)
@@ -94,23 +93,23 @@
 #' plot(pdp.obj)
 #' 
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = PartialDependence$new(mod, Boston, feature = c("crim", "lstat"))  
+#' pdp.obj = PartialDependence$new(mod, feature = c("crim", "lstat"))  
 #' plot(pdp.obj)
 #' 
 #' # Partial dependence plots also works with multiclass classification
-#' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = Predictor$new(rf, predict.args = list(type = 'prob'))
+#' rf = randomForest(Species ~ ., data = iris, ntree=50)
+#' mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
+#' plot(PartialDependence$new(mod, feature = "Sepal.Length"))
 #'
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = PartialDependence$new(mod, iris, feature = c("Sepal.Length", "Petal.Length"))
+#' pdp.obj = PartialDependence$new(mod, feature = c("Sepal.Length", "Petal.Length"))
 #' pdp.obj$plot()   
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' mod = Predictor$new(rf, predict.args = list(type = 'prob'), class = 1)
-#' plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
+#' mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'), class = 1)
+#' plot(PartialDependence$new(mod, feature = "Sepal.Length"))
 #' }
 NULL
 
@@ -126,19 +125,19 @@ PartialDependence = R6::R6Class("PartialDependence",
     feature.name = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(model, data, feature, grid.size = 10, run = TRUE) {
+    initialize = function(model, feature, grid.size = 10, run = TRUE) {
       if(is.character(feature)){
         feature.char = feature
-        stopifnot(all(feature %in% colnames(data)))
-        feature = which(feature.char[1] == colnames(data))
+        stopifnot(all(feature %in% model$data$feature.names))
+        feature = which(feature.char[1] == model$data$feature.names)
         if(length(feature.char) == 2){
-          feature = c(feature, which(feature.char[2] == colnames(data)))
+          feature = c(feature, which(feature.char[2] == model$data$feature.names))
         }
       }
-      checkmate::assert_numeric(feature, lower = 1, upper = ncol(data), min.len = 1, max.len = 2)
+      checkmate::assert_numeric(feature, lower = 1, upper = model$data$n.features, min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       if (length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
-      super$initialize(model, data)
+      super$initialize(model)
       private$set.feature(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size

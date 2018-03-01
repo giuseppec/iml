@@ -8,7 +8,7 @@ test_that("Lime works for single output and single feature", {
   x.interest = X[2,]
   k = 2
   set.seed(42)
-  lime1 = Lime$new(predictor1, X, x.interest=x.interest, k = k)
+  lime1 = Lime$new(predictor1, x.interest=x.interest, k = k)
   dat = lime1$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), expected.colnames)
@@ -32,12 +32,12 @@ test_that("Lime works for multiple output", {
   
   library('rpart')
   clf = rpart(Species ~ ., data = iris)
-  mod = Predictor$new(clf)
+  mod = Predictor$new(clf, data = iris)
   x.interest = iris[1,]
   k = 1
   set.seed(42)
   # rbind X a few times to eliminate glm warning
-  lime1 = Lime$new(mod, iris, x.interest, k = k)
+  lime1 = Lime$new(mod, x.interest, k = k)
   dat = lime1$results
   expect_equal(colnames(dat), c(expected.colnames, "..class"))
   expect_lte(nrow(dat), k * 3)  

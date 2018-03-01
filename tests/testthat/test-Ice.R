@@ -3,7 +3,7 @@ context("Ice()")
 test_that("Ice works for single output and single feature", {
   
   grid.size = 10
-  ice.obj = Ice$new(predictor1, X, feature = 1, grid.size = grid.size)
+  ice.obj = Ice$new(predictor1, feature = 1, grid.size = grid.size)
   dat = ice.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "..individual", "y.hat"))
@@ -20,7 +20,7 @@ test_that("Ice works for single output and single feature", {
 test_that("Ice works for multiple output", {
   
   grid.size = 10
-  ice.obj = Ice$new(predictor2, X, feature = "a", grid.size = grid.size)
+  ice.obj = Ice$new(predictor2, feature = "a", grid.size = grid.size)
   dat = ice.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "..individual", "..class.name", "y.hat"))
@@ -39,7 +39,7 @@ test_that("Ice works for multiple output", {
 test_that("centered Ice works for multiple output", {
   
   grid.size = 10
-  ice.obj = Ice$new(predictor2, X, feature = "a", grid.size = grid.size, center = 10)
+  ice.obj = Ice$new(predictor2, feature = "a", grid.size = grid.size, center = 10)
   dat = ice.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "..individual","..class.name", "y.hat"))

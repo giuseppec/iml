@@ -11,7 +11,7 @@ Importance is measured as the factor by which the model's prediction error incre
 \section{Usage}{
 
 \preformatted{
-imp = FeatureImp$new(model, data, y, loss, method = "shuffle", run = TRUE)
+imp = FeatureImp$new(model, y, loss, method = "shuffle", run = TRUE)
 
 plot(imp)
 imp$results
@@ -25,7 +25,6 @@ print(imp)
 For FeatureImp$new():
 \describe{
 \item{model}{Object of type \code{model}. See \link{Predictor}}
-\item{data}{data.frame with the data for the prediction model.}
 \item{run}{logical. Should the Interpretation method be run?}
 \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
 \item{method}{Either "shuffle" or "cartesian". See Details.}
@@ -78,14 +77,12 @@ General R6 methods
 if (require("rpart")) {
 data("Boston", package  = "MASS")
 tree = rpart(medv ~ ., data = Boston)
-mod = Predictor$new(tree)
-
-# Compute the individual conditional expectations for the first feature
-X = Boston[-which(names(Boston) == "medv")]
 y = Boston$medv
+X = Boston[-which(names(Boston) == "medv")]
+mod = Predictor$new(tree, data = X, y = y)
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, X, y, loss = "mae")
+imp = FeatureImp$new(mod, loss = "mae")
 
 # Plot the results directly
 plot(imp)
@@ -105,17 +102,18 @@ theme_bw()
 # FeatureImp also works with multiclass classification. 
 # In this case, the importance measurement regards all classes
 tree = rpart(Species ~ ., data= iris)
-mod = Predictor$new(tree, predict.args = list(type = "prob")) 
 X = iris[-which(names(iris) == "Species")]
 y = iris$Species
+mod = Predictor$new(tree, data = X, y = y, predict.args = list(type = "prob")) 
+
 # For some models we have to specify additional arguments for the predict function
-imp = FeatureImp$new(mod, X, y, loss = "ce")
+imp = FeatureImp$new(mod, loss = "ce")
 plot(imp)
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y
-mod = Predictor$new(tree, predict.args = list(type = "prob"), class = "virginica") 
-imp = FeatureImp$new(mod, X, y == "virginica",loss = "ce")
+mod = Predictor$new(tree, data = X, y = y == "virginica", predict.args = list(type = "prob"), , class = "virginica") 
+imp = FeatureImp$new(mod, loss = "ce")
 plot(imp)
 }
 }

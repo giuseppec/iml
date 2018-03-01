@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-ice = Ice$new(model, data, feature, grid.size = 10, center.at = NULL, run = TRUE)
+ice = Ice$new(model, feature, grid.size = 10, center.at = NULL, run = TRUE)
 
 plot(ice)
 ice$results
@@ -26,7 +26,6 @@ ice$center.at = 1
 For Ice$new():
 \describe{
 \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
-\item{data}{data.frame with the data for the prediction model.}
 \item{feature}{The feature name or index for which to compute the partial dependencies.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
 \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
@@ -70,10 +69,10 @@ if (require("randomForest")) {
 
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Predictor$new(rf)
+mod = Predictor$new(rf, data = Boston)
 
 # Compute the individual conditional expectations for the first feature
-ice = Ice$new(mod, Boston, feature = "crim")
+ice = Ice$new(mod, feature = "crim")
 
 # Plot the results directly
 plot(ice)
@@ -83,7 +82,7 @@ ice$center.at = 0
 plot(ice)
 
 # Ice plots can be centered at initialization
-ice = Ice$new(mod, Boston, feature = "crim", center=75)
+ice = Ice$new(mod, feature = "crim", center=75)
 plot(ice)
 
 # Centering can also be removed
@@ -108,17 +107,17 @@ plot(ice)
 
 # Ice also works with multiclass classification
 rf = randomForest(Species ~ ., data= iris, ntree=50)
-mod = Predictor$new(rf, predict.args = list(type = 'prob'))
+mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'))
 
 # For some models we have to specify additional arguments for the predict function
-plot(Ice$new(mod, iris, feature = "Sepal.Length"))
+plot(Ice$new(mod, feature = "Sepal.Length"))
 
 # For multiclass classification models, you can choose to only show one class:
-mod = Predictor$new(rf, predict.args = list(type = 'prob'), class = "virginica")
-plot(Ice$new(mod, iris, feature = "Sepal.Length"))
+mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'), class = "virginica")
+plot(Ice$new(mod, feature = "Sepal.Length"))
 
 # Ice plots can be centered: 
-plot(Ice$new(mod, iris, feature = "Sepal.Length", center = 1))
+plot(Ice$new(mod, feature = "Sepal.Length", center = 1))
 }
 }
 \references{

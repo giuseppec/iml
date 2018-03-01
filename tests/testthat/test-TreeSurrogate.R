@@ -1,7 +1,7 @@
 context("TreeSurrogate")
 
 test_that("TreeSurrogate works for single output and single feature", {
-  tree = TreeSurrogate$new(predictor1, X)
+  tree = TreeSurrogate$new(predictor1)
   dat = tree$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path", "..y.hat", "..y.hat.tree"))
@@ -14,7 +14,7 @@ test_that("TreeSurrogate works for single output and single feature", {
 })
 
 test_that("TreeSurrogate works for multiple output", {
-  tree = TreeSurrogate$new(predictor2, X)
+  tree = TreeSurrogate$new(predictor2)
   dat = tree$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat.pred", "..y.hat.pred2", "..y.hat.tree.pred", "..y.hat.tree.pred2"))
@@ -33,7 +33,7 @@ test_that("TreeSurrogate works for multiple output", {
 })
 
 test_that("TreeSurrogate works for multiple output with selected class", {
-  tree = TreeSurrogate$new(predictor3, X)
+  tree = TreeSurrogate$new(predictor3)
   dat = tree$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c(colnames(X), "..node", "..path",  "..y.hat", "..y.hat.tree"))

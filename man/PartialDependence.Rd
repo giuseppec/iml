@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-pdp = PartialDependence$new(model, data, feature, grid.size = 10, run = TRUE)
+pdp = PartialDependence$new(model, feature, grid.size = 10, run = TRUE)
 
 plot(pdp)
 pdp$results
@@ -25,7 +25,6 @@ pdp$feature = 2
 For PartialDependence$new():
 \describe{
 \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
-\item{data}{data.frame with the data for the prediction model.}
 \item{feature}{The feature name or index for which to compute the partial dependencies. 
 Either a single number or vector of two numbers.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -70,10 +69,10 @@ General R6 methods
 if (require("randomForest")) {
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Predictor$new(rf)
+mod = Predictor$new(rf, data = Boston)
 
 # Compute the partial dependence for the first feature
-pdp.obj = PartialDependence$new(mod, Boston, feature = "crim")
+pdp.obj = PartialDependence$new(mod, feature = "crim")
 
 # Plot the results directly
 plot(pdp.obj)
@@ -92,23 +91,23 @@ pdp.obj$feature = 2
 plot(pdp.obj)
 
 # Partial dependence plots support up to two features: 
-pdp.obj = PartialDependence$new(mod, Boston, feature = c("crim", "lstat"))  
+pdp.obj = PartialDependence$new(mod, feature = c("crim", "lstat"))  
 plot(pdp.obj)
 
 # Partial dependence plots also works with multiclass classification
-rf = randomForest(Species ~ ., data= iris, ntree=50)
-mod = Predictor$new(rf, predict.args = list(type = 'prob'))
+rf = randomForest(Species ~ ., data = iris, ntree=50)
+mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'))
 
 # For some models we have to specify additional arguments for the predict function
-plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
+plot(PartialDependence$new(mod, feature = "Sepal.Length"))
 
 # Partial dependence plots support up to two features: 
-pdp.obj = PartialDependence$new(mod, iris, feature = c("Sepal.Length", "Petal.Length"))
+pdp.obj = PartialDependence$new(mod, feature = c("Sepal.Length", "Petal.Length"))
 pdp.obj$plot()   
 
 # For multiclass classification models, you can choose to only show one class:
-mod = Predictor$new(rf, predict.args = list(type = 'prob'), class = 1)
-plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
+mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'), class = 1)
+plot(PartialDependence$new(mod, feature = "Sepal.Length"))
 }
 }
 \references{
