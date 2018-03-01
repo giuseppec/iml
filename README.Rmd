@@ -41,7 +41,7 @@ library("iml")
 library("randomForest")
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-model = Model$new(rf)
+model = Predictor$new(rf)
 ```
 
 #### What were the most important features? (Permutation feature importance / Model reliance)

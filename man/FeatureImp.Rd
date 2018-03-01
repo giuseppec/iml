@@ -15,7 +15,6 @@ imp = FeatureImp$new(model, data, y, loss, method = "shuffle", run = TRUE)
 
 plot(imp)
 imp$results
-imp$tree
 print(imp)
 }
 }
@@ -25,7 +24,7 @@ print(imp)
 
 For FeatureImp$new():
 \describe{
-\item{model}{Object of type \code{model}. See \link{Model}}
+\item{model}{Object of type \code{model}. See \link{Predictor}}
 \item{data}{data.frame with the data for the prediction model.}
 \item{run}{logical. Should the Interpretation method be run?}
 \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
@@ -79,7 +78,7 @@ General R6 methods
 if (require("rpart")) {
 data("Boston", package  = "MASS")
 tree = rpart(medv ~ ., data = Boston)
-mod = Model$new(tree)
+mod = Predictor$new(tree)
 
 # Compute the individual conditional expectations for the first feature
 X = Boston[-which(names(Boston) == "medv")]
@@ -106,7 +105,7 @@ theme_bw()
 # FeatureImp also works with multiclass classification. 
 # In this case, the importance measurement regards all classes
 tree = rpart(Species ~ ., data= iris)
-mod = Model$new(tree, predict.args = list(type = "prob")) 
+mod = Predictor$new(tree, predict.args = list(type = "prob")) 
 X = iris[-which(names(iris) == "Species")]
 y = iris$Species
 # For some models we have to specify additional arguments for the predict function
@@ -115,7 +114,7 @@ plot(imp)
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y
-mod = Model$new(tree, predict.args = list(type = "prob"), class = "virginica") 
+mod = Predictor$new(tree, predict.args = list(type = "prob"), class = "virginica") 
 imp = FeatureImp$new(mod, X, y == "virginica",loss = "ce")
 plot(imp)
 }

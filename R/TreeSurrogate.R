@@ -18,7 +18,7 @@
 #' 
 #' For TreeSurrogate$new():
 #' \describe{
-#' \item{model}{Object of type \code{Model}. See \link{Model}}
+#' \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
 #' \item{data}{data.frame with the data for the prediction model.}
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 #' \item{run}{logical. Should the Interpretation method be run?}
@@ -54,7 +54,7 @@
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' # Create a model object
-#' mod = Model$new(rf) 
+#' mod = Predictor$new(rf) 
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
 #' dt = TreeSurrogate$new(mod, Boston[-which(names(Boston) == "medv")])
@@ -72,7 +72,7 @@
 #' 
 #' # It also works for classification
 #' rf = randomForest(Species ~ ., data = iris, ntree = 50)
-#' mod = Model$new(rf, predict.args = list(type = "prob"))
+#' mod = Predictor$new(rf, predict.args = list(type = "prob"))
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
 #' X = iris[-which(names(iris) == "Species")]

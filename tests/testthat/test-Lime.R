@@ -31,7 +31,7 @@ test_that("Lime works for multiple output", {
   
   library('rpart')
   clf = rpart(Species ~ ., data = iris)
-  mod = Model$new(clf)
+  mod = Predictor$new(clf)
   x.interest = iris[1,]
   k = 1
   set.seed(42)

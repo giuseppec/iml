@@ -28,7 +28,7 @@ test_that("FeatureImp works for single output", {
   p
   
   X.exact = data.frame(x1 = c(1,2,3), x2 = c(9,4,2))
-  f.exact = Model$new(function(x) x[[1]])
+  f.exact = Predictor$new(function(x) x[[1]])
   y.exact = c(2,3,4)
   # creates a problem on win builder
   # model.error = Metrics::mse(y.exact, f.exact$predict(X.exact))

@@ -11,7 +11,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         }
     },
     initialize = function(model, data) {
-      checkmate::assert_class(model, "Model")
+      checkmate::assert_class(model, "Predictor")
       if(inherits(data, "data.frame")){
         data = Data$new(data)
       }      

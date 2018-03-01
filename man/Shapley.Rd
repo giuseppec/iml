@@ -26,7 +26,7 @@ print(shapley)
  
 For Shapley$new():
 \describe{
-\item{model}{object of type \code{Model}. See \link{Model}.}
+\item{model}{object of type \code{Predictor}. See \link{Predictor}.}
 \item{data}{data.frame with the data to which compare the x.interest.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
 \item{sample.size}{The number of instances to be sampled from the data.} 
@@ -69,7 +69,7 @@ General R6 methods
 if (require("randomForest")) {
 data("Boston", package  = "MASS")
 rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Model$new(rf)
+mod = Predictor$new(rf)
 X = Boston[-which(names(Boston) == "medv")]
 
 # Then we explain the first instance of the dataset with the Shapley method:
@@ -88,7 +88,7 @@ plot(shapley)
 
 # Shapley() also works with multiclass classification
 rf = randomForest(Species ~ ., data= iris, ntree=50)
-mod = Model$new(rf, predict.args = list(type='prob'))
+mod = Predictor$new(rf, predict.args = list(type='prob'))
 X = iris[-which(names(iris) == "Species")]
 
 # Then we explain the first instance of the dataset with the Shapley() method:
@@ -97,7 +97,7 @@ shapley$results
 plot(shapley) 
 
 # You can also focus on one class
-mod = Model$new(rf, predict.args = list(type = "prob"), class = "setosa")
+mod = Predictor$new(rf, predict.args = list(type = "prob"), class = "setosa")
 shapley = Shapley$new(mod, X, x.interest = X[1,])
 shapley$results
 plot(shapley) 

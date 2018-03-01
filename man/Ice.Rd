@@ -25,7 +25,7 @@ ice$center.at = 1
 
 For Ice$new():
 \describe{
-\item{model}{Object of type \code{Model}. See \link{Model}}
+\item{model}{Object of type \code{Predictor}. See \link{Predictor}}
 \item{data}{data.frame with the data for the prediction model.}
 \item{feature}{The feature name or index for which to compute the partial dependencies.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -70,7 +70,7 @@ if (require("randomForest")) {
 
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Model$new(rf)
+mod = Predictor$new(rf)
 
 # Compute the individual conditional expectations for the first feature
 ice = Ice$new(mod, Boston, feature = "crim")
@@ -108,13 +108,13 @@ plot(ice)
 
 # Ice also works with multiclass classification
 rf = randomForest(Species ~ ., data= iris, ntree=50)
-mod = Model$new(rf, predict.args = list(type = 'prob'))
+mod = Predictor$new(rf, predict.args = list(type = 'prob'))
 
 # For some models we have to specify additional arguments for the predict function
 plot(Ice$new(mod, iris, feature = "Sepal.Length"))
 
 # For multiclass classification models, you can choose to only show one class:
-mod = Model$new(rf, predict.args = list(type = 'prob'), class = "virginica")
+mod = Predictor$new(rf, predict.args = list(type = 'prob'), class = "virginica")
 plot(Ice$new(mod, iris, feature = "Sepal.Length"))
 
 # Ice plots can be centered: 

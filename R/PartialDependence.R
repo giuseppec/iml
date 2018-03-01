@@ -19,7 +19,7 @@
 #' 
 #' For PartialDependence$new():
 #' \describe{
-#' \item{model}{Object of type \code{Model}. See \link{Model}}
+#' \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
 #' \item{data}{data.frame with the data for the prediction model.}
 #' \item{feature}{The feature name or index for which to compute the partial dependencies. 
 #' Either a single number or vector of two numbers.}
@@ -72,7 +72,7 @@
 #' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-#' mod = Model$new(rf)
+#' mod = Predictor$new(rf)
 #' 
 #' # Compute the partial dependence for the first feature
 #' pdp.obj = PartialDependence$new(mod, Boston, feature = "crim")
@@ -99,7 +99,7 @@
 #' 
 #' # Partial dependence plots also works with multiclass classification
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = Model$new(rf, predict.args = list(type = 'prob'))
+#' mod = Predictor$new(rf, predict.args = list(type = 'prob'))
 #' 
 #' # For some models we have to specify additional arguments for the predict function
 #' plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
@@ -109,7 +109,7 @@
 #' pdp.obj$plot()   
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' mod = Model$new(rf, predict.args = list(type = 'prob'), class = 1)
+#' mod = Predictor$new(rf, predict.args = list(type = 'prob'), class = 1)
 #' plot(PartialDependence$new(mod, iris, feature = "Sepal.Length"))
 #' }
 NULL

@@ -1,13 +1,13 @@
-#' Prediction Model object
+#' Predictor object
 #' 
-#' A \code{Model} object wraps any machine learning model (mlr, caret, randomForest, ...). 
+#' A \code{Predictor} object wraps any machine learning model (mlr, caret, randomForest, ...). 
 #' The object is to be used for the interpretation methods. 
 #' 
 #' @format \code{\link{R6Class}} object.
-#' @name Model
+#' @name Predictor
 #' @section Usage:
 #' \preformatted{
-#' model = Model$new(object, class=NULL, predict.args = NULL)
+#' model = Predictor$new(object, class=NULL, predict.args = NULL)
 #' 
 #' model$predict(newdata)
 #' }
@@ -23,7 +23,7 @@
 #' }
 #' 
 #' @section Details: 
-#' In case of classification, the model must return the probabilities. Model doesn't handle machine learning
+#' In case of classification, the model must return the probabilities. Predictor doesn't handle machine learning
 #' models that return the labels. 
 #' 
 #' 
@@ -43,29 +43,29 @@
 #' 
 #' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
 #' @export
-#' @return object of type Model
+#' @return object of type Predictor
 #' @examples
 #' if (require("mlr")){
 #' task = makeClassifTask(data = iris, target = "Species")
 #' learner = makeLearner("classif.rpart", minsplit = 7, predict.type = "prob")
 #' mod.mlr = train(learner, task)
-#' mod = Model$new(mod.mlr)
+#' mod = Predictor$new(mod.mlr)
 #' mod$predict(iris[1:5,])
 #' 
-#' mod = Model$new(mod.mlr, class = "setosa")
+#' mod = Predictor$new(mod.mlr, class = "setosa")
 #' mod$predict(iris[1:5,])
 #' }
 #' 
 #' if (require("randomForest")) {
 #' rf = randomForest(Species ~ ., data = iris, ntree = 20)
-#' mod = Model$new(rf, predict.args = list(type = "prob"))
+#' mod = Predictor$new(rf, predict.args = list(type = "prob"))
 #' mod$predict(iris[50:55,])
 #' }
 NULL
 
 #' @export
 
-Model = R6::R6Class("Model", 
+Predictor = R6::R6Class("Predictor", 
   public = list(
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)

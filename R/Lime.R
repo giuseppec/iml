@@ -20,7 +20,7 @@
 #' 
 #' For Lime$new():
 #' \describe{
-#' \item{model}{Object of type \code{Model}. See \link{Model}.}
+#' \item{model}{Object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{data}{data.frame with the data for the prediction model.}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
 #' \item{k}{the (maximum) number of features to be used for the surrogate model.}
@@ -83,7 +83,7 @@
 #' data("Boston", package  = "MASS")
 #' X = Boston[-which(names(Boston) == "medv")]
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-#' mod = Model$new(rf)
+#' mod = Predictor$new(rf)
 #' 
 #' # Then we explain the first instance of the dataset with the Lime method:
 #' x.interest = X[1,]
@@ -104,7 +104,7 @@
 #' # Lime also works with multiclass classification
 #' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = Model$new(rf,predict.args = list(type='prob'), class = 2)
+#' mod = Predictor$new(rf,predict.args = list(type='prob'), class = 2)
 #' X = iris[-which(names(iris) == 'Species')]
 #' 
 #' # Then we explain the first instance of the dataset with the Lime method:
