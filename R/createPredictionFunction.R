@@ -1,22 +1,22 @@
-createPredictionFunction = function(object, task, predict.args = NULL){
+createPredictionFunction = function(model, task, predict.args = NULL){
   UseMethod("createPredictionFunction")
   
 }
 
-createPredictionFunction.WrappedModel = function(object, task, predict.args = NULL){
+createPredictionFunction.WrappedModel = function(model, task, predict.args = NULL){
   if (task == "classification") {
     function(newdata){
-      pred = predict(object, newdata = newdata)
-      if (object$learner$predict.type == "response") {
+      pred = predict(model, newdata = newdata)
+      if (model$learner$predict.type == "response") {
         pred = getPredictionResponse(pred)
         data.frame(model.matrix(~prediction-1, data.frame(prediction = pred), sep = ":"))
       } else {
-        mlr::getPredictionProbabilities(pred, cl = object$task.desc$class.levels)
+        mlr::getPredictionProbabilities(pred, cl = model$task.desc$class.levels)
       }
     }
   } else if (task == "regression") {      
     function(newdata){
-      pred = predict(object, newdata = newdata)
+      pred = predict(model, newdata = newdata)
       data.frame(..prediction = mlr::getPredictionResponse(pred))
     }
   } else {
@@ -24,14 +24,14 @@ createPredictionFunction.WrappedModel = function(object, task, predict.args = NU
   }
 }
 
-createPredictionFunction.train = function(object, task, predict.args = NULL){
+createPredictionFunction.train = function(model, task, predict.args = NULL){
   if (task == "classification") {
     function(newdata) {
-      predict(object, newdata = newdata, type = "prob")
+      predict(model, newdata = newdata, type = "prob")
     }
   } else if (task == "regression") {
     function(newdata) {
-      data.frame(..prediction = predict(object, newdata = newdata))
+      data.frame(..prediction = predict(model, newdata = newdata))
     }
   } else {
     stop(sprintf("task of type %s not allowed.", task))
@@ -39,10 +39,10 @@ createPredictionFunction.train = function(object, task, predict.args = NULL){
 }
 
 
-createPredictionFunction.function = function(object, task, predict.args = NULL){
+createPredictionFunction.function = function(model, task, predict.args = NULL){
   function(newdata) {
     predict.args = c(list(newdata), predict.args)
-    res = do.call(object, predict.args)
+    res = do.call(model, predict.args)
     if (inherits(res, c("numeric", "integer"))) {
       res = data.frame(..prediction = res, fix.empty.names = FALSE)
     } else if (inherits(res, "matrix")) {
@@ -66,9 +66,9 @@ createPredictionFunction.function = function(object, task, predict.args = NULL){
 
 
 #' @importFrom stats model.matrix
-createPredictionFunction.default = function(object, task, predict.args = NULL){
+createPredictionFunction.default = function(model, task, predict.args = NULL){
   function(newdata) {
-    predict.args = c(list(object = object, newdata = newdata), predict.args)
+    predict.args = c(list(object = model, newdata = newdata), predict.args)
     pred = do.call(predict, predict.args)
     if (is.label.output(pred)) {
       warning("Output seems to be class instead of probabilities. 

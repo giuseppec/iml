@@ -1,12 +1,12 @@
-inferTaskFromModel = function(object){
+inferTaskFromModel = function(model){
   UseMethod("inferTaskFromModel")
 }
 
-inferTaskFromModel.WrappedModel = function(object){
-  if(inherits(object, "WrappedModel"))
-    tsk = mlr::getTaskType(object)
+inferTaskFromModel.WrappedModel = function(model){
+  if(inherits(model, "WrappedModel"))
+    tsk = mlr::getTaskType(model)
   if (tsk == "classif") {
-    if (object$learner$predict.type != "prob") {
+    if (model$learner$predict.type != "prob") {
       warning("Output seems to be class instead of probabilities. 
                Automatically transformed to 0 and 1 probabilities.
                You might want to set predict.type = 'prob' for Learner!")    
@@ -20,8 +20,8 @@ inferTaskFromModel.WrappedModel = function(object){
 }
 
 
-inferTaskFromModel.train = function(object) {
-  mtype = object$modelType
+inferTaskFromModel.train = function(model) {
+  mtype = model$modelType
   if (mtype == "Regression") {
     return("regression")
   } else if (mtype == "Classification") {
@@ -31,7 +31,7 @@ inferTaskFromModel.train = function(object) {
   }
 }
 
-inferTaskFromModel.default = function(object){
+inferTaskFromModel.default = function(model){
   "unknown"
 }
 

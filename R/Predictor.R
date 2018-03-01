@@ -14,9 +14,9 @@
 #' 
 #' @section Arguments:
 #' \describe{
-#' \item{object}{The machine learning model. Recommended are models from mlr and caret.
+#' \item{model}{The machine learning model. Recommended are models from mlr and caret.
 #' Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).
-#' \code{object} can also be a function that returns the prediction as a data.frame, given the features.}
+#' \code{model} can also be a function that returns the prediction as a data.frame, given the features.}
 #' \item{class}{The class column to be returned in case of multiClass output.}
 #' \item{predict.args}{Further arguments for the prediction function of each model. Depends on the class of the original machine learning model. 
 #' See examples.}
@@ -95,15 +95,15 @@ Predictor = R6::R6Class("Predictor",
         cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
       }
     },
-    initialize = function(object, class=NULL, predict.args = NULL) {
+    initialize = function(model, class=NULL, predict.args = NULL) {
       self$class = class
-      private$object = object
-      self$task = inferTaskFromModel(object)
-      self$prediction.function = createPredictionFunction(object, self$task, predict.args)
+      private$model = model
+      self$task = inferTaskFromModel(model)
+      self$prediction.function = createPredictionFunction(model, self$task, predict.args)
     }
   ), 
   private = list(
-    object = NULL, 
+    model = NULL, 
     predictionChecked = FALSE
   )
 )
