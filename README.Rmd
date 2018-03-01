@@ -46,7 +46,7 @@ model = Predictor$new(rf)
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 ```{r}
-imp = FeatureImp$new(model, Boston, y = Boston$medv, loss = "mae")
+imp = FeatureImp$new(model, Boston[which(names(Boston) != "medv")], y = Boston$medv, loss = "mae")
 plot(imp)
 imp$results
 ```
