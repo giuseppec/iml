@@ -5,6 +5,7 @@ test_that("PartialDependence works for single output and single feature", {
   grid.size = 10
   pdp.obj = PartialDependence$new(predictor1, X, feature = 1, grid.size = grid.size)
   dat = pdp.obj$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "y.hat"))
   expect_equal(nrow(dat), grid.size)  
   expect_equal(nrow(unique(dat)), grid.size)
@@ -18,6 +19,7 @@ test_that("PartialDependence works for single output and single feature", {
   
   pdp.obj$feature = 2
   dat = pdp.obj$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("b", "y.hat"))
   expect_equal(nrow(dat), grid.size)  
   expect_equal(nrow(unique(dat)), grid.size)
@@ -31,6 +33,7 @@ test_that("PartialDependence works for single output and 2 features, 2D grid.siz
   grid.size = c(10,2)
   pdp.obj = PartialDependence$new(predictor1, X, feature = c("a", "b"), grid.size = grid.size)
   dat = pdp.obj$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "b", "y.hat"))
   expect_equal(nrow(dat), grid.size[1] * grid.size[2])  
   expect_equal(nrow(unique(dat)), grid.size[1] * grid.size[2])
@@ -50,6 +53,7 @@ test_that("PartialDependence works for single output and 2 numerical features, 1
   grid.size = 10
   pdp.obj = PartialDependence$new(predictor1, X, feature = c(1,2), grid.size = grid.size)
   dat = pdp.obj$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "b", "y.hat"))
   expect_equal(nrow(dat), grid.size * grid.size)  
   expect_equal(nrow(unique(dat)), grid.size * grid.size)
@@ -68,6 +72,7 @@ test_that("PartialDependence works for single output and numerical + categorical
   grid.size = 11
   pdp.obj = PartialDependence$new(predictor1, X, feature = c(1,3), grid.size = grid.size)
   dat = pdp.obj$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "c", "y.hat"))
   expect_equal(nrow(dat), grid.size[1] * length(unique(X[,3])))  
   expect_equal(nrow(unique(dat)), grid.size * length(unique(X[,3])))  
@@ -81,6 +86,7 @@ test_that("PartialDependence works for single output and numerical + categorical
   grid.size = c(7,9)
   pdp.obj = PartialDependence$new(predictor1, X, feature = c(3,2), grid.size = grid.size)
   dat = pdp.obj$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("c", "b", "y.hat"))
   expect_equal(nrow(dat), grid.size[2] * length(unique(X[,3])))  
   expect_equal(nrow(unique(dat)), grid.size[2] * length(unique(X[,3])))  
@@ -97,6 +103,7 @@ test_that("PartialDependence works for multiple output", {
   grid.size = 10
   pdp.obj = PartialDependence$new(predictor2, X, feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "..class.name", "y.hat"))
   expect_equal(nrow(dat), grid.size * 2)  
   expect_equal(nrow(unique(dat)), grid.size * 2)

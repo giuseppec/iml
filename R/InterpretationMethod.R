@@ -42,7 +42,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         private$multiClass = ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
         private$qResults = private$q(private$predictResults)
         # AGGREGATE measurements
-        self$results = private$aggregate()
+        self$results = data.frame(private$aggregate())
         private$finished = TRUE
       }
       self

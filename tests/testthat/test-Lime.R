@@ -10,6 +10,7 @@ test_that("Lime works for single output and single feature", {
   set.seed(42)
   lime1 = Lime$new(predictor1, X, x.interest=x.interest, k = k)
   dat = lime1$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), expected.colnames)
   expect_lte(nrow(dat), k)
   p = plot(lime1)
@@ -41,6 +42,7 @@ test_that("Lime works for multiple output", {
   expect_equal(colnames(dat), c(expected.colnames, "..class"))
   expect_lte(nrow(dat), k * 3)  
   pred2 = predict(lime1, iris[c(2,3),])
+  expect_class(dat, "data.frame")
   expect_data_frame(pred2, nrows=2)
   expect_equal(colnames(pred2), c("setosa", "versicolor", "virginica"))
   

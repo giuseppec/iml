@@ -155,12 +155,12 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
         ..path = pathpred(self$tree))
       if (private$multiClass) {
         outcome = private$qResults
-        colnames(outcome) = paste("..y.hat:", colnames(outcome), sep="")
+        colnames(outcome) = paste("..y.hat.", colnames(outcome), sep="")
         private$object.predict.colnames = colnames(outcome)
         
         # result = gather(result, key = "..class", value = "..y.hat", one_of(cnames))
         ..y.hat.tree = self$predict(private$dataDesign, type = "prob")
-        colnames(..y.hat.tree) = paste("..y.hat.tree:", colnames(..y.hat.tree), sep="")
+        colnames(..y.hat.tree) = paste("..y.hat.tree.", colnames(..y.hat.tree), sep="")
         private$tree.predict.colnames = colnames(..y.hat.tree)
         
         #..y.hat.tree = gather(..y.hat.tree, "..class.tree", "..y.hat.tree")
@@ -183,7 +183,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
         plotData = self$results
         # max class for model
         plotData$..class = private$object.predict.colnames[apply(plotData[private$object.predict.colnames], 1, which.max)]
-        plotData$..class = gsub("..y.hat:", "", plotData$..class)
+        plotData$..class = gsub("..y.hat.", "", plotData$..class)
         plotData = plotData[setdiff(names(plotData), private$object.predict.colnames)]
         p = ggplot(plotData) + 
           geom_bar(aes(x = ..class)) + 

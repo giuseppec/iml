@@ -10,6 +10,7 @@ test_that("FeatureImp works for single output", {
   
   var.imp = FeatureImp$new(predictor1, X, y = y, loss = "mse")
   dat = var.imp$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
@@ -20,6 +21,7 @@ test_that("FeatureImp works for single output", {
   var.imp = FeatureImp$new(predictor1, X, y = y, loss = "mse", method = "cartesian")
   dat = var.imp$results
   # Making sure the result is sorted by decreasing importance
+  expect_class(dat, "data.frame")
   expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
   expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
@@ -38,6 +40,7 @@ test_that("FeatureImp works for single output", {
   
   var.imp = FeatureImp$new(f.exact, X.exact, y = y.exact, loss = "mse", method = "cartesian")
   dat = var.imp$results
+  expect_class(dat, "data.frame")
   expect_equal(dat$importance, c(cartesian.error, 1))
   expect_equal(colnames(dat), expectedColnames)
   expect_equal(model.error, var.imp$original.error)
@@ -60,6 +63,7 @@ test_that("FeatureImp works for single output and function as loss", {
     
   var.imp = FeatureImp$new(predictor1, X, y = y, loss = Metrics::mse)
   dat = var.imp$results
+  expect_class(dat, "data.frame")
   # Making sure the result is sorted by decreasing importance
   expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
   expect_equal(colnames(dat), expectedColnames)
@@ -74,6 +78,7 @@ test_that("FeatureImp works for multiple output",{
   
   var.imp = FeatureImp$new(predictor2, X, y = y2, loss = "ce")
   dat = var.imp$results
+  expect_class(dat, "data.frame")
   expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
