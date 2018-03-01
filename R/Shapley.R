@@ -92,7 +92,7 @@
 #' plot(shapley) 
 #' 
 #' # You can also focus on one class
-#' mod = Predictor$new(rf, predict.args = list(type = "prob"), class = "setosa")
+#' mod = Predictor$new(rf, data = X, predict.args = list(type = "prob"), class = "setosa")
 #' shapley = Shapley$new(mod, x.interest = X[1,])
 #' shapley$results
 #' plot(shapley) 

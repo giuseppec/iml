@@ -112,7 +112,8 @@ plot(imp)
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y
-mod = Predictor$new(tree, data = X, y = y == "virginica", predict.args = list(type = "prob"), , class = "virginica") 
+mod = Predictor$new(tree, data = X, y = y == "virginica", 
+  predict.args = list(type = "prob"), class = "virginica") 
 imp = FeatureImp$new(mod, loss = "ce")
 plot(imp)
 }

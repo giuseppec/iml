@@ -8,8 +8,6 @@
 #' @section Usage:
 #' \preformatted{
 #' model = Predictor$new(object, data, y = NULL, class=NULL, predict.args = NULL)
-#' 
-#' model$predict(newdata)
 #' }
 #' 
 #' @section Arguments:
@@ -48,16 +46,14 @@
 #' @export
 #' @return object of type Predictor
 #' @examples
-#' if (require("mlr")){
+#' if (require("mlr")) {
 #' task = makeClassifTask(data = iris, target = "Species")
 #' learner = makeLearner("classif.rpart", minsplit = 7, predict.type = "prob")
 #' mod.mlr = train(learner, task)
 #' mod = Predictor$new(mod.mlr, data = iris)
-#' mod$predict()
 #' mod$predict(iris[1:5,])
 #' 
 #' mod = Predictor$new(mod.mlr, data = iris, class = "setosa")
-#' mod$predict()
 #' mod$predict(iris[1:5,])
 #' }
 #' 
