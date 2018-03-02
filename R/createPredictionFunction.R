@@ -3,6 +3,9 @@ createPredictionFunction = function(model, task, predict.fun = NULL){
 }
 
 createPredictionFunction.WrappedModel = function(model, task, predict.fun = NULL){
+  if (!require("mlr")) {
+    "Please install the mlr package."
+  }
   if (task == "classification") {
     function(newdata){
       pred = predict(model, newdata = newdata)

@@ -17,8 +17,7 @@ Imports: R6,
          partykit,
          glmnet, 
          Metrics, 
-         data.table,
-         mlr
+         data.table
 Suggests: randomForest,
           gower, 
           testthat, 
@@ -26,7 +25,8 @@ Suggests: randomForest,
           MASS,
           caret,
           e1071, 
-          lime
+          lime,
+          mlr
 License: MIT + file LICENSE
 Roxygen: list(wrap = FALSE)
 RoxygenNote: 6.0.1
