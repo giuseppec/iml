@@ -16,8 +16,12 @@ test_that("PartialDependence works for single output and single feature", {
   p
   
   
-  
-  pdp.obj$feature = 2
+  expect_equal(pdp.obj$feature.name, "a")
+  pdp.obj$set.feature(3)
+  expect_equal(pdp.obj$feature.name, "c")
+  pdp.obj$set.feature("b")
+  expect_equal(pdp.obj$feature.name, "b")
+
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("b", "y.hat"))

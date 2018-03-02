@@ -15,7 +15,7 @@ pdp = PartialDependence$new(model, feature, grid.size = 10, run = TRUE)
 plot(pdp)
 pdp$results
 print(pdp)
-pdp$feature = 2
+pdp$set.feature(2)
 }
 }
 
@@ -55,7 +55,7 @@ Can be used for creating custom partial dependence plots.}
 \section{Methods}{
 
 \describe{
-\item{feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
+\item{set.feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 General R6 methods

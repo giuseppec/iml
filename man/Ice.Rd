@@ -15,8 +15,8 @@ ice = Ice$new(model, feature, grid.size = 10, center.at = NULL, run = TRUE)
 plot(ice)
 ice$results
 print(ice)
-ice$feature = 2
-ice$center.at = 1
+ice$set.feature(2)
+ice$center(1)
 }
 }
 
@@ -57,7 +57,7 @@ read the Interpretable Machine Learning book: https://christophm.github.io/inter
 \section{Methods}{
 
 \describe{
-\item{center.at}{method to set the value(s) at which the ice computations are centered. See examples.}
+\item{center}{method to set the value(s) at which the ice computations are centered. See examples.}
 \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
 \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
 }
@@ -78,7 +78,7 @@ ice = Ice$new(mod, feature = "crim")
 plot(ice)
 
 # You can center the Ice plot
-ice$center.at = 0
+ice$center(0)
 plot(ice)
 
 # Ice plots can be centered at initialization
@@ -86,7 +86,7 @@ ice = Ice$new(mod, feature = "crim", center=75)
 plot(ice)
 
 # Centering can also be removed
-ice$center.at = NULL
+ice$center(NULL)
 plot(ice)
 
 # Since the result is a ggplot object, you can extend it: 

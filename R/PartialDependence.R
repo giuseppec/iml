@@ -12,7 +12,7 @@
 #' plot(pdp)
 #' pdp$results
 #' print(pdp)
-#' pdp$feature = 2
+#' pdp$set.feature(2)
 #' }
 #' 
 #' @section Arguments:
@@ -45,7 +45,7 @@
 #' 
 #' @section Methods:
 #' \describe{
-#' \item{feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
+#' \item{set.feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 #' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' General R6 methods
@@ -127,22 +127,22 @@ PartialDependence = R6::R6Class("PartialDependence",
     n.features = NULL, 
     feature.type= NULL,
     initialize = function(model, feature, grid.size = 10, run = TRUE) {
-      if(is.character(feature)){
-        feature.char = feature
-        stopifnot(all(feature %in% model$data$feature.names))
-        feature = which(feature.char[1] == model$data$feature.names)
-        if(length(feature.char) == 2){
-          feature = c(feature, which(feature.char[2] == model$data$feature.names))
-        }
-      }
+      feature = private$sanitizeFeature(feature, model$data$feature.names)
       checkmate::assert_numeric(feature, lower = 1, upper = model$data$n.features, min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       if (length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
       super$initialize(model)
-      private$set.feature(feature)
+      private$setFeatureFromIndex(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
       if(run) self$run()
+    }, 
+    set.feature = function(feature) {
+      feature = private$sanitizeFeature(feature, private$model$data$feature.names)
+      private$flush()
+      private$setFeatureFromIndex(feature)
+      private$set.grid.size(private$grid.size.original)
+      self$run()
     }
   ), 
   private = list(
@@ -181,7 +181,7 @@ PartialDependence = R6::R6Class("PartialDependence",
     }, 
     dataDesign.ids = NULL, 
     grid.size.original = NULL,
-    set.feature = function(feature.index) {
+    setFeatureFromIndex = function(feature.index) {
       self$feature.index = feature.index
       self$n.features = length(feature.index)
       self$feature.type = private$sampler$feature.types[feature.index]
@@ -239,14 +239,17 @@ PartialDependence = R6::R6Class("PartialDependence",
     set.grid.size.single = function(size, feature.number) {
       self$grid.size[feature.number] = ifelse(self$feature.type[feature.number] == "numerical", 
         size, length(unique(private$sampler$get.x()[[self$feature.index[feature.number]]])))
-    }
-  ), 
-  active = list(
-    feature = function(feature.index) {
-      private$flush()
-      private$set.feature(feature.index)
-      private$set.grid.size(private$grid.size.original)
-      self$run()
+    }, 
+    sanitizeFeature = function(feature, feature.names) {
+      if (is.character(feature)) {
+        feature.char = feature
+        stopifnot(all(feature %in% feature.names))
+        feature = which(feature.char[1] == feature.names)
+        if (length(feature.char) == 2) {
+          feature = c(feature, which(feature.char[2] == feature.names))
+        }
+      }
+      feature
     }
   )
 )

@@ -41,6 +41,7 @@ test_that("centered Ice works for multiple output", {
   grid.size = 10
   ice.obj = Ice$new(predictor2, feature = "a", grid.size = grid.size, center = 10)
   dat = ice.obj$results
+  expect_equal(ice.obj$center.at, 10)
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "..individual","..class.name", "y.hat"))
   expect_equal(nrow(dat), (grid.size + 1) * nrow(X) * 2)  
@@ -52,7 +53,12 @@ test_that("centered Ice works for multiple output", {
   p
   
   
-  ice.obj$center.at = -1
+  ice.obj$center(-1)
+  expect_equal(ice.obj$center.at, -1)
+  
+  expect_warning({ice.obj$center.at = 10})
+  expect_equal(ice.obj$center.at, -1)
+  
   dat = ice.obj$results
   expect_class(dat, "data.frame")
   expect_equal(max(dat$a), 5)

@@ -12,8 +12,8 @@
 #' plot(ice)
 #' ice$results
 #' print(ice)
-#' ice$feature = 2
-#' ice$center.at = 1
+#' ice$set.feature(2)
+#' ice$center(1)
 #' }
 #' 
 #' @section Arguments:
@@ -48,7 +48,7 @@
 #' 
 #' @section Methods:
 #' \describe{
-#' \item{center.at}{method to set the value(s) at which the ice computations are centered. See examples.}
+#' \item{center}{method to set the value(s) at which the ice computations are centered. See examples.}
 #' \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
 #' \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
 #' }
@@ -74,7 +74,7 @@
 #' plot(ice)
 #' 
 #' # You can center the Ice plot
-#' ice$center.at = 0
+#' ice$center(0)
 #' plot(ice)
 #' 
 #' # Ice plots can be centered at initialization
@@ -82,7 +82,7 @@
 #' plot(ice)
 #' 
 #' # Centering can also be removed
-#' ice$center.at = NULL
+#' ice$center(NULL)
 #' plot(ice)
 #' 
 #' # Since the result is a ggplot object, you can extend it: 
@@ -129,6 +129,11 @@ Ice = R6::R6Class("Ice",
       private$anchor.value = center.at
       super$initialize(model = model,  feature=feature, run = run, 
         grid.size = grid.size)
+    }, 
+    center = function(center.at) {
+      private$anchor.value = center.at
+      private$flush()
+      self$run()
     }
   ),
   private = list(
@@ -185,11 +190,9 @@ Ice = R6::R6Class("Ice",
     anchor.value = NULL
   ),
   active = list(
-    center.at = function(anchor.value) {
-      if (missing(anchor.value)) return(private$anchor.value)
-      private$anchor.value = anchor.value
-      private$flush()
-      self$run()
+    center.at = function(x) {
+      if(!missing(x)) warning("Please use $center() to change the value.")
+      return(private$anchor.value)
     }
   )
 )
