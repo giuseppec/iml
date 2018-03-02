@@ -89,17 +89,6 @@ shapley.explain$results
 plot(shapley.explain)
 
 ```
-# Versions
-## 0.2
-- Big API changes: 
-  - direct use of R6 classes (e.g. Ice$new() instead of ice()) to reduce redundancy
-  - Lime was renamed to LocalModel to reflect the differences
-  - results from the object can be retrieved using $results instead of $data()
-- Improved the plots
-- Submitted to CRAN
-- 
-## 0.1
-- Initial release
 
 # Python Implementation
 Referring to https://github.com/datascienceinc/Skater

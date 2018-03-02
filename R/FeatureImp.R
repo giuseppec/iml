@@ -9,7 +9,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' imp = FeatureImp$new(predictor, measure, method = "shuffle", run = TRUE)
+#' imp = FeatureImp$new(predictor, y, loss, method = "shuffle", run = TRUE)
 #' 
 #' plot(imp)
 #' imp$results
@@ -22,7 +22,7 @@
 #' \describe{
 #' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 #' \item{run}{logical. Should the Interpretation method be run?}
-#' \item{measure}{Loss or performance measure, as string (e.g. "mmce" or "mse") or function. See Details for allowed measures.}
+#' \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
 #' \item{method}{Either "shuffle" or "cartesian". See Details.}
 #' \item{y}{The vector or data.frame with the actual target values associated with X.}
 #' }
@@ -36,22 +36,20 @@
 #' \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (faster)
 #' \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (slow)
 #' }
-#' The measure function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
+#' The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
+#' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
+#' Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
+#' "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
 #' 
-#' Using the string is a shortcut to using measure functions from the \code{mlr} package. 
-#' For regression measures, see mlr::listMeasures("regr")
-#' For classification measures, see mlr::listMeasures("classif")
-#' 
+#' See \code{library(help = "Metrics")} to get a list of functions. 
 #' Only use functions that return a single performance value, not a vector. 
 #' You can also provide a function directly. It has to take the actual value as its first argument and the prediction as its second. 
-#' FeatureImp automatically detects whether the measure is a performance or loss measure and accordingly 
-#' adapts the importance calculation: importance = original.performance / permutation.performance or 
-#' importance = permutation.loss / original.loss
+#' 
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{original.measure}{The measure of the model before perturbing features.}
-#' \item{measure}{The measure function. Can also be applied to data: \code{object$measure(actual, predicted)}}
+#' \item{original.error}{The loss of the model before perturbing features.}
+#' \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 #' \item{predictor}{The prediction model that was analysed.}
 #' \item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
 #' }
@@ -68,7 +66,7 @@
 #' @references 
 #' Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #' 
-#' @import mlr
+#' @import Metrics
 #' @examples
 #' # We train a tree on the Boston dataset:
 #' if (require("rpart")) {
@@ -79,7 +77,7 @@
 #' mod = Predictor$new(tree, data = X, y = y)
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = FeatureImp$new(mod, measure = "mae")
+#' imp = FeatureImp$new(mod, loss = "mae")
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -105,14 +103,14 @@
 #' mod = Predictor$new(tree, data = X, y = y, predict.fun) 
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' imp = FeatureImp$new(mod, measure = "mmce")
+#' imp = FeatureImp$new(mod, loss = "ce")
 #' plot(imp)
 #' 
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
 #' mod = Predictor$new(tree, data = X, y = y == "virginica", 
 #'   predict.fun = predict.fun, class = "virginica") 
-#' imp = FeatureImp$new(mod, measure = "mmce")
+#' imp = FeatureImp$new(mod, loss = "ce")
 #' plot(imp)
 #' }
 NULL
@@ -122,39 +120,39 @@ NULL
 FeatureImp = R6::R6Class("FeatureImp", 
   inherit = InterpretationMethod,
   public = list(
-    measure = NULL,
-    original.measure = NULL,
-    minimize = TRUE,
-    initialize = function(predictor, measure, method = "shuffle", run = TRUE) {
+    loss = NULL,
+    original.error = NULL,
+    initialize = function(predictor, loss, method = "shuffle", run = TRUE) {
       assert_choice(method, c("shuffle", "cartesian"))
       
-      if (!inherits(measure, "function")) {
-        private$measure.string  = measure
-        ## Only allow metrics from mlr package
-        measure.object = getFromNamespace(private$measure.string, ns = "mlr")
-        self$minimize = measure.object$minimize
-        measure = getFromNamespace(sprintf("measure%s", toupper(private$measure.string)), ns = "mlr")
+      if (!inherits(loss, "function")) {
+        ## Only allow metrics from Metrics package
+        allowedLosses = c("ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
+          "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape")
+        checkmate::assert_choice(loss, allowedLosses)
+        private$loss.string  = loss
+        loss = getFromNamespace(loss, "Metrics")
       } else {
-        private$measure.string = head(measure)
+        private$loss.string = head(loss)
       }
       if (is.null(predictor$data$y)) {
         stop("Please call Predictor$new() with the y target vector.")
       }
       super$initialize(predictor = predictor)
-      self$measure = private$set.measure(measure)
+      self$loss = private$set.loss(loss)
       private$method = method
       private$getData = private$sampler$get.xy
       actual = private$sampler$y[[1]]
       predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
-      self$original.measure = measure(actual, predicted)
+      self$original.error = loss(actual, predicted)
       if(run) self$run()
     }
   ),
   private = list(
     method = NULL,
     # for printing
-    measure.string = NULL,
+    loss.string = NULL,
     shuffleFeature = function(feature.name, method) {
       if (method == "shuffle") {
         X.inter = private$dataSample
@@ -188,11 +186,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         predicted = y.hat[[1]])
       
       result.grouped  = group_by_(result, "feature")
-      result = summarise(result.grouped, original.measure = self$original.measure, permutation.measure = self$measure(actual, predicted), 
-        importance = permutation.measure / self$original.measure)
-      if (!self$minimize) {
-        result$importance = 1 / result$importance
-      }
+      result = summarise(result.grouped, original.error = self$original.error, permutationError = self$loss(actual, predicted), 
+        importance = permutationError / self$original.error)
       result = result[order(result$importance, decreasing = TRUE),]
       result
     },
@@ -206,11 +201,11 @@ FeatureImp = R6::R6Class("FeatureImp",
         scale_x_continuous("Feature Importance") + 
         scale_y_discrete("Feature")
     }, 
-    set.measure = function(measure) {
-      self$measure = measure
+    set.loss = function(loss) {
+      self$loss = loss
     }, 
     printParameters = function() {
-      cat("error function:", private$measure.string)
+      cat("error function:", private$loss.string)
     }
   )
 )
