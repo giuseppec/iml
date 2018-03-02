@@ -19,7 +19,8 @@ predictor.mlr.response = createPredictionFunction(mod.mlr.response, "classificat
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
-predictor.S3 = createPredictionFunction(mod.S3, predict.args = list(type="prob"))
+predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
+predictor.S3 = createPredictionFunction(mod.S3, predict.fun = predict.fun)
 
 # caret
 mod.caret = caret::train(Species ~ ., data = iris, method = "knn", 
@@ -27,10 +28,10 @@ mod.caret = caret::train(Species ~ ., data = iris, method = "knn",
 predictor.caret = createPredictionFunction(mod.caret, task = "classification")
 
 # function
-mod.f = function(X) {
-  predict(mod.caret, newdata = X,  type = "prob")
+mod.f = function(newdata) {
+  predict(mod.caret, newdata = newdata,  type = "prob")
 }
-predictor.f = createPredictionFunction(mod.f, task = "classification")
+predictor.f = createPredictionFunction(NULL, predict.fun = mod.f, task = "classification")
 iris.test = iris[c(2,20, 100, 150), c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
 prediction.f = predictor.f(iris.test)
 
@@ -46,18 +47,17 @@ test_that("output shape", {
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret(iris.test))
   expect_equivalent(predictor.mlr(iris.test), data.frame(predictor.S3(iris.test)))
-  
 })
 
 test_that("f works", {
   expect_equal(colnames(prediction.f), c("setosa", "versicolor", "virginica"))
   expect_s3_class(prediction.f, "data.frame")
-  predictor.f.1 = createPredictionFunction(mod.f, task = "classification")
+  predictor.f.1 = createPredictionFunction(NULL, predict.fun = mod.f, task = "classification")
   expect_equal(prediction.f[,1], predictor.f.1(iris.test)$setosa)
 })
 
 
-predictor.S3.2 = createPredictionFunction(mod.S3, predict.args = list(type="class"))
+predictor.S3.2 = createPredictionFunction(mod.S3, predict.fun = NULL)
 
 test_that("output is label", {
   expect_warning({pred = predictor.S3.2(iris)})
@@ -84,10 +84,10 @@ mod.caret = caret::train(medv ~ ., data = Boston, method = "knn",
 predictor.caret = createPredictionFunction(mod.caret, task = "regression")
 
 # function
-mod.f = function(X) {
-  predict(mod.caret, newdata = X)
+mod.f = function(newdata) {
+  predict(mod.caret, newdata = newdata)
 }
-predictor.f = createPredictionFunction(mod.f, task = "regression")
+predictor.f = createPredictionFunction(NULL, predict.fun = mod.f, task = "regression")
 boston.test = Boston[c(1,2,3,4), ]
 prediction.f = predictor.f(boston.test)
 

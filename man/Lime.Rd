@@ -104,7 +104,8 @@ plot(lemon)
 library("randomForest")
 rf = randomForest(Species ~ ., data= iris, ntree=50)
 X = iris[-which(names(iris) == 'Species')]
-mod = Predictor$new(rf, data = X, predict.args = list(type='prob'), class = 2)
+predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
+mod = Predictor$new(rf, data = X, predict.fun = predict.fun, class = 2)
 
 # Then we explain the first instance of the dataset with the Lime method:
 lemon = Lime$new(mod, x.interest = X[1,], k = 2)

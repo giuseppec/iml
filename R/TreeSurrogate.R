@@ -72,7 +72,8 @@
 #' # It also works for classification
 #' rf = randomForest(Species ~ ., data = iris, ntree = 50)
 #' X = iris[-which(names(iris) == "Species")]
-#' mod = Predictor$new(rf, data = X, predict.args = list(type = "prob"))
+#' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
+#' mod = Predictor$new(rf, data = X, predict.fun = predict.fun)
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
 #' dt = TreeSurrogate$new(mod, maxdepth=2)

@@ -131,3 +131,28 @@ checkPrediction = function(prediction, data) {
   checkmate::assert_data_frame(prediction, nrows = nrow(data), any.missing = FALSE, 
     types = c("numeric", "integerish"))
 }
+
+# Currently not used
+sanitizePrediction = function(prediction) {
+  if (inherits(prediction, c("numeric", "integer"))) {
+    prediction = data.frame(..prediction = prediction, fix.empty.names = FALSE)
+  } else if (inherits(prediction, "matrix")) {
+    cnames = colnames(prediction)
+    res = data.frame(prediction)
+    if (is.null(cnames)) {
+      if (ncol(prediction) == 1) {
+        colnames(prediction) = "..prediction"
+      } else {
+        colnames(prediction) = paste("..prediction", 1:ncol(prediction), sep = ".")
+      }
+    } else {
+      colnames(prediction) = cnames
+    }
+  } else {
+    prediction = data.frame(prediction)
+  }
+  prediction
+}
+
+
+

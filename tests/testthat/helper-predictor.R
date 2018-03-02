@@ -1,6 +1,6 @@
 
-f = function(x, multi = FALSE) {
-  pred = unlist(x[1] + x[2] + 100 * (x[3] == "a")) / (155)
+f = function(newdata, multi = FALSE) {
+  pred = unlist(newdata[1] + newdata[2] + 100 * (newdata[3] == "a")) / (155)
   dat = data.frame(pred = pred)
   if (multi) dat$pred2 = 1 - dat$pred
   dat
@@ -15,6 +15,7 @@ set.seed(12)
 y = f(X) + rnorm(nrow(X))
 y2 = factor(ifelse(X$b + X$a < 20, "pred", "pred2"))
 
-predictor1 = Predictor$new(f, data = X, y = y)
-predictor2 = Predictor$new(f, data = X, y = y2, predict.args = list(multi = TRUE))
-predictor3 = Predictor$new(f, data = X, predict.args = list(multi = TRUE), class = 2)
+predictor1 = Predictor$new(data = X, y = y, predict.fun = f)
+predict.fun = function(obj, newdata) obj(newdata, multi = TRUE)
+predictor2 = Predictor$new(f, data = X, y = y2, predict.fun = predict.fun)
+predictor3 = Predictor$new(f, data = X, predict.fun = predict.fun, class = 2)

@@ -7,7 +7,8 @@
 #' @name Predictor
 #' @section Usage:
 #' \preformatted{
-#' model = Predictor$new(object, data, y = NULL, class=NULL, predict.args = NULL)
+#' model = Predictor$new(object, data, y = NULL, class=NULL, 
+#'   predict.fun = function(object, newdata) predict(object, newdata))
 #' }
 #' 
 #' @section Arguments:
@@ -18,8 +19,7 @@
 #' \item{data}{the data to be used for the prediction}
 #' \item{y}{The target vector}
 #' \item{class}{The class column to be returned in case of multiClass output.}
-#' \item{predict.args}{Further arguments for the prediction function of each model. Depends on the class of the original machine learning model. 
-#' See examples.}
+#' \item{predict.fun}{The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
 #' }
 #' 
 #' @section Details: 
@@ -59,7 +59,13 @@
 #' 
 #' if (require("randomForest")) {
 #' rf = randomForest(Species ~ ., data = iris, ntree = 20)
-#' mod = Predictor$new(rf, data = iris, predict.args = list(type = "prob"))
+#' 
+#' # We need this for the randomForest
+#' predict.fun = function(obj, newdata) { 
+#'   predict(obj, newdata = newdata, type = "prob")
+#' }
+#' 
+#' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 #' mod$predict(iris[50:55,])
 #' }
 NULL
@@ -97,12 +103,15 @@ Predictor = R6::R6Class("Predictor",
         cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
       }
     },
-    initialize = function(model, data, y = NULL, class=NULL, predict.args = NULL) {
+    initialize = function(model = NULL, data, predict.fun = NULL, y = NULL, class=NULL) {
+      if(is.null(model) & is.null(predict.fun)) { 
+        stop("Provide a model, a predict.fun or both!")  
+      }
       self$data = Data$new(data, y = y)
       self$class = class
       private$model = model
       self$task = inferTaskFromModel(model)
-      self$prediction.function = createPredictionFunction(model, self$task, predict.args)
+      self$prediction.function = createPredictionFunction(model, self$task, predict.fun)
     }
   ), 
   private = list(

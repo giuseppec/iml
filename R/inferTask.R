@@ -2,6 +2,11 @@ inferTaskFromModel = function(model){
   UseMethod("inferTaskFromModel")
 }
 
+
+inferTaskFromModel.NULL = function(model){
+  "unknown"
+}
+
 inferTaskFromModel.WrappedModel = function(model){
   if(inherits(model, "WrappedModel"))
     tsk = mlr::getTaskType(model)

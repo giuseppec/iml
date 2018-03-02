@@ -103,13 +103,14 @@
 #' 
 #' # Ice also works with multiclass classification
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
-#' mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'))
+#' predict.fun = function(obj, newdata) predict(obj, newdata, type = "prob")
+#' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 #' 
 #' # For some models we have to specify additional arguments for the predict function
 #' plot(Ice$new(mod, feature = "Sepal.Length"))
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
-#' mod = Predictor$new(rf, data = iris, predict.args = list(type = 'prob'), class = "virginica")
+#' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = "virginica")
 #' plot(Ice$new(mod, feature = "Sepal.Length"))
 #' 
 #' # Ice plots can be centered: 

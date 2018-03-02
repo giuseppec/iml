@@ -88,7 +88,8 @@ plot(shapley)
 # Shapley() also works with multiclass classification
 rf = randomForest(Species ~ ., data= iris, ntree=50)
 X = iris[-which(names(iris) == "Species")]
-mod = Predictor$new(rf, data = X, predict.args = list(type='prob'))
+predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
+mod = Predictor$new(rf, data = X, predict.fun = predict.fun)
 
 # Then we explain the first instance of the dataset with the Shapley() method:
 shapley = Shapley$new(mod, x.interest = X[1,])
@@ -96,7 +97,7 @@ shapley$results
 plot(shapley) 
 
 # You can also focus on one class
-mod = Predictor$new(rf, data = X, predict.args = list(type = "prob"), class = "setosa")
+mod = Predictor$new(rf, data = X, predict.fun = predict.fun, class = "setosa")
 shapley = Shapley$new(mod, x.interest = X[1,])
 shapley$results
 plot(shapley) 

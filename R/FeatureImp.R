@@ -98,7 +98,8 @@
 #' tree = rpart(Species ~ ., data= iris)
 #' X = iris[-which(names(iris) == "Species")]
 #' y = iris$Species
-#' mod = Predictor$new(tree, data = X, y = y, predict.args = list(type = "prob")) 
+#' predict.fun = function(obj, newdata) predict(obj, newdata, type = "prob")
+#' mod = Predictor$new(tree, data = X, y = y, predict.fun) 
 #' 
 #' # For some models we have to specify additional arguments for the predict function
 #' imp = FeatureImp$new(mod, loss = "ce")
@@ -107,7 +108,7 @@
 #' # For multiclass classification models, you can choose to only compute performance for one class. 
 #' # Make sure to adapt y
 #' mod = Predictor$new(tree, data = X, y = y == "virginica", 
-#'   predict.args = list(type = "prob"), class = "virginica") 
+#'   predict.fun = predict.fun, class = "virginica") 
 #' imp = FeatureImp$new(mod, loss = "ce")
 #' plot(imp)
 #' }

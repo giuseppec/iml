@@ -14,7 +14,8 @@ The object is to be used for the interpretation methods.
 \section{Usage}{
 
 \preformatted{
-model = Predictor$new(object, data, y = NULL, class=NULL, predict.args = NULL)
+model = Predictor$new(object, data, y = NULL, class=NULL, 
+  predict.fun = function(object, newdata) predict(object, newdata))
 }
 }
 
@@ -27,8 +28,7 @@ Other machine learning with a S3 predict functions work as well, but less robust
 \item{data}{the data to be used for the prediction}
 \item{y}{The target vector}
 \item{class}{The class column to be returned in case of multiClass output.}
-\item{predict.args}{Further arguments for the prediction function of each model. Depends on the class of the original machine learning model. 
-See examples.}
+\item{predict.fun}{The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
 }
 }
 
@@ -71,7 +71,13 @@ mod$predict(iris[1:5,])
 
 if (require("randomForest")) {
 rf = randomForest(Species ~ ., data = iris, ntree = 20)
-mod = Predictor$new(rf, data = iris, predict.args = list(type = "prob"))
+
+# We need this for the randomForest
+predict.fun = function(obj, newdata) { 
+  predict(obj, newdata = newdata, type = "prob")
+}
+
+mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 mod$predict(iris[50:55,])
 }
 }
