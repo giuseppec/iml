@@ -12,7 +12,7 @@ Currently implemented:
 -   Partial dependence plots
 -   Individual conditional expectation plots (ICE)
 -   Tree surrogate
--   LIME: Local Interpretable Model-agnostic Explanations
+-   LocalModel: Local Interpretable Model-agnostic Explanations
 -   Shapley value for explaining single predictions
 
 Read more about the methods in the [Interpretable Machine Learning book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
@@ -100,7 +100,7 @@ plot(ice.curves)
 ### Explain a single prediction with a local linear model. (LIME)
 
 ``` r
-lime.explain = Lime$new(model, x.interest = X[1,])
+lime.explain = LocalModel$new(model, x.interest = X[1,])
 lime.explain$results
 ```
 
@@ -122,20 +122,20 @@ shapley.explain = Shapley$new(model, x.interest = X[1, ])
 shapley.explain$results
 ```
 
-    ##    feature          phi      phi.var featureValue
-    ## 1      age -0.173130708  0.253650085 crim=0.00632
-    ## 2    black  0.054638212  0.233187939        zn=18
-    ## 3     chas -0.003419667  0.005878521   indus=2.31
-    ## 4     crim -0.466446658  1.823447917       chas=0
-    ## 5      dis -0.256641342  1.762279777    nox=0.538
-    ## 6    indus  0.433310952  0.751072303     rm=6.575
-    ## 7    lstat  2.987843211 19.500815533     age=65.2
-    ## 8      nox -0.270343503  0.759897094     dis=4.09
-    ## 9  ptratio  0.581080286  0.615308440        rad=1
-    ## 10     rad -0.195727206  0.098238247      tax=296
-    ## 11      rm -0.879252628 18.024706110 ptratio=15.3
-    ## 12     tax -0.057217190  0.269396266  black=396.9
-    ## 13      zn  0.202248909  0.134069091   lstat=4.98
+    ##    feature          phi      phi.var feature.value
+    ## 1      age -0.173130708  0.253650085  crim=0.00632
+    ## 2    black  0.054638212  0.233187939         zn=18
+    ## 3     chas -0.003419667  0.005878521    indus=2.31
+    ## 4     crim -0.466446658  1.823447917        chas=0
+    ## 5      dis -0.256641342  1.762279777     nox=0.538
+    ## 6    indus  0.433310952  0.751072303      rm=6.575
+    ## 7    lstat  2.987843211 19.500815533      age=65.2
+    ## 8      nox -0.270343503  0.759897094      dis=4.09
+    ## 9  ptratio  0.581080286  0.615308440         rad=1
+    ## 10     rad -0.195727206  0.098238247       tax=296
+    ## 11      rm -0.879252628 18.024706110  ptratio=15.3
+    ## 12     tax -0.057217190  0.269396266   black=396.9
+    ## 13      zn  0.202248909  0.134069091    lstat=4.98
 
 ``` r
 plot(shapley.explain)

@@ -1,13 +1,13 @@
-#' Lime
+#' LocalModel
 #' 
-#' \code{Lime} fits a locally weighted linear regression model (logistic for classification) to explain a single machine learning prediction.
+#' \code{LocalModel} fits a locally weighted linear regression model (logistic for classification) to explain a single machine learning prediction.
 #' 
 #' 
 #' @format \code{\link{R6Class}} object.
-#' @name Lime
+#' @name LocalModel
 #' @section Usage:
 #' \preformatted{
-#' lime = Lime$new(predictor, x.interest = NULL, k = 3 run = TRUE)
+#' lime = LocalModel$new(predictor, x.interest = NULL, k = 3 run = TRUE)
 #' 
 #' plot(lime)
 #' predict(lime, newdata)
@@ -18,7 +18,7 @@
 #' 
 #' @section Arguments:
 #' 
-#' For Lime$new():
+#' For LocalModel$new():
 #' \describe{
 #' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
@@ -34,7 +34,7 @@
 #' Categorical features are binarized, depending on the category of the instance to be explained: 1 if the category is the same, 0 otherwise.
 #' To learn more about local models, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/lime.html
 #'
-#' Differences to the original Lime implementation: 
+#' Differences to the original LocalModel implementation: 
 #' \itemize{
 #' \item Distance measure: Uses gower proximity (= 1 - gower distance) instead of a kernel based on the Euclidean distance. Has the advantage to have a meaningful neighbourhood and no kernel width to tune.
 #' \item Sampling: Uses the original data instead of sampling from normal distributions. 
@@ -57,8 +57,8 @@
 #' @section Methods:
 #' \describe{
 #' \item{explain(x.interest)}{method to set a new data point which to explain.}
-#' \item{plot()}{method to plot the Lime feature effects. See \link{plot.Lime}}
-#' \item{predict()}{method to predict new data with the local model See also \link{predict.Lime}}
+#' \item{plot()}{method to plot the LocalModel feature effects. See \link{plot.LocalModel}}
+#' \item{predict()}{method to predict new data with the local model See also \link{predict.LocalModel}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' General R6 methods
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
@@ -70,7 +70,7 @@
 #' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
 #' 
 #' @seealso 
-#' \code{\link{plot.Lime}} and \code{\link{predict.Lime}}
+#' \code{\link{plot.LocalModel}} and \code{\link{predict.LocalModel}}
 #' 
 #' \code{\link{Shapley}} can also be used to explain single predictions
 #' 
@@ -85,9 +85,9 @@
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Predictor$new(rf, data = X)
 #' 
-#' # Then we explain the first instance of the dataset with the Lime method:
+#' # Then we explain the first instance of the dataset with the LocalModel method:
 #' x.interest = X[1,]
-#' lemon = Lime$new(mod, x.interest = x.interest, k = 2)
+#' lemon = LocalModel$new(mod, x.interest = x.interest, k = 2)
 #' lemon
 #' 
 #' # Look at the results in a table
@@ -101,15 +101,15 @@
 #' lemon$x.interest
 #' plot(lemon)
 #'   
-#' # Lime also works with multiclass classification
+#' # LocalModel also works with multiclass classification
 #' library("randomForest")
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
 #' X = iris[-which(names(iris) == 'Species')]
 #' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
 #' mod = Predictor$new(rf, data = X, predict.fun = predict.fun, class = 2)
 #' 
-#' # Then we explain the first instance of the dataset with the Lime method:
-#' lemon = Lime$new(mod, x.interest = X[1,], k = 2)
+#' # Then we explain the first instance of the dataset with the LocalModel method:
+#' lemon = LocalModel$new(mod, x.interest = X[1,], k = 2)
 #' lemon$results
 #' plot(lemon) 
 #' }
@@ -118,7 +118,7 @@ NULL
 
 #' @export
 
-Lime = R6::R6Class("Lime", 
+LocalModel = R6::R6Class("LocalModel", 
   inherit = InterpretationMethod,
   public = list(
     x.interest = NULL, 
@@ -207,35 +207,35 @@ Lime = R6::R6Class("Lime",
 
 
 
-#' Lime prediction
+#' LocalModel prediction
 #' 
-#' Predict the response for newdata with the Lime model.
+#' Predict the response for newdata with the LocalModel model.
 #' 
-#' This function makes the Lime object call 
+#' This function makes the LocalModel object call 
 #' its iternal object$predict() method. 
-#' For examples see \link{Lime}
-#' @param object A Lime R6 object
+#' For examples see \link{LocalModel}
+#' @param object A LocalModel R6 object
 #' @param newdata A data.frame for which to predict
 #' @param ... Further arguments for the objects predict function
 #' @return A data.frame with the predicted outcome. 
 #' @seealso 
-#' \link{Lime}
+#' \link{LocalModel}
 #' @importFrom stats predict
 #' @export
-predict.Lime = function(object, newdata = NULL, ...) {
+predict.LocalModel = function(object, newdata = NULL, ...) {
   object$predict(newdata = newdata, ...)
 }
 
-#' Lime plot
+#' LocalModel plot
 #' 
-#' plot.Lime() plots the feature effects of the Lime model.
+#' plot.LocalModel() plots the feature effects of the LocalModel model.
 #' 
-#' For examples see \link{Lime}
-#' @param object  A Lime R6 object
+#' For examples see \link{LocalModel}
+#' @param object  A LocalModel R6 object
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{Lime}
-plot.Lime = function(object) {
+#' \link{LocalModel}
+plot.LocalModel = function(object) {
   object$plot()
 }
 

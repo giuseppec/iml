@@ -55,10 +55,10 @@
 #' @references 
 #' Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x
 #' @seealso 
-#' \link{Lime}
+#' \link{Shapley}
 #' 
 #' @seealso 
-#' A different way to explain predictions: \link{Lime}
+#' A different way to explain predictions: \link{Shapley}
 #' 
 #' @examples 
 #' # First we fit a machine learning model on the Boston housing data

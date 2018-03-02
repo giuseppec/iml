@@ -13,7 +13,7 @@ output: github_document
  - Partial dependence plots
  - Individual conditional expectation plots (ICE)
  - Tree surrogate
- - LIME: Local Interpretable Model-agnostic Explanations
+ - LocalModel: Local Interpretable Model-agnostic Explanations
  - Shapley value for explaining single predictions
  
 Read more about the methods in the [Interpretable Machine Learning book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
@@ -75,7 +75,7 @@ plot(ice.curves)
 
 ### Explain a single prediction with a local linear model. (LIME) 
 ```{r}
-lime.explain = Lime$new(model, x.interest = X[1,])
+lime.explain = LocalModel$new(model, x.interest = X[1,])
 lime.explain$results
 plot(lime.explain)
 ```
