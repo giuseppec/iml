@@ -8,6 +8,9 @@ inferTaskFromModel.NULL = function(model){
 }
 
 inferTaskFromModel.WrappedModel = function(model){
+  if (!requireNamespace("mlr")) {
+    stop("Please install the mlr package.")
+  }
   if(inherits(model, "WrappedModel"))
     tsk = mlr::getTaskType(model)
   if (tsk == "classif") {

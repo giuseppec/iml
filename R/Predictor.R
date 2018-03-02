@@ -42,7 +42,6 @@
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' 
-#' @importFrom mlr getTaskType getPredictionProbabilities getPredictionResponse
 #' @export
 #' @return object of type Predictor
 #' @examples

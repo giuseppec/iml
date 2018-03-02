@@ -3,14 +3,14 @@ createPredictionFunction = function(model, task, predict.fun = NULL){
 }
 
 createPredictionFunction.WrappedModel = function(model, task, predict.fun = NULL){
-  if (!require("mlr")) {
+  if (!requireNamespace("mlr")) {
     "Please install the mlr package."
   }
   if (task == "classification") {
     function(newdata){
       pred = predict(model, newdata = newdata)
       if (model$learner$predict.type == "response") {
-        pred = getPredictionResponse(pred)
+        pred = mlr::getPredictionResponse(pred)
         data.frame(model.matrix(~prediction-1, data.frame(prediction = pred), sep = ":"))
       } else {
         mlr::getPredictionProbabilities(pred, cl = model$task.desc$class.levels)
