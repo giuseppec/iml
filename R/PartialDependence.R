@@ -90,7 +90,7 @@
 #' head(pdp.dat)
 #' 
 #' # You can reuse the pdp object for other features: 
-#' pdp.obj$feature = 2
+#' pdp.obj$set.feature("lstat")
 #' plot(pdp.obj)
 #' 
 #' # Partial dependence plots support up to two features: 

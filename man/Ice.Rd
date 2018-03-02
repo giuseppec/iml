@@ -103,7 +103,7 @@ geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..indivi
 scale_color_discrete(guide = "none")
 }
 # You can reuse the ice object for other features: 
-ice$feature = "lstat"
+ice$set.feature("lstat")
 plot(ice)
 
 # Ice also works with multiclass classification
