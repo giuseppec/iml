@@ -138,7 +138,7 @@ Shapley = R6::R6Class("Shapley",
       y.hat.diff.grouped  =   group_by(y.hat.diff, feature, class)
       y.hat.diff = summarise(y.hat.diff.grouped, phi = mean(value), phi.var = var(value))
       if (!private$multiClass) y.hat.diff$class = NULL
-      y.hat.diff$featureValue = sprintf('%s=%s', colnames(self$x.interest), self$x.interest)
+      y.hat.diff$feature.value = sprintf('%s=%s', colnames(self$x.interest), self$x.interest)
       y.hat.diff
     },
     intervene = function() {
@@ -178,10 +178,10 @@ Shapley = R6::R6Class("Shapley",
     generatePlot = function(sort = TRUE, ...) {
       res = self$results
       if (sort & !private$multiClass) {
-        res$featureValue = factor(res$featureValue, levels = res$featureValue[order(res$phi)])
+        res$feature.value = factor(res$feature.value, levels = res$feature.value[order(res$phi)])
       }
       p = ggplot(res) + 
-        geom_col(aes(y = phi, x=featureValue)) + coord_flip()
+        geom_col(aes(y = phi, x=feature.value)) + coord_flip()
       if (private$multiClass) p = p + facet_wrap("class")
       p
     },
