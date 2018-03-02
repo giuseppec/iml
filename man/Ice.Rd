@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-ice = Ice$new(model, feature, grid.size = 10, center.at = NULL, run = TRUE)
+ice = Ice$new(predictor, feature, grid.size = 10, center.at = NULL, run = TRUE)
 
 plot(ice)
 ice$results
@@ -25,7 +25,7 @@ ice$center(1)
 
 For Ice$new():
 \describe{
-\item{model}{Object of type \code{Predictor}. See \link{Predictor}}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 \item{feature}{The feature name or index for which to compute the partial dependencies.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
 \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
@@ -50,6 +50,7 @@ read the Interpretable Machine Learning book: https://christophm.github.io/inter
 \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 \item{grid.size}{The size of the grid.}
+\item{predictor}{The prediction model that was analysed.}
 \item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}.} 
 }
 }

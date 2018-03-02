@@ -11,7 +11,7 @@ Importance is measured as the factor by which the model's prediction error incre
 \section{Usage}{
 
 \preformatted{
-imp = FeatureImp$new(model, y, loss, method = "shuffle", run = TRUE)
+imp = FeatureImp$new(predictor, y, loss, method = "shuffle", run = TRUE)
 
 plot(imp)
 imp$results
@@ -24,7 +24,7 @@ print(imp)
 
 For FeatureImp$new():
 \describe{
-\item{model}{Object of type \code{model}. See \link{Predictor}}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 \item{run}{logical. Should the Interpretation method be run?}
 \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
 \item{method}{Either "shuffle" or "cartesian". See Details.}
@@ -57,6 +57,7 @@ You can also provide a function directly. It has to take the actual value as its
 \describe{
 \item{original.error}{The loss of the model before perturbing features.}
 \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
+\item{predictor}{The prediction model that was analysed.}
 \item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
 }
 }

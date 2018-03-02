@@ -2,6 +2,8 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
   public = list(
     # The aggregated results of the experiment
     results = NULL,
+    # The prediction model
+    predictor = NULL,
     plot = function(...) {
       private$plotData = private$generatePlot(...)
       if (!is.null(private$plotData)) {
@@ -10,17 +12,17 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
           warning("call run() first!")
         }
     },
-    initialize = function(model) {
-      checkmate::assert_class(model, "Predictor")
-      private$model = model
-      private$sampler = model$data
+    initialize = function(predictor) {
+      checkmate::assert_class(predictor, "Predictor")
+      self$predictor = predictor
+      private$sampler = predictor$data
       private$getData = private$sampler$get.x
     },
     print = function() {
       cat("Interpretation method: ", class(self)[1], "\n")
       private$printParameters()
-      cat("\n\nAnalysed model: \n")
-      private$model$print()
+      cat("\n\nAnalysed predictor: \n")
+      self$predictor$print()
       cat("\n\nAnalysed data:\n")
       print(private$sampler)
       cat("\n\nHead of results:\n")
@@ -35,7 +37,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         private$dataSample = private$getData()
         private$dataDesign = private$intervene()
         # EXECUTE experiment
-        private$predictResults = private$model$predict(private$dataDesign)
+        private$predictResults = self$predictor$predict(private$dataDesign)
         private$multiClass = ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
         private$qResults = private$q(private$predictResults)
         # AGGREGATE measurements
@@ -56,8 +58,6 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     intervene = function() private$dataSample,
     # The design matrix after intervention
     dataDesign = NULL,
-    # The model
-    model = NULL,
     # The quantity of interest from black box model prediction
     predictResults = NULL,
     q = function(x) x,

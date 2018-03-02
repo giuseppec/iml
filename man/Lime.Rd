@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-lime = Lime$new(model, x.interest = NULL, k = 3 run = TRUE)
+lime = Lime$new(predictor, x.interest = NULL, k = 3 run = TRUE)
 
 plot(lime)
 predict(lime, newdata)
@@ -25,7 +25,7 @@ print(lime)
 
 For Lime$new():
 \describe{
-\item{model}{Object of type \code{Predictor}. See \link{Predictor}.}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
 \item{k}{the (maximum) number of features to be used for the surrogate model.}
 \item{run}{logical. Should the Interpretation method be run?}
@@ -58,6 +58,7 @@ because a negative beta might still increase the prediction when the feature val
 \item{best.fit.index}{the index of the best glmnet fit}
 \item{k}{The number of features as set by the user.}
 \item{model}{the glmnet object.}
+\item{predictor}{The prediction model that was analysed.}
 \item{results}{data.frame with the feature names (\code{feature}) and contributions to the prediction}
 \item{x.interest}{The data.frame with the instance to be explained See examples for usage.}
 }

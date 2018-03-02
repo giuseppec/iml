@@ -9,7 +9,7 @@
 #' @name Shapley
 #' @section Usage:
 #' \preformatted{
-#' shapley = Shapley$new(model, x.interest = NULL, 
+#' shapley = Shapley$new(predictor, x.interest = NULL, 
 #'   sample.size = 100, run = TRUE)
 #' 
 #' plot(shapley)
@@ -20,7 +20,7 @@
 #' @section Arguments: 
 #' For Shapley$new():
 #' \describe{
-#' \item{model}{object of type \code{Predictor}. See \link{Predictor}.}
+#' \item{predictor}{object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{x.interest}{data.frame with a single row for the instance to be explained.}
 #' \item{sample.size}{The number of instances to be sampled from the data.} 
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
@@ -32,6 +32,7 @@
 #' 
 #' @section Fields:
 #' \describe{
+#' \item{predictor}{The prediction model that was analysed.}
 #' \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 #' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
@@ -114,9 +115,9 @@ Shapley = R6::R6Class("Shapley",
       private$set.x.interest(x.interest)
       self$run()
     },
-    initialize = function(model, x.interest = NULL, sample.size = 100,  run = TRUE) {
+    initialize = function(predictor, x.interest = NULL, sample.size = 100,  run = TRUE) {
       checkmate::assert_data_frame(x.interest, null.ok = TRUE)
-      super$initialize(model = model)
+      super$initialize(predictor = predictor)
       self$sample.size = sample.size
       if (!is.null(x.interest)) {
         private$set.x.interest(x.interest)
@@ -171,8 +172,8 @@ Shapley = R6::R6Class("Shapley",
     }, 
     set.x.interest = function(x.interest) {
       self$x.interest = x.interest
-      self$y.hat.interest = private$model$predict(x.interest)[1,]
-      self$y.hat.average = colMeans(private$model$predict(private$sampler$get.x()))
+      self$y.hat.interest = self$predictor$predict(x.interest)[1,]
+      self$y.hat.average = colMeans(self$predictor$predict(private$sampler$get.x()))
     },
     generatePlot = function(sort = TRUE, ...) {
       res = self$results

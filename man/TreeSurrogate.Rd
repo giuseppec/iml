@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-tree = TreeSurrogate$new(model, maxdepth = 2, tree.args = NULL, run = TRUE)
+tree = TreeSurrogate$new(predictor, maxdepth = 2, tree.args = NULL, run = TRUE)
 
 plot(tree)
 predict(tree, newdata)
@@ -24,7 +24,7 @@ print(tree)
 
 For TreeSurrogate$new():
 \describe{
-\item{model}{Object of type \code{Predictor}. See \link{Predictor}}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 \item{run}{logical. Should the Interpretation method be run?}
 \item{tree.args}{A list with further arguments for \code{ctree}}
@@ -42,6 +42,7 @@ By default a tree of maximum depth of 2 is fitted to improve interpretability.
 
 \describe{
 \item{maxdepth}{the maximal tree depth set by the user.}
+\item{predictor}{The prediction model that was analysed.}
 \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 \item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}

@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' pdp = PartialDependence$new(model, feature, grid.size = 10, run = TRUE)
+#' pdp = PartialDependence$new(predictor, feature, grid.size = 10, run = TRUE)
 #' 
 #' plot(pdp)
 #' pdp$results
@@ -19,7 +19,7 @@
 #' 
 #' For PartialDependence$new():
 #' \describe{
-#' \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 #' \item{feature}{The feature name or index for which to compute the partial dependencies. 
 #' Either a single number or vector of two numbers.}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -39,7 +39,8 @@
 #' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 #' \item{grid.size}{The size of the grid.}
 #' \item{n.features}{The number of features (either 1 or 2)}
-#' \item{data()}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+#' \item{predictor}{The prediction model that was analysed.}
+#' \item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
 #' }
 #' 
@@ -126,19 +127,19 @@ PartialDependence = R6::R6Class("PartialDependence",
     feature.name = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(model, feature, grid.size = 10, run = TRUE) {
-      feature = private$sanitizeFeature(feature, model$data$feature.names)
-      checkmate::assert_numeric(feature, lower = 1, upper = model$data$n.features, min.len = 1, max.len = 2)
+    initialize = function(predictor, feature, grid.size = 10, run = TRUE) {
+      feature = private$sanitizeFeature(feature, predictor$data$feature.names)
+      checkmate::assert_numeric(feature, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       if (length(feature) == 2) checkmate::assert_false(feature[1] == feature[2])
-      super$initialize(model)
+      super$initialize(predictor)
       private$setFeatureFromIndex(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
       if(run) self$run()
     }, 
     set.feature = function(feature) {
-      feature = private$sanitizeFeature(feature, private$model$data$feature.names)
+      feature = private$sanitizeFeature(feature, self$predictor$data$feature.names)
       private$flush()
       private$setFeatureFromIndex(feature)
       private$set.grid.size(private$grid.size.original)
@@ -154,7 +155,7 @@ PartialDependence = R6::R6Class("PartialDependence",
         results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
       } else {
         results["y.hat"]= private$qResults
-        results["..class.name"] = private$model$class
+        results["..class.name"] = self$predictor$class
       }
       results.grouped = group_by_at(results, self$feature.name)
       if ("..class.name" %in% colnames(results)) {

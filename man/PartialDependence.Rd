@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-pdp = PartialDependence$new(model, feature, grid.size = 10, run = TRUE)
+pdp = PartialDependence$new(predictor, feature, grid.size = 10, run = TRUE)
 
 plot(pdp)
 pdp$results
@@ -24,7 +24,7 @@ pdp$set.feature(2)
 
 For PartialDependence$new():
 \describe{
-\item{model}{Object of type \code{Predictor}. See \link{Predictor}}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 \item{feature}{The feature name or index for which to compute the partial dependencies. 
 Either a single number or vector of two numbers.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -47,7 +47,8 @@ https://christophm.github.io/interpretable-ml-book/pdp.html
 \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
 \item{grid.size}{The size of the grid.}
 \item{n.features}{The number of features (either 1 or 2)}
-\item{data()}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+\item{predictor}{The prediction model that was analysed.}
+\item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 Can be used for creating custom partial dependence plots.}
 }
 }

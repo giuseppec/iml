@@ -78,6 +78,7 @@ NULL
 Predictor = R6::R6Class("Predictor", 
   public = list(
     data = NULL,
+    model = NULL, 
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
       prediction = self$prediction.function(newdata)
@@ -112,13 +113,12 @@ Predictor = R6::R6Class("Predictor",
       }
       self$data = Data$new(data, y = y)
       self$class = class
-      private$model = model
+      self$model = model
       self$task = inferTaskFromModel(model)
       self$prediction.function = createPredictionFunction(model, self$task, predict.fun)
     }
   ), 
   private = list(
-    model = NULL, 
     predictionChecked = FALSE
   )
 )

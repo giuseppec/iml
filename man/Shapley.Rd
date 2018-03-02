@@ -13,7 +13,7 @@ A features contribution can be negative.
 \section{Usage}{
 
 \preformatted{
-shapley = Shapley$new(model, x.interest = NULL, 
+shapley = Shapley$new(predictor, x.interest = NULL, 
   sample.size = 100, run = TRUE)
 
 plot(shapley)
@@ -26,7 +26,7 @@ print(shapley)
  
 For Shapley$new():
 \describe{
-\item{model}{object of type \code{Predictor}. See \link{Predictor}.}
+\item{predictor}{object of type \code{Predictor}. See \link{Predictor}.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
 \item{sample.size}{The number of instances to be sampled from the data.} 
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
@@ -42,6 +42,7 @@ For more details on the algorithm see https://christophm.github.io/interpretable
 \section{Fields}{
 
 \describe{
+\item{predictor}{The prediction model that was analysed.}
 \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}

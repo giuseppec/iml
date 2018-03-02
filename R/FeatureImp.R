@@ -9,7 +9,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' imp = FeatureImp$new(model, y, loss, method = "shuffle", run = TRUE)
+#' imp = FeatureImp$new(predictor, y, loss, method = "shuffle", run = TRUE)
 #' 
 #' plot(imp)
 #' imp$results
@@ -20,7 +20,7 @@
 #' 
 #' For FeatureImp$new():
 #' \describe{
-#' \item{model}{Object of type \code{model}. See \link{Predictor}}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
 #' \item{method}{Either "shuffle" or "cartesian". See Details.}
@@ -50,6 +50,7 @@
 #' \describe{
 #' \item{original.error}{The loss of the model before perturbing features.}
 #' \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
+#' \item{predictor}{The prediction model that was analysed.}
 #' \item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
 #' }
 #' 
@@ -121,7 +122,7 @@ FeatureImp = R6::R6Class("FeatureImp",
   public = list(
     loss = NULL,
     original.error = NULL,
-    initialize = function(model, loss, method = "shuffle", run = TRUE) {
+    initialize = function(predictor, loss, method = "shuffle", run = TRUE) {
       assert_choice(method, c("shuffle", "cartesian"))
       
       if (!inherits(loss, "function")) {
@@ -134,15 +135,15 @@ FeatureImp = R6::R6Class("FeatureImp",
       } else {
         private$loss.string = head(loss)
       }
-      if (is.null(model$data$y)) {
+      if (is.null(predictor$data$y)) {
         stop("Please call Predictor$new() with the y target vector.")
       }
-      super$initialize(model = model)
+      super$initialize(predictor = predictor)
       self$loss = private$set.loss(loss)
       private$method = method
       private$getData = private$sampler$get.xy
       actual = private$sampler$y[[1]]
-      predicted = private$q(private$model$predict(private$sampler$X))[[1]]
+      predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$original.error = loss(actual, predicted)
       if(run) self$run()

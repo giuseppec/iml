@@ -6,7 +6,7 @@
 #' @name TreeSurrogate
 #' @section Usage:
 #' \preformatted{
-#' tree = TreeSurrogate$new(model, maxdepth = 2, tree.args = NULL, run = TRUE)
+#' tree = TreeSurrogate$new(predictor, maxdepth = 2, tree.args = NULL, run = TRUE)
 #' 
 #' plot(tree)
 #' predict(tree, newdata)
@@ -18,7 +18,7 @@
 #' 
 #' For TreeSurrogate$new():
 #' \describe{
-#' \item{model}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' \item{tree.args}{A list with further arguments for \code{ctree}}
@@ -32,6 +32,7 @@
 #' @section Fields:
 #' \describe{
 #' \item{maxdepth}{the maximal tree depth set by the user.}
+#' \item{predictor}{The prediction model that was analysed.}
 #' \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 #' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
 #' \item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
@@ -112,8 +113,8 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     tree = NULL,
     # Maximal depth as set by the user
     maxdepth = NULL,
-    initialize = function(model, maxdepth = 2, tree.args = NULL, run = TRUE) {
-      super$initialize(model)
+    initialize = function(predictor, maxdepth = 2, tree.args = NULL, run = TRUE) {
+      super$initialize(predictor)
       private$tree.args = tree.args
       self$maxdepth = maxdepth
       if(run) self$run()
