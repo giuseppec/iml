@@ -16,7 +16,6 @@ Imports: R6,
          ggplot2,
          partykit,
          glmnet, 
-         Metrics, 
          data.table,
          mlr
 Suggests: randomForest,

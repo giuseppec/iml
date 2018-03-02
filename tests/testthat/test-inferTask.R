@@ -15,7 +15,7 @@ test_that("classificaton",{
   TrainData <- iris[,1:4]
   TrainClasses <- iris[,5]
   
-  knnFit1 <- train(TrainData, TrainClasses,
+  knnFit1 <- caret::train(TrainData, TrainClasses,
     method = "knn",
     preProcess = c("center", "scale"),
     tuneLength = 2,
@@ -39,7 +39,7 @@ test_that("regression",{
   expect_equal(inferTaskFromModel(mod), "regression")
   
   
-  lmFit <- train(dist ~ .,
+  lmFit <- caret::train(dist ~ .,
     data = cars,
     method = "lm")
   

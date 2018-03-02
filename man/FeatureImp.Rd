@@ -11,7 +11,7 @@ Importance is measured as the factor by which the model's prediction error incre
 \section{Usage}{
 
 \preformatted{
-imp = FeatureImp$new(predictor, y, loss, method = "shuffle", run = TRUE)
+imp = FeatureImp$new(predictor, measure, method = "shuffle", run = TRUE)
 
 plot(imp)
 imp$results
@@ -26,7 +26,7 @@ For FeatureImp$new():
 \describe{
 \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
 \item{run}{logical. Should the Interpretation method be run?}
-\item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
+\item{measure}{Loss or performance measure, as string (e.g. "mmce" or "mse") or function. See Details for allowed measures.}
 \item{method}{Either "shuffle" or "cartesian". See Details.}
 \item{y}{The vector or data.frame with the actual target values associated with X.}
 }
@@ -42,21 +42,24 @@ Two permutation schemes are implemented:
 \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (faster)
 \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (slow)
 }
-The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
-Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
-Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
-"msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
+The measure function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
 
-See \code{library(help = "Metrics")} to get a list of functions. 
+Using the string is a shortcut to using measure functions from the \code{mlr} package. 
+For regression measures, see mlr::listMeasures("regr")
+For classification measures, see mlr::listMeasures("classif")
+
 Only use functions that return a single performance value, not a vector. 
-You can also provide a function directly. It has to take the actual value as its first argument and the prediction as its second.
+You can also provide a function directly. It has to take the actual value as its first argument and the prediction as its second. 
+FeatureImp automatically detects whether the measure is a performance or loss measure and accordingly 
+adapts the importance calculation: importance = original.performance / permutation.performance or 
+importance = permutation.loss / original.loss
 }
 
 \section{Fields}{
 
 \describe{
-\item{original.error}{The loss of the model before perturbing features.}
-\item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
+\item{original.measure}{The measure of the model before perturbing features.}
+\item{measure}{The measure function. Can also be applied to data: \code{object$measure(actual, predicted)}}
 \item{predictor}{The prediction model that was analysed.}
 \item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
 }
@@ -83,7 +86,7 @@ X = Boston[-which(names(Boston) == "medv")]
 mod = Predictor$new(tree, data = X, y = y)
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, loss = "mae")
+imp = FeatureImp$new(mod, measure = "mae")
 
 # Plot the results directly
 plot(imp)
@@ -109,14 +112,14 @@ predict.fun = function(obj, newdata) predict(obj, newdata, type = "prob")
 mod = Predictor$new(tree, data = X, y = y, predict.fun) 
 
 # For some models we have to specify additional arguments for the predict function
-imp = FeatureImp$new(mod, loss = "ce")
+imp = FeatureImp$new(mod, measure = "mmce")
 plot(imp)
 
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y
 mod = Predictor$new(tree, data = X, y = y == "virginica", 
   predict.fun = predict.fun, class = "virginica") 
-imp = FeatureImp$new(mod, loss = "ce")
+imp = FeatureImp$new(mod, measure = "mmce")
 plot(imp)
 }
 }
