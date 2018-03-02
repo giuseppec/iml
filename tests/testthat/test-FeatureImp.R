@@ -2,7 +2,9 @@ context("FeatureImp()")
 
 #set.seed(42)
 
-
+mse = function(actual, predicted) {
+  mean((actual - predicted)^2)
+}
 expectedColnames = c("feature", "original.measure", "permutation.measure", "importance")
 
 test_that("FeatureImp works for single output", {
@@ -31,9 +33,7 @@ test_that("FeatureImp works for single output", {
   X.exact = data.frame(x1 = c(1,2,3), x2 = c(9,4,2))
   y.exact = c(2,3,4)
   f.exact = Predictor$new(predict.fun = function(newdata) newdata[[1]], data = X.exact, y = y.exact)
-  # creates a problem on win builder
-  # model.measure = Metrics::mse(y.exact, f.exact$predict(X.exact))
-  model.measure = 1
+  model.measure = mse(y.exact, f.exact$predict(X.exact))
   cart.indices = c(1,1,2,2,3,3)
   cartesian.measure = mlr::measureMSE(y.exact[cart.indices], c(2,3,1,3,1,2))
   
@@ -60,7 +60,8 @@ test_that("FeatureImp works for single output", {
 
 test_that("FeatureImp works for single output and function as measure", {
     
-  var.imp = FeatureImp$new(predictor1, measure = Metrics::mse)
+
+  var.imp = FeatureImp$new(predictor1, measure = mse)
   dat = var.imp$results
   expect_class(dat, "data.frame")
   # Making sure the result is sorted by decreasing importance
