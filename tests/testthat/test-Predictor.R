@@ -100,8 +100,6 @@ boston.test = Boston[c(1,2,3,4), ]
 prediction.f = predictor.f$predict(boston.test)
 
 
-
-
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(boston.test))
   expect_equivalent(predictor.mlr$predict(boston.test), predictor.S3$predict(boston.test))
@@ -110,6 +108,17 @@ test_that("equivalence", {
 test_that("f works", {
   expect_equal(colnames(prediction.f), c("pred"))
   expect_class(prediction.f, "data.frame")
+})
+
+
+predictor.mlr = Predictor$new(mod.mlr, class = 2, data = iris, y = iris$Species)
+predictor.mlr2 = Predictor$new(mod.mlr, class = 2, data = iris, y = "Species")
+
+
+test_that("Giving y", {
+  expect_equal(predictor.mlr$data$y, data.frame(..y = iris$Species))
+  expect_equal(predictor.mlr2$data$y, data.frame(Species = iris$Species))
+  expect_false("Species" %in% colnames(predictor.mlr2$data$X))
 })
 
 

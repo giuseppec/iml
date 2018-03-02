@@ -134,6 +134,9 @@ FeatureImp = R6::R6Class("FeatureImp",
       } else {
         private$loss.string = head(loss)
       }
+      if (is.null(model$data$y)) {
+        stop("Please call Predictor$new() with the y target vector.")
+      }
       super$initialize(model = model)
       self$loss = private$set.loss(loss)
       private$method = method

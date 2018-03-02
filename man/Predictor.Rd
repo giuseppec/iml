@@ -26,7 +26,7 @@ model = Predictor$new(object, data, y = NULL, class=NULL,
 Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).
 \code{model} can also be a function that returns the prediction as a data.frame, given the features.}
 \item{data}{the data to be used for the prediction}
-\item{y}{The target vector}
+\item{y}{The target vector or (preferably) the name of the target column in the \code{data} argument.}
 \item{class}{The class column to be returned in case of multiClass output.}
 \item{predict.fun}{The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
 }
@@ -79,5 +79,8 @@ predict.fun = function(obj, newdata) {
 
 mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 mod$predict(iris[50:55,])
+
+# Feature importance needs the target vector, which needs to be supplied: 
+mod = Predictor$new(rf, data = iris, y = "Species", predict.fun = predict.fun)
 }
 }

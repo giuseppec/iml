@@ -74,7 +74,6 @@ test_that("FeatureImp works for single output and function as loss", {
 })
 
 test_that("FeatureImp works for multiple output",{
-  
   var.imp = FeatureImp$new(predictor2, loss = "ce")
   dat = var.imp$results
   expect_class(dat, "data.frame")
@@ -83,4 +82,10 @@ test_that("FeatureImp works for multiple output",{
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
   p
+})
+
+
+test_that("FeatureImp fails without target vector",{
+  predictor2 = Predictor$new(f, data = X, predict.fun = predict.fun)
+  expect_error(FeatureImp$new(predictor2, loss = "ce"))
 })

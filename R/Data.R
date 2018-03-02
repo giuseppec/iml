@@ -32,7 +32,12 @@ Data  = R6::R6Class("Data",
       assertDataFrame(X, all.missing = FALSE)
       assertNamed(X)
       self$X = X
-      if(inherits(y, "data.frame")) {
+      if (length(y) == 1 & is.character(y)) {
+        assert_true(y %in% names(X))
+        self$y = X[y]
+        self$y.names = y
+        self$X = self$X[setdiff(colnames(X), self$y.names)]
+      } else if (inherits(y, "data.frame")) {
         assertDataFrame(y, all.missing = FALSE, null.ok = TRUE, nrows = nrow(X))
         self$y = y
         self$y.names = colnames(self$y)
@@ -40,7 +45,7 @@ Data  = R6::R6Class("Data",
         assert_vector(y, any.missing = FALSE, null.ok = TRUE, len = nrow(X))
         self$y = data.frame(..y = y)
         self$y.names = colnames(self$y)
-      }
+      } 
       self$prob = prob
       self$feature.types = get.feature.type(unlist(lapply(X, class)))
       self$feature.names = colnames(X)
