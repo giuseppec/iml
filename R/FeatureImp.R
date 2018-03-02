@@ -164,7 +164,7 @@ FeatureImp = R6::R6Class("FeatureImp",
         row.indices = rep(1:n, times = n)
         replace.indices = rep(1:n, each = n)
         # Indices of instances to keep. Removes those where instance matched with own value
-        keep.indices = as.logical(as.vector(1 - diag(n)))
+        keep.indices = row.indices != replace.indices
         X.inter = private$dataSample[row.indices, ]
         X.inter[feature.name] = X.inter[replace.indices, feature.name]
         X.inter = X.inter[keep.indices,]
