@@ -2,23 +2,22 @@
 % Please edit documentation in R/Shapley.R
 \name{Shapley}
 \alias{Shapley}
-\title{Game theoretic prediction explanations}
+\title{Prediction explanations with game theory}
 \format{\code{\link{R6Class}} object.}
 \description{
-\code{Shapley} computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory approach. 
+\code{Shapley} computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory. 
 The features values of an instance cooperate to achieve the prediction. 
-The Shapley value fairly distributes the difference of the instance's prediction and the datasets average prediction among the features. 
-A features contribution can be negative.
+The Shapley value fairly distributes the difference of the instance's prediction and the datasets average prediction among the features.
 }
 \section{Usage}{
 
 \preformatted{
-shapley = Shapley$new(predictor, x.interest = NULL, 
-  sample.size = 100, run = TRUE)
+shapley = Shapley$new(predictor, x.interest = NULL, sample.size = 100, run = TRUE)
 
 plot(shapley)
 shapley$results
 print(shapley)
+shapley$explain(x.interest)
 }
 }
 
@@ -28,8 +27,7 @@ For Shapley$new():
 \describe{
 \item{predictor}{object of type \code{Predictor}. See \link{Predictor}.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
-\item{sample.size}{The number of instances to be sampled from the data.} 
-\item{maxdepth}{The maximum depth of the tree. Default is 2.}
+\item{sample.size}{The number of  Monte Carlos samples for estimating the Shapley value.} 
 \item{run}{logical. Should the Interpretation method be run?}
 }
 }
@@ -43,12 +41,11 @@ For more details on the algorithm see https://christophm.github.io/interpretable
 
 \describe{
 \item{predictor}{The prediction model that was analysed.}
-\item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
-and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
+\item{results}{data.frame with the Shapley values (phi) per feature.}
 \item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
 \item{y.hat.interest}{predicted value for instance of interest}
-\item{y.hat.averate}{average predicted value for data \code{X}} 
+\item{y.hat.average}{average predicted value for data \code{X}} 
 }
 }
 
@@ -58,15 +55,14 @@ and the predicted \eqn{\hat{y}} for tree and machine learning model (columns sta
 \item{explain(x.interest)}{method to set a new data point which to explain.}
 \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
-General R6 methods
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }
 }
 
 \examples{
-# First we fit a machine learning model on the Boston housing data
 if (require("randomForest")) {
+# First we fit a machine learning model on the Boston housing data
 data("Boston", package  = "MASS")
 rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
 X = Boston[-which(names(Boston) == "medv")]
@@ -110,5 +106,5 @@ Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual
 \seealso{
 \link{Shapley}
 
-A different way to explain predictions: \link{Shapley}
+A different way to explain predictions: \link{LocalModel}
 }

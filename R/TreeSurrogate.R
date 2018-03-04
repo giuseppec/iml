@@ -1,6 +1,6 @@
 #' Decision tree surrogate model
 #' 
-#' \code{TreeSurrogate} fits a decision tree on the predictions of a machine learning model.
+#' \code{TreeSurrogate} fits a decision tree on the predictions of a prediction model.
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name TreeSurrogate
@@ -18,10 +18,10 @@
 #' 
 #' For TreeSurrogate$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 #' \item{run}{logical. Should the Interpretation method be run?}
-#' \item{tree.args}{A list with further arguments for \code{ctree}}
+#' \item{tree.args}{A list with further arguments for \code{ctree}.}
 #' }
 #' 
 #' @section Details:  
@@ -31,7 +31,7 @@
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{maxdepth}{the maximal tree depth set by the user.}
+#' \item{maxdepth}{the maximal tree depth.}
 #' \item{predictor}{The prediction model that was analysed.}
 #' \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 #' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
@@ -40,17 +40,16 @@
 #'  
 #' @section Methods:
 #' \describe{
-#' \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}}
+#' \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}.}
 #' \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
-#' General R6 methods
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' 
 #' @examples 
-#' # Fit a Random Forest on the Boston housing data set
 #' if (require("randomForest")) {
+#' # Fit a Random Forest on the Boston housing data set
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' # Create a model object
@@ -197,9 +196,9 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
 
 
 
-#' Surrogate tree prediction
+#' Predict Tree Surrogate
 #' 
-#' Predict the response for newdata with the surrogate tree
+#' Predict the response for newdata of a TreeSurrogate object.
 #' 
 #' This function makes the TreeSurrogate object call 
 #' its iternal object$predict() method. 
@@ -210,7 +209,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
 #' @param ... Further argumets for \code{predict_party}
 #' @return A data.frame with the predicted outcome. 
 #' In case of regression it is the predicted \eqn{\hat{y}}. 
-#' In case of classification it is either the class probabilities *(for type "prob") or the class label (type "class")
+#' In case of classification it is either the class probabilities (for type "prob") or the class label (type "class")
 #' @seealso 
 #' \link{TreeSurrogate}
 #' @importFrom stats predict
@@ -220,16 +219,14 @@ predict.TreeSurrogate = function(object, newdata, type = "prob", ...) {
 }
 
 
-#' Surrogate tree visualisation
+#' Plot Tree Surrogate
 #' 
-#' Predict the response for newdata with the surrogate tree
+#' Plot the response for newdata of a TreeSurrogate object.
 #' Each plot facet is one leaf node and visualises the distribution of the \eqn{\hat{y}}
 #' from the machine learning model. 
-#' This makes the TreeSurrogate object call 
-#' its iternal object$plot() method. 
 #' 
 #' For examples see \link{TreeSurrogate}
-#' @param object The surrogate tree. A TreeSurrogate R6 object
+#' @param object A TreeSurrogate R6 object
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{TreeSurrogate}

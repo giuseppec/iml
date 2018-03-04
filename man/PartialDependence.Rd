@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-pdp = PartialDependence$new(predictor, feature, grid.size = 10, run = TRUE)
+pdp = PartialDependence$new(predictor, feature, grid.size = 30, run = TRUE)
 
 plot(pdp)
 pdp$results
@@ -24,7 +24,7 @@ pdp$set.feature(2)
 
 For PartialDependence$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 \item{feature}{The feature name or index for which to compute the partial dependencies. 
 Either a single number or vector of two numbers.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -59,7 +59,6 @@ Can be used for creating custom partial dependence plots.}
 \item{set.feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
-General R6 methods
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }

@@ -36,12 +36,12 @@ probs.to.labels = function(prediction, levels = NULL) {
   }
 }
 
-#' Extract glmnet effects
-#' @param betas glmnet$beta
-#' @param best.index index k 
-#' @param x.recoded the recoded version of x
-#' @param x.original the original x
-#' Assuming that the first row is the x.interest
+# Extract glmnet effects
+# @param betas glmnet$beta
+# @param best.index index k 
+# @param x.recoded the recoded version of x
+# @param x.original the original x
+# Assuming that the first row is the x.interest
 extract.glmnet.effects = function(betas, best.index, x.recoded, x.original) {
   checkmate::assert_data_frame(x.recoded, nrows=1)
   checkmate::assert_data_frame(x.original, nrows=1)

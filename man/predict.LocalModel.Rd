@@ -2,7 +2,7 @@
 % Please edit documentation in R/LocalModel.R
 \name{predict.LocalModel}
 \alias{predict.LocalModel}
-\title{LocalModel prediction}
+\title{Predict LocalModel}
 \usage{
 \method{predict}{LocalModel}(object, newdata = NULL, ...)
 }
@@ -20,8 +20,6 @@ A data.frame with the predicted outcome.
 Predict the response for newdata with the LocalModel model.
 }
 \details{
-This function makes the LocalModel object call 
-its iternal object$predict() method. 
 For examples see \link{LocalModel}
 }
 \seealso{

@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-ice = Ice$new(predictor, feature, grid.size = 10, center.at = NULL, run = TRUE)
+ice = Ice$new(predictor, feature, grid.size = 30, center.at = NULL, run = TRUE)
 
 plot(ice)
 ice$results
@@ -25,8 +25,8 @@ ice$center(1)
 
 For Ice$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
-\item{feature}{The feature name or index for which to compute the partial dependencies.}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
+\item{feature}{The feature name or index for which to compute the individual conditional expectations.}
 \item{grid.size}{The size of the grid for evaluating the predictions}
 \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 \item{run}{logical. Should the Interpretation method be run?}
@@ -58,9 +58,11 @@ read the Interpretable Machine Learning book: https://christophm.github.io/inter
 \section{Methods}{
 
 \describe{
-\item{center}{method to set the value(s) at which the ice computations are centered. See examples.}
-\item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
-\item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
+\item{center()}{method to set the value at which the ice computations are centered. See examples.}
+\item{set.feature()}{method to set the feature (index) for which to compute individual conditional expectations See examples for usage.}
+\item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}.}
+\item{\code{clone()}}{[internal] method to clone the R6 object.}
+\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }
 }
 
@@ -83,7 +85,7 @@ ice$center(0)
 plot(ice)
 
 # Ice plots can be centered at initialization
-ice = Ice$new(mod, feature = "crim", center=75)
+ice = Ice$new(mod, feature = "crim", center = 75)
 plot(ice)
 
 # Centering can also be removed

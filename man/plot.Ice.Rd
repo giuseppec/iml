@@ -2,20 +2,18 @@
 % Please edit documentation in R/Ice.R
 \name{plot.Ice}
 \alias{plot.Ice}
-\title{Individual conditional expectation plots}
+\title{Plot ICE (Individual Conditional Expectation)}
 \usage{
-\method{plot}{Ice}(x, ...)
+\method{plot}{Ice}(x)
 }
 \arguments{
-\item{x}{The individual conditional expectation curves. An Ice R6 object}
-
-\item{...}{Further arguments for the objects plot function}
+\item{x}{An Ice R6 object}
 }
 \value{
 ggplot2 plot object
 }
 \description{
-plot.Ice() plots individiual expectation curves for each observation for one feature.
+plot.Ice() plots the individiual expectation results from an Ice object.
 }
 \details{
 For examples see \link{Ice}

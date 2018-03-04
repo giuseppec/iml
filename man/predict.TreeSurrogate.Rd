@@ -2,7 +2,7 @@
 % Please edit documentation in R/TreeSurrogate.R
 \name{predict.TreeSurrogate}
 \alias{predict.TreeSurrogate}
-\title{Surrogate tree prediction}
+\title{Predict Tree Surrogate}
 \usage{
 \method{predict}{TreeSurrogate}(object, newdata, type = "prob", ...)
 }
@@ -18,10 +18,10 @@
 \value{
 A data.frame with the predicted outcome. 
 In case of regression it is the predicted \eqn{\hat{y}}. 
-In case of classification it is either the class probabilities *(for type "prob") or the class label (type "class")
+In case of classification it is either the class probabilities (for type "prob") or the class label (type "class")
 }
 \description{
-Predict the response for newdata with the surrogate tree
+Predict the response for newdata of a TreeSurrogate object.
 }
 \details{
 This function makes the TreeSurrogate object call 

@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' pdp = PartialDependence$new(predictor, feature, grid.size = 10, run = TRUE)
+#' pdp = PartialDependence$new(predictor, feature, grid.size = 30, run = TRUE)
 #' 
 #' plot(pdp)
 #' pdp$results
@@ -19,7 +19,7 @@
 #' 
 #' For PartialDependence$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{feature}{The feature name or index for which to compute the partial dependencies. 
 #' Either a single number or vector of two numbers.}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
@@ -49,7 +49,6 @@
 #' \item{set.feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 #' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
-#' General R6 methods
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -127,7 +126,7 @@ PartialDependence = R6::R6Class("PartialDependence",
     feature.name = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(predictor, feature, grid.size = 10, run = TRUE) {
+    initialize = function(predictor, feature, grid.size = 30, run = TRUE) {
       feature = private$sanitizeFeature(feature, predictor$data$feature.names)
       checkmate::assert_numeric(feature, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))
@@ -256,18 +255,17 @@ PartialDependence = R6::R6Class("PartialDependence",
 )
 
 
-#' Partial dependence plot
+#' Plot Partial Dependence
 #' 
-#' plot.PartialDependence() plots a line for a single feature and a tile plot for 2 features.
+#' plot.PartialDependence() plots the results of a PartialDependence object.
 #' 
 #' For examples see \link{PartialDependence}
-#' @param x The partial dependence. A PartialDependence R6 object
-#' @param ... Further arguments for the objects plot function
+#' @param x A PartialDependence R6 object
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{PartialDependence}
-plot.PartialDependence = function(x, ...) {
-  x$plot(...)
+plot.PartialDependence = function(x) {
+  x$plot()
 }
 
 

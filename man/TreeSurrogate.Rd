@@ -5,7 +5,7 @@
 \title{Decision tree surrogate model}
 \format{\code{\link{R6Class}} object.}
 \description{
-\code{TreeSurrogate} fits a decision tree on the predictions of a machine learning model.
+\code{TreeSurrogate} fits a decision tree on the predictions of a prediction model.
 }
 \section{Usage}{
 
@@ -24,10 +24,10 @@ print(tree)
 
 For TreeSurrogate$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 \item{maxdepth}{The maximum depth of the tree. Default is 2.}
 \item{run}{logical. Should the Interpretation method be run?}
-\item{tree.args}{A list with further arguments for \code{ctree}}
+\item{tree.args}{A list with further arguments for \code{ctree}.}
 }
 }
 
@@ -41,7 +41,7 @@ By default a tree of maximum depth of 2 is fitted to improve interpretability.
 \section{Fields}{
 
 \describe{
-\item{maxdepth}{the maximal tree depth set by the user.}
+\item{maxdepth}{the maximal tree depth.}
 \item{predictor}{The prediction model that was analysed.}
 \item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
@@ -52,18 +52,17 @@ and the predicted \eqn{\hat{y}} for tree and machine learning model (columns sta
 \section{Methods}{
 
 \describe{
-\item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}}
+\item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}.}
 \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
-General R6 methods
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }
 }
 
 \examples{
-# Fit a Random Forest on the Boston housing data set
 if (require("randomForest")) {
+# Fit a Random Forest on the Boston housing data set
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 # Create a model object

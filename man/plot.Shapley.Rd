@@ -2,14 +2,14 @@
 % Please edit documentation in R/Shapley.R
 \name{plot.Shapley}
 \alias{plot.Shapley}
-\title{Shapley plot}
+\title{Plot Shapley}
 \usage{
 \method{plot}{Shapley}(object, sort = TRUE)
 }
 \arguments{
 \item{object}{A Shapley R6 object}
 
-\item{sort}{logical. Should the feature values be sorted by Shapley value? Only works for single model output.}
+\item{sort}{logical. Should the feature values be sorted by Shapley value? Ignored for multi.class output.}
 }
 \value{
 ggplot2 plot object

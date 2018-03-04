@@ -2,12 +2,12 @@
 % Please edit documentation in R/FeatureImp.R
 \name{plot.FeatureImp}
 \alias{plot.FeatureImp}
-\title{Feature importance plot}
+\title{Plot Feature Importance}
 \usage{
 \method{plot}{FeatureImp}(x, sort = TRUE, ...)
 }
 \arguments{
-\item{x}{The feature importance. An FeatureImp R6 object}
+\item{x}{A FeatureImp R6 object}
 
 \item{sort}{logical. Should the features be sorted in descending order? Defaults to TRUE.}
 
@@ -17,7 +17,7 @@
 ggplot2 plot object
 }
 \description{
-plot.FeatureImp() plots the feature importance results of an FeatureImp object.
+plot.FeatureImp() plots the feature importance results of a FeatureImp object.
 }
 \details{
 For examples see \link{FeatureImp}

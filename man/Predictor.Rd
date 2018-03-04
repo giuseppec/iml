@@ -4,17 +4,14 @@
 \alias{Predictor}
 \title{Predictor object}
 \format{\code{\link{R6Class}} object.}
-\value{
-object of type Predictor
-}
 \description{
-A \code{Predictor} object wraps any machine learning model (mlr, caret, randomForest, ...). 
-The object is to be used for the interpretation methods.
+A \code{Predictor} object holds any machine learning model (mlr, caret, randomForest, ...) and the data to be used of analysing the model. 
+The interpretation methods in the iml package need the machine learning model to be wrapped in a \code{Predictor} object.
 }
 \section{Usage}{
 
 \preformatted{
-model = Predictor$new(object, data, y = NULL, class=NULL, 
+model = Predictor$new(model = NULL, data, y = NULL, class=NULL, 
   predict.fun = function(object, newdata) predict(object, newdata))
 }
 }
@@ -23,26 +20,27 @@ model = Predictor$new(object, data, y = NULL, class=NULL,
 
 \describe{
 \item{model}{The machine learning model. Recommended are models from mlr and caret.
-Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).
-\code{model} can also be a function that returns the prediction as a data.frame, given the features.}
-\item{data}{the data to be used for the prediction}
+Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).}
+\item{data}{The data to be used for analysing the prediction model.}
 \item{y}{The target vector or (preferably) the name of the target column in the \code{data} argument.}
-\item{class}{The class column to be returned in case of multiClass output.}
+\item{class}{The class column to be returned in case of multiclass output.}
 \item{predict.fun}{The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
 }
 }
 
 \section{Details}{
  
-In case of classification, the model must return the probabilities. Predictor doesn't handle machine learning
-models that return the labels.
+A Predictor object is a container for the prediction model and the data. 
+This ensures that the machine learning model can be analysed robustly. 
+
+Note: In case of classification, the model should return probabilities.
 }
 
 \section{Fields}{
 
 \describe{
 \item{class}{The class column to be returned.}
-\item{data}{data.frame with the data for the model}
+\item{data}{data object with the data for the model interpretation.}
 \item{prediction.colnames}{The column names of the predictions.}
 \item{task}{The inferred prediction task: "classification" or "regression".}
 }
@@ -51,7 +49,7 @@ models that return the labels.
 \section{Methods}{
 
 \describe{
-\item{predict(newdata)}{method to predict new data with the machine learning model. See also \link{predict.TreeSurrogate}}
+\item{predict(newdata)}{method to predict new data with the machine learning model.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }

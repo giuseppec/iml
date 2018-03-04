@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' ice = Ice$new(predictor, feature, grid.size = 10, center.at = NULL, run = TRUE)
+#' ice = Ice$new(predictor, feature, grid.size = 30, center.at = NULL, run = TRUE)
 #' 
 #' plot(ice)
 #' ice$results
@@ -20,8 +20,8 @@
 #' 
 #' For Ice$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
-#' \item{feature}{The feature name or index for which to compute the partial dependencies.}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
+#' \item{feature}{The feature name or index for which to compute the individual conditional expectations.}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
 #' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
 #' \item{run}{logical. Should the Interpretation method be run?}
@@ -49,9 +49,11 @@
 #' 
 #' @section Methods:
 #' \describe{
-#' \item{center}{method to set the value(s) at which the ice computations are centered. See examples.}
-#' \item{feature}{method to get/set the feature (index) for which to compute ice. See examples for usage.}
-#' \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}}
+#' \item{center()}{method to set the value at which the ice computations are centered. See examples.}
+#' \item{set.feature()}{method to set the feature (index) for which to compute individual conditional expectations See examples for usage.}
+#' \item{plot()}{method to plot the individual conditional expectations. See \link{plot.Ice}.}
+#' \item{\code{clone()}}{[internal] method to clone the R6 object.}
+#' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' @references 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
@@ -79,7 +81,7 @@
 #' plot(ice)
 #' 
 #' # Ice plots can be centered at initialization
-#' ice = Ice$new(mod, feature = "crim", center=75)
+#' ice = Ice$new(mod, feature = "crim", center = 75)
 #' plot(ice)
 #' 
 #' # Centering can also be removed
@@ -125,7 +127,7 @@ NULL
 Ice = R6::R6Class("Ice",
   inherit = PartialDependence,
   public = list( 
-    initialize = function(predictor, feature, grid.size = 10, center.at = NULL, run = TRUE) {
+    initialize = function(predictor, feature, grid.size = 30, center.at = NULL, run = TRUE) {
       checkmate::assert_number(center.at, null.ok = TRUE)
       private$anchor.value = center.at
       super$initialize(predictor = predictor,  feature=feature, run = run, 
@@ -198,17 +200,16 @@ Ice = R6::R6Class("Ice",
   )
 )
 
-#' Individual conditional expectation plots
+#' Plot ICE (Individual Conditional Expectation)
 #' 
-#' plot.Ice() plots individiual expectation curves for each observation for one feature.
+#' plot.Ice() plots the individiual expectation results from an Ice object.
 #' 
 #' For examples see \link{Ice}
-#' @param x The individual conditional expectation curves. An Ice R6 object
-#' @param ... Further arguments for the objects plot function
+#' @param x An Ice R6 object
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Ice}
-plot.Ice = function(x, ...) {
+plot.Ice = function(x) {
   x$plot()
 }
 

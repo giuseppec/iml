@@ -2,14 +2,14 @@
 #' 
 #' @description 
 #' \code{FeatureImp} computes feature importances for prediction models.
-#' Importance is measured as the factor by which the model's prediction error increases when the feature is shuffled. 
+#' The importance is measured as the factor by which the model's prediction error increases when the feature is shuffled. 
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name FeatureImp
 #' 
 #' @section Usage:
 #' \preformatted{
-#' imp = FeatureImp$new(predictor, y, loss, method = "shuffle", run = TRUE)
+#' imp = FeatureImp$new(predictor, loss, method = "shuffle", run = TRUE)
 #' 
 #' plot(imp)
 #' imp$results
@@ -20,45 +20,43 @@
 #' 
 #' For FeatureImp$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}}
+#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' \item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
 #' \item{method}{Either "shuffle" or "cartesian". See Details.}
-#' \item{y}{The vector or data.frame with the actual target values associated with X.}
 #' }
 #' 
 #' @section Details:
-#' Read the Interpretable Machine Learning book to learn more about feature importance: 
+#' Read the Interpretable Machine Learning book to learn in detail about feature importance: 
 #' \url{https://christophm.github.io/interpretable-ml-book/feature-importance.html}
 #' 
 #' Two permutation schemes are implemented: 
 #' \itemize{
-#' \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (faster)
-#' \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (slow)
+#' \item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (fast)
+#' \item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (very slow)
 #' }
+#' 
 #' The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
+#' If you want to use your own loss function it should have this signature: function(actual, predicted).
 #' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
+#' Only use functions that return a single performance value, not a vector. 
 #' Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
 #' "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
-#' 
 #' See \code{library(help = "Metrics")} to get a list of functions. 
-#' Only use functions that return a single performance value, not a vector. 
-#' You can also provide a function directly. It has to take the actual value as its first argument and the prediction as its second. 
 #' 
 #' 
 #' @section Fields:
 #' \describe{
 #' \item{original.error}{The loss of the model before perturbing features.}
-#' \item{loss}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 #' \item{predictor}{The prediction model that was analysed.}
-#' \item{results}{data.frame with tesults of the feature importance computation. Importance and permutation error measurements per feature.}
+#' \item{results}{data.frame with the results of the feature importance computation.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
+#' \item{loss(actual,predicted)}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 #' \item{plot()}{method to plot the feature importances. See \link{plot.FeatureImp}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
-#' General R6 methods
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -68,8 +66,8 @@
 #' 
 #' @import Metrics
 #' @examples
-#' # We train a tree on the Boston dataset:
 #' if (require("rpart")) {
+#' # We train a tree on the Boston dataset:
 #' data("Boston", package  = "MASS")
 #' tree = rpart(medv ~ ., data = Boston)
 #' y = Boston$medv
@@ -85,13 +83,12 @@
 #' 
 #' # Since the result is a ggplot object, you can extend it: 
 #' if (require("ggplot2")) {
-#' plot(imp) + theme_bw()
-#' 
-#' # If you want to do your own thing, just extract the data: 
-#' imp.dat = imp$results
-#' head(imp.dat)
-#' ggplot(imp.dat, aes(x = feature, y = importance)) + geom_point() + 
-#' theme_bw()
+#'   plot(imp) + theme_bw()
+#'   # If you want to do your own thing, just extract the data: 
+#'   imp.dat = imp$results
+#'   head(imp.dat)
+#'   ggplot(imp.dat, aes(x = feature, y = importance)) + geom_point() + 
+#'   theme_bw()
 #' }
 #' 
 #' # FeatureImp also works with multiclass classification. 
@@ -99,7 +96,7 @@
 #' tree = rpart(Species ~ ., data= iris)
 #' X = iris[-which(names(iris) == "Species")]
 #' y = iris$Species
-#' predict.fun = function(obj, newdata) predict(obj, newdata, type = "prob")
+#' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
 #' mod = Predictor$new(tree, data = X, y = y, predict.fun) 
 #' 
 #' # For some models we have to specify additional arguments for the predict function
@@ -211,12 +208,12 @@ FeatureImp = R6::R6Class("FeatureImp",
 )
 
 
-#' Feature importance plot
+#' Plot Feature Importance
 #' 
-#' plot.FeatureImp() plots the feature importance results of an FeatureImp object.
+#' plot.FeatureImp() plots the feature importance results of a FeatureImp object.
 #' 
 #' For examples see \link{FeatureImp}
-#' @param x The feature importance. An FeatureImp R6 object
+#' @param x A FeatureImp R6 object
 #' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
 #' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object

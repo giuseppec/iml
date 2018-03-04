@@ -2,7 +2,7 @@
 % Please edit documentation in R/LocalModel.R
 \name{plot.LocalModel}
 \alias{plot.LocalModel}
-\title{LocalModel plot}
+\title{Plot Local Model}
 \usage{
 \method{plot}{LocalModel}(object)
 }
@@ -13,7 +13,7 @@
 ggplot2 plot object
 }
 \description{
-plot.LocalModel() plots the feature effects of the LocalModel model.
+plot.LocalModel() plots the feature effects of a LocalModel object.
 }
 \details{
 For examples see \link{LocalModel}
