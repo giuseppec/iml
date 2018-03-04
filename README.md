@@ -27,6 +27,11 @@ The package can be installed directly from github with devtools:
 devtools::install_github("christophM/iml")
 ```
 
+News
+====
+
+Changes of the packages can be accessed in the [NEWS file](https://github.com/christophM/iml/blob/master/NEWS.md) shipped with the package.
+
 Examples
 ========
 
@@ -49,7 +54,7 @@ imp = FeatureImp$new(model, loss = "mae")
 plot(imp)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
 
 ``` r
 imp$results
@@ -77,7 +82,7 @@ tree = TreeSurrogate$new(model, maxdepth = 2)
 plot(tree)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
 
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 
@@ -86,7 +91,7 @@ pdp.obj = PartialDependence$new(model, feature = "lstat")
 plot(pdp.obj)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
 
 ### How does lstat influence the individual predictions? (ICE)
 
@@ -95,7 +100,7 @@ ice.curves = Ice$new(model, feature = "lstat")
 plot(ice.curves) 
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
 
 ### Explain a single prediction with a local linear model. (LIME)
 
@@ -113,7 +118,7 @@ lime.explain$results
 plot(lime.explain)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
 
 ### Explain a single prediction with game theory. (Shapley)
 
@@ -141,7 +146,7 @@ shapley.explain$results
 plot(shapley.explain)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
 
 Python Implementation
 =====================
