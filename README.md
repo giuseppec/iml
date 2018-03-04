@@ -12,7 +12,7 @@ Currently implemented:
 -   Partial dependence plots
 -   Individual conditional expectation plots (ICE)
 -   Tree surrogate
--   LIME: Local Interpretable Model-agnostic Explanations
+-   LocalModel: Local Interpretable Model-agnostic Explanations
 -   Shapley value for explaining single predictions
 
 Read more about the methods in the [Interpretable Machine Learning book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
@@ -24,7 +24,7 @@ The package can be installed directly from github with devtools:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github('christophM/iml')
+devtools::install_github("christophM/iml")
 ```
 
 Examples
@@ -33,48 +33,47 @@ Examples
 First we train a randomForest to predict the Boston median housing value
 
 ``` r
-library('iml')
+library("iml")
 
-library('randomForest')
+library("randomForest")
 data("Boston", package  = "MASS")
-mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+X =  Boston[which(names(Boston) != "medv")]
+model = Predictor$new(rf, data = X, y = Boston$medv)
 ```
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 
 ``` r
-imp = feature.imp(mod, Boston, y = Boston$medv, loss = 'mae')
+imp = FeatureImp$new(model, loss = "mae")
 plot(imp)
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 ``` r
-imp$data()
+imp$results
 ```
 
-    ## # A tibble: 14 x 3
-    ##    ..feature error importance
-    ##    <fct>     <dbl>      <dbl>
-    ##  1 age       1.28        1.30
-    ##  2 black     1.24        1.25
-    ##  3 chas      1.01        1.03
-    ##  4 crim      1.65        1.67
-    ##  5 dis       1.66        1.68
-    ##  6 indus     1.47        1.49
-    ##  7 lstat     4.23        4.29
-    ##  8 medv      0.988       1.00
-    ##  9 nox       1.64        1.66
-    ## 10 ptratio   1.58        1.60
-    ## 11 rad       1.11        1.12
-    ## 12 rm        3.71        3.76
-    ## 13 tax       1.24        1.26
-    ## 14 zn        1.09        1.11
+    ##    feature original.error permutationError importance
+    ## 1    lstat       1.004678         4.235347   4.215628
+    ## 2       rm       1.004678         3.273892   3.258649
+    ## 3     crim       1.004678         1.731467   1.723405
+    ## 4  ptratio       1.004678         1.729005   1.720955
+    ## 5      nox       1.004678         1.661731   1.653994
+    ## 6      dis       1.004678         1.653906   1.646205
+    ## 7    indus       1.004678         1.608825   1.601335
+    ## 8      age       1.004678         1.378753   1.372334
+    ## 9      tax       1.004678         1.360375   1.354041
+    ## 10   black       1.004678         1.246488   1.240685
+    ## 11     rad       1.004678         1.161532   1.156124
+    ## 12      zn       1.004678         1.061880   1.056936
+    ## 13    chas       1.004678         1.034714   1.029897
 
-### Let's build a single tree from the randomForest predictions! (Tree surrogate)
+### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
 
 ``` r
-tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
+tree = TreeSurrogate$new(model, maxdepth = 2)
 plot(tree)
 ```
 
@@ -83,7 +82,7 @@ plot(tree)
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 
 ``` r
-pdp.obj = pdp(mod, Boston, feature = 13)
+pdp.obj = PartialDependence$new(model, feature = "lstat")
 plot(pdp.obj)
 ```
 
@@ -92,7 +91,7 @@ plot(pdp.obj)
 ### How does lstat influence the individual predictions? (ICE)
 
 ``` r
-ice.curves = ice(mod, Boston[1:100,], feature = 13)
+ice.curves = Ice$new(model, feature = "lstat")
 plot(ice.curves) 
 ```
 
@@ -101,15 +100,14 @@ plot(ice.curves)
 ### Explain a single prediction with a local linear model. (LIME)
 
 ``` r
-x = Boston[1,]
-lime.explain = lime(mod, Boston, x.interest = x)
-lime.explain$data()
+lime.explain = LocalModel$new(model, x.interest = X[1,])
+lime.explain$results
 ```
 
-    ##              beta x.scaled     effect x.original feature feature.value
-    ## rm     1.03669473    6.575  6.8162678      6.575      rm      rm=6.575
-    ## lstat -0.05867633    4.980 -0.2922081       4.98   lstat    lstat=4.98
-    ## medv   0.72759814   24.000 17.4623553         24    medv       medv=24
+    ##               beta x.recoded    effect x.original feature feature.value
+    ## rm       4.2445268     6.575 27.907764      6.575      rm      rm=6.575
+    ## ptratio -0.5224666    15.300 -7.993738       15.3 ptratio  ptratio=15.3
+    ## lstat   -0.4287899     4.980 -2.135374       4.98   lstat    lstat=4.98
 
 ``` r
 plot(lime.explain)
@@ -120,29 +118,24 @@ plot(lime.explain)
 ### Explain a single prediction with game theory. (Shapley)
 
 ``` r
-x = Boston[1,]
-shapley.explain = shapley(mod, Boston, x.interest = x)
-shapley.explain$data()
+shapley.explain = Shapley$new(model, x.interest = X[1, ])
+shapley.explain$results
 ```
 
-    ## # A tibble: 14 x 3
-    ## # Groups:   feature [?]
-    ##    feature      phi  phi.var
-    ##    <fct>      <dbl>    <dbl>
-    ##  1 age     -0.00607  0.0969 
-    ##  2 black    0.0974   0.102  
-    ##  3 chas    -0.00898  0.00539
-    ##  4 crim    -0.298    1.86   
-    ##  5 dis     -0.147    1.40   
-    ##  6 indus    0.634    0.724  
-    ##  7 lstat    3.12    12.7    
-    ##  8 medv     0        0      
-    ##  9 nox     -0.206    0.467  
-    ## 10 ptratio  0.553    0.698  
-    ## 11 rad     -0.156    0.0683 
-    ## 12 rm       0.706    4.05   
-    ## 13 tax     -0.111    0.378  
-    ## 14 zn       0.201    0.115
+    ##    feature           phi      phi.var feature.value
+    ## 1      age -0.0850019791  0.333944689  crim=0.00632
+    ## 2    black -0.0008046753  0.267453217         zn=18
+    ## 3     chas -0.0240226667  0.009907358    indus=2.31
+    ## 4     crim -0.0723403620  1.236298269        chas=0
+    ## 5      dis -0.1753825842  1.089173160     nox=0.538
+    ## 6    indus  0.7402716277  1.556442963      rm=6.575
+    ## 7    lstat  3.7001500745 19.387675029      age=65.2
+    ## 8      nox -0.1974995303  0.727310327      dis=4.09
+    ## 9  ptratio  0.7285225750  1.220922649         rad=1
+    ## 10     rad -0.4722923333  0.407054214       tax=296
+    ## 11      rm -0.0752455000  7.788278183  ptratio=15.3
+    ## 12     tax -0.1853100000  0.393279176   black=396.9
+    ## 13      zn -0.0950710000  0.042044428    lstat=4.98
 
 ``` r
 plot(shapley.explain)

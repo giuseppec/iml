@@ -13,10 +13,12 @@ output: github_document
  - Partial dependence plots
  - Individual conditional expectation plots (ICE)
  - Tree surrogate
- - LIME: Local Interpretable Model-agnostic Explanations
+ - LocalModel: Local Interpretable Model-agnostic Explanations
  - Shapley value for explaining single predictions
  
 Read more about the methods in the [Interpretable Machine Learning book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
+
+
 
 ```{r global_options, include=FALSE}
 library(knitr)
@@ -26,46 +28,50 @@ set.seed(42)
 
 # Installation 
 The package can be installed directly from github with devtools:
-```{r, results = 'hide', eval = FALSE}
+```{r, results = "hide", eval = FALSE}
 # install.packages("devtools")
-devtools::install_github('christophM/iml')
+devtools::install_github("christophM/iml")
 ```
 
+# News
+Changes of the packages can be accessed in the [NEWS file](https://github.com/christophM/iml/blob/master/NEWS.md) shipped with the package.
 
 # Examples
 
 First we train a randomForest to predict the Boston median housing value
 ```{r}
-library('iml')
+library("iml")
 
-library('randomForest')
+library("randomForest")
 data("Boston", package  = "MASS")
-mod = randomForest(medv ~ ., data = Boston, ntree = 50)
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+X =  Boston[which(names(Boston) != "medv")]
+model = Predictor$new(rf, data = X, y = Boston$medv)
 ```
 
 #### What were the most important features? (Permutation feature importance / Model reliance)
 ```{r}
-imp = feature.imp(mod, Boston, y = Boston$medv, loss = 'mae')
+imp = FeatureImp$new(model, loss = "mae")
 plot(imp)
-imp$data()
+imp$results
 ```
 
-### Let's build a single tree from the randomForest predictions! (Tree surrogate)
+### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
 ```{r}
-tree = tree.surrogate(mod, Boston[which(names(Boston) != 'medv')], maxdepth = 2)
+tree = TreeSurrogate$new(model, maxdepth = 2)
 plot(tree)
 ```
 
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 ```{r}
-pdp.obj = pdp(mod, Boston, feature = 13)
+pdp.obj = PartialDependence$new(model, feature = "lstat")
 plot(pdp.obj)
 ```
 
 
 ### How does lstat influence the individual predictions? (ICE)
 ```{r}
-ice.curves = ice(mod, Boston[1:100,], feature = 13)
+ice.curves = Ice$new(model, feature = "lstat")
 plot(ice.curves) 
 ```
 
@@ -73,9 +79,8 @@ plot(ice.curves)
 
 ### Explain a single prediction with a local linear model. (LIME) 
 ```{r}
-x = Boston[1,]
-lime.explain = lime(mod, Boston, x.interest = x)
-lime.explain$data()
+lime.explain = LocalModel$new(model, x.interest = X[1,])
+lime.explain$results
 plot(lime.explain)
 ```
 
@@ -83,9 +88,8 @@ plot(lime.explain)
 
 ### Explain a single prediction with game theory. (Shapley)
 ```{r}
-x = Boston[1,]
-shapley.explain = shapley(mod, Boston, x.interest = x)
-shapley.explain$data()
+shapley.explain = Shapley$new(model, x.interest = X[1, ])
+shapley.explain$results
 plot(shapley.explain)
 
 ```
