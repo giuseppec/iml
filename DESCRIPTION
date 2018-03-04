@@ -6,7 +6,7 @@ Date: 2018-03-04
 Authors@R: c(person(given = "Christoph", family = "Molnar", 
                     role = c("aut", "cre"), email = "christoph.molnar@gmail.com"))
 Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
-Description:The iml package provides you with model-agnostic interpretability methods to 
+Description:The iml package provides model-agnostic interpretability methods to 
   analyse and explain the behaviour and predictions of any black box machine learning model. 
 Imports: R6,
          checkmate,
