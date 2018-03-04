@@ -68,7 +68,7 @@
 #' @references 
 #' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
 #'
-#' Gower, J. C. (1971), “A general coefficient of similarity and some of its properties”. Biometrics, 27, 623--637.
+#' Gower, J. C. (1971), "A general coefficient of similarity and some of its properties". Biometrics, 27, 623--637.
 #' 
 #' @seealso 
 #' \code{\link{plot.LocalModel}} and \code{\link{predict.LocalModel}}
