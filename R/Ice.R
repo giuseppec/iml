@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' ice = Ice$new(predictor, feature, grid.size = 30, center.at = NULL, run = TRUE)
+#' ice = Ice$new(predictor, feature, grid.size = 20, center.at = NULL, run = TRUE)
 #' 
 #' plot(ice)
 #' ice$results
@@ -127,7 +127,7 @@ NULL
 Ice = R6::R6Class("Ice",
   inherit = PartialDependence,
   public = list( 
-    initialize = function(predictor, feature, grid.size = 30, center.at = NULL, run = TRUE) {
+    initialize = function(predictor, feature, grid.size = 20, center.at = NULL, run = TRUE) {
       checkmate::assert_number(center.at, null.ok = TRUE)
       private$anchor.value = center.at
       super$initialize(predictor = predictor,  feature=feature, run = run, 

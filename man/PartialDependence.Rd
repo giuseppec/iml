@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-pdp = PartialDependence$new(predictor, feature, grid.size = 30, run = TRUE)
+pdp = PartialDependence$new(predictor, feature, grid.size = 20, run = TRUE)
 
 plot(pdp)
 pdp$results

@@ -7,7 +7,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' pdp = PartialDependence$new(predictor, feature, grid.size = 30, run = TRUE)
+#' pdp = PartialDependence$new(predictor, feature, grid.size = 20, run = TRUE)
 #' 
 #' plot(pdp)
 #' pdp$results
@@ -126,7 +126,7 @@ PartialDependence = R6::R6Class("PartialDependence",
     feature.name = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(predictor, feature, grid.size = 30, run = TRUE) {
+    initialize = function(predictor, feature, grid.size = 20, run = TRUE) {
       feature = private$sanitizeFeature(feature, predictor$data$feature.names)
       checkmate::assert_numeric(feature, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       checkmate::assert_numeric(grid.size, min.len = 1, max.len = length(feature))

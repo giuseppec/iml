@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-ice = Ice$new(predictor, feature, grid.size = 30, center.at = NULL, run = TRUE)
+ice = Ice$new(predictor, feature, grid.size = 20, center.at = NULL, run = TRUE)
 
 plot(ice)
 ice$results
