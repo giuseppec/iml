@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 README.*
 README_files
+cran-comments.md
 framework.jpg
 .travis.yml
 Makefile

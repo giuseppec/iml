@@ -18,6 +18,8 @@ output: github_document
  
 Read more about the methods in the [Interpretable Machine Learning book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
 
+
+
 ```{r global_options, include=FALSE}
 library(knitr)
 opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
@@ -31,6 +33,8 @@ The package can be installed directly from github with devtools:
 devtools::install_github("christophM/iml")
 ```
 
+# News
+Changes of the packages can be accessed in the [NEWS file](https://github.com/christophM/iml/blob/master/NEWS.md) shipped with the package.
 
 # Examples
 
