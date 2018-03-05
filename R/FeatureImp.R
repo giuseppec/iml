@@ -183,8 +183,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         predicted = y.hat[[1]])
       
       result.grouped  = group_by_(result, "feature")
-      result = summarise(result.grouped, original.error = self$original.error, permutationError = self$loss(actual, predicted), 
-        importance = permutationError / self$original.error)
+      result = summarise(result.grouped, original.error = self$original.error, permutation.error = self$loss(actual, predicted), 
+        importance = permutation.error / self$original.error)
       result = result[order(result$importance, decreasing = TRUE),]
       result
     },

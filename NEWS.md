@@ -1,3 +1,6 @@
+# iml 0.3 (In PROGRESS)
+* FeatureImp$results column permutationError renamed to permutation.error
+
 # iml 0.2
 * The API has been  reworked: 
   * User directly interacts with R6 classes (`pdp()` is now `PartialDependence$new()`).

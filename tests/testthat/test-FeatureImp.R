@@ -2,7 +2,7 @@ context("FeatureImp()")
 
 #set.seed(42)
 
-expectedColnames = c("feature", "original.error", "permutationError", "importance")
+expectedColnames = c("feature", "original.error", "permutation.error", "importance")
 
 test_that("FeatureImp works for single output", {
   
