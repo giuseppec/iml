@@ -15,8 +15,19 @@ ggplot2 plot object
 \description{
 plot.PartialDependence() plots the results of a PartialDependence object.
 }
-\details{
-For examples see \link{PartialDependence}
+\examples{
+# We train a random forest on the Boston dataset:
+if (require("randomForest")) {
+data("Boston", package  = "MASS")
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+mod = Predictor$new(rf, data = Boston)
+
+# Compute the partial dependence for the first feature
+pdp.obj = PartialDependence$new(mod, feature = "crim")
+
+# Plot the results directly
+plot(pdp.obj)
+}
 }
 \seealso{
 \link{PartialDependence}

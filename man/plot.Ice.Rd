@@ -15,8 +15,19 @@ ggplot2 plot object
 \description{
 plot.Ice() plots the individiual expectation results from an Ice object.
 }
-\details{
-For examples see \link{Ice}
+\examples{
+#' if (require("randomForest")) {
+
+data("Boston", package  = "MASS")
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+mod = Predictor$new(rf, data = Boston)
+
+# Compute the individual conditional expectations for the first feature
+ice = Ice$new(mod, feature = "crim")
+
+# Plot the results directly
+plot(ice)
+}
 }
 \seealso{
 \link{Ice}

@@ -192,12 +192,24 @@ Shapley = R6::R6Class("Shapley",
 #' 
 #' plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction. 
 #' 
-#' For examples see \link{Shapley}
 #' @param object  A Shapley R6 object
 #' @param sort logical. Should the feature values be sorted by Shapley value? Ignored for multi.class output.
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Shapley}
+#' @examples 
+#' if (require("randomForest")) {
+#' # First we fit a machine learning model on the Boston housing data
+#' data("Boston", package  = "MASS")
+#' rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
+#' X = Boston[-which(names(Boston) == "medv")]
+#' mod = Predictor$new(rf, data = X)
+#' 
+#' # Then we explain the first instance of the dataset with the Shapley method:
+#' x.interest = X[1,]
+#' shapley = Shapley$new(mod, x.interest = x.interest)
+#' plot(shapley)
+#' }
 plot.Shapley = function(object, sort = TRUE) {
   object$plot(sort = sort)
 }

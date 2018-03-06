@@ -211,7 +211,6 @@ LocalModel = R6::R6Class("LocalModel",
 #' 
 #' Predict the response for newdata with the LocalModel model.
 #' 
-#' For examples see \link{LocalModel}
 #' @param object A LocalModel R6 object
 #' @param newdata A data.frame for which to predict
 #' @param ... Further arguments for the objects predict function
@@ -220,6 +219,19 @@ LocalModel = R6::R6Class("LocalModel",
 #' \link{LocalModel}
 #' @importFrom stats predict
 #' @export
+#' @examples 
+#' #' if (require("randomForest")) {
+#' # First we fit a machine learning model on the Boston housing data
+#' data("Boston", package  = "MASS")
+#' X = Boston[-which(names(Boston) == "medv")]
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = Predictor$new(rf, data = X)
+#' 
+#' # Explain the first instance of the dataset with the LocalModel method:
+#' x.interest = X[1,]
+#' lemon = LocalModel$new(mod, x.interest = x.interest, k = 2)
+#' predict(lemon, newdata = x.interest)
+#' }
 predict.LocalModel = function(object, newdata = NULL, ...) {
   object$predict(newdata = newdata, ...)
 }
@@ -228,11 +240,23 @@ predict.LocalModel = function(object, newdata = NULL, ...) {
 #' 
 #' plot.LocalModel() plots the feature effects of a LocalModel object.
 #' 
-#' For examples see \link{LocalModel}
 #' @param object  A LocalModel R6 object
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{LocalModel}
+#' @examples 
+#' #' if (require("randomForest")) {
+#' # First we fit a machine learning model on the Boston housing data
+#' data("Boston", package  = "MASS")
+#' X = Boston[-which(names(Boston) == "medv")]
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = Predictor$new(rf, data = X)
+#' 
+#' # Explain the first instance of the dataset with the LocalModel method:
+#' x.interest = X[1,]
+#' lemon = LocalModel$new(mod, x.interest = x.interest, k = 2)
+#' plot(lemon)
+#' }
 plot.LocalModel = function(object) {
   object$plot()
 }

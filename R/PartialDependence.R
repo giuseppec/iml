@@ -259,11 +259,23 @@ PartialDependence = R6::R6Class("PartialDependence",
 #' 
 #' plot.PartialDependence() plots the results of a PartialDependence object.
 #' 
-#' For examples see \link{PartialDependence}
 #' @param x A PartialDependence R6 object
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{PartialDependence}
+#' @examples
+#' # We train a random forest on the Boston dataset:
+#' if (require("randomForest")) {
+#' data("Boston", package  = "MASS")
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = Predictor$new(rf, data = Boston)
+#' 
+#' # Compute the partial dependence for the first feature
+#' pdp.obj = PartialDependence$new(mod, feature = "crim")
+#' 
+#' # Plot the results directly
+#' plot(pdp.obj)
+#' }
 plot.PartialDependence = function(x) {
   x$plot()
 }

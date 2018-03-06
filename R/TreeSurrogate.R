@@ -202,7 +202,6 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
 #' 
 #' This function makes the TreeSurrogate object call 
 #' its iternal object$predict() method. 
-#' For examples see \link{TreeSurrogate}
 #' @param object The surrogate tree. A TreeSurrogate R6 object
 #' @param newdata A data.frame for which to predict
 #' @param type Either "prob" or "class". Ignored if the surrogate tree does regression. 
@@ -214,6 +213,20 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
 #' \link{TreeSurrogate}
 #' @importFrom stats predict
 #' @export
+#' @examples 
+#' if (require("randomForest")) {
+#' # Fit a Random Forest on the Boston housing data set
+#' data("Boston", package  = "MASS")
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' # Create a model object
+#' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+#' 
+#' # Fit a decision tree as a surrogate for the whole random forest
+#' dt = TreeSurrogate$new(mod)
+#' 
+#' # Plot the resulting leaf nodes
+#' predict(dt, newdata = Boston)
+#' } 
 predict.TreeSurrogate = function(object, newdata, type = "prob", ...) {
   object$predict(newdata = newdata, type, ...)
 }
@@ -225,11 +238,24 @@ predict.TreeSurrogate = function(object, newdata, type = "prob", ...) {
 #' Each plot facet is one leaf node and visualises the distribution of the \eqn{\hat{y}}
 #' from the machine learning model. 
 #' 
-#' For examples see \link{TreeSurrogate}
 #' @param object A TreeSurrogate R6 object
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{TreeSurrogate}
+#' @examples 
+#' if (require("randomForest")) {
+#' # Fit a Random Forest on the Boston housing data set
+#' data("Boston", package  = "MASS")
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' # Create a model object
+#' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+#' 
+#' # Fit a decision tree as a surrogate for the whole random forest
+#' dt = TreeSurrogate$new(mod)
+#' 
+#' # Plot the resulting leaf nodes
+#' plot(dt) 
+#' }
 plot.TreeSurrogate = function(object) {
   object$plot()
 }

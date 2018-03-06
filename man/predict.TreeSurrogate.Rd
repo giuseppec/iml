@@ -25,8 +25,22 @@ Predict the response for newdata of a TreeSurrogate object.
 }
 \details{
 This function makes the TreeSurrogate object call 
-its iternal object$predict() method. 
-For examples see \link{TreeSurrogate}
+its iternal object$predict() method.
+}
+\examples{
+if (require("randomForest")) {
+# Fit a Random Forest on the Boston housing data set
+data("Boston", package  = "MASS")
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+# Create a model object
+mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+
+# Fit a decision tree as a surrogate for the whole random forest
+dt = TreeSurrogate$new(mod)
+
+# Plot the resulting leaf nodes
+predict(dt, newdata = Boston)
+} 
 }
 \seealso{
 \link{TreeSurrogate}

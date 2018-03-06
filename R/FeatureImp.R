@@ -212,7 +212,6 @@ FeatureImp = R6::R6Class("FeatureImp",
 #' 
 #' plot.FeatureImp() plots the feature importance results of a FeatureImp object.
 #' 
-#' For examples see \link{FeatureImp}
 #' @param x A FeatureImp R6 object
 #' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
 #' @param ... Further arguments for the objects plot function
@@ -221,6 +220,21 @@ FeatureImp = R6::R6Class("FeatureImp",
 #' @importFrom dplyr group_by_
 #' @seealso 
 #' \link{FeatureImp}
+#' @examples  
+#' #' if (require("rpart")) {
+#' # We train a tree on the Boston dataset:
+#' data("Boston", package  = "MASS")
+#' tree = rpart(medv ~ ., data = Boston)
+#' y = Boston$medv
+#' X = Boston[-which(names(Boston) == "medv")]
+#' mod = Predictor$new(tree, data = X, y = y)
+#' 
+#' # Compute feature importances as the performance drop in mean absolute error
+#' imp = FeatureImp$new(mod, loss = "mae")
+#' 
+#' # Plot the results directly
+#' plot(imp)
+#' }
 plot.FeatureImp = function(x, sort = TRUE, ...) {
   x$plot(sort = sort, ...)
 }

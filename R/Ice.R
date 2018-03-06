@@ -204,11 +204,23 @@ Ice = R6::R6Class("Ice",
 #' 
 #' plot.Ice() plots the individiual expectation results from an Ice object.
 #' 
-#' For examples see \link{Ice}
 #' @param x An Ice R6 object
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Ice}
+#' @examples 
+#' #' if (require("randomForest")) {
+#' 
+#' data("Boston", package  = "MASS")
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = Predictor$new(rf, data = Boston)
+#' 
+#' # Compute the individual conditional expectations for the first feature
+#' ice = Ice$new(mod, feature = "crim")
+#' 
+#' # Plot the results directly
+#' plot(ice)
+#' }
 plot.Ice = function(x) {
   x$plot()
 }
