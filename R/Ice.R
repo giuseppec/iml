@@ -209,7 +209,7 @@ Ice = R6::R6Class("Ice",
 #' @seealso 
 #' \link{Ice}
 #' @examples 
-#' #' if (require("randomForest")) {
+#' if (require("randomForest")) {
 #' 
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)

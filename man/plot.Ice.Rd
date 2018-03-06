@@ -16,7 +16,7 @@ ggplot2 plot object
 plot.Ice() plots the individiual expectation results from an Ice object.
 }
 \examples{
-#' if (require("randomForest")) {
+if (require("randomForest")) {
 
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)

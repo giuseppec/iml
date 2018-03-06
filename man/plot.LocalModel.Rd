@@ -16,7 +16,7 @@ ggplot2 plot object
 plot.LocalModel() plots the feature effects of a LocalModel object.
 }
 \examples{
-#' if (require("randomForest")) {
+if (require("randomForest")) {
 # First we fit a machine learning model on the Boston housing data
 data("Boston", package  = "MASS")
 X = Boston[-which(names(Boston) == "medv")]

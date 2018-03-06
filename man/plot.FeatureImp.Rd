@@ -21,7 +21,7 @@ plot.FeatureImp() plots the feature importance results of a FeatureImp object.
 }
 \examples{
  
-#' if (require("rpart")) {
+if (require("rpart")) {
 # We train a tree on the Boston dataset:
 data("Boston", package  = "MASS")
 tree = rpart(medv ~ ., data = Boston)

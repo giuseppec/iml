@@ -20,7 +20,7 @@ A data.frame with the predicted outcome.
 Predict the response for newdata with the LocalModel model.
 }
 \examples{
-#' if (require("randomForest")) {
+if (require("randomForest")) {
 # First we fit a machine learning model on the Boston housing data
 data("Boston", package  = "MASS")
 X = Boston[-which(names(Boston) == "medv")]

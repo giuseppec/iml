@@ -220,7 +220,7 @@ LocalModel = R6::R6Class("LocalModel",
 #' @importFrom stats predict
 #' @export
 #' @examples 
-#' #' if (require("randomForest")) {
+#' if (require("randomForest")) {
 #' # First we fit a machine learning model on the Boston housing data
 #' data("Boston", package  = "MASS")
 #' X = Boston[-which(names(Boston) == "medv")]
@@ -245,7 +245,7 @@ predict.LocalModel = function(object, newdata = NULL, ...) {
 #' @seealso 
 #' \link{LocalModel}
 #' @examples 
-#' #' if (require("randomForest")) {
+#' if (require("randomForest")) {
 #' # First we fit a machine learning model on the Boston housing data
 #' data("Boston", package  = "MASS")
 #' X = Boston[-which(names(Boston) == "medv")]

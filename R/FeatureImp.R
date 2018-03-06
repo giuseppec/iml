@@ -221,7 +221,7 @@ FeatureImp = R6::R6Class("FeatureImp",
 #' @seealso 
 #' \link{FeatureImp}
 #' @examples  
-#' #' if (require("rpart")) {
+#' if (require("rpart")) {
 #' # We train a tree on the Boston dataset:
 #' data("Boston", package  = "MASS")
 #' tree = rpart(medv ~ ., data = Boston)
