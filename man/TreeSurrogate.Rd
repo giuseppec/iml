@@ -108,6 +108,9 @@ dat = dt$results
 head(dat)
 }
 }
+\references{
+Craven, M., & Shavlik, J. W. (1996). Extracting tree-structured representations of trained networks. In Advances in neural information processing systems (pp. 24-30).
+}
 \seealso{
 \link{predict.TreeSurrogate}
 \link{plot.TreeSurrogate}
