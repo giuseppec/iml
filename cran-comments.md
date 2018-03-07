@@ -1,3 +1,35 @@
+# v0.2
+
+## Feedback
+Thanks, please write package names and software names in single quotes (e.g. 'iml') in title and description.
+
+Please omit "The iml package" and just stat with "Provides model-agnostic...".
+
+Please add a reference for the method in the 'Description' field of your DESCRIPTION file in the form
+authors (year) <doi:...>
+authors (year) <arXiv:...>
+authors (year, ISBN:...)
+with no space after 'doi:', 'arXiv:' and angle brackets for auto-linking.
+
+Please add small executable examples in your Rd-files.
+Something like
+\examples{
+       examples for users and checks:
+       executable in < 5 sec
+       \dontshow{
+              examples for checks:
+              executable in < 5 sec together with the examples above
+              not shown to users
+       }
+       donttest{
+              further examples for users (not used for checks)
+       }
+}
+would be desirable.
+
+Please fix and resubmit.
+
+
 ## Test environments
 * local Debian 9.3 stretch, R 3.3.3
 * local Mac OS High Sierra 10.13.3 (17D102)

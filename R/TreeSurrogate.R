@@ -47,6 +47,8 @@
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' 
+#' @references 
+#' Craven, M., & Shavlik, J. W. (1996). Extracting tree-structured representations of trained networks. In Advances in neural information processing systems (pp. 24-30).
 #' @examples 
 #' if (require("randomForest")) {
 #' # Fit a Random Forest on the Boston housing data set
