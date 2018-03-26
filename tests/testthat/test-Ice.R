@@ -43,7 +43,7 @@ test_that("centered Ice works for multiple output", {
   dat = ice.obj$results
   expect_equal(ice.obj$center.at, 10)
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", "..individual","..class.name", "y.hat"))
+  expect_equal(colnames(dat), c("..individual","..class.name", "a", "y.hat"))
   expect_equal(nrow(dat), (grid.size + 1) * nrow(X) * 2)  
   expect_equal(nrow(unique(dat)), (grid.size + 1) * nrow(X) * 2)
   expect_equal(max(dat$a), 10)

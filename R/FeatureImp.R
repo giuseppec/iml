@@ -217,7 +217,6 @@ FeatureImp = R6::R6Class("FeatureImp",
 #' @param ... Further arguments for the objects plot function
 #' @return ggplot2 plot object
 #' @export
-#' @importFrom dplyr group_by_
 #' @seealso 
 #' \link{FeatureImp}
 #' @examples  

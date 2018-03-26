@@ -62,7 +62,6 @@
 #' @references 
 #' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 #' 
-#' @importFrom tidyr gather
 #' @importFrom data.table melt
 #' @import ggplot2
 #' @export
