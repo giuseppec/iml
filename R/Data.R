@@ -1,3 +1,4 @@
+#' @importFrom data.table data.table
 Data  = R6::R6Class("Data",
   public = list(
     X = NULL,
@@ -31,10 +32,10 @@ Data  = R6::R6Class("Data",
     initialize = function(X, y = NULL, prob = NULL) {
       assertDataFrame(X, all.missing = FALSE)
       assertNamed(X)
-      self$X = X
+      self$X = data.table(X)
       if (length(y) == 1 & is.character(y)) {
         assert_true(y %in% names(X))
-        self$y = X[y]
+        self$y = X[,y]
         self$y.names = y
         self$X = self$X[setdiff(colnames(X), self$y.names)]
       } else if (inherits(y, "data.frame")) {
