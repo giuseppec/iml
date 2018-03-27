@@ -140,7 +140,6 @@ FeatureImp = R6::R6Class("FeatureImp",
       private$method = method
       private$getData = private$sampler$get.xy
       actual = private$sampler$y[[1]]
-      browser()
       predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$original.error = loss(actual, predicted)
@@ -167,13 +166,13 @@ FeatureImp = R6::R6Class("FeatureImp",
         X.inter[, (feature.name) :=  shuffled.features] 
         X.inter = X.inter[keep.indices,]
         X.inter
-        } else {
+      } else {
         stop(sprintf("%s method not implemented"))
       }
       X.inter$..feature = feature.name
       X.inter 
     },
-    q = function(pred) probs.to.labels(pred, levels = private$sampler$y.names),
+    q = function(pred) probs.to.labels(pred),
     intervene = function() {
       X.inter.list = lapply(private$sampler$feature.names, 
         function(i) private$shuffleFeature(i, method = private$method))

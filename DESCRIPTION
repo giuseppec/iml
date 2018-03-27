@@ -17,8 +17,6 @@ Description: Interpretability methods to analyze the behavior and predictions of
  tree surrogate models.
 Imports: R6,
          checkmate,
-         dplyr, 
-         tidyr, 
          ggplot2,
          partykit,
          glmnet, 
