@@ -4,7 +4,7 @@ context("Predictor")
 library("mlr")
 library("randomForest")
 library("caret")
-
+library("data.table")
 
 ## mlr
 task = mlr::makeClassifTask(data = iris, target = "Species")

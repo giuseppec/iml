@@ -30,7 +30,11 @@ probs.to.labels = function(prediction, levels = NULL) {
   checkmate::assert_data_frame(prediction)
   if (ncol(prediction) > 1) {
     prediction = colnames(prediction)[apply(prediction, 1, which.max)]
-    data.frame(..class = prediction)
+    dat = data.frame(..class = prediction)
+    if (!is.null(levels)) {
+      dat$..class = factor(dat$..class, levels = levels)
+    }
+    dat
   } else {
     prediction
   }

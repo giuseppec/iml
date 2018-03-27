@@ -65,6 +65,7 @@
 #' Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #' 
 #' @import Metrics
+#' @importFrom data.table copy rbindlist
 #' @examples
 #' if (require("rpart")) {
 #' # We train a tree on the Boston dataset:
@@ -121,7 +122,6 @@ FeatureImp = R6::R6Class("FeatureImp",
     original.error = NULL,
     initialize = function(predictor, loss, method = "shuffle", run = TRUE) {
       assert_choice(method, c("shuffle", "cartesian"))
-      
       if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
         allowedLosses = c("ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
@@ -140,6 +140,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       private$method = method
       private$getData = private$sampler$get.xy
       actual = private$sampler$y[[1]]
+      browser()
       predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$original.error = loss(actual, predicted)
@@ -152,8 +153,9 @@ FeatureImp = R6::R6Class("FeatureImp",
     loss.string = NULL,
     shuffleFeature = function(feature.name, method) {
       if (method == "shuffle") {
-        X.inter = private$dataSample
-        X.inter[feature.name] = X.inter[sample(1:nrow(private$dataSample)), feature.name]
+        X.inter = copy(private$dataSample)
+        sampled.features = sample(X.inter[[feature.name]])
+        X.inter[, (feature.name) := sampled.features]
       } else if (method == "cartesian") {
         n = nrow(private$dataSample)
         row.indices = rep(1:n, times = n)
@@ -161,30 +163,31 @@ FeatureImp = R6::R6Class("FeatureImp",
         # Indices of instances to keep. Removes those where instance matched with own value
         keep.indices = row.indices != replace.indices
         X.inter = private$dataSample[row.indices, ]
-        X.inter[feature.name] = X.inter[replace.indices, feature.name]
+        shuffled.features =  X.inter[replace.indices, feature.name, with = FALSE][[1]]
+        X.inter[, (feature.name) :=  shuffled.features] 
         X.inter = X.inter[keep.indices,]
-      } else {
+        X.inter
+        } else {
         stop(sprintf("%s method not implemented"))
       }
       X.inter$..feature = feature.name
       X.inter 
     },
-    q = function(pred) probs.to.labels(pred),
+    q = function(pred) probs.to.labels(pred, levels = private$sampler$y.names),
     intervene = function() {
       X.inter.list = lapply(private$sampler$feature.names, 
         function(i) private$shuffleFeature(i, method = private$method))
-      data.frame(data.table::rbindlist(X.inter.list))
+      rbindlist(X.inter.list)
     },
     aggregate = function() {
-      y = private$dataDesign[private$sampler$y.names]
+      y = private$dataDesign[, private$sampler$y.names, with = FALSE]
       y.hat = private$qResults
       # For classification we work with the class labels instead of probs
-      result = data.frame(feature = private$dataDesign$..feature, actual = y[[1]], 
+      result = data.table(feature = private$dataDesign$..feature, actual = y[[1]], 
         predicted = y.hat[[1]])
-      
-      result.grouped  = group_by_(result, "feature")
-      result = summarise(result.grouped, original.error = self$original.error, permutation.error = self$loss(actual, predicted), 
-        importance = permutation.error / self$original.error)
+      result = result[, list("original.error" = self$original.error, 
+        "permutation.error" = self$loss(actual, predicted)), by = feature]
+      result[, importance := permutation.error / self$original.error]
       result = result[order(result$importance, decreasing = TRUE),]
       result
     },

@@ -2,6 +2,7 @@
 f = function(newdata, multi = FALSE) {
   pred = unlist(newdata[, 1] + newdata[, 2] + 100 * (newdata[3] == "a")) / (155)
   dat = data.frame(pred = pred)
+  colnames(dat) = "pred"
   if (multi) dat$pred2 = 1 - dat$pred
   dat
 }
