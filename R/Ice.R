@@ -60,7 +60,6 @@
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
 #' @seealso 
 #' \link{PartialDependence} for partial dependence plots (aggregated ice plots)
-#' @importFrom dplyr left_join
 
 #' @examples
 #' # We train a random forest on the Boston dataset:
@@ -141,9 +140,9 @@ Ice = R6::R6Class("Ice",
   ),
   private = list(
     generatePlot = function() {
-      p = ggplot(self$results, mapping = aes_string(x = names(self$results)[1], 
+      p = ggplot(self$results, mapping = aes_string(x = self$feature.name, 
         y = "y.hat", group = "..individual"))
-      if (self$feature.type == "numerical") p = p + geom_line()
+      if (self$feature.type == "numerical") p = p + geom_line(alpha = 0.5)
       else if (self$feature.type == "categorical") {
         p = p + geom_line(alpha = 0.2) 
       }
@@ -156,7 +155,7 @@ Ice = R6::R6Class("Ice",
       dataDesign = super$intervene()
       if (!is.null(private$anchor.value)) {
         dataDesign.anchor = private$dataSample
-        dataDesign.anchor[self$feature.index] = private$anchor.value
+        dataDesign.anchor[, self$feature.index] = private$anchor.value
         private$dataDesign.ids = c(private$dataDesign.ids, 1:nrow(private$dataSample))
         dataDesign = rbind(dataDesign, dataDesign.anchor)
       }
@@ -164,21 +163,25 @@ Ice = R6::R6Class("Ice",
     },
     aggregate = function() {
       X.id = private$dataDesign.ids
-      X.results = private$dataDesign[self$feature.index]
+      X.results = private$dataDesign[, self$feature.index, with = FALSE]
       X.results$..individual = X.id
       if (private$multiClass) {
         y.hat.names = colnames(private$qResults)
         X.results = cbind(X.results, private$qResults)
-        X.results = gather(X.results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
+        X.results = melt(X.results, variable.name = "..class.name", 
+          value.name = "y.hat", measure.vars = y.hat.names)
       } else {
-        X.results["y.hat"]= private$qResults
-        X.results["..class.name"] = 1
+        X.results$y.hat= private$qResults
+        X.results$..class.name = 1
       }
       
       if (!is.null(private$anchor.value)) {
-        X.aggregated.anchor = X.results[X.results[self$feature.name] == private$anchor.value, c("y.hat", "..individual", "..class.name")]
+        anchor.index = which(X.results[,self$feature.name, with=FALSE] == private$anchor.value)
+        X.aggregated.anchor = X.results[anchor.index, c("y.hat", "..individual", "..class.name"), with = FALSE]
         names(X.aggregated.anchor) = c("anchor.yhat", "..individual", "..class.name")
-        X.results = left_join(X.results, X.aggregated.anchor, by = c("..individual", "..class.name"))
+        # In case that the anchor value was also part of grid
+        X.aggregated.anchor = unique(X.aggregated.anchor)
+        X.results = merge(X.results, X.aggregated.anchor, by = c("..individual", "..class.name"))
         X.results$y.hat = X.results$y.hat - X.results$anchor.yhat
         X.results$anchor.yhat = NULL
       }

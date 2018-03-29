@@ -62,8 +62,7 @@
 #' @references 
 #' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 #' 
-#' @importFrom tidyr gather
-#' @importFrom dplyr one_of group_by group_by_at summarise
+#' @importFrom data.table melt
 #' @import ggplot2
 #' @export
 #' @examples
@@ -147,20 +146,19 @@ PartialDependence = R6::R6Class("PartialDependence",
   ), 
   private = list(
     aggregate = function() {
-      results = private$dataDesign[self$feature.index]
+      results = private$dataDesign[, self$feature.index, with = FALSE]
       if (private$multiClass) {
         y.hat.names = colnames(private$qResults)
         results = cbind(results, private$qResults)
-        results = gather(results, key = "..class.name", value = "y.hat", one_of(y.hat.names))
+        results = melt(results, variable.name = "..class.name", value.name = "y.hat", measure.vars = y.hat.names)
       } else {
-        results["y.hat"]= private$qResults
-        results["..class.name"] = self$predictor$class
+        results[, "y.hat" := private$qResults]
       }
-      results.grouped = group_by_at(results, self$feature.name)
       if ("..class.name" %in% colnames(results)) {
-        results.grouped = group_by(results.grouped, ..class.name, add = TRUE)
+        results = results[, list(y.hat = mean(y.hat)), by = c(self$feature.name, "..class.name")]
+      } else {
+        results = results[, list(y.hat = mean(y.hat)), by = c(self$feature.name)]
       }
-      results = data.frame(summarise(results.grouped, y.hat = mean(y.hat)))
       results 
     },
     intervene = function() {
@@ -168,13 +166,13 @@ PartialDependence = R6::R6Class("PartialDependence",
       
       private$dataDesign.ids = rep(1:nrow(private$dataSample), times = length(grid))
       dataDesign = private$dataSample[private$dataDesign.ids,]
-      dataDesign[self$feature.index[1]] = rep(grid, each = nrow(private$dataSample))
+      dataDesign[, self$feature.index[1]] = rep(grid, each = nrow(private$dataSample))
       
       if (self$n.features == 2) {
         grid2 = get.1D.grid(private$dataSample[[self$feature.index[2]]], self$feature.type[2], self$grid.size[2])
         private$dataDesign.ids = rep(private$dataDesign.ids, times = length(grid2))
         dataDesign2 = dataDesign[rep(1:nrow(dataDesign), times = length(grid2)), ]
-        dataDesign2[self$feature.index[2]] = rep(grid2, each = nrow(dataDesign))
+        dataDesign2[, self$feature.index[2]] = rep(grid2, each = nrow(dataDesign))
         return(dataDesign2)
       }
       dataDesign

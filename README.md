@@ -54,26 +54,26 @@ imp = FeatureImp$new(model, loss = "mae")
 plot(imp)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-3-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 ``` r
 imp$results
 ```
 
-    ##    feature original.error permutationError importance
-    ## 1    lstat       1.004678         4.235347   4.215628
-    ## 2       rm       1.004678         3.273892   3.258649
-    ## 3     crim       1.004678         1.731467   1.723405
-    ## 4  ptratio       1.004678         1.729005   1.720955
-    ## 5      nox       1.004678         1.661731   1.653994
-    ## 6      dis       1.004678         1.653906   1.646205
-    ## 7    indus       1.004678         1.608825   1.601335
-    ## 8      age       1.004678         1.378753   1.372334
-    ## 9      tax       1.004678         1.360375   1.354041
-    ## 10   black       1.004678         1.246488   1.240685
-    ## 11     rad       1.004678         1.161532   1.156124
-    ## 12      zn       1.004678         1.061880   1.056936
-    ## 13    chas       1.004678         1.034714   1.029897
+    ##    feature original.error permutation.error importance
+    ## 1    lstat       1.004678          4.235347   4.215628
+    ## 2       rm       1.004678          3.273892   3.258649
+    ## 3     crim       1.004678          1.731467   1.723405
+    ## 4  ptratio       1.004678          1.729005   1.720955
+    ## 5      nox       1.004678          1.661731   1.653994
+    ## 6      dis       1.004678          1.653906   1.646205
+    ## 7    indus       1.004678          1.608825   1.601335
+    ## 8      age       1.004678          1.378753   1.372334
+    ## 9      tax       1.004678          1.360375   1.354041
+    ## 10   black       1.004678          1.246488   1.240685
+    ## 11     rad       1.004678          1.161532   1.156124
+    ## 12      zn       1.004678          1.061880   1.056936
+    ## 13    chas       1.004678          1.034714   1.029897
 
 ### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
 
@@ -82,7 +82,7 @@ tree = TreeSurrogate$new(model, maxdepth = 2)
 plot(tree)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ### How does lstat influence the prediction on average? (Partial dependence plot)
 
@@ -91,7 +91,7 @@ pdp.obj = PartialDependence$new(model, feature = "lstat")
 plot(pdp.obj)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-5-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 ### How does lstat influence the individual predictions? (ICE)
 
@@ -100,7 +100,7 @@ ice.curves = Ice$new(model, feature = "lstat")
 plot(ice.curves) 
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-6-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 ### Explain a single prediction with a local linear model. (LIME)
 
@@ -118,7 +118,7 @@ lime.explain$results
 plot(lime.explain)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-7-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ### Explain a single prediction with game theory. (Shapley)
 
@@ -128,25 +128,25 @@ shapley.explain$results
 ```
 
     ##    feature           phi      phi.var feature.value
-    ## 1      age -0.0850019791  0.333944689  crim=0.00632
-    ## 2    black -0.0008046753  0.267453217         zn=18
-    ## 3     chas -0.0240226667  0.009907358    indus=2.31
-    ## 4     crim -0.0723403620  1.236298269        chas=0
-    ## 5      dis -0.1753825842  1.089173160     nox=0.538
-    ## 6    indus  0.7402716277  1.556442963      rm=6.575
-    ## 7    lstat  3.7001500745 19.387675029      age=65.2
-    ## 8      nox -0.1974995303  0.727310327      dis=4.09
-    ## 9  ptratio  0.7285225750  1.220922649         rad=1
-    ## 10     rad -0.4722923333  0.407054214       tax=296
-    ## 11      rm -0.0752455000  7.788278183  ptratio=15.3
-    ## 12     tax -0.1853100000  0.393279176   black=396.9
-    ## 13      zn -0.0950710000  0.042044428    lstat=4.98
+    ## 1     crim -0.0723403620  1.236298269  crim=0.00632
+    ## 2       zn -0.0950710000  0.042044428         zn=18
+    ## 3    indus  0.7402716277  1.556442963    indus=2.31
+    ## 4     chas -0.0240226667  0.009907358        chas=0
+    ## 5      nox -0.1974995303  0.727310327     nox=0.538
+    ## 6       rm -0.0752455000  7.788278183      rm=6.575
+    ## 7      age -0.0850019791  0.333944689      age=65.2
+    ## 8      dis -0.1753825842  1.089173160      dis=4.09
+    ## 9      rad -0.4722923333  0.407054214         rad=1
+    ## 10     tax -0.1853100000  0.393279176       tax=296
+    ## 11 ptratio  0.7285225750  1.220922649  ptratio=15.3
+    ## 12   black -0.0008046753  0.267453217   black=396.9
+    ## 13   lstat  3.7001500745 19.387675029    lstat=4.98
 
 ``` r
 plot(shapley.explain)
 ```
 
-![](README_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 Python Implementation
 =====================

@@ -128,13 +128,13 @@ Shapley = R6::R6Class("Shapley",
       y.hat.without.k = private$qResults[(nrow(private$qResults)/2 + 1):nrow(private$qResults), , drop = FALSE]
       y.hat.diff = y.hat.with.k - y.hat.without.k
       cnames = colnames(y.hat.diff)
-      y.hat.diff = cbind(data.frame(feature = rep(colnames(private$dataDesign), times = self$sample.size)), 
+      y.hat.diff = cbind(data.table(feature = rep(colnames(private$dataDesign), times = self$sample.size)), 
         y.hat.diff)
-      y.hat.diff = gather(y.hat.diff, key = "class", "value", one_of(cnames))
-      y.hat.diff.grouped  =   group_by(y.hat.diff, feature, class)
-      y.hat.diff = summarise(y.hat.diff.grouped, phi = mean(value), phi.var = var(value))
+      y.hat.diff = melt(y.hat.diff, variable.name = "class", value.name = "value", measure.vars = cnames)
+      y.hat.diff = y.hat.diff[, list("phi" = mean(value), "phi.var" = var(value)), by = c("feature", "class")]
       if (!private$multiClass) y.hat.diff$class = NULL
-      y.hat.diff$feature.value = sprintf('%s=%s', colnames(self$x.interest), self$x.interest)
+      x.original = unlist(lapply(self$x.interest[1,], as.character))
+      y.hat.diff$feature.value = sprintf('%s=%s', colnames(self$x.interest), x.original)
       y.hat.diff
     },
     intervene = function() {
@@ -143,19 +143,20 @@ Shapley = R6::R6Class("Shapley",
         # randomly order features
         new.feature.order = sample(1:private$sampler$n.features)
         # randomly choose sample instance from X
-        sample.instance.shuffled = private$dataSample[sample(1:nrow(private$dataSample), 1), new.feature.order]
-        x.interest.shuffled = self$x.interest[new.feature.order]
+        sample.instance.shuffled = private$dataSample[sample(1:nrow(private$dataSample), 1), new.feature.order, with = FALSE]
+        x.interest.shuffled = self$x.interest[, new.feature.order]
         
         featurewise = lapply(1:private$sampler$n.features, function(k) {
           k.at.index = which(new.feature.order == k)
           instance.with.k = x.interest.shuffled
           if (k.at.index < ncol(self$x.interest)) {
-            instance.with.k[(k.at.index + 1):ncol(instance.with.k)] =
-              sample.instance.shuffled[(k.at.index + 1):ncol(instance.with.k)]
+            instance.with.k[, (k.at.index + 1):ncol(instance.with.k)] =
+              sample.instance.shuffled[, (k.at.index + 1):ncol(instance.with.k), with = FALSE]
           }
           instance.without.k = instance.with.k
-          instance.without.k[k.at.index] = sample.instance.shuffled[k.at.index]
-          cbind(instance.with.k[private$sampler$feature.names], instance.without.k[private$sampler$feature.names])
+          instance.without.k[, k.at.index] = sample.instance.shuffled[, k.at.index, with = FALSE]
+          cbind(instance.with.k[, private$sampler$feature.names], 
+            instance.without.k[, private$sampler$feature.names])
         }) 
         data.table::rbindlist(featurewise)
         

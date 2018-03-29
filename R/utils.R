@@ -26,10 +26,11 @@ has.predict = function(object) {
 
 
 # Turn class probabilities into class labels
-probs.to.labels = function(prediction, levels = NULL) {
+probs.to.labels = function(prediction) {
   checkmate::assert_data_frame(prediction)
   if (ncol(prediction) > 1) {
-    prediction = colnames(prediction)[apply(prediction, 1, which.max)]
+    levels = colnames(prediction)
+    prediction = factor(colnames(prediction)[apply(prediction, 1, which.max)], levels = levels)
     data.frame(..class = prediction)
   } else {
     prediction

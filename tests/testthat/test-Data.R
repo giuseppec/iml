@@ -13,7 +13,7 @@ sample2 = ds.weighted$sample(n)
 test_that("samplings works",{
   expect_class(sample1, "data.frame")
   expect_equal(colnames(sample1), colnames(iris))
-  expect_equal(ds$get.x(), iris)
+  expect_equal(ds$get.x(), data.table(iris))
   expect_equal(ds$feature.names, colnames(iris))
   expect_equal(ds$feature.types, c(Sepal.Length="numerical", 
     Sepal.Width = "numerical", Petal.Length = "numerical", Petal.Width =  "numerical", 
