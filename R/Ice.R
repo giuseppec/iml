@@ -140,9 +140,9 @@ Ice = R6::R6Class("Ice",
   ),
   private = list(
     generatePlot = function() {
-      p = ggplot(self$results, mapping = aes_string(x = names(self$results)[1], 
+      p = ggplot(self$results, mapping = aes_string(x = self$feature.name, 
         y = "y.hat", group = "..individual"))
-      if (self$feature.type == "numerical") p = p + geom_line()
+      if (self$feature.type == "numerical") p = p + geom_line(alpha = 0.5)
       else if (self$feature.type == "categorical") {
         p = p + geom_line(alpha = 0.2) 
       }
@@ -179,6 +179,8 @@ Ice = R6::R6Class("Ice",
         anchor.index = which(X.results[,self$feature.name, with=FALSE] == private$anchor.value)
         X.aggregated.anchor = X.results[anchor.index, c("y.hat", "..individual", "..class.name"), with = FALSE]
         names(X.aggregated.anchor) = c("anchor.yhat", "..individual", "..class.name")
+        # In case that the anchor value was also part of grid
+        X.aggregated.anchor = unique(X.aggregated.anchor)
         X.results = merge(X.results, X.aggregated.anchor, by = c("..individual", "..class.name"))
         X.results$y.hat = X.results$y.hat - X.results$anchor.yhat
         X.results$anchor.yhat = NULL
