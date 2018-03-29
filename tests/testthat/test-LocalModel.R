@@ -26,6 +26,17 @@ test_that("LocalModel works for single output and single feature", {
   pred = predict(LocalModel1, newdata = X[3:4,])
   expect_data_frame(pred, nrows = 2)
   expect_equal(colnames(pred), "prediction")
+  
+  LocalModel1 = LocalModel$new(predictor1, x.interest=x.interest, k = k, 
+    dist.fun = "euclidean", kernel.width = 1)
+  LocalModel1$explain(x.interest2)
+  dat = LocalModel1$results
+  expect_equal(colnames(dat), expected.colnames)
+  expect_lte(nrow(dat), k)  
+  
+  pred = predict(LocalModel1, newdata = X[3:4,])
+  expect_data_frame(pred, nrows = 2)
+  expect_equal(colnames(pred), "prediction")
 })
 
 test_that("LocalModel works for multiple output", {
