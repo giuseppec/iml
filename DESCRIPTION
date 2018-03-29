@@ -30,6 +30,7 @@ Suggests: randomForest,
           caret,
           e1071, 
           lime,
-          mlr
+          mlr,
+          covr
 License: MIT + file LICENSE
 RoxygenNote: 6.0.1
