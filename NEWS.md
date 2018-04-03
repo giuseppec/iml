@@ -1,5 +1,6 @@
 # iml 0.3 (In PROGRESS)
 * FeatureImp$results column permutationError renamed to permutation.error
+* Allow setting distance function in LocalModel
 
 # iml 0.2
 * The API has been  reworked: 
