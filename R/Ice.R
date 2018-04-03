@@ -139,17 +139,24 @@ Ice = R6::R6Class("Ice",
     }
   ),
   private = list(
-    generatePlot = function() {
+    generatePlot = function(rug = TRUE) {
       p = ggplot(self$results, mapping = aes_string(x = self$feature.name, 
         y = "y.hat", group = "..individual"))
       if (self$feature.type == "numerical") p = p + geom_line(alpha = 0.5)
       else if (self$feature.type == "categorical") {
-        p = p + geom_line(alpha = 0.2) 
+        p = p + geom_boxplot(aes_string(group = self$feature.name)) 
       }
       if (private$multiClass) {
         p = p + facet_wrap("..class.name")
       } 
-      p +  scale_y_continuous(expression(hat(y)))
+      if (rug) {
+        rug.dat = cbind(private$sampler$get.x(), 
+          data.frame(y.hat = self$results$y.hat[1], ..individual = 1))
+        rug.dat = rug.dat[sample(1:nrow(rug.dat)),]
+        p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = "b", 
+          position = position_jitter(width = 0.1, height = 0.1))
+      }
+      p + scale_y_continuous(expression(hat(y)))
     }, 
     intervene = function() {
       dataDesign = super$intervene()
@@ -208,6 +215,7 @@ Ice = R6::R6Class("Ice",
 #' plot.Ice() plots the individiual expectation results from an Ice object.
 #' 
 #' @param x An Ice R6 object
+#' @param rug [logical] Should a rug be plotted to indicate the feature distribution?
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Ice}

@@ -189,7 +189,7 @@ PartialDependence = R6::R6Class("PartialDependence",
       cat("features:", paste(sprintf("%s[%s]", self$feature.name, self$feature.type), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
-    generatePlot = function() {
+    generatePlot = function(rug = TRUE) {
       if (self$n.features == 1) {
         p = ggplot(self$results, mapping = aes_string(x = self$feature.name,"y.hat")) + 
           scale_y_continuous(expression(hat(y)))
@@ -201,19 +201,24 @@ PartialDependence = R6::R6Class("PartialDependence",
         
       } else if (self$n.features == 2) {
         if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
-          p = ggplot(self$results) + 
-            geom_tile(aes_string(x = self$feature.name[1], 
-              y = self$feature.name[2], 
-              fill = "y.hat")) + 
+          p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
+            y = self$feature.name[2], 
+            fill = "y.hat")) + geom_tile() + 
             scale_fill_continuous(expression(hat(y)))
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
-          p = ggplot(self$results) + 
-            geom_line(aes_string(x = numerical.feature, y = "y.hat", 
-              group = categorical.feature, color = categorical.feature)) + 
-            scale_y_continuous(expression(hat(y)))
+          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = "y.hat", 
+            group = categorical.feature, color = categorical.feature)) + 
+            geom_line() + scale_y_continuous(expression(hat(y)))
         }
+      }
+      if (rug) {
+        rug.dat = cbind(private$sampler$get.x(), data.frame(y.hat = self$results$y.hat[1]))
+        rug.dat = rug.dat[sample(1:nrow(rug.dat)),]
+        sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
+        p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
+          position = position_jitter(width = 0.1, height = 0.1))
       }
       if (private$multiClass) {
         p = p + facet_wrap("..class.name")
@@ -258,6 +263,7 @@ PartialDependence = R6::R6Class("PartialDependence",
 #' plot.PartialDependence() plots the results of a PartialDependence object.
 #' 
 #' @param x A PartialDependence R6 object
+#' @param rug [logical] Should a rug be plotted to indicate the feature distribution?
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{PartialDependence}
@@ -274,8 +280,8 @@ PartialDependence = R6::R6Class("PartialDependence",
 #' # Plot the results directly
 #' plot(pdp.obj)
 #' }
-plot.PartialDependence = function(x) {
-  x$plot()
+plot.PartialDependence = function(x, rug = TRUE) {
+  x$plot(rug)
 }
 
 

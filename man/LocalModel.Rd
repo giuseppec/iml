@@ -10,7 +10,8 @@
 \section{Usage}{
 
 \preformatted{
-lime = LocalModel$new(predictor, x.interest = NULL, k = 3 run = TRUE)
+lime = LocalModel$new(predictor, x.interest = NULL, dist.fun = "gower",  
+                      kernel.width = NULL, k = 3 run = TRUE)
 
 plot(lime)
 predict(lime, newdata)
@@ -27,7 +28,8 @@ For LocalModel$new():
 \describe{
 \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 \item{x.interest}{data.frame with a single row for the instance to be explained.}
-\item{dist.fun}{[character] The name of the distance function for computing similarities. Defaults to "gower". Otherwise will be forwarded to [stats::dist].}
+\item{dist.fun}{[character] The name of the distance function for computing proximities (weights in the linear model). Defaults to "gower". Otherwise will be forwarded to [stats::dist].}
+\item{kernel.width}{[numeric] The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
 \item{k}{the (maximum) number of features to be used for the surrogate model.}
 \item{run}{logical. Should the Interpretation method be run?}
 }

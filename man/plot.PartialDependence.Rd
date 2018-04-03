@@ -4,10 +4,12 @@
 \alias{plot.PartialDependence}
 \title{Plot Partial Dependence}
 \usage{
-\method{plot}{PartialDependence}(x)
+\method{plot}{PartialDependence}(x, rug = TRUE)
 }
 \arguments{
 \item{x}{A PartialDependence R6 object}
+
+\item{rug}{[logical] Should a rug be plotted to indicate the feature distribution?}
 }
 \value{
 ggplot2 plot object

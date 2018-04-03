@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{An Ice R6 object}
+
+\item{rug}{[logical] Should a rug be plotted to indicate the feature distribution?}
 }
 \value{
 ggplot2 plot object
