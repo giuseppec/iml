@@ -124,88 +124,13 @@ NULL
 #' @export
 
 Ice = R6::R6Class("Ice",
-  inherit = PartialDependence,
+  inherit = Partial,
   public = list( 
     initialize = function(predictor, feature, grid.size = 20, center.at = NULL, run = TRUE) {
-      checkmate::assert_number(center.at, null.ok = TRUE)
-      private$anchor.value = center.at
-      super$initialize(predictor = predictor,  feature=feature, run = run, 
-        grid.size = grid.size)
-    }, 
-    center = function(center.at) {
-      private$anchor.value = center.at
-      private$flush()
-      self$run()
-    }
-  ),
-  private = list(
-    generatePlot = function(rug = TRUE) {
-      p = ggplot(self$results, mapping = aes_string(x = self$feature.name, 
-        y = "y.hat", group = "..individual"))
-      if (self$feature.type == "numerical") p = p + geom_line(alpha = 0.5)
-      else if (self$feature.type == "categorical") {
-        p = p + geom_boxplot(aes_string(group = self$feature.name)) 
-      }
-      if (private$multiClass) {
-        p = p + facet_wrap("..class.name")
-      } 
-      if (rug) {
-        rug.dat = cbind(private$sampler$get.x(), 
-          data.frame(y.hat = self$results$y.hat[1], ..individual = 1))
-        rug.dat = rug.dat[sample(1:nrow(rug.dat)),]
-        p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = "b", 
-          position = position_jitter(width = 0.1, height = 0.1))
-      }
-      p + scale_y_continuous(expression(hat(y)))
-    }, 
-    intervene = function() {
-      dataDesign = super$intervene()
-      if (!is.null(private$anchor.value)) {
-        dataDesign.anchor = private$dataSample
-        dataDesign.anchor[, self$feature.index] = private$anchor.value
-        private$dataDesign.ids = c(private$dataDesign.ids, 1:nrow(private$dataSample))
-        dataDesign = rbind(dataDesign, dataDesign.anchor)
-      }
-      dataDesign
-    },
-    aggregate = function() {
-      X.id = private$dataDesign.ids
-      X.results = private$dataDesign[, self$feature.index, with = FALSE]
-      X.results$..individual = X.id
-      if (private$multiClass) {
-        y.hat.names = colnames(private$qResults)
-        X.results = cbind(X.results, private$qResults)
-        X.results = melt(X.results, variable.name = "..class.name", 
-          value.name = "y.hat", measure.vars = y.hat.names)
-      } else {
-        X.results$y.hat= private$qResults
-        X.results$..class.name = 1
-      }
-      
-      if (!is.null(private$anchor.value)) {
-        anchor.index = which(X.results[,self$feature.name, with=FALSE] == private$anchor.value)
-        X.aggregated.anchor = X.results[anchor.index, c("y.hat", "..individual", "..class.name"), with = FALSE]
-        names(X.aggregated.anchor) = c("anchor.yhat", "..individual", "..class.name")
-        # In case that the anchor value was also part of grid
-        X.aggregated.anchor = unique(X.aggregated.anchor)
-        X.results = merge(X.results, X.aggregated.anchor, by = c("..individual", "..class.name"))
-        X.results$y.hat = X.results$y.hat - X.results$anchor.yhat
-        X.results$anchor.yhat = NULL
-      }
-      
-      # Remove class name column again if single output
-      if (!private$multiClass) {
-        X.results$..class.name = NULL
-      }
-      
-      X.results
-    },
-    anchor.value = NULL
-  ),
-  active = list(
-    center.at = function(x) {
-      if(!missing(x)) warning("Please use $center() to change the value.")
-      return(private$anchor.value)
+      .Deprecated("Partial", msg = "The use of the 'Ice' class is deprecated and it will 
+        be removed starting from version 0.4. Please use the 'Partial' class instead.")
+      super$initialize(predictor, feature, ice = TRUE, aggregation = "none", 
+        grid.size = grid.size, center.at = center.at, run = TRUE)
     }
   )
 )
@@ -232,7 +157,7 @@ Ice = R6::R6Class("Ice",
 #' # Plot the results directly
 #' plot(ice)
 #' }
-plot.Ice = function(x) {
-  x$plot()
+plot.Ice = function(x, rug = TRUE) {
+  x$plot(rug)
 }
 

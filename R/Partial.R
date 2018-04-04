@@ -23,7 +23,7 @@
 #' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{feature}{The feature name or index for which to compute the partial dependencies. 
 #' Either a single number or vector of two numbers.}
-#' \item{individual}{Should individual curves be calculated?}
+#' \item{ice}{Should individual curves be calculated?}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' }
@@ -126,27 +126,27 @@ NULL
 Partial = R6::R6Class("Partial", 
   inherit = InterpretationMethod,
   public = list(
-    individual = NULL,
+    ice = NULL,
     aggregation = NULL,
     grid.size = NULL, 
     feature.index = NULL, 
     feature.name = NULL,
     n.features = NULL, 
     feature.type= NULL,
-    initialize = function(predictor, feature, individual = TRUE, aggregation = "pdp", center.at = NULL, grid.size = 20, run = TRUE) {
+    initialize = function(predictor, feature, ice = TRUE, aggregation = "pdp", center.at = NULL, grid.size = 20, run = TRUE) {
       feature = private$sanitizeFeature(feature, predictor$data$feature.names)
       assert_numeric(feature, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_number(center.at, null.ok = TRUE)
-      assert_logical(individual)
+      assert_logical(ice)
       assert_choice(aggregation, c("none", "pdp"))
-      if (aggregation == "none" & !individual) stop("individual can't be FALSE and aggregation 'none' at the same time")
+      if (aggregation == "none" & !ice) stop("ice can't be FALSE and aggregation 'none' at the same time")
       if (length(feature) == 2) { 
         assert_false(feature[1] == feature[2])
-        assert_false(individual)
+        assert_false(ice)
       }
       private$anchor.value = center.at
-      self$individual = individual
+      self$ice = ice
       self$aggregation = aggregation
       super$initialize(predictor)
       private$setFeatureFromIndex(feature)
@@ -170,71 +170,73 @@ Partial = R6::R6Class("Partial",
   private = list(
     anchor.value = NULL,
     aggregate = function() {
-      X.id = private$dataDesign.ids
-      results.individual = private$dataDesign[, self$feature.index, with = FALSE]
-      results.individual$..individual = X.id
+      x.id = private$data.design.id
+      results.ice = private$dataDesign[, self$feature.index, with = FALSE]
+      results.ice$..id = x.id
       if (private$multiClass) {
         y.hat.names = colnames(private$qResults)
-        results.individual = cbind(results.individual, private$qResults)
-        results.individual = melt(results.individual, variable.name = "..class.name", 
-          value.name = "y.hat", measure.vars = y.hat.names)
+        results.ice = cbind(results.ice, private$qResults)
+        results.ice = melt(results.ice, variable.name = "..class.name", 
+          value.name = "..y.hat", measure.vars = y.hat.names)
       } else {
-        results.individual[, "y.hat" := private$qResults]
-        results.individual$..class.name = 1
+        results.ice[, "..y.hat" := private$qResults]
+        results.ice$..class.name = 1
         
       }
       
       if (!is.null(private$anchor.value)) {
-        anchor.index = which(results.individual[,self$feature.name, with=FALSE] == private$anchor.value)
-        X.aggregated.anchor = results.individual[anchor.index, c("y.hat", "..individual", "..class.name"), with = FALSE]
-        names(X.aggregated.anchor) = c("anchor.yhat", "..individual", "..class.name")
+        anchor.index = which(results.ice[,self$feature.name, with=FALSE] == private$anchor.value)
+        X.aggregated.anchor = results.ice[anchor.index, c("..y.hat", "..id", "..class.name"), with = FALSE]
+        names(X.aggregated.anchor) = c("anchor.yhat", "..id", "..class.name")
         # In case that the anchor value was also part of grid
         X.aggregated.anchor = unique(X.aggregated.anchor)
-        results.individual = merge(results.individual, X.aggregated.anchor, by = c("..individual", "..class.name"))
-        results.individual$y.hat = results.individual$y.hat - results.individual$anchor.yhat
-        results.individual$anchor.yhat = NULL
+        results.ice = merge(results.ice, X.aggregated.anchor, by = c("..id", "..class.name"))
+        results.ice$..y.hat = results.ice$..y.hat - results.ice$anchor.yhat
+        results.ice$anchor.yhat = NULL
       }
       
       results = data.table()
       if (self$aggregation == "pdp") {
-        if ("..class.name" %in% colnames(results.individual)) {
-          results.aggregated = results.individual[, list(y.hat = mean(y.hat)), 
+        if ("..class.name" %in% colnames(results.ice)) {
+          results.aggregated = results.ice[, list(..y.hat = mean(..y.hat)), 
             by = c(self$feature.name, "..class.name")]
         } else {
-          results.aggregated = results.individual[, list(y.hat = mean(y.hat)), 
+          results.aggregated = results.ice[, list(..y.hat = mean(..y.hat)), 
             by = c(self$feature.name)]
         }
-        results.aggregated$..individual = NA
+        results.aggregated$..id = NA
+        results.aggregated$..type = "pdp"
         results = rbind(results, results.aggregated)
       }
-      if (self$individual) {
-        results = rbind(results, results.individual)
+      if (self$ice) {
+        results.ice$..type = "ice"
+        results = rbind(results, results.ice)
       }
       results
     },
     intervene = function() {
       grid = get.1D.grid(private$dataSample[[self$feature.index[1]]], self$feature.type[1], self$grid.size[1])
       
-      private$dataDesign.ids = rep(1:nrow(private$dataSample), times = length(grid))
-      dataDesign = private$dataSample[private$dataDesign.ids,]
+      private$data.design.id = rep(1:nrow(private$dataSample), times = length(grid))
+      dataDesign = private$dataSample[private$data.design.id,]
       dataDesign[, self$feature.index[1]] = rep(grid, each = nrow(private$dataSample))
       
       if (!is.null(private$anchor.value)) {
         dataDesign.anchor = private$dataSample
         dataDesign.anchor[, self$feature.index] = private$anchor.value
-        private$dataDesign.ids = c(private$dataDesign.ids, 1:nrow(private$dataSample))
+        private$data.design.id = c(private$data.design.id, 1:nrow(private$dataSample))
         dataDesign = rbind(dataDesign, dataDesign.anchor)
       }
       if (self$n.features == 2) {
         grid2 = get.1D.grid(private$dataSample[[self$feature.index[2]]], self$feature.type[2], self$grid.size[2])
-        private$dataDesign.ids = rep(private$dataDesign.ids, times = length(grid2))
+        private$data.design.id = rep(private$data.design.id, times = length(grid2))
         dataDesign2 = dataDesign[rep(1:nrow(dataDesign), times = length(grid2)), ]
         dataDesign2[, self$feature.index[2]] = rep(grid2, each = nrow(dataDesign))
         return(dataDesign2)
       }
       dataDesign
     }, 
-    dataDesign.ids = NULL, 
+    data.design.id = NULL, 
     grid.size.original = NULL,
     setFeatureFromIndex = function(feature.index) {
       self$feature.index = feature.index
@@ -243,18 +245,25 @@ Partial = R6::R6Class("Partial",
       self$feature.name = private$sampler$feature.names[feature.index]
     },
     printParameters = function() {
-      cat("features:", paste(sprintf("%s[%s]", self$feature.name, self$feature.type), collapse = ", "))
+      cat("features:", paste(sprintf("%s[%s]", 
+        self$feature.name, self$feature.type), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
     generatePlot = function(rug = TRUE) {
+      if (is.null(private$anchor.value)) {
+        y.axis.label = expression(hat(y))
+      } else {
+        y.axis.label = bquote(hat(y)-hat(y)[x == .(private$anchor.value)])
+      }
+      
       if (self$n.features == 1) {
-        if (self$individual) {
-          p = ggplot(self$results[!is.na(self$results$..individual),], 
+        if (self$ice) {
+          p = ggplot(self$results[!is.na(self$results$..id),], 
             mapping = aes_string(x = self$feature.name, 
-              y = "y.hat", group = "..individual")) + scale_y_continuous(expression(hat(y)))
+              y = "..y.hat", group = "..id")) + scale_y_continuous(y.axis.label)
         } else {
-          p = ggplot(self$results, mapping = aes_string(x = self$feature.name, y = "y.hat")) + 
-            scale_y_continuous(expression(hat(y)))
+          p = ggplot(self$results, mapping = aes_string(x = self$feature.name, y = "..y.hat")) + 
+            scale_y_continuous(y.axis.label)
         }
         if (self$feature.type == "numerical") {
           p = p + geom_line(alpha = 0.2) 
@@ -262,31 +271,31 @@ Partial = R6::R6Class("Partial",
           p = p + geom_boxplot(aes_string(group = self$feature.name)) 
         }
         if (self$aggregation != "none") {
-          aggr = self$results[is.na(self$results$..individual), ]
-          if (self$individual) {
-            p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = "y.hat"), 
+          aggr = self$results[is.na(self$results$..id), ]
+          if (self$ice) {
+            p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = "..y.hat"), 
               size = 2, color = "gold") 
           }
-          p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = "y.hat"), 
+          p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = "..y.hat"), 
             size = 1, color = "black")
         }
       } else if (self$n.features == 2) {
         if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
             y = self$feature.name[2], 
-            fill = "y.hat")) + geom_tile() + 
-            scale_fill_continuous(expression(hat(y)))
+            fill = "..y.hat")) + geom_tile() + 
+            scale_fill_continuous(y.axis.label)
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
-          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = "y.hat", 
+          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = "..y.hat", 
             group = categorical.feature, color = categorical.feature)) + 
-            geom_line() + scale_y_continuous(expression(hat(y)))
+            geom_line() + scale_y_continuous(y.axis.label)
         }
       }
       if (rug) {
-        rug.dat = cbind(private$sampler$get.x(), data.frame(y.hat = self$results$y.hat[1]), 
-          ..individual = 1)
+        rug.dat = cbind(private$sampler$get.x(), data.frame(..y.hat = self$results$..y.hat[1]), 
+          ..id = 1)
         rug.dat = rug.dat[sample(1:nrow(rug.dat)),]
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
         p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
