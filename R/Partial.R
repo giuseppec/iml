@@ -1,19 +1,20 @@
-#' Partial Dependence and ICE Plot
+#' Partial Dependence and Individual Conditional Expectation
 #' 
-#' \code{Partial} computes and plots partial dependence functions of prediction models. 
+#' \code{Partial} computes and plots (individual) partial dependence functions of prediction models. 
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Partial
 #' 
 #' @section Usage:
 #' \preformatted{
-#' pdp = Partial$new(predictor, feature, grid.size = 20, run = TRUE)
+#' pd = Partial$new(predictor, feature, ice = TRUE, aggregation = "pdp", 
+#'     grid.size = 20,  center.at = NULL, run = TRUE)
 #' 
-#' plot(pdp)
-#' pdp$results
-#' print(pdp)
-#' pdp$set.feature(2)
-#' pdp$center(1)
+#' plot(pd)
+#' pd$results
+#' print(pd)
+#' pd$set.feature(2)
+#' pd$center(1)
 #' }
 #' 
 #' @section Arguments:
@@ -31,8 +32,14 @@
 #' 
 #' @section Details:
 #' The partial dependence plot calculates and plots the dependence of f(X) on a single or two features.
+#' It's the aggregate of all individual conditional expectation curves, that describe how, for a single
+#' observation, the prediction changes when the feature changes. 
+#' 
 #' To learn more about partial dependence plot, read the Interpretable Machine Learning book: 
 #' https://christophm.github.io/interpretable-ml-book/pdp.html
+#' 
+#' And for individual conditional expectation: 
+#' https://christophm.github.io/interpretable-ml-book/ice.html
 #' 
 #' 
 #' @section Fields:
@@ -51,18 +58,14 @@
 #' @section Methods:
 #' \describe{
 #' \item{center()}{method to set the value at which the ice computations are centered. See examples.}
-#' \item{set.feature}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
-#' \item{plot()}{method to plot the partial dependence function. See \link{plot.PartialDependence}}
+#' \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
+#' \item{plot()}{method to plot the partial dependence function. See \link{plot.Partial}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' @seealso 
-#' \link{plot.Partial}
-#' 
-#' \code{\link{Ice}} for individual conditional expectation plots. 
-#' 
-#' 
+#' \link{plot.Partial} 
 #' 
 #' @references 
 #' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
@@ -80,7 +83,7 @@
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the partial dependence for the first feature
-#' pdp.obj = PartialDependence$new(mod, feature = "crim")
+#' pdp.obj = Partial$new(mod, feature = "crim")
 #' 
 #' # Plot the results directly
 #' plot(pdp.obj)
@@ -97,10 +100,19 @@
 #' # You can reuse the pdp object for other features: 
 #' pdp.obj$set.feature("lstat")
 #' plot(pdp.obj)
-#' 
+#'
+#' # Only plotting the aggregated partial dependence:  
+#' pdp.obj = Partial$new(mod, feature = "crim", ice = FALSE)
+#' pdp.obj$plot() 
+#'
+#' # Only plotting the individual conditional expectation:  
+#' pdp.obj = Partial$new(mod, feature = "crim", aggregation = "none")
+#' pdp.obj$plot() 
+#'   
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = PartialDependence$new(mod, feature = c("crim", "lstat"))  
+#' pdp.obj = Partial$new(mod, feature = c("crim", "lstat"))  
 #' plot(pdp.obj)
+#' 
 #' 
 #' # Partial dependence plots also works with multiclass classification
 #' rf = randomForest(Species ~ ., data = iris, ntree=50)
@@ -108,15 +120,15 @@
 #' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(PartialDependence$new(mod, feature = "Sepal.Length"))
+#' plot(Partial$new(mod, feature = "Petal.Width"))
 #'
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = PartialDependence$new(mod, feature = c("Sepal.Length", "Petal.Length"))
+#' pdp.obj = Partial$new(mod, feature = c("Sepal.Length", "Petal.Length"))
 #' pdp.obj$plot()   
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
 #' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = 1)
-#' plot(PartialDependence$new(mod, feature = "Sepal.Length"))
+#' plot(Partial$new(mod, feature = "Sepal.Length"))
 #' }
 NULL
 
@@ -350,13 +362,13 @@ Partial = R6::R6Class("Partial",
 
 #' Plot Partial Dependence
 #' 
-#' plot.PartialDependence() plots the results of a PartialDependence object.
+#' plot.Partial() plots the results of a Partial object.
 #' 
-#' @param x A PartialDependence R6 object
+#' @param x A Partial R6 object
 #' @param rug [logical] Should a rug be plotted to indicate the feature distribution?
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{PartialDependence}
+#' \link{Partial}
 #' @examples
 #' # We train a random forest on the Boston dataset:
 #' if (require("randomForest")) {
@@ -365,19 +377,11 @@ Partial = R6::R6Class("Partial",
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the partial dependence for the first feature
-#' pdp.obj = PartialDependence$new(mod, feature = "crim")
+#' pdp.obj = Partial$new(mod, feature = "crim")
 #' 
 #' # Plot the results directly
 #' plot(pdp.obj)
 #' }
-plot.PartialDependence = function(x, rug = TRUE) {
+plot.Partial = function(x, rug = TRUE) {
   x$plot(rug)
 }
-
-
-
-
-
-
-
-
