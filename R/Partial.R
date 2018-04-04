@@ -1,6 +1,6 @@
-#' Partial Dependence Plot
+#' Partial Dependence and ICE Plot
 #' 
-#' \code{PartialDependence} computes and plots partial dependence functions of prediction models. 
+#' \code{Partial} computes and plots partial dependence functions of prediction models. 
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Partial
@@ -18,12 +18,13 @@
 #' 
 #' @section Arguments:
 #' 
-#' For PartialDependence$new():
+#' For Partial$new():
 #' \describe{
 #' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
 #' \item{feature}{The feature name or index for which to compute the partial dependencies. 
 #' Either a single number or vector of two numbers.}
-#' \item{ice}{Should individual curves be calculated?}
+#' \item{ice}{Should individual curves be calculated? Ignored in the case of two features.}
+#' \item{center.at}{Value at which the plot should be centered. Ignored in the case of two features.}
 #' \item{grid.size}{The size of the grid for evaluating the predictions}
 #' \item{run}{logical. Should the Interpretation method be run?}
 #' }
@@ -134,7 +135,7 @@ Partial = R6::R6Class("Partial",
     n.features = NULL, 
     feature.type= NULL,
     initialize = function(predictor, feature, ice = TRUE, aggregation = "pdp", center.at = NULL, grid.size = 20, run = TRUE) {
-      feature = private$sanitizeFeature(feature, predictor$data$feature.names)
+      feature = private$sanitize.feature(feature, predictor$data$feature.names)
       assert_numeric(feature, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_number(center.at, null.ok = TRUE)
@@ -143,7 +144,8 @@ Partial = R6::R6Class("Partial",
       if (aggregation == "none" & !ice) stop("ice can't be FALSE and aggregation 'none' at the same time")
       if (length(feature) == 2) { 
         assert_false(feature[1] == feature[2])
-        assert_false(ice)
+        ice = FALSE
+        center.at = NULL
       }
       private$anchor.value = center.at
       self$ice = ice
@@ -155,7 +157,7 @@ Partial = R6::R6Class("Partial",
       if(run) self$run()
     }, 
     set.feature = function(feature) {
-      feature = private$sanitizeFeature(feature, self$predictor$data$feature.names)
+      feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
       private$flush()
       private$setFeatureFromIndex(feature)
       private$set.grid.size(private$grid.size.original)
@@ -181,7 +183,6 @@ Partial = R6::R6Class("Partial",
       } else {
         results.ice[, "..y.hat" := private$qResults]
         results.ice$..class.name = 1
-        
       }
       
       if (!is.null(private$anchor.value)) {
@@ -197,20 +198,22 @@ Partial = R6::R6Class("Partial",
       
       results = data.table()
       if (self$aggregation == "pdp") {
-        if ("..class.name" %in% colnames(results.ice)) {
+        if (private$multiClass) {
           results.aggregated = results.ice[, list(..y.hat = mean(..y.hat)), 
             by = c(self$feature.name, "..class.name")]
         } else {
           results.aggregated = results.ice[, list(..y.hat = mean(..y.hat)), 
             by = c(self$feature.name)]
         }
-        results.aggregated$..id = NA
         results.aggregated$..type = "pdp"
         results = rbind(results, results.aggregated)
       }
+      if (!private$multiClass) { 
+        results.ice$..class.name = NULL
+      }
       if (self$ice) {
         results.ice$..type = "ice"
-        results = rbind(results, results.ice)
+        results = rbind(results, results.ice, fill = TRUE)
       }
       results
     },
@@ -258,7 +261,7 @@ Partial = R6::R6Class("Partial",
       
       if (self$n.features == 1) {
         if (self$ice) {
-          p = ggplot(self$results[!is.na(self$results$..id),], 
+          p = ggplot(self$results[self$results$..type == "ice",], 
             mapping = aes_string(x = self$feature.name, 
               y = "..y.hat", group = "..id")) + scale_y_continuous(y.axis.label)
         } else {
@@ -271,7 +274,7 @@ Partial = R6::R6Class("Partial",
           p = p + geom_boxplot(aes_string(group = self$feature.name)) 
         }
         if (self$aggregation != "none") {
-          aggr = self$results[is.na(self$results$..id), ]
+          aggr = self$results[self$results$..type == "pdp", ]
           if (self$ice) {
             p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = "..y.hat"), 
               size = 2, color = "gold") 
@@ -324,7 +327,7 @@ Partial = R6::R6Class("Partial",
       self$grid.size[feature.number] = ifelse(self$feature.type[feature.number] == "numerical", 
         size, length(unique(private$sampler$get.x()[[self$feature.index[feature.number]]])))
     }, 
-    sanitizeFeature = function(feature, feature.names) {
+    sanitize.feature = function(feature, feature.names) {
       if (is.character(feature)) {
         feature.char = feature
         stopifnot(all(feature %in% feature.names))
