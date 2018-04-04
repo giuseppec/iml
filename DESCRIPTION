@@ -15,6 +15,8 @@ Description: Interpretability methods to analyze the behavior and predictions of
  local models (variant of 'lime') described by Ribeiro et. al (2016) <arXiv:1602.04938>,
  the Shapley Value described by Strumbelj et. al (2014) <doi:10.1007/s10115-013-0679-x> and
  tree surrogate models.
+URL: https://github.com/christophM/iml
+BugReports: https://github.com/christophM/iml/issues
 Imports: R6,
          checkmate,
          ggplot2,
