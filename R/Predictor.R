@@ -13,27 +13,27 @@
 #' 
 #' @section Arguments:
 #' \describe{
-#' \item{model}{The machine learning model. Recommended are models from mlr and caret.
+#' \item{model: }{(any)\cr The machine learning model. Recommended are models from mlr and caret.
 #' Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).}
-#' \item{data}{The data to be used for analysing the prediction model.}
-#' \item{y}{The target vector or (preferably) the name of the target column in the \code{data} argument.}
-#' \item{class}{The class column to be returned in case of multiclass output.}
-#' \item{predict.fun}{The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
+#' \item{data: }{(data.frame)\cr The data to be used for analysing the prediction model.}
+#' \item{y: }{(`character(1)` | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.}
+#' \item{class: }{(`character(1)`)\cr The class column to be returned in case of multiclass output.}
+#' \item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
 #' }
 #' 
 #' @section Details: 
 #' A Predictor object is a container for the prediction model and the data. 
 #' This ensures that the machine learning model can be analysed robustly. 
 #' 
-#' Note: In case of classification, the model should return probabilities.
+#' Note: In case of classification, the model should return one column per class with the class probability.
 #' 
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{class}{The class column to be returned.}
-#' \item{data}{data object with the data for the model interpretation.}
-#' \item{prediction.colnames}{The column names of the predictions.}
-#' \item{task}{The inferred prediction task: "classification" or "regression".}
+#' \item{class: }{(`character(1)`)\cr The class column to be returned.}
+#' \item{data: }{(data.frame)\cr data object with the data for the model interpretation.}
+#' \item{prediction.colnames: }{(character)\cr The column names of the predictions.}
+#' \item{task: }{(`character(1)`)\cr The inferred prediction task: "classification" or "regression".}
 #' }
 #' 
 #' @section Methods:

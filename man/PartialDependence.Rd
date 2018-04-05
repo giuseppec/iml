@@ -24,7 +24,8 @@ pdp$set.feature(2)
 
 For PartialDependence$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
+\item{predictor: }{(Predictor)\cr 
+The object (created with Predictor$new()) holding the machine learning model and the data.}
 \item{feature}{The feature name or index for which to compute the partial dependencies. 
 Either a single number or vector of two numbers.}
 \item{grid.size}{The size of the grid for evaluating the predictions}

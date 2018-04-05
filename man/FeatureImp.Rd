@@ -24,10 +24,11 @@ print(imp)
 
 For FeatureImp$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
-\item{run}{logical. Should the Interpretation method be run?}
-\item{loss}{The loss function. A string (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
-\item{method}{Either "shuffle" or "cartesian". See Details.}
+\item{predictor: }{(Predictor)\cr 
+The object (created with Predictor$new()) holding the machine learning model and the data.}
+\item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a loss function. See Details for allowed losses.}
+\item{method: }{(`character(1)`)\cr Either "shuffle" or "cartesian". See Details.}
+\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
@@ -54,9 +55,9 @@ See \code{library(help = "Metrics")} to get a list of functions.
 \section{Fields}{
 
 \describe{
-\item{original.error}{The loss of the model before perturbing features.}
-\item{predictor}{The prediction model that was analysed.}
-\item{results}{data.frame with the results of the feature importance computation.}
+\item{original.error: }{(`numeric(1)`)\cr The loss of the model before perturbing features.}
+\item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
+\item{results: }{(data.frame)\cr data.frame with the results of the feature importance computation.}
 }
 }
 

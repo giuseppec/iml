@@ -25,10 +25,11 @@ shapley$explain(x.interest)
  
 For Shapley$new():
 \describe{
-\item{predictor}{object of type \code{Predictor}. See \link{Predictor}.}
-\item{x.interest}{data.frame with a single row for the instance to be explained.}
-\item{sample.size}{The number of  Monte Carlos samples for estimating the Shapley value.} 
-\item{run}{logical. Should the Interpretation method be run?}
+\item{predictor: }{(Predictor)\cr 
+The object (created with Predictor$new()) holding the machine learning model and the data.}
+\item{x.interest: }{(data.frame)\cr  Single row with the instance to be explained.}
+\item{sample.size: }{(`numeric(1)`)\cr The number of  Monte Carlo samples for estimating the Shapley value.} 
+\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
@@ -40,12 +41,13 @@ For more details on the algorithm see https://christophm.github.io/interpretable
 \section{Fields}{
 
 \describe{
-\item{predictor}{The prediction model that was analysed.}
-\item{results}{data.frame with the Shapley values (phi) per feature.}
-\item{sample.size}{The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
-\item{x.interest}{data.frame with a single row for the instance to be explained.}
-\item{y.hat.interest}{predicted value for instance of interest}
-\item{y.hat.average}{average predicted value for data \code{X}} 
+\item{predictor: }{(Predictor)\cr 
+The object (created with Predictor$new()) holding the machine learning model and the data.}
+\item{results: }{(data.frame)\cr data.frame with the Shapley values (phi) per feature.}
+\item{sample.size: }{(`numeric(1)`)\cr The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
+\item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
+\item{y.hat.interest: }{(numeric)\cr Predicted value for instance of interest}
+\item{y.hat.average: }{(`numeric(1)`)\cr Average predicted value for data \code{X}} 
 }
 }
 

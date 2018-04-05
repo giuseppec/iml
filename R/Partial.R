@@ -21,13 +21,13 @@
 #' 
 #' For Partial$new():
 #' \describe{
-#' \item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
-#' \item{feature}{The feature name or index for which to compute the partial dependencies. 
-#' Either a single number or vector of two numbers.}
-#' \item{ice}{Should individual curves be calculated? Ignored in the case of two features.}
-#' \item{center.at}{Value at which the plot should be centered. Ignored in the case of two features.}
-#' \item{grid.size}{The size of the grid for evaluating the predictions}
-#' \item{run}{logical. Should the Interpretation method be run?}
+#' \item{predictor: }{(Predictor)\cr 
+#' The object (created with Predictor$new()) holding the machine learning model and the data.}
+#' \item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the partial dependencies.}
+#' \item{ice: }{(`logical(1)`)\cr Should individual curves be calculated? Ignored in the case of two features.}
+#' \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered. Ignored in the case of two features.}
+#' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
+#' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
 #' @section Details:
@@ -44,14 +44,14 @@
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{feature.index}{The index of the features for which the partial dependence was computed.}
-#' \item{feature.name}{The names of the features for which the partial dependence was computed.}
-#' \item{feature.type}{The detected types of the features, either "categorical" or "numerical".}
-#' \item{grid.size}{The size of the grid.}
-#' \item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
-#' \item{n.features}{The number of features (either 1 or 2)}
-#' \item{predictor}{The prediction model that was analysed.}
-#' \item{results}{data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+#' \item{feature.index: }{(`numeric(1)` | `numeric(2)`)\cr The index of the feature(s) for which the partial dependence was computed.}
+#' \item{feature.name: }{(`character(1)` | `character(2)`)\cr The names of the features for which the partial dependence was computed.}
+#' \item{feature.type: }{(`character(1)` | `character(2)`)\cr The detected types of the features, either "categorical" or "numerical".}
+#' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid.}
+#' \item{center.at: }{(`numeric(1)` | `character(1)`)\cr The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
+#' \item{n.features: }{(`numeric(1)`)\cr The number of features (either 1 or 2)}
+#' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
+#' \item{results: }{(data.frame)\cr data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
 #' }
 #' 
