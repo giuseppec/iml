@@ -65,18 +65,12 @@ tree = TreeSurrogate$new(model, maxdepth = 2)
 plot(tree)
 ```
 
-### How does lstat influence the prediction on average? (Partial dependence plot)
+### How does lstat influence the prediction individually and on average? (Partial dependence plot and ICE)
 ```{r}
-pdp.obj = PartialDependence$new(model, feature = "lstat")
-plot(pdp.obj)
+pdp.obj = Partial$new(model, feature = "lstat")
+pdp.obj$plot()
 ```
 
-
-### How does lstat influence the individual predictions? (ICE)
-```{r}
-ice.curves = Ice$new(model, feature = "lstat")
-plot(ice.curves) 
-```
 
 
 

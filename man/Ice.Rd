@@ -25,11 +25,12 @@ ice$center(1)
 
 For Ice$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
-\item{feature}{The feature name or index for which to compute the individual conditional expectations.}
-\item{grid.size}{The size of the grid for evaluating the predictions}
-\item{center.at}{The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
-\item{run}{logical. Should the Interpretation method be run?}
+\item{predictor: }{(Predictor)\cr 
+The object (created with Predictor$new()) holding the machine learning model and the data.}
+\item{feature: }{(`character(1)`)\cr The feature name or index for which to compute the individual conditional expectations.}
+\item{grid.size: }{(`numeric(1)`)\cr The size of the grid for evaluating the predictions}
+\item{center.at: }{(`numeric(1)`)\cr The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
+\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 

@@ -24,10 +24,11 @@ print(tree)
 
 For TreeSurrogate$new():
 \describe{
-\item{predictor}{Object of type \code{Predictor}. See \link{Predictor}.}
-\item{maxdepth}{The maximum depth of the tree. Default is 2.}
-\item{run}{logical. Should the Interpretation method be run?}
-\item{tree.args}{A list with further arguments for \code{ctree}.}
+\item{predictor: }{(Predictor)\cr 
+The object (created with Predictor$new()) holding the machine learning model and the data.}
+\item{maxdepth: }{(`numeric(1)`)\cr The maximum depth of the tree. Default is 2.}
+\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
+\item{tree.args: }{(named list)\cr Further arguments for \code{ctree}.}
 }
 }
 
@@ -41,11 +42,11 @@ By default a tree of maximum depth of 2 is fitted to improve interpretability.
 \section{Fields}{
 
 \describe{
-\item{maxdepth}{the maximal tree depth.}
-\item{predictor}{The prediction model that was analysed.}
-\item{results}{data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
+\item{maxdepth: }{(`numeric(1)`)\cr The maximum tree depth.}
+\item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
+\item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
 and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
-\item{tree}{the fitted tree of class \code{party}. See also \link[partykit]{ctree}.}
+\item{tree: }{(party)\cr The fitted tree. See also \link[partykit]{ctree}.}
 }
 }
 

@@ -84,23 +84,14 @@ plot(tree)
 
 ![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
-### How does lstat influence the prediction on average? (Partial dependence plot)
+### How does lstat influence the prediction individually and on average? (Partial dependence plot and ICE)
 
 ``` r
-pdp.obj = PartialDependence$new(model, feature = "lstat")
-plot(pdp.obj)
+pdp.obj = Partial$new(model, feature = "lstat")
+pdp.obj$plot()
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
-
-### How does lstat influence the individual predictions? (ICE)
-
-``` r
-ice.curves = Ice$new(model, feature = "lstat")
-plot(ice.curves) 
-```
-
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 ### Explain a single prediction with a local linear model. (LIME)
 
@@ -118,7 +109,7 @@ lime.explain$results
 plot(lime.explain)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 ### Explain a single prediction with game theory. (Shapley)
 
@@ -128,25 +119,25 @@ shapley.explain$results
 ```
 
     ##    feature           phi      phi.var feature.value
-    ## 1     crim -0.0723403620  1.236298269  crim=0.00632
-    ## 2       zn -0.0950710000  0.042044428         zn=18
-    ## 3    indus  0.7402716277  1.556442963    indus=2.31
-    ## 4     chas -0.0240226667  0.009907358        chas=0
-    ## 5      nox -0.1974995303  0.727310327     nox=0.538
-    ## 6       rm -0.0752455000  7.788278183      rm=6.575
-    ## 7      age -0.0850019791  0.333944689      age=65.2
-    ## 8      dis -0.1753825842  1.089173160      dis=4.09
-    ## 9      rad -0.4722923333  0.407054214         rad=1
-    ## 10     tax -0.1853100000  0.393279176       tax=296
-    ## 11 ptratio  0.7285225750  1.220922649  ptratio=15.3
-    ## 12   black -0.0008046753  0.267453217   black=396.9
-    ## 13   lstat  3.7001500745 19.387675029    lstat=4.98
+    ## 1     crim -9.022108e-03  0.964278134  crim=0.00632
+    ## 2       zn -9.738367e-02  0.051074401         zn=18
+    ## 3    indus  9.395742e-01  1.742122038    indus=2.31
+    ## 4     chas -5.958000e-03  0.004576209        chas=0
+    ## 5      nox  3.246872e-02  1.625869345     nox=0.538
+    ## 6       rm  1.204375e-01  8.147532838      rm=6.575
+    ## 7      age -6.728853e-02  0.233897643      age=65.2
+    ## 8      dis -8.011222e-05  0.776136361      dis=4.09
+    ## 9      rad -3.547343e-01  0.284562657         rad=1
+    ## 10     tax -2.085008e-01  0.802706167       tax=296
+    ## 11 ptratio  5.989281e-01  1.193181060  ptratio=15.3
+    ## 12   black -8.346362e-02  0.189856738   black=396.9
+    ## 13   lstat  3.136579e+00 11.712142750    lstat=4.98
 
 ``` r
 plot(shapley.explain)
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 Python Implementation
 =====================

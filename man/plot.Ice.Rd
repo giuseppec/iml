@@ -4,10 +4,12 @@
 \alias{plot.Ice}
 \title{Plot ICE (Individual Conditional Expectation)}
 \usage{
-\method{plot}{Ice}(x)
+\method{plot}{Ice}(x, rug = TRUE)
 }
 \arguments{
 \item{x}{An Ice R6 object}
+
+\item{rug}{[logical] Should a rug be plotted to indicate the feature distribution?}
 }
 \value{
 ggplot2 plot object
