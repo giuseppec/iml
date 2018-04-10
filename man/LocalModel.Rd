@@ -31,8 +31,10 @@ The object (created with Predictor$new()) holding the machine learning model and
 \item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
 \item{dist.fun: }{(`character(1)`)\cr The name of the distance function for computing proximities (weights in the linear model). Defaults to "gower". Otherwise will be forwarded to [stats::dist].}
 \item{kernel.width: }{(`numeric(1)`)\cr The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
-\item{k: }{(`numeric(1)`)\cr the (maximum) number of features to be used for the surrogate model.}
-\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
+\item{k: }{(`numeric(1)`)\cr
+The (maximum) number of features to be used for the surrogate model.}
+\item{run: }{(`logical(1)`)\cr
+Should the Interpretation method be run?}
 }
 }
 

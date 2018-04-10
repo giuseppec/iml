@@ -33,7 +33,7 @@ Other machine learning with a S3 predict functions work as well, but less robust
 A Predictor object is a container for the prediction model and the data. 
 This ensures that the machine learning model can be analysed robustly. 
 
-Note: In case of classification, the model should return probabilities.
+Note: In case of classification, the model should return one column per class with the class probability.
 }
 
 \section{Fields}{
