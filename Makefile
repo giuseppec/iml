@@ -1,5 +1,5 @@
 
-all: document install test
+all: document install test vignette
 
 test: 
 	Rscript --vanilla -e 'suppressMessages(devtools::test())'
@@ -12,3 +12,6 @@ install:
 
 readme: 
 	Rscript --vanilla -e 'rmarkdown::render("README.Rmd", output_format = "github_document")'
+
+vignette:
+	Rscript --vanilla -e 'devtools::build_vignettes()'

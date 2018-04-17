@@ -30,9 +30,11 @@ set.seed(42)
 ```
 
 # Installation 
-The package can be installed directly from github with devtools:
+The package can be installed directly from CRAN and the develoopment version from github:
 ```{r, results = "hide", eval = FALSE}
-# install.packages("devtools")
+# Stable version
+install.packages("iml")
+# Development version
 devtools::install_github("christophM/iml")
 ```
 
@@ -41,57 +43,22 @@ Changes of the packages can be accessed in the [NEWS file](https://github.com/ch
 
 # Examples
 
-First we train a randomForest to predict the Boston median housing value
+First we train a randomForest to predict the Boston median housing value. How does lstat influence the prediction individually and on average? (Partial dependence plot and ICE)
 ```{r}
 library("iml")
-
 library("randomForest")
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 X =  Boston[which(names(Boston) != "medv")]
 model = Predictor$new(rf, data = X, y = Boston$medv)
-```
-
-#### What were the most important features? (Permutation feature importance / Model reliance)
-```{r}
-imp = FeatureImp$new(model, loss = "mae")
-plot(imp)
-imp$results
-```
-
-### Let"s build a single tree from the randomForest predictions! (Tree surrogate)
-```{r}
-tree = TreeSurrogate$new(model, maxdepth = 2)
-plot(tree)
-```
-
-### How does lstat influence the prediction individually and on average? (Partial dependence plot and ICE)
-```{r}
 pdp.obj = Partial$new(model, feature = "lstat")
 pdp.obj$plot()
-```
-
-
-
-
-### Explain a single prediction with a local linear model. (LIME) 
-```{r}
-lime.explain = LocalModel$new(model, x.interest = X[1,])
-lime.explain$results
-plot(lime.explain)
-```
-
-
-
-### Explain a single prediction with game theory. (Shapley)
-```{r}
-shapley.explain = Shapley$new(model, x.interest = X[1, ])
-shapley.explain$results
-plot(shapley.explain)
-
 ```
 
 # Python Implementation
 Referring to https://github.com/datascienceinc/Skater
 
+
+# Funding
+This work is funded by the Bavarian State Ministry of Education, Science and the Arts in the framework of the Centre Digitisation.Bavaria (ZD.B)
 
