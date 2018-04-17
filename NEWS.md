@@ -1,4 +1,9 @@
-# iml 0.3 (In PROGRESS)
+
+# iml 0.4.0 (IN PROGRESS)
+* `object$run()` does not return `self` any longer. This means using `object$set.feature()` for example does not automatically print the object summary any longer.
+* Added an introductory vignette
+
+# iml 0.3.0
 * FeatureImp$results column permutationError renamed to permutation.error
 * Allow setting distance function in LocalModel
 * Merge the classes Ice and PartialDependence into Partial

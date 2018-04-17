@@ -44,7 +44,6 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         self$results = data.frame(private$aggregate())
         private$finished = TRUE
       }
-      self
     }
   ),
   private = list(
