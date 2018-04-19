@@ -17,6 +17,11 @@ Currently implemented:
 
 Read more about the methods in the [Interpretable Machine Learning book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
 
+Tutorial
+========
+
+Start an interactive notebook tutorial by clicking on the badge: [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/christophM/iml/master?filepath=./notebooks/)
+
 Installation
 ============
 
