@@ -7,4 +7,6 @@ iml.Rcheck
 ..Rcheck
 README.html
 notes.md
-
+notebooks/.ipynb_checkpoints
+*.html
+*.pdf
