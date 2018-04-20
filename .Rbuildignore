@@ -9,3 +9,5 @@ Makefile
 man-roxygen
 notes.md
 notebooks
+runtime.txt
+install.R
