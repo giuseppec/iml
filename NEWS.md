@@ -4,6 +4,7 @@
 * Added an introductory vignette.
 * Fixed an issue where the Predictor would not store X, when y is given as character.
 * The column names of the data.frames with the results of the interpretation methods start with "." instead of "..". This is due to a recent change in the data.table package v1.10.5 [news item 18](https://github.com/Rdatatable/data.table/blob/master/NEWS.md).
+* Removed the deprecated classes `PartialDependence` and `Ice`. Use `Partial` instead.
 
 # iml 0.3.0
 * FeatureImp$results column permutationError renamed to permutation.error
