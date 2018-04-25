@@ -37,7 +37,7 @@ Data  = R6::R6Class("Data",
         assert_true(y %in% names(X))
         self$y = X[,y, drop = FALSE]
         self$y.names = y
-        self$X = self$X[, setdiff(colnames(X), self$y.names)]
+        self$X = self$X[, (self$y.names):= NULL ]
       } else if (inherits(y, "data.frame")) {
         assertDataFrame(y, all.missing = FALSE, null.ok = TRUE, nrows = nrow(X))
         self$y = y

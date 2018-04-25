@@ -28,3 +28,10 @@ test_that("weighted sampling works", {
   expect_equal(sample1.weighted, sample2)
 })
 
+
+test_that("y as character works", {
+  ds = Data$new(iris, y = "Species")
+  expect_equal(ds$y, iris["Species"])
+  expect_equal(ds$X, data.table::data.table(iris[names(iris) != "Species"]))
+  expect_equal(ds$get.xy(), data.table::data.table(iris))
+})
