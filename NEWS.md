@@ -1,7 +1,9 @@
 
 # iml 0.4.0 (IN PROGRESS)
 * `object$run()` does not return `self` any longer. This means using `object$set.feature()` for example does not automatically print the object summary any longer.
-* Added an introductory vignette
+* Added an introductory vignette.
+* Fixed an issue where the Predictor would not store X, when y is given as character.
+* The column names of the data.frames with the results of the interpretation methods start with "." instead of "..". This is due to a recent change in the data.table package v1.10.5 [news item 18](https://github.com/Rdatatable/data.table/blob/master/NEWS.md).
 
 # iml 0.3.0
 * FeatureImp$results column permutationError renamed to permutation.error
