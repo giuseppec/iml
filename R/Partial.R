@@ -186,45 +186,45 @@ Partial = R6::R6Class("Partial",
     aggregate = function() {
       x.id = private$data.design.id
       results.ice = private$dataDesign[, self$feature.index, with = FALSE]
-      results.ice$..id = x.id
+      results.ice$.id = x.id
       if (private$multiClass) {
         y.hat.names = colnames(private$qResults)
         results.ice = cbind(results.ice, private$qResults)
-        results.ice = melt(results.ice, variable.name = "..class.name", 
-          value.name = "..y.hat", measure.vars = y.hat.names)
+        results.ice = melt(results.ice, variable.name = ".class.name", 
+          value.name = ".y.hat", measure.vars = y.hat.names)
       } else {
-        results.ice[, "..y.hat" := private$qResults]
-        results.ice$..class.name = 1
+        results.ice[, ".y.hat" := private$qResults]
+        results.ice$.class.name = 1
       }
       
       if (!is.null(private$anchor.value)) {
         anchor.index = which(results.ice[,self$feature.name, with=FALSE] == private$anchor.value)
-        X.aggregated.anchor = results.ice[anchor.index, c("..y.hat", "..id", "..class.name"), with = FALSE]
-        names(X.aggregated.anchor) = c("anchor.yhat", "..id", "..class.name")
+        X.aggregated.anchor = results.ice[anchor.index, c(".y.hat", ".id", ".class.name"), with = FALSE]
+        names(X.aggregated.anchor) = c("anchor.yhat", ".id", ".class.name")
         # In case that the anchor value was also part of grid
         X.aggregated.anchor = unique(X.aggregated.anchor)
-        results.ice = merge(results.ice, X.aggregated.anchor, by = c("..id", "..class.name"))
-        results.ice$..y.hat = results.ice$..y.hat - results.ice$anchor.yhat
+        results.ice = merge(results.ice, X.aggregated.anchor, by = c(".id", ".class.name"))
+        results.ice$.y.hat = results.ice$.y.hat - results.ice$anchor.yhat
         results.ice$anchor.yhat = NULL
       }
       
       results = data.table()
       if (self$aggregation == "pdp") {
         if (private$multiClass) {
-          results.aggregated = results.ice[, list(..y.hat = mean(..y.hat)), 
-            by = c(self$feature.name, "..class.name")]
+          results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
+            by = c(self$feature.name, ".class.name")]
         } else {
-          results.aggregated = results.ice[, list(..y.hat = mean(..y.hat)), 
+          results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
             by = c(self$feature.name)]
         }
-        results.aggregated$..type = "pdp"
+        results.aggregated$.type = "pdp"
         results = rbind(results, results.aggregated)
       }
       if (!private$multiClass) { 
-        results.ice$..class.name = NULL
+        results.ice$.class.name = NULL
       }
       if (self$ice) {
-        results.ice$..type = "ice"
+        results.ice$.type = "ice"
         results = rbind(results, results.ice, fill = TRUE)
       }
       results
@@ -273,11 +273,11 @@ Partial = R6::R6Class("Partial",
       
       if (self$n.features == 1) {
         if (self$ice) {
-          p = ggplot(self$results[self$results$..type == "ice",], 
+          p = ggplot(self$results[self$results$.type == "ice",], 
             mapping = aes_string(x = self$feature.name, 
-              y = "..y.hat", group = "..id")) + scale_y_continuous(y.axis.label)
+              y = ".y.hat", group = ".id")) + scale_y_continuous(y.axis.label)
         } else {
-          p = ggplot(self$results, mapping = aes_string(x = self$feature.name, y = "..y.hat")) + 
+          p = ggplot(self$results, mapping = aes_string(x = self$feature.name, y = ".y.hat")) + 
             scale_y_continuous(y.axis.label)
         }
         if (self$feature.type == "numerical") {
@@ -286,38 +286,38 @@ Partial = R6::R6Class("Partial",
           p = p + geom_boxplot(aes_string(group = self$feature.name)) 
         }
         if (self$aggregation != "none") {
-          aggr = self$results[self$results$..type == "pdp", ]
+          aggr = self$results[self$results$.type == "pdp", ]
           if (self$ice) {
-            p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = "..y.hat"), 
+            p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = ".y.hat"), 
               size = 2, color = "gold") 
           }
-          p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = "..y.hat"), 
+          p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = ".y.hat"), 
             size = 1, color = "black")
         }
       } else if (self$n.features == 2) {
         if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
             y = self$feature.name[2], 
-            fill = "..y.hat")) + geom_tile() + 
+            fill = ".y.hat")) + geom_tile() + 
             scale_fill_continuous(y.axis.label)
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
-          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = "..y.hat", 
+          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat", 
             group = categorical.feature, color = categorical.feature)) + 
             geom_line() + scale_y_continuous(y.axis.label)
         }
       }
       if (rug) {
-        rug.dat = cbind(private$sampler$get.x(), data.frame(..y.hat = self$results$..y.hat[1]), 
-          ..id = 1)
+        rug.dat = cbind(private$sampler$get.x(), data.frame(.y.hat = self$results$.y.hat[1]), 
+          .id = 1)
         rug.dat = rug.dat[sample(1:nrow(rug.dat)),]
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
         p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
           position = position_jitter(width = 0.1, height = 0.1))
       }
       if (private$multiClass) {
-        p = p + facet_wrap("..class.name")
+        p = p + facet_wrap(".class.name")
       } 
       p
     }, 

@@ -44,8 +44,8 @@ By default a tree of maximum depth of 2 is fitted to improve interpretability.
 \describe{
 \item{maxdepth: }{(`numeric(1)`)\cr The maximum tree depth.}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns ..node and ..path) 
-and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with ..y.hat).}
+\item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns .node and .path) 
+and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with .y.hat).}
 \item{tree: }{(party)\cr The fitted tree. See also \link[partykit]{ctree}.}
 }
 }

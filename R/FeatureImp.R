@@ -170,7 +170,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       } else {
         stop(sprintf("%s method not implemented"))
       }
-      X.inter$..feature = feature.name
+      X.inter$.feature = feature.name
       X.inter 
     },
     q = function(pred) probs.to.labels(pred),
@@ -183,7 +183,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       y = private$dataDesign[, private$sampler$y.names, with = FALSE]
       y.hat = private$qResults
       # For classification we work with the class labels instead of probs
-      result = data.table(feature = private$dataDesign$..feature, actual = y[[1]], 
+      result = data.table(feature = private$dataDesign$.feature, actual = y[[1]], 
         predicted = y.hat[[1]])
       result = result[, list("original.error" = self$original.error, 
         "permutation.error" = self$loss(actual, predicted)), by = feature]

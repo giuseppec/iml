@@ -50,7 +50,7 @@ test_that("LocalModel works for multiple output", {
   # rbind X a few times to eliminate glm warning
   LocalModel1 = LocalModel$new(mod, x.interest, k = k)
   dat = LocalModel1$results
-  expect_equal(colnames(dat), c(expected.colnames, "..class"))
+  expect_equal(colnames(dat), c(expected.colnames, ".class"))
   expect_lte(nrow(dat), k * 3)  
   pred2 = predict(LocalModel1, iris[c(2,3),])
   expect_class(dat, "data.frame")

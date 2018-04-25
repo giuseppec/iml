@@ -97,7 +97,7 @@
 #' iceData = ice$results
 #' head(iceData)
 #' ggplot(iceData) + 
-#' geom_line(aes(x = crim, y = y.hat, group = ..individual, color = factor(..individual))) + 
+#' geom_line(aes(x = crim, y = y.hat, group = .individual, color = factor(.individual))) + 
 #' scale_color_discrete(guide = "none")
 #' }
 #' # You can reuse the ice object for other features: 
