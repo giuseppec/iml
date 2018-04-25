@@ -116,7 +116,7 @@ predictor.mlr2 = Predictor$new(mod.mlr, class = 2, data = iris, y = "Species")
 
 
 test_that("Giving y", {
-  expect_equal(predictor.mlr$data$y, data.frame(..y = iris$Species))
+  expect_equal(predictor.mlr$data$y, data.frame(.y = iris$Species))
   expect_equal(predictor.mlr2$data$y, data.frame(Species = iris$Species))
   expect_false("Species" %in% colnames(predictor.mlr2$data$X))
 })

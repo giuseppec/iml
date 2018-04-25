@@ -194,7 +194,7 @@ LocalModel = R6::R6Class("LocalModel",
         class.results = lapply(res$beta, extract.glmnet.effects, 
           best.index = best.index, x.recoded = x.recoded, x.original = self$x.interest)
         res = data.table::rbindlist(class.results)
-        res$..class = rep(names(class.results), each = ncol(X.recode))
+        res$.class = rep(names(class.results), each = ncol(X.recode))
       } else {
         res = extract.glmnet.effects(res$beta, best.index, x.recoded, self$x.interest)
       }
@@ -204,7 +204,7 @@ LocalModel = R6::R6Class("LocalModel",
     generatePlot = function() {
       p = ggplot(self$results) + 
         geom_col(aes(y = effect, x = feature.value)) + coord_flip()
-      if (private$multiClass) p = p + facet_wrap("..class")
+      if (private$multiClass) p = p + facet_wrap(".class")
       p
     },
     get.weight.fun = function(dist.fun, kernel.width) {

@@ -47,7 +47,7 @@ Data  = R6::R6Class("Data",
         }
       } else if (is.vector(y) | is.factor(y)) {
         assert_vector(y, any.missing = FALSE, null.ok = TRUE, len = nrow(X))
-        self$y = data.frame(..y = y)
+        self$y = data.frame(.y = y)
         self$y.names = colnames(self$y)
       } 
       self$prob = prob

@@ -19,7 +19,7 @@ createPredictionFunction.WrappedModel = function(model, task, predict.fun = NULL
   } else if (task == "regression") {      
     function(newdata){
       pred = predict(model, newdata = newdata)
-      data.frame(..prediction = mlr::getPredictionResponse(pred))
+      data.frame(.prediction = mlr::getPredictionResponse(pred))
     }
   } else {
     stop(sprintf("Task type '%s' not supported", task))
@@ -33,7 +33,7 @@ createPredictionFunction.train = function(model, task, predict.fun = NULL){
     }
   } else if (task == "regression") {
     function(newdata) {
-      data.frame(..prediction = predict(model, newdata = newdata))
+      data.frame(.prediction = predict(model, newdata = newdata))
     }
   } else {
     stop(sprintf("task of type %s not allowed.", task))
