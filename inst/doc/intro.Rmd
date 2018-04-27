@@ -1,0 +1,154 @@
+---
+title: "Introduction to iml: Interpretable Machine Learning in R"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to iml: Interpretable Machine Learning in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+set.seed(1014)
+```
+
+
+Machine learning models usually perform really well for predictions, but are not interpretable.
+The iml package provides tools for analysing any black box machine learning model:
+
+* Feature importance: Which were the most important features?
+
+* Feature effects: How does a feature influence the prediction? (Partial dependence plots and individual conditional expectation curves)
+
+* Explanations for single predictions: How did the feature values of a single data point affect its prediction?  (LIME and Shapley value)
+
+* Surrogate trees: Can we approximate the underlying black box model with a short decision tree?
+
+* The iml package works for any classification and regression machine learning model: random forests, linear models, neural networks, xgboost, etc.
+
+This document shows you how to use the iml package to analyse machine learning models. 
+
+If you want to learn more about the technical details of all the methods, read chapters from: https://christophm.github.io/interpretable-ml-book/agnostic.html
+
+## Data: Boston Housing
+
+We'll use the `MASS::Boston` dataset to demonstrate the abilities of the iml package. This dataset contains median house values from Boston neighbourhoods. 
+
+```{r}
+data("Boston", package  = "MASS")
+head(Boston)
+```
+
+
+## Fitting the machine learning model
+
+First we train a randomForest to predict the Boston median housing value:
+
+```{r, message = FALSE}
+library("iml")
+
+library("randomForest")
+data("Boston", package  = "MASS")
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+```
+
+## Using the iml Predictor() container
+
+We create a `Predictor` object, that holds the model and the data. The iml package uses R6 classes: New objects can be created by calling `Predictor$new()`.
+
+```{r}
+X = Boston[which(names(Boston) != "medv")]
+predictor = Predictor$new(rf, data = X, y = Boston$medv)
+```
+
+
+## Feature importance
+
+We can measure how important each feature was for the predictions with `FeatureImp`. The feature importance measure works by shuffling each feature and measuring how much the performance drops. For this regression task we choose to measure the loss in performance with the mean absolute error ('mae'), another choice would be the  mean squared error ('mse').
+
+
+Once we create a new object of `FeatureImp`, the importance is automatically computed. 
+We can call the `plot()` function of the object or look at the results in a data.frame.
+```{r}
+imp = FeatureImp$new(predictor, loss = "mae")
+plot(imp)
+imp$results
+```
+
+## Partial dependence
+
+Besides knowing which features were important, we are interested in how the features influence the predicted outcome. The `Partial` class implements partial dependence plots and individual conditional expectation curves. Each individual line represents the predictions (y-axis) for one data point when we change one of the features (e.g. 'lstat' on the x-axis). The highlighted line is the point-wise average of the individual lines and equals the partial dependence plot. The marks on the x-axis indicates the distribution of the 'lstat' feature, showing how relevant a region is for interpretation (little or no points mean that we should not over-interpret this region).
+
+```{r}
+pdp.obj = Partial$new(predictor, feature = "lstat")
+pdp.obj$plot()
+```
+
+If we want to compute the partial dependence curves on another feature, we can simply reset the feature:
+
+```{r}
+pdp.obj$set.feature("rm")
+pdp.obj$plot()
+```
+
+We can center the curves at a feature value of our choice, which makes it easier to see the trend of the curves:
+
+```{r}
+pdp.obj$center(min(Boston$rm))
+pdp.obj$plot()
+```
+
+## Surrogate model
+Another way to make the models more interpretable is to replace the black box with a simpler model - a decision tree. We take the predictions of the black box model (in our case the random forest) and train a decision tree on the original features and the predicted outcome. 
+The plot shows the terminal nodes of the fitted tree.
+The maxdepth parameter controls how deep the tree can grow and therefore how interpretable it is.
+```{r}
+tree = TreeSurrogate$new(predictor, maxdepth = 2)
+plot(tree)
+```
+
+We can use the tree to make predictions:
+
+```{r}
+head(tree$predict(Boston))
+```
+
+## Explain single predictions with a local model
+Global surrogate model can improve the understanding of the global model behaviour. 
+We can also fit a model locally to understand an individual prediction better. The local model fitted by `LocalModel` is a linear regression model and the data points are weighted by how close they are to the data point for wich we want to explain the prediction.
+
+```{r}
+lime.explain = LocalModel$new(predictor, x.interest = X[1,])
+lime.explain$results
+plot(lime.explain)
+```
+```{r}
+lime.explain$explain(X[2,])
+plot(lime.explain)
+```
+
+## Explain single predictions with game theory
+An alternative for explaining individual predictions is a method from coalitional game theory named Shapley value.
+Assume that for one data point, the feature values play a game together, in which they get the prediction as a payout. The Shapley value tells us how to fairly distribute the payout among the feature values.
+
+
+```{r}
+shapley = Shapley$new(predictor, x.interest = X[1,])
+shapley$plot()
+```
+
+We can reuse the object to explain other data points:
+
+```{r}
+shapley$explain(x.interest = X[2,])
+shapley$plot()
+```
+
+The results in data.frame form can be extracted like this:
+
+```{r}
+results = shapley$results
+head(results)
+```
+
