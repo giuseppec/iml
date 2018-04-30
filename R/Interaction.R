@@ -1,4 +1,4 @@
-#' Decision tree surrogate model
+#' Interaction strength
 #' 
 #' \code{TreeSurrogate} fits a decision tree on the predictions of a prediction model.
 #' 
@@ -111,7 +111,7 @@
 NULL
 
 #' @export
-TreeSurrogate = R6::R6Class("TreeSurrogate",
+Interaction = R6::R6Class("Interaction",
   inherit = InterpretationMethod,
   public = list(
     # The fitted tree
@@ -119,7 +119,10 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     initialize = function(predictor, features, run = TRUE) {
       super$initialize(predictor)
       private$features = features
-      # TODO: accept only 2 features
+      # TODO: accept only 0,1 or 2 features:
+      # 0 features: Compute interaction between 1 vs rest test statistics for all features
+      # 1 feature: Compute interaction between 1 vs rest test statistics for chosen feature
+      # 2 features: Compute interaction between 2 features.
       # TODO: create 3 Partial objects: for first, second and both features (run=FALSE)
       if(run) self$run()
     }, 
@@ -137,42 +140,6 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
   )
 )
 
-
-
-#' Predict Tree Surrogate
-#' 
-#' Predict the response for newdata of a TreeSurrogate object.
-#' 
-#' This function makes the TreeSurrogate object call 
-#' its iternal object$predict() method. 
-#' @param object The surrogate tree. A TreeSurrogate R6 object
-#' @param newdata A data.frame for which to predict
-#' @param type Either "prob" or "class". Ignored if the surrogate tree does regression. 
-#' @param ... Further argumets for \code{predict_party}
-#' @return A data.frame with the predicted outcome. 
-#' In case of regression it is the predicted \eqn{\hat{y}}. 
-#' In case of classification it is either the class probabilities (for type "prob") or the class label (type "class")
-#' @seealso 
-#' \link{TreeSurrogate}
-#' @importFrom stats predict
-#' @export
-#' @examples 
-#' if (require("randomForest")) {
-#' # Fit a Random Forest on the Boston housing data set
-#' data("Boston", package  = "MASS")
-#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-#' # Create a model object
-#' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
-#' 
-#' # Fit a decision tree as a surrogate for the whole random forest
-#' dt = TreeSurrogate$new(mod)
-#' 
-#' # Plot the resulting leaf nodes
-#' predict(dt, newdata = Boston)
-#' } 
-predict.TreeSurrogate = function(object, newdata, type = "prob", ...) {
-  object$predict(newdata = newdata, type, ...)
-}
 
 
 #' Plot Tree Surrogate
