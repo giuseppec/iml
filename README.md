@@ -20,7 +20,7 @@ Read more about the methods in the [Interpretable Machine Learning book](https:/
 Tutorial
 ========
 
-Start an interactive notebook tutorial by clicking on the badge: [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/christophM/iml/master?filepath=./notebooks/)
+Start an interactive notebook tutorial by clicking on the badge: [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/christophM/iml/master?filepath=./notebooks/tutorial-intro.ipynb)
 
 Installation
 ============
