@@ -1,12 +1,12 @@
 #' Interaction strength
 #' 
-#' \code{TreeSurrogate} fits a decision tree on the predictions of a prediction model.
+#' \code{TreeSurrogate} measures the interaction strength of features in a prediction model.
 #' 
 #' @format \code{\link{R6Class}} object.
-#' @name TreeSurrogate
+#' @name Interaction
 #' @section Usage:
 #' \preformatted{
-#' tree = TreeSurrogate$new(predictor, maxdepth = 2, tree.args = NULL, run = TRUE)
+#' tree = Interaction$new(predictor, maxdepth = 2, tree.args = NULL, run = TRUE)
 #' 
 #' plot(tree)
 #' predict(tree, newdata)
@@ -16,7 +16,7 @@
 #' 
 #' @section Arguments:
 #' 
-#' For TreeSurrogate$new():
+#' For Interaction$new():
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
@@ -62,7 +62,7 @@
 #' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
 #' 
 #' # Fit a decision tree as a surrogate for the whole random forest
-#' dt = TreeSurrogate$new(mod)
+#' dt = Interaction$new(mod)
 #' 
 #' # Plot the resulting leaf nodes
 #' plot(dt) 
@@ -75,34 +75,31 @@
 #' head(dat)
 #' 
 #' 
-#' n = 1000
+#' n = 100
 #' dat = data.table(x1 = rnorm(n),
-#' x2 = rnorm(n), x3 = rnorm(n))
+#' x2 = rnorm(n), x3 = rnorm(n), 
+#' x4 = rnorm(n), x5 = rnorm(n), x6 = rnorm(n))
 #' f = function(dat) {
-#' dat$x1 * dat$x3 + dat$x1
+#' dat$x1 * dat$x3 + dat$x1 +  dat$x3 + dat$x6 * dat$x1
 #' }
 #' mod = Predictor$new(f, dat, predict.fun = function(ff, newdata) {ff(newdata)})
-#' inter = Interaction$new(mod, "x1", grid.size = 100)
+#' inter = Interaction$new(mod, "x1")
 #' inter$results
 #' 
-#' intermediate = cbind(inter$.__enclos_env__$private$dataDesign, data.frame(pred = inter$.__enclos_env__$private$qResults))
-#' 
-#' head(intermediate)
-#' 
-#' mean(intermediate[intermediate$.type == 'j', pred])
-#' mean(intermediate[intermediate$.type == 'no.j', pred])
-#' mean(intermediate[intermediate$.type == 'f', pred])
-#' }
 #' 
 #' inter = Interaction$new(mod, features = c("x1"), grid.size = 100)
 #' inter$results
 #' 
 #' inter = Interaction$new(mod, features = c("x2"), grid.size = 100)
 #' inter$results
+#' plot(inter)
 #' 
 #' inter = Interaction$new(mod, features = c("x3"), grid.size = 100)
 #' inter$results
-#' 
+#'
+#' inter = Interaction$new(mod, features = c("x4"), grid.size = 100)
+#' inter$results
+#'  
 #' inter = Interaction$new(mod, features = c("x1", "x2"), grid.size = 100)
 #' inter$results
 #' inter = Interaction$new(mod, features = c("x1", "x3"), grid.size = 100)
@@ -110,18 +107,17 @@
 #' 
 #' inter = Interaction$new(mod, features = c("x2", "x3"), grid.size = 100)
 #' inter$results
-#' 
+#' plot(inter)
 #' inter = Interaction$new(mod,  grid.size = 100)
 #' inter$results
+#' plot(inter)
 #' 
 #' @seealso 
-#' \link{predict.TreeSurrogate}
-#' \link{plot.TreeSurrogate}
+#' \link{Partial}
 #' 
-#' For the tree implementation
-#' \link[partykit]{ctree}
+#' @importFrom data.table dcast
+#' 
 #' @export
-#' @import partykit
 NULL
 
 #' @export
@@ -132,14 +128,17 @@ Interaction = R6::R6Class("Interaction",
     features = NULL,
     grid.size = NULL,
     initialize = function(predictor, features = NULL, grid.size = 20, run = TRUE) {
-      self$features = features
-      self$grid.size = grid.size
+      assert_vector(features, max.len = 2, null.ok = TRUE)
+      assert_number(grid.size, lower = 2)
+      assert_logical(run)
+      
+      if (!is.null(features) && is.numeric(features)) {
+        self$features = predictor$data$feature.names[features]
+      } else {
+        self$features = features
+      }
+      self$grid.size = min(grid.size, predictor$data$n.rows)
       super$initialize(predictor)
-      # TODO: accept only 0,1 or 2 features:
-      # 0 features: Compute interaction between 1 vs rest test statistics for all features
-      # 1 feature: Compute interaction between 1 vs rest test statistics for chosen feature
-      # 2 features: Compute interaction between 2 features.
-      # TODO: create 3 Partial objects: for first, second and both features (run=FALSE)
       if(run) self$run()
     }
   ), 
@@ -155,19 +154,29 @@ Interaction = R6::R6Class("Interaction",
       aggregate.interaction(private$dataDesign, private$qResults, features = self$features)
     }, 
     generatePlot = function() {
+      ggplot(self$results) + 
+        geom_col(aes(x = .feature, y = .interaction)) + 
+        scale_y_continuous("Interaction strength") + 
+        scale_x_discrete("Features")
     }
   )
 )
 
 
 # n.sample is 2D: first is sampling of grid points, 2nd is sampling of points for evaluation
-generate.mc.dat = function(grid.dat, dist.dat, features) {
+generate.marginals = function(grid.dat, dist.dat, features) {
+  assert_data_table(grid.dat)
+  assert_data_table(dist.dat)
+  assert_true(all(features %in% colnames(grid.dat)))
+  assert_true(all(colnames(grid.dat) %in% colnames(dist.dat)))
+  
+  assert_character(features, unique = TRUE)
   n.sample = nrow(dist.dat)
   features.rest = setdiff(colnames(grid.dat), features)
   grid.index = rep(1:nrow(grid.dat), each = n.sample)
   partial_j1 = grid.dat[grid.index, ..features]
   partial_j2 = data.table::rbindlist(lapply(1:nrow(grid.dat), 
-    function(x) dist.dat[sample(1:nrow(dist.dat), size = n.sample), ..features.rest]))
+    function(x) dist.dat[sample(1:nrow(dist.dat), size = n.sample), ..features.rest]), use.names = TRUE)
   partial_j = cbind(partial_j1, partial_j2)
   partial_j$.id = grid.index
   partial_j
@@ -176,6 +185,10 @@ generate.mc.dat = function(grid.dat, dist.dat, features) {
 
 
 h.test = function(f.all, f.j, f.no.j) { 
+  assert_numeric(f.all, any.missing = FALSE)
+  assert_numeric(f.j, any.missing = FALSE)
+  assert_numeric(f.no.j, any.missing = FALSE)
+  
   # center
   f.all = scale(f.all, center = TRUE, scale = FALSE)
   f.j =  scale(f.j, center = TRUE, scale = FALSE)
@@ -185,48 +198,53 @@ h.test = function(f.all, f.j, f.no.j) {
 }  
 
 aggregate.interaction = function(partial_dat, prediction, features) {
+  assert_data_table(partial_dat)
+  assert_data_frame(prediction)
+  assert_character(features, null.ok = TRUE)
+  assert_true(all(features %in% colnames(partial_dat)))
+  
   partial_dat$pred = prediction
   if (length(features) == 2) {
     pd.jk = partial_dat[.type == "jk",  mean(pred), by = .id]
     pd.j = partial_dat[.type == "j",  mean(pred), by = .id]
     pd.k = partial_dat[.type == "k",  mean(pred), by = .id]
-    h.test(pd.jk$V1, pd.j$V1, pd.k$V1) 
+    res = h.test(pd.jk$V1, pd.j$V1, pd.k$V1) 
+    data.frame(.feature = paste(features, collapse = ":"),
+      .interaction = res)
   } else {
     if (length(features) == 1) {
       partial_dat$.feature = features
     }
     partial_dat = partial_dat[, c(".id", ".feature", ".type", "pred")]
-    pd = dcast(partial_dat, .id + .feature ~ .type, value.var = "pred", fun.aggregate = mean)
-    pd[,h.test(f, j, no.j), by = .feature]
+    pd = dcast(partial_dat, .feature + .id~ .type, value.var = "pred", fun.aggregate = mean)
+    data.frame(pd[, list(.interaction = h.test(f, j, no.j)), by = .feature])
   }
 }
 
 
 intervene.interaction = function(dataSample, feature.name, grid.size) {
+  assert_data_table(dataSample)
+  assert_character(feature.name, min.len = 1, max.len = 2, any.missing = FALSE)
+  assert_number(grid.size)
+  
+  grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
+  dist.dat = dataSample
   if (length(feature.name) == 1) {
-    grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
-    dist.dat = dataSample
-    partial_j = generate.mc.dat(grid.dat, dist.dat, feature.name)
+    partial_j = generate.marginals(grid.dat, dist.dat, feature.name)
     partial_j$.type = "j"
-    partial_noj  = generate.mc.dat(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name))
+    partial_noj  = generate.marginals(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name))
     partial_noj$.type = "no.j"
     grid.dat$.type = "f"
     grid.dat$.id = 1:nrow(grid.dat)
-    partial_dat = rbind(partial_j, partial_noj, grid.dat)
-    partial_dat
+    rbind(partial_j, partial_noj, grid.dat, use.names = TRUE)
   } else if (length(feature.name) == 2) {
-    # TODO Implement 1v1
-    grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
-    dist.dat = dataSample
-    partial_jk = generate.mc.dat(grid.dat, dist.dat, feature.name)
+    partial_jk = generate.marginals(grid.dat, dist.dat, feature.name)
     partial_jk$.type = "jk"
-    partial_j  = generate.mc.dat(grid.dat, dist.dat, feature.name[1])
+    partial_j  = generate.marginals(grid.dat, dist.dat, feature.name[1])
     partial_j$.type = "j"
-    partial_k  = generate.mc.dat(grid.dat, dist.dat, feature.name[2])
+    partial_k  = generate.marginals(grid.dat, dist.dat, feature.name[2])
     partial_k$.type = "k"
-    grid.dat$.id = 1:nrow(grid.dat)
-    partial_dat = rbind(partial_jk, partial_j, partial_k)
-    partial_dat
+    rbind(partial_jk, partial_j, partial_k, use.names = TRUE)
   }
 }
 
@@ -240,6 +258,6 @@ intervene.interaction.multi = function(dataSample, grid.size) {
     dt$.feature = feature
     dt
   })
-  rbindlist(res)
+  rbindlist(res, use.names = TRUE)
 }
 

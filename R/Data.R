@@ -7,12 +7,13 @@ Data  = R6::R6Class("Data",
     feature.types = NULL,
     feature.names = NULL,
     n.features = NULL,
+    n.rows = NULL,
     prob = NULL,
     sample = function(n=100, replace = TRUE, prob = NULL, get.y=FALSE) {
       if (is.null(prob) & !is.null(self$prob)) {
         prob = self$prob
       }
-      indices = sample.int(private$nrows, size = n, 
+      indices = sample.int(self$n.rows, size = n, 
         replace = replace, prob = prob)
       if (get.y) {
         cbind(self$X[indices,], self$y[indices,])
@@ -54,11 +55,8 @@ Data  = R6::R6Class("Data",
       self$feature.types = get.feature.type(unlist(lapply(X, class)))
       self$feature.names = colnames(X)
       self$n.features = ncol(X)
+      self$n.rows = nrow(X)
       names(self$feature.types) = self$feature.names
-      private$nrows = nrow(X)
     }
-  ),
-  private  = list(
-   nrows = NULL
   )
 )

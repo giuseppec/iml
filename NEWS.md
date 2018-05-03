@@ -1,5 +1,7 @@
+# iml 0.5.0
+* Implemented Interaction measure
 
-# iml 0.4.0 (IN PROGRESS)
+# iml 0.4.0 
 * `object$run()` does not return `self` any longer. This means using `object$set.feature()` for example does not automatically print the object summary any longer.
 * Added an introductory vignette.
 * Fixed an issue where the Predictor would not store X, when y is given as character.
