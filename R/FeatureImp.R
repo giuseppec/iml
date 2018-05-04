@@ -151,33 +151,16 @@ FeatureImp = R6::R6Class("FeatureImp",
     method = NULL,
     # for printing
     loss.string = NULL,
-    shuffleFeature = function(feature.name, method) {
-      if (method == "shuffle") {
-        X.inter = copy(private$dataSample)
-        sampled.features = sample(X.inter[[feature.name]])
-        X.inter[, (feature.name) := sampled.features]
-      } else if (method == "cartesian") {
-        n = nrow(private$dataSample)
-        row.indices = rep(1:n, times = n)
-        replace.indices = rep(1:n, each = n)
-        # Indices of instances to keep. Removes those where instance matched with own value
-        keep.indices = row.indices != replace.indices
-        X.inter = private$dataSample[row.indices, ]
-        shuffled.features =  X.inter[replace.indices, feature.name, with = FALSE][[1]]
-        X.inter[, (feature.name) :=  shuffled.features] 
-        X.inter = X.inter[keep.indices,]
-        X.inter
-      } else {
-        stop(sprintf("%s method not implemented"))
-      }
-      X.inter$.feature = feature.name
-      X.inter 
-    },
     q = function(pred) probs.to.labels(pred),
     intervene = function() {
       X.inter.list = lapply(private$sampler$feature.names, 
-        function(i) private$shuffleFeature(i, method = private$method))
-      rbindlist(X.inter.list)
+        function(i) {
+          n.times = ifelse(private$method == "cartesian", nrow(private$dataSample), 1)
+          mg = generate.marginals(private$dataSample, private$dataSample, features = i, n.sample.dist = n.times)
+          mg$.feature = i
+          mg
+        })
+      rbindlist(X.inter.list, use.names = TRUE)
     },
     aggregate = function() {
       y = private$dataDesign[, private$sampler$y.names, with = FALSE]
