@@ -163,7 +163,9 @@ Interaction = R6::R6Class("Interaction",
 )
 
 
-# n.sample is 2D: first is sampling of grid points, 2nd is sampling of points for evaluation
+# For a grid (grid.dat) of features (param features) creates a blown up
+# dataset with the marginals of features not in 'features'. 
+# The samples drawn for the marginals are coming from dist.dat
 generate.marginals = function(grid.dat, dist.dat, features) {
   assert_data_table(grid.dat)
   assert_data_table(dist.dat)
@@ -183,12 +185,14 @@ generate.marginals = function(grid.dat, dist.dat, features) {
 }
 
 
-
+# The test statistic as defined in:
+# Friedman H. F, & Popescu, B. E. (n.d.). Predictive Learning via 
+# Rules Ensembles, 25(9), 1682–1690. http://doi.org/10.1007/s13398-014-0173-7.2
+# Measures the variance explained by the interaction
 h.test = function(f.all, f.j, f.no.j) { 
   assert_numeric(f.all, any.missing = FALSE)
   assert_numeric(f.j, any.missing = FALSE)
   assert_numeric(f.no.j, any.missing = FALSE)
-  
   # center
   f.all = scale(f.all, center = TRUE, scale = FALSE)
   f.j =  scale(f.j, center = TRUE, scale = FALSE)
@@ -222,6 +226,8 @@ aggregate.interaction = function(partial_dat, prediction, features) {
 }
 
 
+# The intervention function for the Interaction class
+# Depending on the type of interaction (1v1 or 1 vs all) creates the marginals
 intervene.interaction = function(dataSample, feature.name, grid.size) {
   assert_data_table(dataSample)
   assert_character(feature.name, min.len = 1, max.len = 2, any.missing = FALSE)
