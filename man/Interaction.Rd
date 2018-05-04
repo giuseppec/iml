@@ -5,7 +5,7 @@
 \title{Interaction strength}
 \format{\code{\link{R6Class}} object.}
 \description{
-\code{TreeSurrogate} measures the interaction strength of features in a prediction model.
+\code{Interaction} measures feature interactions in a prediction model.
 }
 \section{Usage}{
 

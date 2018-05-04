@@ -1,6 +1,6 @@
 #' Interaction strength
 #' 
-#' \code{TreeSurrogate} measures the interaction strength of features in a prediction model.
+#' \code{Interaction} measures feature interactions in a prediction model.
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Interaction
