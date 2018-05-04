@@ -1,4 +1,4 @@
-# iml 0.5.0
+# iml 0.5.0 (IN PROGRESS)
 * Implemented Interaction measure
 
 # iml 0.4.0 

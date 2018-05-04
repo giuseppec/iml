@@ -10,12 +10,11 @@
 \section{Usage}{
 
 \preformatted{
-tree = Interaction$new(predictor, maxdepth = 2, tree.args = NULL, run = TRUE)
+interaction = Interaction$new(predictor, features = NULL, grid.size = 20, run = TRUE)
 
-plot(tree)
-predict(tree, newdata)
-tree$results
-print(tree)
+plot(interaction)
+interaction$results
+print(interaction)
 }
 }
 
@@ -26,9 +25,12 @@ For Interaction$new():
 \describe{
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{maxdepth: }{(`numeric(1)`)\cr The maximum depth of the tree. Default is 2.}
+\item{features: }{(`numeric(1|2)|NULL`)\cr The feature for which to measure the interaction. 
+Leave NULL if you want to have for each feature the  average interactions with all other features. 
+If you set one feature name, the interactions of this feature with all other features is calculated. 
+If the vector has length two, the interaction between those two features will be calculated.}
+\item{grid.size: }{(`logical(1)`)\cr }
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
-\item{tree.args: }{(named list)\cr Further arguments for \code{ctree}.}
 }
 }
 
