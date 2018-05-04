@@ -1,16 +1,16 @@
-#' Interaction strength
+#' Feature interactions
 #' 
-#' \code{Interaction} measures feature interactions in a prediction model.
+#' \code{Interaction} measures the feature interactions in a prediction model.
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Interaction
 #' @section Usage:
 #' \preformatted{
-#' interaction = Interaction$new(predictor, features = NULL, grid.size = 20, run = TRUE)
+#' ia = Interaction$new(predictor, features = NULL, grid.size = 20, run = TRUE)
 #' 
-#' plot(interaction)
-#' interaction$results
-#' print(interaction)
+#' plot(ia)
+#' ia$results
+#' print(ia)
 #' }
 #' 
 #' @section Arguments:
@@ -19,101 +19,76 @@
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
-#' \item{features: }{(`numeric(1|2)|NULL`)\cr The feature for which to measure the interaction. 
-#' Leave NULL if you want to have for each feature the  average interactions with all other features. 
-#' If you set one feature name, the interactions of this feature with all other features is calculated. 
-#' If the vector has length two, the interaction between those two features will be calculated.}
-#' \item{grid.size: }{(`logical(1)`)\cr }
+#' \item{features: }{(`numeric(1|2)`|NULL)\cr 
+#' If NULL, the interaction of each feature with all other features is computed. 
+#' If one feature is chosen, the interactions of only this feature with all other features is computed 
+#' If two features are chosen, the interaction strength between those two features will be calculated.}
+#' \item{grid.size: }{(`logical(1)`)\cr The number of data points per feauture that should be used to estimate the interaction strength.}
 #' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
 #' @section Details:  
-#' A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data.
-#' The \code{partykit} package and function are used to fit the tree. 
-#' By default a tree of maximum depth of 2 is fitted to improve interpretability.
+#' Interactions between features are measured via the decomposition of the prediction function:
+#' If a feature j has no interaction with any other feature, the prediction function can 
+#' be expressed as the sum of the partial function that depends only on j and the partial function that only depends on features other than j.
+#' If the variance of the full function is completely explained by the sum of the partial functions, there is no interaction between feature j and the other features. 
+#' Any variance that is not explained can be attributed to the interaction and is used as a measure of interaction strength.
+#' 
+#' The interaction strength between two features is the proportion of the variance of the 2-dimensional partial dependence function that is not explained
+#' by the sum of the two 1-dimensional partial dependence functions.
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{maxdepth: }{(`numeric(1)`)\cr The maximum tree depth.}
+#' \item{grid.size: }{(`numeric(1)`)\cr The number of points for each feature at which the function was evaluated.}
 #' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-#' \item{r.squared}{(`numeric(1|n.classes)`)\cr R squared measures how well the decision tree approximates the underlying model. 
-#' It is calculated as 1 - (variance of prediction differences / variance of black box model predictions).
-#' For the multi-class case, r.squared contains one measure per class.}
-#' \item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns .node and .path) 
-#' and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with .y.hat).}
-#' \item{tree: }{(party)\cr The fitted tree. See also \link[partykit]{ctree}.}
+#' \item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature and - in the case of a multi-dimensional outcome - per class.}
 #' }
 #'  
 #' @section Methods:
 #' \describe{
-#' \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}.}
-#' \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
+#' \item{plot()}{method to plot the feature interactions. See \link{plot.Interaction}.}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' 
 #' @references 
-#' Craven, M., & Shavlik, J. W. (1996). Extracting tree-structured representations of trained networks. In Advances in neural information processing systems (pp. 24-30).
-#' @examples 
+#' Friedman H. F, and Popescu, B. E. (n.d.). Predictive Learning via Rules Ensembles, 25(9), 1682-1690. https://doi.org/10.1007/s13398-014-0173-7.2
+#' 
+#' @examples
 #' if (require("randomForest")) {
+#' set.seed(42)
 #' # Fit a Random Forest on the Boston housing data set
 #' data("Boston", package  = "MASS")
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' # Create a model object
 #' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
 #' 
-#' # Fit a decision tree as a surrogate for the whole random forest
-#' dt = Interaction$new(mod)
+#' # Measure the interaction strength
+#' ia = Interaction$new(mod, grid.size = 40)
 #' 
 #' # Plot the resulting leaf nodes
-#' plot(dt) 
+#' plot(ia) 
 #' 
-#' # Use the tree to predict new data
-#' predict(dt, Boston[1:10,])
 #' 
 #' # Extract the results
-#' dat = dt$results
+#' dat = ia$results
 #' head(dat)
 #' 
+#' # Interaction also works with multiclass classification
+#' rf = randomForest(Species ~ ., data = iris, ntree=50)
+#' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
+#' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 #' 
-#' n = 100
-#' dat = data.table(x1 = rnorm(n),
-#' x2 = rnorm(n), x3 = rnorm(n), 
-#' x4 = rnorm(n), x5 = rnorm(n), x6 = rnorm(n))
-#' f = function(dat) {
-#' dat$x1 * dat$x3 + dat$x1 +  dat$x3 + dat$x6 * dat$x1
-#' }
-#' mod = Predictor$new(f, dat, predict.fun = function(ff, newdata) {ff(newdata)})
-#' inter = Interaction$new(mod, "x1")
-#' inter$results
-#' 
-#' 
-#' inter = Interaction$new(mod, features = c("x1"), grid.size = 100)
-#' inter$results
-#' 
-#' inter = Interaction$new(mod, features = c("x2"), grid.size = 100)
-#' inter$results
-#' plot(inter)
-#' 
-#' inter = Interaction$new(mod, features = c("x3"), grid.size = 100)
-#' inter$results
+#' # For some models we have to specify additional arguments for the predict function
+#' ia = Interaction$new(mod)
 #'
-#' inter = Interaction$new(mod, features = c("x4"), grid.size = 100)
-#' inter$results
-#'  
-#' inter = Interaction$new(mod, features = c("x1", "x2"), grid.size = 100)
-#' inter$results
-#' inter = Interaction$new(mod, features = c("x1", "x3"), grid.size = 100)
-#' inter$results
+#' ia$plot()
 #' 
-#' inter = Interaction$new(mod, features = c("x2", "x3"), grid.size = 100)
-#' inter$results
-#' plot(inter)
-#' inter = Interaction$new(mod,  grid.size = 100)
-#' inter$results
-#' plot(inter)
-#' 
+#' # For multiclass classification models, you can choose to only show one class:
+#' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = "virginica")
+#' plot(Interaction$new(mod))
+#' }
 #' @seealso 
 #' \link{Partial}
 #' 
@@ -127,7 +102,6 @@ Interaction = R6::R6Class("Interaction",
   inherit = InterpretationMethod,
   public = list(
     # The fitted tree
-    features = NULL,
     grid.size = NULL,
     initialize = function(predictor, features = NULL, grid.size = 20, run = TRUE) {
       assert_vector(features, max.len = 2, null.ok = TRUE)
@@ -135,9 +109,9 @@ Interaction = R6::R6Class("Interaction",
       assert_logical(run)
       
       if (!is.null(features) && is.numeric(features)) {
-        self$features = predictor$data$feature.names[features]
+        private$features = predictor$data$feature.names[features]
       } else {
-        self$features = features
+        private$features = features
       }
       self$grid.size = min(grid.size, predictor$data$n.rows)
       super$initialize(predictor)
@@ -146,23 +120,55 @@ Interaction = R6::R6Class("Interaction",
   ), 
   private = list(
     intervene = function() {
-      if (is.null(self$features)) {
+      if (is.null(private$features)) {
         intervene.interaction.multi(private$dataSample, grid.size = self$grid.size)
       } else {
-        intervene.interaction(private$dataSample, self$features, grid.size = self$grid.size)
+        intervene.interaction(private$dataSample, private$features, grid.size = self$grid.size)
       }
     },
     aggregate = function() {
-      aggregate.interaction(private$dataDesign, private$qResults, features = self$features)
+      aggregate.interaction(private$dataDesign, private$qResults, features = private$features)
     }, 
     generatePlot = function() {
-      ggplot(self$results) + 
+      p = ggplot(self$results) + 
         geom_col(aes(x = .feature, y = .interaction)) + 
         scale_y_continuous("Interaction strength") + 
         scale_x_discrete("Features")
-    }
+      if (private$multiClass) {
+        p = p + facet_wrap(".class")
+      }
+      p
+    },
+    features = NULL
   )
 )
+
+
+
+#' Plot Interaction
+#' 
+#' plot.Interaction() plots the results of an Interaction object.
+#' 
+#' @param x An Interaction R6 object
+#' @return ggplot2 plot object
+#' @seealso 
+#' \link{Interaction}
+#' @examples
+#' # We train a random forest on the Boston dataset:
+#' if (require("randomForest")) {
+#' data("Boston", package  = "MASS")
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' mod = Predictor$new(rf, data = Boston)
+#' 
+#' # Compute the interactions
+#' pdp.obj = Interaction$new(mod)
+#' 
+#' # Plot the results directly
+#' plot(pdp.obj)
+#' }
+plot.Interaction = function(x) {
+  x$plot()
+}
 
 
 
@@ -187,23 +193,31 @@ aggregate.interaction = function(partial_dat, prediction, features) {
   assert_data_frame(prediction)
   assert_character(features, null.ok = TRUE)
   assert_true(all(features %in% colnames(partial_dat)))
+  # for suppressing NOTE in R CMD check:
+  jk = j = k = f = no.j = .feature = .id = .class = .type = NULL
   
-  partial_dat$pred = prediction
-  if (length(features) == 2) {
-    pd.jk = partial_dat[.type == "jk",  mean(pred), by = .id]
-    pd.j = partial_dat[.type == "j",  mean(pred), by = .id]
-    pd.k = partial_dat[.type == "k",  mean(pred), by = .id]
-    res = h.test(pd.jk$V1, pd.j$V1, pd.k$V1) 
-    data.frame(.feature = paste(features, collapse = ":"),
-      .interaction = res)
+  if (ncol(prediction) == 1) {
+    partial_dat$.y.hat = prediction
+    partial_dat$.class = 1
   } else {
-    if (length(features) == 1) {
-      partial_dat$.feature = features
-    }
-    partial_dat = partial_dat[, c(".id", ".feature", ".type", "pred")]
-    pd = dcast(partial_dat, .feature + .id~ .type, value.var = "pred", fun.aggregate = mean)
-    data.frame(pd[, list(.interaction = h.test(f, j, no.j)), by = .feature])
+    y.hat.names = colnames(prediction)
+    partial_dat = cbind(partial_dat, prediction)
+    partial_dat = melt(partial_dat, variable.name = ".class", 
+      value.name = ".y.hat", measure.vars = y.hat.names)
+  } 
+  partial_dat = partial_dat[, c(".id", ".feature", ".type", ".y.hat", ".class")]
+  pd = dcast(partial_dat, .feature + .id + .class ~ .type, 
+    value.var = ".y.hat", fun.aggregate = mean)
+  
+  if (length(features) == 2) {
+    res = data.frame(pd[, list(.interaction = h.test(jk, j, k)), by = list(.feature, .class)])
+  } else {
+    res = data.frame(pd[, list(.interaction = h.test(f, j, no.j)), by = list(.feature, .class)])
   }
+  if (ncol(prediction) == 1) {
+    res$.class = NULL
+  }
+  res
 }
 
 
@@ -223,7 +237,7 @@ intervene.interaction = function(dataSample, feature.name, grid.size) {
     partial_noj$.type = "no.j"
     grid.dat$.type = "f"
     grid.dat$.id = 1:nrow(grid.dat)
-    rbind(partial_j, partial_noj, grid.dat, use.names = TRUE)
+    res = rbind(partial_j, partial_noj, grid.dat, use.names = TRUE)
   } else if (length(feature.name) == 2) {
     partial_jk = generate.marginals(grid.dat, dist.dat, feature.name)
     partial_jk$.type = "jk"
@@ -231,8 +245,10 @@ intervene.interaction = function(dataSample, feature.name, grid.size) {
     partial_j$.type = "j"
     partial_k  = generate.marginals(grid.dat, dist.dat, feature.name[2])
     partial_k$.type = "k"
-    rbind(partial_jk, partial_j, partial_k, use.names = TRUE)
+    res = rbind(partial_jk, partial_j, partial_k, use.names = TRUE)
   }
+  res$.feature = paste(feature.name, collapse = ":")
+  res
 }
 
 
@@ -242,7 +258,6 @@ intervene.interaction.multi = function(dataSample, grid.size) {
     dt = intervene.interaction(dataSample = dataSample, 
       feature.name = feature, 
       grid.size = grid.size)
-    dt$.feature = feature
     dt
   })
   rbindlist(res, use.names = TRUE)

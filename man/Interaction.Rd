@@ -2,19 +2,19 @@
 % Please edit documentation in R/Interaction.R
 \name{Interaction}
 \alias{Interaction}
-\title{Interaction strength}
+\title{Feature interactions}
 \format{\code{\link{R6Class}} object.}
 \description{
-\code{Interaction} measures feature interactions in a prediction model.
+\code{Interaction} measures the feature interactions in a prediction model.
 }
 \section{Usage}{
 
 \preformatted{
-interaction = Interaction$new(predictor, features = NULL, grid.size = 20, run = TRUE)
+ia = Interaction$new(predictor, features = NULL, grid.size = 20, run = TRUE)
 
-plot(interaction)
-interaction$results
-print(interaction)
+plot(ia)
+ia$results
+print(ia)
 }
 }
 
@@ -25,49 +25,83 @@ For Interaction$new():
 \describe{
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{features: }{(`numeric(1|2)|NULL`)\cr The feature for which to measure the interaction. 
-Leave NULL if you want to have for each feature the  average interactions with all other features. 
-If you set one feature name, the interactions of this feature with all other features is calculated. 
-If the vector has length two, the interaction between those two features will be calculated.}
-\item{grid.size: }{(`logical(1)`)\cr }
+\item{features: }{(`numeric(1|2)`|NULL)\cr 
+If NULL, the interaction of each feature with all other features is computed. 
+If one feature is chosen, the interactions of only this feature with all other features is computed 
+If two features are chosen, the interaction strength between those two features will be calculated.}
+\item{grid.size: }{(`logical(1)`)\cr The number of data points per feauture that should be used to estimate the interaction strength.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
 \section{Details}{
   
-A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data.
-The \code{partykit} package and function are used to fit the tree. 
-By default a tree of maximum depth of 2 is fitted to improve interpretability.
+Interactions between features are measured via the decomposition of the prediction function:
+If a feature j has no interaction with any other feature, the prediction function can 
+be expressed as the sum of the partial function that depends only on j and the partial function that only depends on features other than j.
+If the variance of the full function is completely explained by the sum of the partial functions, there is no interaction between feature j and the other features. 
+Any variance that is not explained can be attributed to the interaction and is used as a measure of interaction strength.
+
+The interaction strength between two features is the proportion of the variance of the 2-dimensional partial dependence function that is not explained
+by the sum of the two 1-dimensional partial dependence functions.
 }
 
 \section{Fields}{
 
 \describe{
-\item{maxdepth: }{(`numeric(1)`)\cr The maximum tree depth.}
+\item{grid.size: }{(`numeric(1)`)\cr The number of points for each feature at which the function was evaluated.}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{r.squared}{(`numeric(1|n.classes)`)\cr R squared measures how well the decision tree approximates the underlying model. 
-It is calculated as 1 - (variance of prediction differences / variance of black box model predictions).
-For the multi-class case, r.squared contains one measure per class.}
-\item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns .node and .path) 
-and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with .y.hat).}
-\item{tree: }{(party)\cr The fitted tree. See also \link[partykit]{ctree}.}
+\item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature and - in the case of a multi-dimensional outcome - per class.}
 }
 }
 
 \section{Methods}{
 
 \describe{
-\item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}.}
-\item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
+\item{plot()}{method to plot the feature interactions. See \link{plot.Interaction}.}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }
 }
 
+\examples{
+if (require("randomForest")) {
+set.seed(42)
+# Fit a Random Forest on the Boston housing data set
+data("Boston", package  = "MASS")
+rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+# Create a model object
+mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+
+# Measure the interaction strength
+ia = Interaction$new(mod, grid.size = 40)
+
+# Plot the resulting leaf nodes
+plot(ia) 
+
+
+# Extract the results
+dat = ia$results
+head(dat)
+
+# Interaction also works with multiclass classification
+rf = randomForest(Species ~ ., data = iris, ntree=50)
+predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
+mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
+
+# For some models we have to specify additional arguments for the predict function
+ia = Interaction$new(mod)
+
+ia$plot()
+
+# For multiclass classification models, you can choose to only show one class:
+mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = "virginica")
+plot(Interaction$new(mod))
+}
+}
 \references{
-Craven, M., & Shavlik, J. W. (1996). Extracting tree-structured representations of trained networks. In Advances in neural information processing systems (pp. 24-30).
+Friedman H. F, and Popescu, B. E. (n.d.). Predictive Learning via Rules Ensembles, 25(9), 1682-1690. https://doi.org/10.1007/s13398-014-0173-7.2
 }
 \seealso{
 \link{Partial}

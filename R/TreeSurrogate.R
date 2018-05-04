@@ -34,7 +34,7 @@
 #' \describe{
 #' \item{maxdepth: }{(`numeric(1)`)\cr The maximum tree depth.}
 #' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-#' \item{r.squared}{(`numeric(1|n.classes)`)\cr R squared measures how well the decision tree approximates the underlying model. 
+#' \item{r.squared: }{(`numeric(1|n.classes)`)\cr R squared measures how well the decision tree approximates the underlying model. 
 #' It is calculated as 1 - (variance of prediction differences / variance of black box model predictions).
 #' For the multi-class case, r.squared contains one measure per class.}
 #' \item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns .node and .path) 

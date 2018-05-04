@@ -43,6 +43,16 @@ test_that("Interaction does not work for 3 features", {
 })
 
 
+test_that("Interaction for multiclass", {
+  ia = Interaction$new(predictor2)
+  dat = ia$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(dat), c(".feature", ".class", ".interaction"))
+  expect_equal(nrow(dat), 2 * 4)  
+  checkPlot(ia)
+})
+
+
 
 test_that("intervene.interaction", {
   dataSample = data.table(a = 1:10, b = 1:10, c = 1:10)
@@ -51,7 +61,7 @@ test_that("intervene.interaction", {
   
   dat = intervene.interaction(dataSample, feature.name, grid.size) 
   expect_data_table(dat, any.missing = FALSE, nrows = 3 + 3*10*2)
-  expect_equal(colnames(dat), c("b", "a", "c", ".id", ".type"))
+  expect_equal(colnames(dat), c("b", "a", "c", ".id", ".type", ".feature"))
   expect_equal(unique(dat$.type), c("j", "no.j", "f"))
   expect_equal(unique(dat$.id), 1:3)
   expect_equal(sort(unique(dat$a)), 1:10)
