@@ -163,29 +163,6 @@ Interaction = R6::R6Class("Interaction",
 )
 
 
-# For a grid (grid.dat) of features (param features) creates a blown up
-# dataset with the marginals of features not in 'features'. 
-# The samples (n.sample.dist number of samples) for the marginals are drawn from dist.dat
-generate.marginals = function(grid.dat, dist.dat, features, n.sample.dist = NULL) {
-  assert_data_table(grid.dat)
-  assert_data_table(dist.dat)
-  assert_true(all(features %in% colnames(grid.dat)))
-  assert_true(all(colnames(grid.dat) %in% colnames(dist.dat)))
-  
-  assert_character(features, unique = TRUE)
-  if (is.null(n.sample.dist)) {
-    n.sample.dist = nrow(dist.dat)
-  }
-  features.rest = setdiff(colnames(grid.dat), features)
-  grid.index = rep(1:nrow(grid.dat), each = n.sample.dist)
-  partial_j1 = grid.dat[grid.index, ..features]
-  partial_j2 = data.table::rbindlist(lapply(1:nrow(grid.dat), 
-    function(x) dist.dat[sample(1:nrow(dist.dat), size = n.sample.dist), ..features.rest]), use.names = TRUE)
-  partial_j = cbind(partial_j1, partial_j2)
-  partial_j$.id = grid.index
-  partial_j
-}
-
 
 # The test statistic as defined in:
 # Friedman H. F, & Popescu, B. E. (n.d.). Predictive Learning via 

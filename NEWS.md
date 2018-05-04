@@ -1,5 +1,6 @@
 # iml 0.5.0
 * Implemented Interaction measure
+* Removed `feature.index` variable from `Partial` 
 
 # iml 0.4.0 
 * `object$run()` does not return `self` any longer. This means using `object$set.feature()` for example does not automatically print the object summary any longer.
