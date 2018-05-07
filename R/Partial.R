@@ -186,20 +186,20 @@ Partial = R6::R6Class("Partial",
       if (private$multiClass) {
         y.hat.names = colnames(private$qResults)
         results.ice = cbind(results.ice, private$qResults)
-        results.ice = melt(results.ice, variable.name = ".class.name", 
+        results.ice = melt(results.ice, variable.name = ".class", 
           value.name = ".y.hat", measure.vars = y.hat.names)
       } else {
         results.ice[, ".y.hat" := private$qResults]
-        results.ice$.class.name = 1
+        results.ice$.class = 1
       }
       
       if (!is.null(private$anchor.value)) {
         anchor.index = which(results.ice[,self$feature.name, with=FALSE] == private$anchor.value)
-        X.aggregated.anchor = results.ice[anchor.index, c(".y.hat", ".id.dist", ".class.name"), with = FALSE]
-        names(X.aggregated.anchor) = c("anchor.yhat", ".id.dist", ".class.name")
+        X.aggregated.anchor = results.ice[anchor.index, c(".y.hat", ".id.dist", ".class"), with = FALSE]
+        names(X.aggregated.anchor) = c("anchor.yhat", ".id.dist", ".class")
         # In case that the anchor value was also part of grid
         X.aggregated.anchor = unique(X.aggregated.anchor)
-        results.ice = merge(results.ice, X.aggregated.anchor, by = c(".id.dist", ".class.name"))
+        results.ice = merge(results.ice, X.aggregated.anchor, by = c(".id.dist", ".class"))
         results.ice$.y.hat = results.ice$.y.hat - results.ice$anchor.yhat
         results.ice$anchor.yhat = NULL
       }
@@ -208,7 +208,7 @@ Partial = R6::R6Class("Partial",
       if (self$aggregation == "pdp") {
         if (private$multiClass) {
           results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
-            by = c(self$feature.name, ".class.name")]
+            by = c(self$feature.name, ".class")]
         } else {
           results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
             by = c(self$feature.name)]
@@ -217,7 +217,7 @@ Partial = R6::R6Class("Partial",
         results = rbind(results, results.aggregated)
       }
       if (!private$multiClass) { 
-        results.ice$.class.name = NULL
+        results.ice$.class = NULL
       }
       if (self$ice) {
         results.ice$.type = "ice"
@@ -312,7 +312,7 @@ Partial = R6::R6Class("Partial",
           position = position_jitter(width = 0.1, height = 0.1))
       }
       if (private$multiClass) {
-        p = p + facet_wrap(".class.name")
+        p = p + facet_wrap(".class")
       } 
       p
     }, 

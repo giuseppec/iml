@@ -101,7 +101,7 @@ test_that("Partial (pdp) works for multiple output", {
   pdp.obj = Partial$new(predictor2, ice = FALSE, feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class.name", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type"))
   expect_equal(nrow(dat), grid.size * 2)  
   expect_equal(nrow(unique(dat)), grid.size * 2)
   expect_equal(max(dat$a), 5)
@@ -114,7 +114,7 @@ test_that("Partial (pdp+ice) works for multiple output", {
   pdp.obj = Partial$new(predictor2, feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class.name", ".y.hat", ".type", ".id"))
+  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type", ".id"))
   expect_equal(nrow(dat), grid.size * 2 + grid.size * nrow(X) * 2)  
   expect_equal(nrow(unique(dat)), grid.size * 2 + grid.size * nrow(X) * 2)
   expect_equal(max(dat$a), 5)
@@ -143,7 +143,7 @@ test_that("Partial (ice) works for multiple output", {
   ice.obj = Partial$new(predictor2, feature = "a", grid.size = grid.size, aggregation = "none")
   dat = ice.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class.name", ".y.hat", ".type",  ".id"))
+  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type",  ".id"))
   expect_equal(nrow(dat), grid.size * nrow(X) * 2)  
   expect_equal(nrow(unique(dat)), grid.size * nrow(X) * 2)
   expect_equal(max(dat$a), 5)
@@ -159,7 +159,7 @@ test_that("centered Partial (ice) works for multiple output", {
   dat = ice.obj$results
   expect_equal(ice.obj$center.at, 10)
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class.name", ".y.hat", ".type", ".id"))
+  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type", ".id"))
   expect_equal(nrow(dat), (grid.size + 1) * nrow(X) * 2 + (grid.size + 1) * 2)  
   expect_equal(nrow(unique(dat)), (grid.size + 1) * nrow(X) * 2 + (grid.size + 1) * 2)  
   expect_equal(max(dat$a), 10)
