@@ -57,8 +57,8 @@
 #' }
 #' 
 #' @references 
-#' Friedman H. F, and Popescu, B. E. (n.d.). Predictive Learning via Rules Ensembles, 25(9), 1682-1690. https://doi.org/10.1214/07-AOAS148
-#' 
+#' Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 
+#' The Annals of Applied Statistics 2.3 (2008): 916-954. 
 #' @examples
 #' if (require("randomForest")) {
 #' set.seed(42)
@@ -175,8 +175,8 @@ plot.Interaction = function(x) {
 
 
 # The test statistic as defined in:
-# Friedman H. F, & Popescu, B. E. (n.d.). Predictive Learning via 
-# Rules Ensembles, 25(9), 1682–1690. http://doi.org/10.1007/s13398-014-0173-7.2
+# Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 
+# The Annals of Applied Statistics 2.3 (2008): 916-954.
 # Measures the variance explained by the interaction
 h.test = function(f.all, f.j, f.no.j) { 
   assert_numeric(f.all, any.missing = FALSE)

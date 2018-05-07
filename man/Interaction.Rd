@@ -5,7 +5,7 @@
 \title{Feature interactions}
 \format{\code{\link{R6Class}} object.}
 \description{
-\code{Interaction} measures the feature interactions in a prediction model.
+\code{Interaction} estimates the feature interactions in a prediction model.
 }
 \section{Usage}{
 
@@ -26,10 +26,12 @@ For Interaction$new():
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
 \item{features: }{(`numeric(1|2)`|NULL)\cr 
-If NULL, the interaction of each feature with all other features is computed. 
-If one feature is chosen, the interactions of only this feature with all other features is computed 
-If two features are chosen, the interaction strength between those two features will be calculated.}
-\item{grid.size: }{(`logical(1)`)\cr The number of data points per feauture that should be used to estimate the interaction strength.}
+If NULL, for each feature the interactions with all other features are estimated.
+If one feature name is selected, the interactions of only this feature with all other features is estimated. 
+If two feature names are selected, the interaction strength between those two features will be estimated}
+\item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.
+A larger grid.size means more accurate the results but longer the computation time.
+For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
@@ -44,12 +46,14 @@ Any variance that is not explained can be attributed to the interaction and is u
 
 The interaction strength between two features is the proportion of the variance of the 2-dimensional partial dependence function that is not explained
 by the sum of the two 1-dimensional partial dependence functions.
+
+The interaction measure takes on values between 0 (no interaction) to 1 (100% of variance of f(x) du to interaction).
 }
 
 \section{Fields}{
 
 \describe{
-\item{grid.size: }{(`numeric(1)`)\cr The number of points for each feature at which the function was evaluated.}
+\item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
 \item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature and - in the case of a multi-dimensional outcome - per class.}
 }
@@ -99,10 +103,9 @@ ia$plot()
 mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = "virginica")
 plot(Interaction$new(mod))
 }
+
 }
 \references{
-Friedman H. F, and Popescu, B. E. (n.d.). Predictive Learning via Rules Ensembles, 25(9), 1682-1690. https://doi.org/10.1007/s13398-014-0173-7.2
-}
-\seealso{
-\link{Partial}
+Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 
+The Annals of Applied Statistics 2.3 (2008): 916-954.
 }

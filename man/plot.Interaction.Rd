@@ -23,10 +23,10 @@ rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 mod = Predictor$new(rf, data = Boston)
 
 # Compute the interactions
-pdp.obj = Interaction$new(mod)
+ia = Interaction$new(mod)
 
 # Plot the results directly
-plot(pdp.obj)
+plot(ia)
 }
 }
 \seealso{
