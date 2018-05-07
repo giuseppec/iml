@@ -14,7 +14,7 @@ Description: Interpretability methods to analyze the behavior and predictions of
  individual conditional expectation ('ice') plots described by Goldstein et al. (2013) <doi:10.1080/10618600.2014.907095>,
  local models (variant of 'lime') described by Ribeiro et. al (2016) <arXiv:1602.04938>,
  the Shapley Value described by Strumbelj et. al (2014) <doi:10.1007/s10115-013-0679-x>, 
- feature interactions described by Friedman et. al <doi:10.1007/s13398-014-0173-7.2> and
+ feature interactions described by Friedman et. al <doi:10.1214/07-AOAS148> and
  tree surrogate models.
 URL: https://github.com/christophM/iml
 BugReports: https://github.com/christophM/iml/issues
