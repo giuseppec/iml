@@ -6,7 +6,7 @@ expectedColnames = c("feature", "original.error", "permutation.error", "importan
 
 test_that("FeatureImp works for single output", {
   
-  var.imp = FeatureImp$new(predictor1,  loss = "mse")
+  var.imp = FeatureImp$new(predictor1, loss = "mse")
   dat = var.imp$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), expectedColnames)
@@ -33,8 +33,8 @@ test_that("FeatureImp works for single output", {
   # creates a problem on win builder
   # model.error = Metrics::mse(y.exact, f.exact$predict(X.exact))
   model.error = 1
-  cart.indices = c(1,1,2,2,3,3)
-  cartesian.error = Metrics::mse(y.exact[cart.indices], c(2,3,1,3,1,2))
+  cart.indices = c(1, 1, 1, 2, 2, 2, 3, 3, 3)
+  cartesian.error = Metrics::mse(y.exact[cart.indices], c(1, 2, 3, 1, 2, 3, 1, 2, 3))
   
   var.imp = FeatureImp$new(f.exact, loss = "mse", method = "cartesian")
   dat = var.imp$results

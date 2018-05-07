@@ -1,15 +1,14 @@
 ## ---- echo = FALSE, message = FALSE--------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
-set.seed(1014)
 
 ## ------------------------------------------------------------------------
 data("Boston", package  = "MASS")
 head(Boston)
 
 ## ---- message = FALSE----------------------------------------------------
+set.seed(42)
 library("iml")
-
 library("randomForest")
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
@@ -34,6 +33,17 @@ pdp.obj$plot()
 ## ------------------------------------------------------------------------
 pdp.obj$center(min(Boston$rm))
 pdp.obj$plot()
+
+## ------------------------------------------------------------------------
+interact = Interaction$new(predictor)
+plot(interact)
+
+## ------------------------------------------------------------------------
+interact = Interaction$new(predictor, features = c("crim", "lstat"))
+interact$results
+
+interact = Interaction$new(predictor, features = c("crim", "rm"))
+interact$results
 
 ## ------------------------------------------------------------------------
 tree = TreeSurrogate$new(predictor, maxdepth = 2)

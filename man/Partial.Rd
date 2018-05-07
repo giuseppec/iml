@@ -52,7 +52,6 @@ https://christophm.github.io/interpretable-ml-book/ice.html
 \section{Fields}{
 
 \describe{
-\item{feature.index: }{(`numeric(1)` | `numeric(2)`)\cr The index of the feature(s) for which the partial dependence was computed.}
 \item{feature.name: }{(`character(1)` | `character(2)`)\cr The names of the features for which the partial dependence was computed.}
 \item{feature.type: }{(`character(1)` | `character(2)`)\cr The detected types of the features, either "categorical" or "numerical".}
 \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid.}

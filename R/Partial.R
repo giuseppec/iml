@@ -44,7 +44,6 @@
 #' 
 #' @section Fields:
 #' \describe{
-#' \item{feature.index: }{(`numeric(1)` | `numeric(2)`)\cr The index of the feature(s) for which the partial dependence was computed.}
 #' \item{feature.name: }{(`character(1)` | `character(2)`)\cr The names of the features for which the partial dependence was computed.}
 #' \item{feature.type: }{(`character(1)` | `character(2)`)\cr The detected types of the features, either "categorical" or "numerical".}
 #' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid.}
@@ -142,7 +141,6 @@ Partial = R6::R6Class("Partial",
     ice = NULL,
     aggregation = NULL,
     grid.size = NULL, 
-    feature.index = NULL, 
     feature.name = NULL,
     n.features = NULL, 
     feature.type= NULL,
@@ -184,26 +182,24 @@ Partial = R6::R6Class("Partial",
   private = list(
     anchor.value = NULL,
     aggregate = function() {
-      x.id = private$data.design.id
-      results.ice = private$dataDesign[, self$feature.index, with = FALSE]
-      results.ice$.id = x.id
+      results.ice = private$dataDesign[, c(self$feature.name, ".id.dist"), with = FALSE]
       if (private$multiClass) {
         y.hat.names = colnames(private$qResults)
         results.ice = cbind(results.ice, private$qResults)
-        results.ice = melt(results.ice, variable.name = ".class.name", 
+        results.ice = melt(results.ice, variable.name = ".class", 
           value.name = ".y.hat", measure.vars = y.hat.names)
       } else {
         results.ice[, ".y.hat" := private$qResults]
-        results.ice$.class.name = 1
+        results.ice$.class = 1
       }
       
       if (!is.null(private$anchor.value)) {
         anchor.index = which(results.ice[,self$feature.name, with=FALSE] == private$anchor.value)
-        X.aggregated.anchor = results.ice[anchor.index, c(".y.hat", ".id", ".class.name"), with = FALSE]
-        names(X.aggregated.anchor) = c("anchor.yhat", ".id", ".class.name")
+        X.aggregated.anchor = results.ice[anchor.index, c(".y.hat", ".id.dist", ".class"), with = FALSE]
+        names(X.aggregated.anchor) = c("anchor.yhat", ".id.dist", ".class")
         # In case that the anchor value was also part of grid
         X.aggregated.anchor = unique(X.aggregated.anchor)
-        results.ice = merge(results.ice, X.aggregated.anchor, by = c(".id", ".class.name"))
+        results.ice = merge(results.ice, X.aggregated.anchor, by = c(".id.dist", ".class"))
         results.ice$.y.hat = results.ice$.y.hat - results.ice$anchor.yhat
         results.ice$anchor.yhat = NULL
       }
@@ -212,7 +208,7 @@ Partial = R6::R6Class("Partial",
       if (self$aggregation == "pdp") {
         if (private$multiClass) {
           results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
-            by = c(self$feature.name, ".class.name")]
+            by = c(self$feature.name, ".class")]
         } else {
           results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
             by = c(self$feature.name)]
@@ -221,40 +217,39 @@ Partial = R6::R6Class("Partial",
         results = rbind(results, results.aggregated)
       }
       if (!private$multiClass) { 
-        results.ice$.class.name = NULL
+        results.ice$.class = NULL
       }
       if (self$ice) {
         results.ice$.type = "ice"
         results = rbind(results, results.ice, fill = TRUE)
+        results$.id = results$.id.dist
+        results$.id.dist = NULL
       }
       results
     },
     intervene = function() {
-      grid = get.1D.grid(private$dataSample[[self$feature.index[1]]], self$feature.type[1], self$grid.size[1])
-      
-      private$data.design.id = rep(1:nrow(private$dataSample), times = length(grid))
-      dataDesign = private$dataSample[private$data.design.id,]
-      dataDesign[, self$feature.index[1]] = rep(grid, each = nrow(private$dataSample))
-      
-      if (!is.null(private$anchor.value)) {
-        dataDesign.anchor = private$dataSample
-        dataDesign.anchor[, self$feature.index] = private$anchor.value
-        private$data.design.id = c(private$data.design.id, 1:nrow(private$dataSample))
-        dataDesign = rbind(dataDesign, dataDesign.anchor)
+      if (self$n.features == 1) {
+        grid = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
+          self$feature.type[1], self$grid.size[1])
+        if (!is.null(private$anchor.value) && !(private$anchor.value %in% grid)) {
+          grid = c(grid, private$anchor.value)
+        }
+      } else if (self$n.features == 2) {
+        grid1 = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
+          self$feature.type[1], self$grid.size[1])
+        grid2 = get.1D.grid(private$dataSample[[self$feature.name[2]]], 
+          self$feature.type[2], self$grid.size[2])
+        grid = expand.grid(grid1, grid2)
+      } else {
+        stop("max. number of features is 2")
       }
-      if (self$n.features == 2) {
-        grid2 = get.1D.grid(private$dataSample[[self$feature.index[2]]], self$feature.type[2], self$grid.size[2])
-        private$data.design.id = rep(private$data.design.id, times = length(grid2))
-        dataDesign2 = dataDesign[rep(1:nrow(dataDesign), times = length(grid2)), ]
-        dataDesign2[, self$feature.index[2]] = rep(grid2, each = nrow(dataDesign))
-        return(dataDesign2)
-      }
-      dataDesign
+      
+      grid.dt = data.table(grid)
+      colnames(grid.dt) = self$feature.name
+      generate.marginals(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE)
     }, 
-    data.design.id = NULL, 
     grid.size.original = NULL,
     setFeatureFromIndex = function(feature.index) {
-      self$feature.index = feature.index
       self$n.features = length(feature.index)
       self$feature.type = private$sampler$feature.types[feature.index]
       self$feature.name = private$sampler$feature.names[feature.index]
@@ -317,13 +312,13 @@ Partial = R6::R6Class("Partial",
           position = position_jitter(width = 0.1, height = 0.1))
       }
       if (private$multiClass) {
-        p = p + facet_wrap(".class.name")
+        p = p + facet_wrap(".class")
       } 
       p
     }, 
     set.grid.size = function(size) {
       self$grid.size = numeric(length=self$n.features)
-      names(self$grid.size) = private$sampler$feature.name[self$feature.index]
+      names(self$grid.size) = self$feature.name
       private$set.grid.size.single(size[1], 1)
       if (self$n.features > 1) {
         if (length(size) == 1) {
@@ -337,7 +332,7 @@ Partial = R6::R6Class("Partial",
     }, 
     set.grid.size.single = function(size, feature.number) {
       self$grid.size[feature.number] = ifelse(self$feature.type[feature.number] == "numerical", 
-        size, length(unique(private$sampler$get.x()[[self$feature.index[feature.number]]])))
+        size, length(unique(private$sampler$get.x()[[self$feature.name[feature.number]]])))
     }, 
     sanitize.feature = function(feature, feature.names) {
       if (is.character(feature)) {

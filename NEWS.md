@@ -1,5 +1,8 @@
+# iml 0.5.0 (IN PROGRESS)
+* Implemented Interaction measure
+* Removed `feature.index` variable from `Partial` and renamed `.class.name` column in results to `.class`.
 
-# iml 0.4.0 (IN PROGRESS)
+# iml 0.4.0 
 * `object$run()` does not return `self` any longer. This means using `object$set.feature()` for example does not automatically print the object summary any longer.
 * Added an introductory vignette.
 * Fixed an issue where the Predictor would not store X, when y is given as character.

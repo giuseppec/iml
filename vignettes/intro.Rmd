@@ -10,7 +10,6 @@ vignette: >
 ```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
-set.seed(1014)
 ```
 
 
@@ -46,8 +45,8 @@ head(Boston)
 First we train a randomForest to predict the Boston median housing value:
 
 ```{r, message = FALSE}
+set.seed(42)
 library("iml")
-
 library("randomForest")
 data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
@@ -98,6 +97,29 @@ We can center the curves at a feature value of our choice, which makes it easier
 pdp.obj$center(min(Boston$rm))
 pdp.obj$plot()
 ```
+
+## Measure interactions
+We can also measure how strongly features interact with each other.
+The interaction measure regards how much of the variance of $f(x)$ is explained by the interaction.
+The measure is between 0 (no interaction) and 1 (= 100% of variance of $f(x)$ due to interactions).
+For each feature, we measure how much they interact with any other feature:
+
+```{r}
+interact = Interaction$new(predictor)
+plot(interact)
+```
+
+
+We can also specify two features and measure how much they interact with each other:
+
+```{r}
+interact = Interaction$new(predictor, features = c("crim", "lstat"))
+interact$results
+
+interact = Interaction$new(predictor, features = c("crim", "rm"))
+interact$results
+```
+
 
 ## Surrogate model
 Another way to make the models more interpretable is to replace the black box with a simpler model - a decision tree. We take the predictions of the black box model (in our case the random forest) and train a decision tree on the original features and the predicted outcome. 
