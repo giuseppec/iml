@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-ia = Interaction$new(predictor, features = NULL, grid.size = 20, run = TRUE)
+ia = Interaction$new(predictor, feature = NULL, grid.size = 20, run = TRUE)
 
 plot(ia)
 ia$results
@@ -25,10 +25,9 @@ For Interaction$new():
 \describe{
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{features: }{(`numeric(1|2)`|NULL)\cr 
+\item{feature: }{(`numeric(1)`|NULL)\cr 
 If NULL, for each feature the interactions with all other features are estimated.
-If one feature name is selected, the interactions of only this feature with all other features is estimated. 
-If two feature names are selected, the interaction strength between those two features will be estimated}
+If one feature name is selected, the 2-way interactions of this feature with all other features are estimated}
 \item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.
 A larger grid.size means more accurate the results but longer the computation time.
 For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}

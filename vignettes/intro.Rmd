@@ -113,11 +113,8 @@ plot(interact)
 We can also specify two features and measure how much they interact with each other:
 
 ```{r}
-interact = Interaction$new(predictor, features = c("crim", "lstat"))
-interact$results
-
-interact = Interaction$new(predictor, features = c("crim", "rm"))
-interact$results
+interact = Interaction$new(predictor, feature = "crim")
+plot(interact)
 ```
 
 

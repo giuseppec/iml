@@ -5,17 +5,6 @@ test.interaction.range = function(dat) {
     finite = TRUE, any.missing = FALSE)
 }
 
-test_that("Interaction works for single output and single feature", {
-  grid.size = 10
-  inter.obj = Interaction$new(predictor1, features = 1, grid.size = grid.size)
-  dat = inter.obj$results
-  expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c(".feature", ".interaction"))
-  expect_equal(nrow(dat), 1)  
-  test.interaction.range(dat)
-  checkPlot(inter.obj)
-})
-
 
 test_that("Interaction works for all features", {
   inter.obj = Interaction$new(predictor1)
@@ -27,19 +16,21 @@ test_that("Interaction works for all features", {
   checkPlot(inter.obj)
 })
 
-test_that("Interaction works for 2 features", {
-  inter.obj = Interaction$new(predictor1, features = c("a", "b"))
+test_that("Interaction works for 2-way interactions", {
+  inter.obj = Interaction$new(predictor1, feature = c("a"))
   dat = inter.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c(".feature", ".interaction"))
-  expect_equal(nrow(dat), 1)  
+  expect_equal(nrow(dat), ncol(X) - 1)  
   test.interaction.range(dat)
   checkPlot(inter.obj)
 })
 
-test_that("Interaction does not work for 3 features", {
-  expect_error({inter.obj = Interaction$new(predictor1, features = c("a", "b", "c"))})
-  expect_error({inter.obj = Interaction$new(predictor1, features = c(1, 2, 3))})
+test_that("Interaction does not work for 2 or 3 features", {
+  expect_error({inter.obj = Interaction$new(predictor1, feature = c("a", "b"))})
+  expect_error({inter.obj = Interaction$new(predictor1, feature = c(1, 2))})
+  expect_error({inter.obj = Interaction$new(predictor1, feature = c("a", "b", "c"))})
+  expect_error({inter.obj = Interaction$new(predictor1, feature = c(1, 2, 3))})
 })
 
 
@@ -59,15 +50,15 @@ test_that("intervene.interaction", {
   feature.name = "b"
   grid.size = 3
   
-  dat = intervene.interaction(dataSample, feature.name, grid.size) 
-  expect_data_table(dat, any.missing = FALSE, nrows = 3 + 3*10*2)
-  expect_equal(colnames(dat), c("b", "a", "c", ".id", ".type", ".feature"))
-  expect_equal(unique(dat$.type), c("j", "no.j", "f"))
+  dat = intervene.interaction.multi(dataSample, feature.name, grid.size = grid.size) 
+  expect_data_table(dat, any.missing = FALSE, nrows = grid.size * nrow(dataSample) * 3 * 2)
+  expect_equal(colnames(dat), c("a", "b", "c", ".id", ".type", ".feature"))
+  expect_equal(unique(dat$.type), c("jk", "j", "k"))
   expect_equal(unique(dat$.id), 1:3)
   expect_equal(sort(unique(dat$a)), 1:10)
   expect_equal(sort(unique(dat$b)), 1:10)
   expect_equal(sort(unique(dat$c)), 1:10)
-  dat.agg = aggregate.interaction(dat, data.frame(pred = rnorm(n = nrow(dat))), features = c("a")) 
+  dat.agg = aggregate.interaction(dat, data.frame(pred = rnorm(n = nrow(dat))), feature = c("a")) 
   expect_equal(colnames(dat.agg), c(".feature", ".interaction"))
 })
 

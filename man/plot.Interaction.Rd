@@ -4,10 +4,12 @@
 \alias{plot.Interaction}
 \title{Plot Interaction}
 \usage{
-\method{plot}{Interaction}(x)
+\method{plot}{Interaction}(x, sort = TRUE)
 }
 \arguments{
 \item{x}{An Interaction R6 object}
+
+\item{sort}{logical. Should the features be sorted in descending order? Defaults to TRUE.}
 }
 \value{
 ggplot2 plot object

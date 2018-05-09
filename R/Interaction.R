@@ -6,7 +6,7 @@
 #' @name Interaction
 #' @section Usage:
 #' \preformatted{
-#' ia = Interaction$new(predictor, features = NULL, grid.size = 20, run = TRUE)
+#' ia = Interaction$new(predictor, feature = NULL, grid.size = 20, run = TRUE)
 #' 
 #' plot(ia)
 #' ia$results
@@ -19,10 +19,9 @@
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
-#' \item{features: }{(`numeric(1|2)`|NULL)\cr 
+#' \item{feature: }{(`numeric(1)`|NULL)\cr 
 #' If NULL, for each feature the interactions with all other features are estimated.
-#' If one feature name is selected, the interactions of only this feature with all other features is estimated. 
-#' If two feature names are selected, the interaction strength between those two features will be estimated}
+#' If one feature name is selected, the 2-way interactions of this feature with all other features are estimated}
 #' \item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.
 #' A larger grid.size means more accurate the results but longer the computation time.
 #' For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}
@@ -105,15 +104,15 @@ Interaction = R6::R6Class("Interaction",
   public = list(
     # The fitted tree
     grid.size = NULL,
-    initialize = function(predictor, features = NULL, grid.size = 20, run = TRUE) {
-      assert_vector(features, max.len = 2, null.ok = TRUE)
+    initialize = function(predictor, feature = NULL, grid.size = 30, run = TRUE) {
+      assert_vector(feature, len = 1, null.ok = TRUE)
       assert_number(grid.size, lower = 2)
       assert_logical(run)
       
-      if (!is.null(features) && is.numeric(features)) {
-        private$features = predictor$data$feature.names[features]
+      if (!is.null(feature) && is.numeric(feature)) {
+        private$feature = predictor$data$feature.names[feature]
       } else {
-        private$features = features
+        private$feature = feature
       }
       self$grid.size = min(grid.size, predictor$data$n.rows)
       super$initialize(predictor)
@@ -122,26 +121,29 @@ Interaction = R6::R6Class("Interaction",
   ), 
   private = list(
     intervene = function() {
-      if (is.null(private$features)) {
-        intervene.interaction.multi(private$dataSample, grid.size = self$grid.size)
-      } else {
-        intervene.interaction(private$dataSample, private$features, grid.size = self$grid.size)
-      }
+        intervene.interaction.multi(private$dataSample, grid.size = self$grid.size, feature.name = private$feature)
     },
     aggregate = function() {
-      aggregate.interaction(private$dataDesign, private$qResults, features = private$features)
+      aggregate.interaction(private$dataDesign, private$qResults, feature = private$feature)
     }, 
-    generatePlot = function() {
-      p = ggplot(self$results) + 
-        geom_col(aes(x = .feature, y = .interaction)) + 
-        scale_y_continuous("Interaction strength") + 
-        scale_x_discrete("Features")
+    generatePlot = function(sort = TRUE, ...) {
+      res = self$results
+      if (sort & !private$multiClass) {
+        res$.feature = factor(res$.feature, levels = res$.feature[order(res$.interaction)])
+      }
+      
+      y.axis.label = ifelse(is.null(private$feature), "Interaction strength", 
+        sprintf("Interaction strength with %s", private$feature))
+      p = ggplot(res, aes(y = .feature, x = .interaction)) + geom_point() + 
+        geom_segment(aes(yend = .feature, x = 0, xend = .interaction)) + 
+        scale_x_continuous("Overall interaction strength") + 
+        scale_y_discrete("Features")
       if (private$multiClass) {
         p = p + facet_wrap(".class")
       }
       p
     },
-    features = NULL
+    feature = NULL
   )
 )
 
@@ -152,6 +154,7 @@ Interaction = R6::R6Class("Interaction",
 #' plot.Interaction() plots the results of an Interaction object.
 #' 
 #' @param x An Interaction R6 object
+#' @param sort logical. Should the features be sorted in descending order? Defaults to TRUE.
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Interaction}
@@ -168,8 +171,8 @@ Interaction = R6::R6Class("Interaction",
 #' # Plot the results directly
 #' plot(ia)
 #' }
-plot.Interaction = function(x) {
-  x$plot()
+plot.Interaction = function(x, sort = TRUE) {
+  x$plot(sort = sort)
 }
 
 
@@ -190,11 +193,11 @@ h.test = function(f.all, f.j, f.no.j) {
   sum((f.all  - (f.j + f.no.j))^2) / sum(f.all^2)
 }  
 
-aggregate.interaction = function(partial_dat, prediction, features) {
+aggregate.interaction = function(partial_dat, prediction, feature) {
   assert_data_table(partial_dat)
   assert_data_frame(prediction)
-  assert_character(features, null.ok = TRUE)
-  assert_true(all(features %in% colnames(partial_dat)))
+  assert_character(feature, null.ok = TRUE)
+  assert_true(all(feature %in% colnames(partial_dat)))
   # for suppressing NOTE in R CMD check:
   jk = j = k = f = no.j = .feature = .id = .class = .type = NULL
   
@@ -211,7 +214,7 @@ aggregate.interaction = function(partial_dat, prediction, features) {
   pd = dcast(partial_dat, .feature + .id + .class ~ .type, 
     value.var = ".y.hat", fun.aggregate = mean)
   
-  if (length(features) == 2) {
+  if (length(feature) == 1) {
     res = data.frame(pd[, list(.interaction = h.test(jk, j, k)), by = list(.feature, .class)])
   } else {
     res = data.frame(pd[, list(.interaction = h.test(f, j, no.j)), by = list(.feature, .class)])
@@ -254,11 +257,11 @@ intervene.interaction = function(dataSample, feature.name, grid.size) {
 }
 
 
-intervene.interaction.multi = function(dataSample, grid.size) {
-  features = colnames(dataSample)
+intervene.interaction.multi = function(dataSample, grid.size, feature.name = NULL) {
+  features = setdiff(colnames(dataSample), feature.name)
   res = lapply(features, function (feature) {
     dt = intervene.interaction(dataSample = dataSample, 
-      feature.name = feature, 
+      feature.name = c(feature, feature.name), 
       grid.size = grid.size)
     dt
   })

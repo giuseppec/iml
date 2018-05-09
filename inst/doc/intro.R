@@ -39,11 +39,8 @@ interact = Interaction$new(predictor)
 plot(interact)
 
 ## ------------------------------------------------------------------------
-interact = Interaction$new(predictor, features = c("crim", "lstat"))
-interact$results
-
-interact = Interaction$new(predictor, features = c("crim", "rm"))
-interact$results
+interact = Interaction$new(predictor, feature = "crim")
+plot(interact)
 
 ## ------------------------------------------------------------------------
 tree = TreeSurrogate$new(predictor, maxdepth = 2)
