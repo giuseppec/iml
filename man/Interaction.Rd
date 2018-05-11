@@ -69,16 +69,16 @@ The interaction measure takes on values between 0 (no interaction) to 1 (100% of
 }
 
 \examples{
-if (require("randomForest")) {
+if (require("rpart")) {
 set.seed(42)
-# Fit a Random Forest on the Boston housing data set
+# Fit a CART on the Boston housing data set
 data("Boston", package  = "MASS")
-rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+rf = rpart(medv ~ ., data = Boston)
 # Create a model object
 mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
 
 # Measure the interaction strength
-ia = Interaction$new(mod, grid.size = 40)
+ia = Interaction$new(mod)
 
 # Plot the resulting leaf nodes
 plot(ia) 
@@ -87,9 +87,9 @@ plot(ia)
 # Extract the results
 dat = ia$results
 head(dat)
-
+\dontrun{
 # Interaction also works with multiclass classification
-rf = randomForest(Species ~ ., data = iris, ntree=50)
+rf = rpart(Species ~ ., data = iris)
 predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
 mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 
@@ -102,7 +102,7 @@ ia$plot()
 mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = "virginica")
 plot(Interaction$new(mod))
 }
-
+}
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 

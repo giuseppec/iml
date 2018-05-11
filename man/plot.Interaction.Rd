@@ -18,10 +18,10 @@ ggplot2 plot object
 plot.Interaction() plots the results of an Interaction object.
 }
 \examples{
-# We train a random forest on the Boston dataset:
-if (require("randomForest")) {
+# We train a tree on the Boston dataset:
+if (require("rpart")) {
 data("Boston", package  = "MASS")
-rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+rf = rpart(medv ~ ., data = Boston)
 mod = Predictor$new(rf, data = Boston)
 
 # Compute the interactions

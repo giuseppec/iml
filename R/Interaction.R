@@ -59,16 +59,16 @@
 #' Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 
 #' The Annals of Applied Statistics 2.3 (2008): 916-954. 
 #' @examples
-#' if (require("randomForest")) {
+#' if (require("rpart")) {
 #' set.seed(42)
-#' # Fit a Random Forest on the Boston housing data set
+#' # Fit a CART on the Boston housing data set
 #' data("Boston", package  = "MASS")
-#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf = rpart(medv ~ ., data = Boston)
 #' # Create a model object
 #' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
 #' 
 #' # Measure the interaction strength
-#' ia = Interaction$new(mod, grid.size = 40)
+#' ia = Interaction$new(mod)
 #' 
 #' # Plot the resulting leaf nodes
 #' plot(ia) 
@@ -77,9 +77,9 @@
 #' # Extract the results
 #' dat = ia$results
 #' head(dat)
-#' 
+#' \dontrun{
 #' # Interaction also works with multiclass classification
-#' rf = randomForest(Species ~ ., data = iris, ntree=50)
+#' rf = rpart(Species ~ ., data = iris)
 #' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
 #' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
 #' 
@@ -92,7 +92,7 @@
 #' mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = "virginica")
 #' plot(Interaction$new(mod))
 #' }
-#' 
+#' }
 #' @importFrom data.table dcast
 #' 
 #' @export
@@ -159,10 +159,10 @@ Interaction = R6::R6Class("Interaction",
 #' @seealso 
 #' \link{Interaction}
 #' @examples
-#' # We train a random forest on the Boston dataset:
-#' if (require("randomForest")) {
+#' # We train a tree on the Boston dataset:
+#' if (require("rpart")) {
 #' data("Boston", package  = "MASS")
-#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf = rpart(medv ~ ., data = Boston)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the interactions

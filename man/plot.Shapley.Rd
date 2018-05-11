@@ -18,10 +18,10 @@ ggplot2 plot object
 plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction.
 }
 \examples{
-if (require("randomForest")) {
+if (require("rpart")) {
 # First we fit a machine learning model on the Boston housing data
 data("Boston", package  = "MASS")
-rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
+rf =  rpart(medv ~ ., data = Boston)
 X = Boston[-which(names(Boston) == "medv")]
 mod = Predictor$new(rf, data = X)
 
