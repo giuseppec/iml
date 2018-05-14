@@ -59,10 +59,10 @@
 #' A different way to explain predictions: \link{LocalModel}
 #' 
 #' @examples 
-#' if (require("randomForest")) {
+#' if (require("rpart")) {
 #' # First we fit a machine learning model on the Boston housing data
 #' data("Boston", package  = "MASS")
-#' rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf =  rpart(medv ~ ., data = Boston)
 #' X = Boston[-which(names(Boston) == "medv")]
 #' mod = Predictor$new(rf, data = X)
 #' 
@@ -79,9 +79,9 @@
 #' # Explain another instance
 #' shapley$explain(X[2,])
 #' plot(shapley)
-#' 
+#' \dontrun{
 #' # Shapley() also works with multiclass classification
-#' rf = randomForest(Species ~ ., data= iris, ntree=50)
+#' rf = rpart(Species ~ ., data = iris)
 #' X = iris[-which(names(iris) == "Species")]
 #' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
 #' mod = Predictor$new(rf, data = X, predict.fun = predict.fun)
@@ -96,6 +96,7 @@
 #' shapley = Shapley$new(mod, x.interest = X[1,])
 #' shapley$results
 #' plot(shapley) 
+#' }
 #' }
 NULL
 
@@ -201,10 +202,10 @@ Shapley = R6::R6Class("Shapley",
 #' @seealso 
 #' \link{Shapley}
 #' @examples 
-#' if (require("randomForest")) {
+#' if (require("rpart")) {
 #' # First we fit a machine learning model on the Boston housing data
 #' data("Boston", package  = "MASS")
-#' rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf =  rpart(medv ~ ., data = Boston)
 #' X = Boston[-which(names(Boston) == "medv")]
 #' mod = Predictor$new(rf, data = X)
 #' 

@@ -63,10 +63,10 @@ The object (created with Predictor$new()) holding the machine learning model and
 }
 
 \examples{
-if (require("randomForest")) {
+if (require("rpart")) {
 # First we fit a machine learning model on the Boston housing data
 data("Boston", package  = "MASS")
-rf =  randomForest(medv ~ ., data = Boston, ntree = 50)
+rf =  rpart(medv ~ ., data = Boston)
 X = Boston[-which(names(Boston) == "medv")]
 mod = Predictor$new(rf, data = X)
 
@@ -83,9 +83,9 @@ plot(shapley)
 # Explain another instance
 shapley$explain(X[2,])
 plot(shapley)
-
+\dontrun{
 # Shapley() also works with multiclass classification
-rf = randomForest(Species ~ ., data= iris, ntree=50)
+rf = rpart(Species ~ ., data = iris)
 X = iris[-which(names(iris) == "Species")]
 predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
 mod = Predictor$new(rf, data = X, predict.fun = predict.fun)
@@ -100,6 +100,7 @@ mod = Predictor$new(rf, data = X, predict.fun = predict.fun, class = "setosa")
 shapley = Shapley$new(mod, x.interest = X[1,])
 shapley$results
 plot(shapley) 
+}
 }
 }
 \references{
