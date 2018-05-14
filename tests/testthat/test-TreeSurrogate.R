@@ -1,12 +1,16 @@
 context("TreeSurrogate")
 
+epsilon = 0.0001
+lower.r.squared = 0 - epsilon
+upper.r.squared = 1 + epsilon
+
 test_that("TreeSurrogate works for single output and single feature", {
   tree = TreeSurrogate$new(predictor1)
   dat = tree$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c(colnames(X), ".node", ".path", ".y.hat", ".y.hat.tree"))
   expect_equal(nrow(dat), nrow(X))  
-  expect_numeric(tree$r.squared, lower = 0, upper = 1, any.missing = FALSE, len = 1)  
+  expect_numeric(tree$r.squared, lower = lower.r.squared, upper = upper.r.squared, any.missing = FALSE, len = 1)  
   
   p = plot(tree)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -32,7 +36,7 @@ test_that("TreeSurrogate works for multiple output", {
   actual.classification = predict(tree, X[1:4,], type = "class")
   expect_equal(colnames(actual.classification), ".class")
 
-  expect_numeric(tree$r.squared, lower = 0, upper = 1, any.missing = FALSE, len = 2)  
+  expect_numeric(tree$r.squared, lower = lower.r.squared, upper = upper.r.squared, any.missing = FALSE, len = 2)  
   
 })
 
@@ -50,6 +54,6 @@ test_that("TreeSurrogate works for multiple output with selected class", {
   expect_equal(dim(pred), c(10, 1))
   expect_s3_class(pred, "data.frame")
   
-  expect_numeric(tree$r.squared, lower = 0, upper = 1, any.missing = FALSE, len = )  
+  expect_numeric(tree$r.squared, lower = lower.r.squared, upper = upper.r.squared, any.missing = FALSE, len = )  
   
 })
