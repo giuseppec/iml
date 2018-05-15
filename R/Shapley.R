@@ -202,7 +202,7 @@ Shapley = R6::R6Class("Shapley",
 #' @seealso 
 #' \link{Shapley}
 #' @examples 
-#' \notrun{
+#' \dontrun{
 #' if (require("rpart")) {
 #' # First we fit a machine learning model on the Boston housing data
 #' data("Boston", package  = "MASS")
