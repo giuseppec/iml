@@ -18,6 +18,7 @@ ggplot2 plot object
 plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction.
 }
 \examples{
+\dontrun{
 if (require("rpart")) {
 # First we fit a machine learning model on the Boston housing data
 data("Boston", package  = "MASS")
@@ -29,6 +30,7 @@ mod = Predictor$new(rf, data = X)
 x.interest = X[1,]
 shapley = Shapley$new(mod, x.interest = x.interest)
 plot(shapley)
+}
 }
 }
 \seealso{

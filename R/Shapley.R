@@ -201,6 +201,7 @@ Shapley = R6::R6Class("Shapley",
 #' @seealso 
 #' \link{Shapley}
 #' @examples 
+#' \dontrun{
 #' if (require("rpart")) {
 #' # First we fit a machine learning model on the Boston housing data
 #' data("Boston", package  = "MASS")
@@ -212,6 +213,7 @@ Shapley = R6::R6Class("Shapley",
 #' x.interest = X[1,]
 #' shapley = Shapley$new(mod, x.interest = x.interest)
 #' plot(shapley)
+#' }
 #' }
 plot.Shapley = function(object, sort = TRUE) {
   object$plot(sort = sort)
