@@ -155,7 +155,8 @@ FeatureImp = R6::R6Class("FeatureImp",
       X.inter.list = lapply(private$sampler$feature.names, 
         function(i) {
           n.times = ifelse(private$method == "cartesian", nrow(private$dataSample), 1)
-          mg = generate.marginals(private$dataSample, private$dataSample, features = i, n.sample.dist = n.times)
+          mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
+            features = i, n.sample.dist = n.times)$all()
           mg$.feature = i
           mg
         })

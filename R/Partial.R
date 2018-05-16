@@ -245,7 +245,7 @@ Partial = R6::R6Class("Partial",
       
       grid.dt = data.table(grid)
       colnames(grid.dt) = self$feature.name
-      generate.marginals(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE)
+      MarginalGenerator$new(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE)$all()
     }, 
     grid.size.original = NULL,
     setFeatureFromIndex = function(feature.index) {

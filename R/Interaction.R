@@ -235,19 +235,19 @@ intervene.interaction = function(dataSample, feature.name, grid.size) {
   grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
   dist.dat = dataSample
   if (length(feature.name) == 1) {
-    partial_j = generate.marginals(grid.dat, dist.dat, feature.name)
+    partial_j = MarginalGenerator$new(grid.dat, dist.dat, feature.name)$all()
     partial_j$.type = "j"
-    partial_noj  = generate.marginals(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name))
+    partial_noj  = MarginalGenerator$new(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name))$all()
     partial_noj$.type = "no.j"
     grid.dat$.type = "f"
     grid.dat$.id = 1:nrow(grid.dat)
     res = rbind(partial_j, partial_noj, grid.dat, use.names = TRUE)
   } else if (length(feature.name) == 2) {
-    partial_jk = generate.marginals(grid.dat, dist.dat, feature.name)
+    partial_jk = MarginalGenerator$new(grid.dat, dist.dat, feature.name)$all()
     partial_jk$.type = "jk"
-    partial_j  = generate.marginals(grid.dat, dist.dat, feature.name[1])
+    partial_j  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[1])$all()
     partial_j$.type = "j"
-    partial_k  = generate.marginals(grid.dat, dist.dat, feature.name[2])
+    partial_k  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[2])$all()
     partial_k$.type = "k"
     res = rbind(partial_jk, partial_j, partial_k, use.names = TRUE)
   }
