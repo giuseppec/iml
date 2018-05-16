@@ -1,8 +1,8 @@
-createPredictionFunction = function(model, task, predict.fun = NULL){
+createPredictionFunction = function(model, task, predict.fun = NULL, type = NULL){
   UseMethod("createPredictionFunction")
 }
 
-createPredictionFunction.WrappedModel = function(model, task, predict.fun = NULL){
+createPredictionFunction.WrappedModel = function(model, task, predict.fun = NULL, type = NULL){
   if (!requireNamespace("mlr")) {
     "Please install the mlr package."
   }
@@ -11,7 +11,7 @@ createPredictionFunction.WrappedModel = function(model, task, predict.fun = NULL
       pred = predict(model, newdata = newdata)
       if (model$learner$predict.type == "response") {
         pred = mlr::getPredictionResponse(pred)
-        data.frame(model.matrix(~prediction-1, data.frame(prediction = pred), sep = ":"))
+        factor.to.dataframe(pred)
       } else {
         mlr::getPredictionProbabilities(pred, cl = model$task.desc$class.levels)
       }
@@ -26,14 +26,28 @@ createPredictionFunction.WrappedModel = function(model, task, predict.fun = NULL
   }
 }
 
-createPredictionFunction.train = function(model, task, predict.fun = NULL){
+createPredictionFunction.train = function(model, task, predict.fun = NULL, type = NULL){
+  
   if (task == "classification") {
     function(newdata) {
-      predict(model, newdata = newdata, type = "prob")
+      if (is.null(type)) {
+        pred = predict(model, newdata = newdata)
+      } else {
+        pred = predict(model, newdata = newdata, type = type)
+      }
+      if (is.label.output(pred)) {
+        pred = factor.to.dataframe(pred)
+      }
+      pred
     }
   } else if (task == "regression") {
     function(newdata) {
-      data.frame(.prediction = predict(model, newdata = newdata))
+      if (is.null(type)) {
+        prediction = predict(model, newdata = newdata)
+      } else {
+        prediction = predict(model, newdata = newdata, type = type)
+      }
+      data.frame(.prediction = prediction)
     }
   } else {
     stop(sprintf("task of type %s not allowed.", task))
@@ -41,32 +55,39 @@ createPredictionFunction.train = function(model, task, predict.fun = NULL){
 }
 
 
-createPredictionFunction.NULL = function(model, task, predict.fun = NULL) {
+
+createPredictionFunction.NULL = function(model, task, predict.fun = NULL, type = NULL) {
   function(newdata) { 
     pred = predict.fun(newdata = newdata)
     if (is.label.output(pred)) {
-      warning("Output seems to be class instead of probabilities. 
-          Automatically transformed to 0 and 1 probabilities.
-          Please use the predict.fun argument.")
-      pred = data.frame(model.matrix(~prediction-1, data.frame(prediction = pred), sep = ":"))
+      factor.to.dataframe(pred)
     }
     data.frame(pred)
   }
 }
 
 #' @importFrom stats model.matrix
-createPredictionFunction.default = function(model, task, predict.fun = NULL){
+createPredictionFunction.default = function(model, task, predict.fun = NULL, type = NULL){
   if (is.null(predict.fun)) {
-    predict.fun = function(object, newdata) predict(object, newdata)
+    if (is.null(type)) {
+      predict.fun = function(object, newdata) predict(object, newdata)
+    } else {
+      predict.fun = function(object, newdata) predict(object, newdata, type = type)
+    }
   }
   function(newdata) {
     pred = do.call(predict.fun, list(model, newdata = newdata))
     if (is.label.output(pred)) {
-      warning("Output seems to be class instead of probabilities. 
-          Automatically transformed to 0 and 1 probabilities.
-          Please use the predict.fun argument.")
-      pred = data.frame(model.matrix(~prediction-1, data.frame(prediction = pred), sep = ":"))
+      pred = factor.to.dataframe(pred)
     }
     data.frame(pred)
   }
+}
+
+
+factor.to.dataframe = function(fac) {
+  check_vector(fac)
+  res = data.frame(model.matrix(~fac-1, data.frame(fac = fac), sep = ":"))
+  colnames(res) = substring(colnames(res), 4)
+  res
 }

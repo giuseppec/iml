@@ -103,8 +103,7 @@ if (require("ggplot2")) {
 tree = rpart(Species ~ ., data= iris)
 X = iris[-which(names(iris) == "Species")]
 y = iris$Species
-predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
-mod = Predictor$new(tree, data = X, y = y, predict.fun) 
+mod = Predictor$new(tree, data = X, y = y, type = "prob") 
 
 # For some models we have to specify additional arguments for the predict function
 imp = FeatureImp$new(mod, loss = "ce")
@@ -113,7 +112,7 @@ plot(imp)
 # For multiclass classification models, you can choose to only compute performance for one class. 
 # Make sure to adapt y
 mod = Predictor$new(tree, data = X, y = y == "virginica", 
-  predict.fun = predict.fun, class = "virginica") 
+ type = "prob", class = "virginica") 
 imp = FeatureImp$new(mod, loss = "ce")
 plot(imp)
 }

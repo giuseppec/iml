@@ -116,8 +116,7 @@ plot(pdp.obj)
 
 # Partial dependence plots also works with multiclass classification
 rf = randomForest(Species ~ ., data = iris, ntree=50)
-predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
-mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
+mod = Predictor$new(rf, data = iris, type = "prob")
 
 # For some models we have to specify additional arguments for the predict function
 plot(Partial$new(mod, feature = "Petal.Width"))
@@ -127,7 +126,7 @@ pdp.obj = Partial$new(mod, feature = c("Sepal.Length", "Petal.Length"))
 pdp.obj$plot()   
 
 # For multiclass classification models, you can choose to only show one class:
-mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = 1)
+mod = Predictor$new(rf, data = iris, type = "prob", class = 1)
 plot(Partial$new(mod, feature = "Sepal.Length"))
 }
 }

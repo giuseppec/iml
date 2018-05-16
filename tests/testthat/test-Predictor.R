@@ -20,7 +20,7 @@ predictor.S3 = Predictor$new(mod.S3, data = iris, predict.fun = predict.fun)
 # caret
 mod.caret = caret::train(Species ~ ., data = iris, method = "knn", 
   trControl = caret::trainControl(method = "cv"))
-predictor.caret = Predictor$new(mod.caret, data = iris)
+predictor.caret = Predictor$new(mod.caret, data = iris, type = "prob")
 
 # function
 mod.f = function(newdata) {
@@ -54,7 +54,7 @@ predictor.mlr = Predictor$new(mod.mlr, class = 2, data = iris)
 # S3 predict
 predictor.S3 = Predictor$new(mod.S3, class = 2, predict.fun = predict.fun, data = iris)
 # caret
-predictor.caret = Predictor$new(mod.caret, class = 2, data = iris)
+predictor.caret = Predictor$new(mod.caret, class = 2, data = iris, type = "prob")
 # function
 predictor.f = Predictor$new(predict.fun = mod.f, class = 2, data = iris)
 prediction.f = predictor.f$predict(iris.test)

@@ -12,7 +12,9 @@ The interpretation methods in the iml package need the machine learning model to
 
 \preformatted{
 model = Predictor$new(model = NULL, data, y = NULL, class=NULL, 
-  predict.fun = function(object, newdata) predict(object, newdata))
+  predict.fun = NULL, type = NULL)
+  
+model$predict(newdata)
 }
 }
 
@@ -22,9 +24,11 @@ model = Predictor$new(model = NULL, data, y = NULL, class=NULL,
 \item{model: }{(any)\cr The machine learning model. Recommended are models from mlr and caret.
 Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).}
 \item{data: }{(data.frame)\cr The data to be used for analysing the prediction model.}
-\item{y: }{(`character(1)` | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.}
+\item{y: }{((`character(1)`) | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.}
 \item{class: }{(`character(1)`)\cr The class column to be returned in case of multiclass output.}
 \item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
+\item{type: }{(`character(1)`)\cr This argument is passed to the prediction function of the model. The classic use case is to say type="prob" for classification models. 
+For example for caret models or the most S3 predict methods. If both predict.fun and type are used, then type is passed as an argument to predict.fun.}
 }
 }
 
@@ -70,15 +74,11 @@ mod$predict(iris[1:5,])
 if (require("randomForest")) {
 rf = randomForest(Species ~ ., data = iris, ntree = 20)
 
-# We need this for the randomForest
-predict.fun = function(obj, newdata) { 
-  predict(obj, newdata = newdata, type = "prob")
-}
 
-mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
+mod = Predictor$new(rf, data = iris, type = "prob")
 mod$predict(iris[50:55,])
 
 # Feature importance needs the target vector, which needs to be supplied: 
-mod = Predictor$new(rf, data = iris, y = "Species", predict.fun = predict.fun)
+mod = Predictor$new(rf, data = iris, y = "Species", type = "prob")
 }
 }

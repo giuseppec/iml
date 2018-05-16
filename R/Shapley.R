@@ -83,8 +83,7 @@
 #' # Shapley() also works with multiclass classification
 #' rf = rpart(Species ~ ., data = iris)
 #' X = iris[-which(names(iris) == "Species")]
-#' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
-#' mod = Predictor$new(rf, data = X, predict.fun = predict.fun)
+#' mod = Predictor$new(rf, data = X, type = "prob")
 #' 
 #' # Then we explain the first instance of the dataset with the Shapley() method:
 #' shapley = Shapley$new(mod, x.interest = X[1,])
@@ -92,7 +91,7 @@
 #' plot(shapley) 
 #' 
 #' # You can also focus on one class
-#' mod = Predictor$new(rf, data = X, predict.fun = predict.fun, class = "setosa")
+#' mod = Predictor$new(rf, data = X, type = "prob", class = "setosa")
 #' shapley = Shapley$new(mod, x.interest = X[1,])
 #' shapley$results
 #' plot(shapley) 

@@ -25,7 +25,7 @@ predictor.S3 = createPredictionFunction(mod.S3, predict.fun = predict.fun)
 # caret
 mod.caret = caret::train(Species ~ ., data = iris, method = "knn", 
   trControl = caret::trainControl(method = "cv"))
-predictor.caret = createPredictionFunction(mod.caret, task = "classification")
+predictor.caret = createPredictionFunction(mod.caret, task = "classification", type = "prob")
 
 # function
 mod.f = function(newdata) {
@@ -60,7 +60,7 @@ test_that("f works", {
 predictor.S3.2 = createPredictionFunction(mod.S3, predict.fun = NULL)
 
 test_that("output is label", {
-  expect_warning({pred = predictor.S3.2(iris)})
+  pred = predictor.S3.2(iris)
   checkmate::expect_data_frame(pred, nrows = nrow(iris), ncols = 3)
 })
 

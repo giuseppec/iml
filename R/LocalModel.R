@@ -112,8 +112,7 @@
 #' # LocalModel also works with multiclass classification
 #' rf = randomForest(Species ~ ., data= iris, ntree=50)
 #' X = iris[-which(names(iris) == 'Species')]
-#' predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
-#' mod = Predictor$new(rf, data = X, predict.fun = predict.fun, class = "setosa")
+#' mod = Predictor$new(rf, data = X, type = "prob", class = "setosa")
 #' 
 #' # Then we explain the first instance of the dataset with the LocalModel method:
 #' lemon = LocalModel$new(mod, x.interest = X[1,], k = 2)

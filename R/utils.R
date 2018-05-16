@@ -130,7 +130,7 @@ get.1D.grid = function(feature, feature.type, grid.size) {
 checkPrediction = function(prediction, data) {
   checkmate::assert_data_frame(data)
   checkmate::assert_data_frame(prediction, nrows = nrow(data), any.missing = FALSE, 
-    types = c("numeric", "integerish"))
+    types = c("numeric", "integerish", "factor"))
 }
 
 # Currently not used

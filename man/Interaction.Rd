@@ -90,8 +90,7 @@ head(dat)
 \dontrun{
 # Interaction also works with multiclass classification
 rf = rpart(Species ~ ., data = iris)
-predict.fun = function(object, newdata) predict(object, newdata, type = "prob")
-mod = Predictor$new(rf, data = iris, predict.fun = predict.fun)
+mod = Predictor$new(rf, data = iris, type = "prob")
 
 # For some models we have to specify additional arguments for the predict function
 ia = Interaction$new(mod)
@@ -99,7 +98,7 @@ ia = Interaction$new(mod)
 ia$plot()
 
 # For multiclass classification models, you can choose to only show one class:
-mod = Predictor$new(rf, data = iris, predict.fun = predict.fun, class = "virginica")
+mod = Predictor$new(rf, data = iris, type = "prob", class = "virginica")
 plot(Interaction$new(mod))
 }
 }
