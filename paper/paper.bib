@@ -1,3 +1,95 @@
+ @Manual{dalex,
+    title = {DALEX: Descriptive mAchine Learning EXplanations},
+    author = {Przemyslaw Biecek},
+    year = {2018},
+    note = {R package version 0.2.0},
+    url = {https://CRAN.R-project.org/package=DALEX},
+  }
+
+  @Manual{lime,
+    title = {lime: Local Interpretable Model-Agnostic Explanations},
+    author = {Thomas Lin Pedersen and Michaël Benesty},
+    year = {2017},
+    note = {R package version 0.3.0},
+    url = {https://CRAN.R-project.org/package=lime},
+  }  
+  
+  @Article{pdp1,
+    title = {pdp: An R Package for Constructing Partial Dependence
+      Plots},
+    author = {Brandon M. Greenwell},
+    journal = {The R Journal},
+    year = {2017},
+    volume = {9},
+    number = {1},
+    pages = {421--436},
+    url =
+      {https://journal.r-project.org/archive/2017/RJ-2017-016/index.html},
+  }
+
+  @Article{ice,
+    title = {Peeking Inside the Black Box: Visualizing Statistical
+      Learning With Plots of Individual Conditional Expectation},
+    author = {Alex Goldstein and Adam Kapelner and Justin Bleich and
+      Emil Pitkin},
+    journal = {Journal of Computational and Graphical Statistics},
+    volume = {24},
+    number = {1},
+    pages = {44--65},
+    doi = {10.1080/10618600.2014.907095},
+    year = {2015},
+  }
+
+@article{friedman2008predictive,
+  title={Predictive learning via rule ensembles},
+  author={Friedman, Jerome H and Popescu, Bogdan E and others},
+  journal={The Annals of Applied Statistics},
+  volume={2},
+  number={3},
+  pages={916--954},
+  year={2008},
+  publisher={Institute of Mathematical Statistics}
+}
+
+
+
+@article{strumbelj2014,
+abstract = {We present a sensitivity analysis-based method for explaining prediction models that can be applied to any type of classification or regression model. Its advantage over existing general methods is that all subsets of input features are perturbed, so interactions and redundancies between features are taken into account. Furthermore, when explaining an additive model, the method is equivalent to commonly used additive model-specific methods. We illustrate the method's usefulness with examples from artificial and real-world data sets and an empirical analysis of running times. Results from a controlled experiment with 122 participants suggest that the method's explanations improved the participants' understanding of the model.},
+author = {Strumbelj, Erik and Kononenko, Igor and {\v{S}}trumbelj, Erik and Kononenko, Igor},
+doi = {10.1007/s10115-013-0679-x},
+isbn = {0219-1377},
+issn = {02193116},
+journal = {Knowledge and Information Systems},
+keywords = {Data mining,Decision support,Interpretability,Knowledge discovery,Visualization},
+number = {3},
+pages = {647--665},
+title = {{Explaining prediction models and individual predictions with feature contributions}},
+volume = {41},
+year = {2014}
+}
+
+@inproceedings{ribeiro2016should,
+  title={Why should i trust you?: Explaining the predictions of any classifier},
+  author={Ribeiro, Marco Tulio and Singh, Sameer and Guestrin, Carlos},
+  booktitle={Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  pages={1135--1144},
+  year={2016},
+  organization={ACM}
+}
+
+
+@article{Fisher2018,
+abstract = {There are serious drawbacks to many current variable importance (VI) methods, in that they tend to not be comparable across model types, can obscure implicit assumptions about the data generating distribution, or can give seemingly incoherent results when multiple prediction models fit the data well. In this paper we propose a framework of VI measures for describing how much any model class (e.g. all linear models of dimension p), any model-fitting algorithm (e.g. Ridge regression with fixed regularization parameter), or any individual prediction model (e.g. a single linear model with fixed coefficient vector), relies on covariate(s) of interest. The building block of our approach, Model Reliance (MR), compares a prediction model's expected loss with that model's expected loss on a pair observations in which the value of the covariate of interest has been switched. Expanding on MR, we propose Model Class Reliance (MCR) as the upper and lower bounds on the degree to which any well-performing prediction model within a class may rely on a variable of interest, or set of variables of interest. Thus, MCR describes reliance on a variable while accounting for the fact that many prediction models, possibly of different parametric forms, may fit the data well. We give probabilistic bounds for MR and MCR, leveraging existing results for U-statistics. We also illustrate connections between MR, conditional causal effects, and linear regression coefficients. We outline implementations of our approaches for regularized linear regression, and to regression in a reproducing kernel Hilbert space. We then apply MR {\&} MCR to study the behavior of recidivism prediction models, using a public dataset of Broward County criminal records.},
+archivePrefix = {arXiv},
+arxivId = {1801.01489},
+author = {Fisher, Aaron and Rudin, Cynthia and Dominici, Francesca},
+eprint = {1801.01489},
+title = {{Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the "Rashomon" Perspective}},
+url = {http://arxiv.org/abs/1801.01489},
+year = {2018}
+}
+
+
 @Manual{R,
     title = {R: A Language and Environment for Statistical Computing},
     author = {{R Core Team}},
@@ -7,38 +99,12 @@
     url = {https://www.R-project.org/},
 }
 
-
-@article{Goldstein2013,
-abstract = {This article presents Individual Conditional Expectation (ICE) plots, a tool for visualizing the model estimated by any supervised learning algorithm. Classical partial dependence plots (PDPs) help visualize the average partial relationship between the predicted response and one or more features. In the presence of substantial interaction effects, the partial response relationship can be heterogeneous. Thus, an average curve, such as the PDP, can obfuscate the complexity of the modeled relationship. Accordingly, ICE plots refine the partial dependence plot by graphing the functional relationship between the predicted response and the feature for individual observations. Specifically, ICE plots highlight the variation in the fitted values across the range of a covariate, suggesting where and to what extent heterogeneities might exist. In addition to providing a plotting suite for exploratory analysis, we include a visual test for additive structure in the data generating model. Through simulated examples and real data sets, we demonstrate how ICE plots can shed light on estimated models in ways PDPs cannot. Procedures outlined are available in the R package ICEbox.},
-archivePrefix = {arXiv},
-arxivId = {1309.6392},
-author = {Goldstein, Alex and Kapelner, Adam and Bleich, Justin and Pitkin, Emil},
-doi = {10.1080/10618600.2014.907095},
-eprint = {1309.6392},
-file = {:Users/chris/Downloads-paper/1309.6392.pdf:pdf},
-issn = {1061-8600},
-mendeley-groups = {IML/5. done},
-pages = {1--22},
-title = {{Peeking Inside the Black Box: Visualizing Statistical Learning with Plots of Individual Conditional Expectation}},
-url = {http://arxiv.org/abs/1309.6392},
-year = {2013}
+@article{friedman2001greedy,
+  title={Greedy function approximation: a gradient boosting machine},
+  author={Friedman, Jerome H},
+  journal={Annals of statistics},
+  pages={1189--1232},
+  year={2001},
+  publisher={JSTOR}
 }
 
-@article{Friedman1999,
-archivePrefix = {arXiv},
-arxivId = {arXiv:1011.1669v3},
-author = {Friedman, Jerome H},
-doi = {10.2307/2699986},
-eprint = {arXiv:1011.1669v3},
-file = {:Users/chris/Downloads-paper/GreedyFuncApproxSS.pdf:pdf},
-isbn = {0090-5364},
-issn = {00905364},
-journal = {North},
-mendeley-groups = {AI and ML},
-number = {3},
-pages = {1--10},
-pmid = {21740230},
-title = {{Greedy Function Approximation : A Gradient Boosting Machine}},
-volume = {1},
-year = {1999}
-}
