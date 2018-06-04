@@ -8,7 +8,7 @@
 #' @section Usage:
 #' \preformatted{
 #' lime = LocalModel$new(predictor, x.interest = NULL, dist.fun = "gower",  
-#'                       kernel.width = NULL, k = 3 run = TRUE)
+#'                       kernel.width = NULL, k = 3, run = TRUE)
 #' 
 #' plot(lime)
 #' predict(lime, newdata)
