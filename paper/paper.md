@@ -1,18 +1,19 @@
 ---
 title: 'iml: An R package for Interpretable Machine Learning'
-tags:
-  - R
-  - machine learning
-  - interpretability
 authors:
-  - name: Christoph Molnar
-    orcid: 0000-0003-2331-868X
-    affiliation: 1
-affiliations:
- - name: Department of Statistics, LMU Munich
-   index: 1
-date: 8 May 2018
+- affiliation: 1
+  name: Christoph Molnar
+  orcid: 0000-0003-2331-868X
+date: "4 June 2018"
+output: pdf_document
 bibliography: paper.bib
+tags:
+- R
+- machine learning
+- interpretability
+affiliations:
+- index: 1
+  name: Department of Statistics, LMU Munich
 ---
 
 # Summary
