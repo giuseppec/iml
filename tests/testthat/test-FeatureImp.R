@@ -15,6 +15,8 @@ test_that("FeatureImp works for single output", {
   expect_s3_class(p, c("gg", "ggplot"))
   p
   
+  # Testing for default n.repetitions
+  expect_equal(nrow(var.imp$.__enclos_env__$private$dataDesign), ncol(X) * nrow(X) * 3)
 
   var.imp = FeatureImp$new(predictor1,  loss = "mse", method = "cartesian")
   dat = var.imp$results
@@ -54,7 +56,7 @@ test_that("FeatureImp works for single output", {
   p = var.imp$plot()
   expect_s3_class(p, c("gg", "ggplot"))
   p
-  
+
 })
 
 test_that("FeatureImp works for single output and function as loss", {
@@ -88,3 +90,12 @@ test_that("FeatureImp fails without target vector",{
   predictor2 = Predictor$new(f, data = X, predict.fun = predict.fun)
   expect_error(FeatureImp$new(predictor2, loss = "ce"))
 })
+
+test_that("Works for different repetitions.",{
+  var.imp = FeatureImp$new(predictor1, loss = "mse", n.repetitions = 2)
+  dat = var.imp$results
+  expect_class(dat, "data.frame")
+  expect_equal(nrow(var.imp$.__enclos_env__$private$dataDesign), ncol(X) * nrow(X) * 2)
+})
+
+
