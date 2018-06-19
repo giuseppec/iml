@@ -4,7 +4,7 @@ authors:
 - affiliation: 1
   name: Christoph Molnar
   orcid: 0000-0003-2331-868X
-date: "4 June 2018"
+date: "19 June 2018"
 output: pdf_document
 bibliography: paper.bib
 tags:

@@ -1,0 +1,23 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "https://orcid.org/0000-0003-2331-868X",
+      "@type": "Person",
+      "email": "christoph.molnar@gmail.com",
+      "name": "Christoph Molnar",
+      "affiliation": "Department of Statistics, LMU Munich"
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/christophM/iml",
+  "datePublished": "2018-06-19",
+  "dateModified": "2018-06-19",
+  "dateCreated": "2018-06-19",
+  "description": "iml is an R package that offers a general toolbox for making machine learning models interpretable.",
+  "keywords": "machine learning, interpretable machine learning, R",
+  "license": "MIT",
+  "title": "iml: An R package for Interpretable Machine Learning",
+  "version": "v0.5.2"
+}
