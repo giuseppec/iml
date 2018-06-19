@@ -1,6 +1,7 @@
 # iml 0.6 (In Progress)
 * The `Predictor` can be initialized with a `type` (e.g. `type = "prob"`), which is more convenient than writing a custom `predict.fun`. For caret classification models, the default is now to return the response, so make sure to initialize the `Predictor` with `type = "prob"` for fine-grained results.
 * It's easier to use classifier that output class labels and no probabilities. No warning will be issued anymore. Internally, the class labels are treated as probabilities (one column per class), where the probability for the predicted class is 1, for the others 0.
+* `FeatureImp` supports the `n.repetitions` parameter which controls the number of repetitions of the feature shuffling.
 
 # iml 0.5.0/1 
 * Implemented Interaction measure
