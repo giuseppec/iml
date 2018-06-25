@@ -60,7 +60,7 @@ If you're not familiar with git or GitHub, please start by reading
 need for change. Plesae describe the problem your PR addresses and show
 how your pull request solves it as concisely as possible.
 
-Also include this motivation in `NEWS` so that when a new release of
+  Also include this motivation in `NEWS` so that when a new release of
 `iml` comes out it's easy for users to see what's changed. Add your
 item at the top of the file and use markdown for formatting. The
 news item should end with `(@yourGithubUsername, #the_issue_number)`.
@@ -70,7 +70,7 @@ check to make sure that you haven't accidentally included any unrelated
 changes. These make it harder to see exactly what's changed, and to
 evaluate any unexpected side effects.
 
-Each PR corresponds to a git branch, so if you expect to submit
+  Each PR corresponds to a git branch, so if you expect to submit
 multiple changes make sure to create multiple branches. If you have
 multiple changes that depend on each other, start with the first one
 and don't submit any others until the first one has been processed.
