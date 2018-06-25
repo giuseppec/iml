@@ -57,6 +57,11 @@ pdp.obj$plot()
 
 ![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
 
+Contribute
+==========
+
+Please check the [contribution guidelines](CONTRIBUTION.md).
+
 License
 =======
 
