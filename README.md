@@ -60,7 +60,7 @@ pdp.obj$plot()
 License
 =======
 
-© 2016-2017 [Christoph Molnar](https://christophm.github.io/)
+© 2018 [Christoph Molnar](https://christophm.github.io/)
 
 The contents of this repository are distributed under the MIT license. See below for details:
 
