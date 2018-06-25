@@ -56,6 +56,9 @@ pdp.obj = Partial$new(model, feature = "lstat")
 pdp.obj$plot()
 ```
 
+# Contribute
+Please check the [contribution guidelines](CONTRIBUTION.md)
+
 # License
 
 &copy; 2018 [Christoph Molnar](https://christophm.github.io/)

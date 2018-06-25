@@ -60,7 +60,7 @@ pdp.obj$plot()
 Contribute
 ==========
 
-Please check the [contribution guidelines](CONTRIBUTION.md).
+Please check the [contribution guidelines](CONTRIBUTION.md)
 
 License
 =======
