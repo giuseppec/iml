@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.org/christophM/iml.svg?branch=master)](https://travis-ci.org/christophM/iml) [![CRAN Status Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml) [![CRAN Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://cran.rstudio.com/web/packages/iml/index.html) [![codecov.io](https://codecov.io/github/christophM/iml/coverage.svg?branch=master)](https://codecov.io/github/christophM/iml?branch=master)
+[![Build Status](https://travis-ci.org/christophM/iml.svg?branch=master)](https://travis-ci.org/christophM/iml) [![CRAN Status Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml) [![CRAN Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://cran.rstudio.com/web/packages/iml/index.html) [![codecov.io](https://codecov.io/github/christophM/iml/coverage.svg?branch=master)](https://codecov.io/github/christophM/iml?branch=master) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1299059.svg)](https://doi.org/10.5281/zenodo.1299059)
 
 iml: interpretable machine learning
 ===================================
