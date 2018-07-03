@@ -4,6 +4,12 @@ authors:
 - affiliation: 1
   name: Christoph Molnar
   orcid: 0000-0003-2331-868X
+- affiliation: 1
+  name: Giuseppe Casalicchio
+  orcid: 0000-0001-5324-5966
+- affiliation: 1
+  name: Bernd Bischl
+  orcid: 0000-0001-6002-6980
 date: "19 June 2018"
 output: pdf_document
 bibliography: paper.bib
