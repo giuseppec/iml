@@ -23,6 +23,7 @@
 #' \item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
 #' \item{type: }{(`character(1)`)\cr This argument is passed to the prediction function of the model. The classic use case is to say type="prob" for classification models. 
 #' For example for caret models or the most S3 predict methods. If both predict.fun and type are used, then type is passed as an argument to predict.fun.}
+#' \item{batch.size: }{(`numeric(1)`)\cr The maximum number of rows to be input the model for prediction at once.}
 #' }
 #' 
 #' @section Details: 
@@ -78,6 +79,7 @@ Predictor = R6::R6Class("Predictor",
   public = list(
     data = NULL,
     model = NULL, 
+    batch.size = NULL,
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
       prediction = self$prediction.function(newdata)
@@ -106,7 +108,7 @@ Predictor = R6::R6Class("Predictor",
         cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
       }
     },
-    initialize = function(model = NULL, data, predict.fun = NULL, y = NULL, class=NULL, type = NULL) {
+    initialize = function(model = NULL, data, predict.fun = NULL, y = NULL, class=NULL, type = NULL, batch.size = 1000) {
       if(is.null(model) & is.null(predict.fun)) { 
         stop("Provide a model, a predict.fun or both!")  
       }
@@ -115,6 +117,7 @@ Predictor = R6::R6Class("Predictor",
       self$model = model
       self$task = inferTaskFromModel(model)
       self$prediction.function = createPredictionFunction(model, self$task, predict.fun, type = type)
+      self$batch.size = batch.size
     }
   ), 
   private = list(

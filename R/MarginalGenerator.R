@@ -8,12 +8,13 @@ MarginalGenerator = R6Class(
   public = list(
     finished = FALSE,
     n.total = NULL,
-    initialize = function(grid.dat, dist.dat, features, n.sample.dist = NULL, id.dist = FALSE) {
+    initialize = function(grid.dat, dist.dat, features, y = NULL, n.sample.dist = NULL, id.dist = FALSE) {
       assert_data_table(grid.dat)
       assert_data_table(dist.dat)
       assert_true(all(features %in% colnames(grid.dat)))
       assert_true(all(colnames(grid.dat) %in% colnames(dist.dat)))
       assert_character(features, unique = TRUE)
+      assert_data_frame(y, null.ok = TRUE, nrows = nrow(dist.dat))
       if (is.null(n.sample.dist)) {
         n.sample.dist = nrow(dist.dat)
       }
@@ -23,6 +24,7 @@ MarginalGenerator = R6Class(
       private$features.rest = setdiff(colnames(dist.dat), features)
       private$n.sample.dist = n.sample.dist
       private$id.dist = id.dist
+      private$y = y
       self$n.total = n.sample.dist * nrow(grid.dat)
       private$grid.index = rep(1:nrow(grid.dat), each = n.sample.dist)
       if ((nrow(dist.dat) == nrow(grid.dat)) & (n.sample.dist == 1)) {
@@ -32,24 +34,31 @@ MarginalGenerator = R6Class(
         private$dist.index = unlist(lapply(1:nrow(grid.dat), function(x) sample(1:nrow(dist.dat), size = n.sample.dist)))
       }
     },
-    next.batch = function(n) {
+    # Return the next n samples
+    next.batch = function(n, y = FALSE) {
       if (!self$finished) {
         pointer = private$counter
         if (n >= (length(private$grid.index) - pointer)) self$finished = TRUE
-        batch.index =  pointer:max(pointer + n -1, length(private$grid.dat))
+        
+        n.left = length(private$grid.index) - pointer
+        batch.index =  pointer:min(pointer + n - 1, n.left)
+        
         partial_j1 = private$grid.dat[private$grid.index[batch.index], 
           private$features, with = FALSE]
+        
         partial_j2 = private$dist.dat[private$dist.index[batch.index], 
           private$features.rest, with = FALSE]
+        
         partial_j = cbind(partial_j1, partial_j2)
+        
         partial_j$.id = private$grid.index[batch.index]
-        if (private$id.dist) {
-          partial_j$.id.dist = private$dist.index[batch.index]
-        }
+        partial_j$.id.dist = private$dist.index[batch.index]
         private$counter = private$counter + n
+        
+        if(y) partial_j = cbind(partial_j, private$y[partial_j$.id.dist,])
         partial_j
       }
-    }, 
+    },
     all = function() {
       private$counter = 1
       self$next.batch(length(private$grid.index))
@@ -64,8 +73,10 @@ MarginalGenerator = R6Class(
     n.sample.dist = NULL,
     id.dist = NULL, 
     grid.index = NULL, 
-    dist.index = NULL
+    dist.index = NULL,
+    y = NULL
   )
 )
 
-# TODO: Test
+# TODO: Implement parallisable version
+# Parallelize on Interpretation method by splitting grid.dat and creating multiple MarginalGenerators or by feature 

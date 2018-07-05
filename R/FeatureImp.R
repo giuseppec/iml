@@ -148,7 +148,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$original.error = loss(actual, predicted)
-      if(run) self$run()
+      if(run) private$run.sequentially(self$predictor$batch.size)
     }
   ),
   private = list(
@@ -156,28 +156,43 @@ FeatureImp = R6::R6Class("FeatureImp",
     # for printing
     loss.string = NULL,
     q = function(pred) probs.to.labels(pred),
-    intervene = function() {
-      X.inter.list = lapply(private$sampler$feature.names, 
-        function(i) {
-          n.times = ifelse(private$method == "cartesian", nrow(private$dataSample), self$n.repetitions)
-          mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
-            features = i, n.sample.dist = n.times)$all()
-          mg$.feature = i
-          mg
-        })
-      rbindlist(X.inter.list, use.names = TRUE)
+    combine.aggregations = function(agg, dat){
+      if(is.null(agg)) { 
+        return(dat) 
+      } else {
+
+      }
     },
-    aggregate = function() {
-      y = private$dataDesign[, private$sampler$y.names, with = FALSE]
-      y.hat = private$qResults
-      # For classification we work with the class labels instead of probs
-      result = data.table(feature = private$dataDesign$.feature, actual = y[[1]], 
-        predicted = y.hat[[1]])
-      result = result[, list("original.error" = self$original.error, 
-        "permutation.error" = self$loss(actual, predicted)), by = feature]
+    run.sequentially = function(n){
+      private$dataSample = private$getData()
+      result = NULL
+      X.inter.list = lapply(private$sampler$feature.names, function(i) {
+        n.times = ifelse(private$method == "cartesian", nrow(private$dataSample), self$n.repetitions)
+        mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
+          features = i, n.sample.dist = n.times, y = private$sampler$y)
+        while(!mg$finished) {
+          dataDesign = mg$next.batch(n, y = TRUE)
+          y = dataDesign[, private$sampler$y.names, with = FALSE]
+          predictResults = self$predictor$predict(data.frame(dataDesign))
+          private$multiClass = ifelse(ncol(predictResults) > 1, TRUE, FALSE)
+          qResults = private$q(predictResults)
+          
+          # AGGREGATE measurements
+          y.hat = qResults
+          result.intermediate = data.table(feature = i, actual = y[[1]], predicted = predictResults[[1]])
+          result.intermediate = result.intermediate[, list("permutation.error" = self$loss(actual, predicted), "n" = .N), by = feature]
+          result = rbind(result, result.intermediate)
+          result = result[, list("permutation.error" = sum(permutation.error * n)/sum(n), "n" = sum(n)), by = feature]
+        }
+        result
+      })
+      private$finished = TRUE
+      result = rbindlist(X.inter.list)
+      result$original.error = self$original.error
       result[, importance := permutation.error / self$original.error]
       result = result[order(result$importance, decreasing = TRUE),]
-      result
+      result$n = NULL
+      self$results = result
     },
     generatePlot = function(sort = TRUE, ...) {
       res = self$results
