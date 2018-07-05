@@ -12,3 +12,4 @@ notebooks
 runtime.txt
 install.R
 paper
+codemeta.json

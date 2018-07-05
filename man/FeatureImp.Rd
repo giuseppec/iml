@@ -11,7 +11,7 @@ The importance is measured as the factor by which the model's prediction error i
 \section{Usage}{
 
 \preformatted{
-imp = FeatureImp$new(predictor, loss, method = "shuffle", run = TRUE)
+imp = FeatureImp$new(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE)
 
 plot(imp)
 imp$results
@@ -27,7 +27,9 @@ For FeatureImp$new():
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
 \item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a loss function. See Details for allowed losses.}
-\item{method: }{(`character(1)`)\cr Either "shuffle" or "cartesian". See Details.}
+\item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
+\item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
+The higher the number of repetitions the more stable the results will become.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }

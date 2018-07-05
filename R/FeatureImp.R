@@ -9,7 +9,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' imp = FeatureImp$new(predictor, loss, method = "shuffle", run = TRUE)
+#' imp = FeatureImp$new(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE)
 #' 
 #' plot(imp)
 #' imp$results
@@ -23,7 +23,9 @@
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
 #' \item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a loss function. See Details for allowed losses.}
-#' \item{method: }{(`character(1)`)\cr Either "shuffle" or "cartesian". See Details.}
+#' \item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
+#' \item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
+#' The higher the number of repetitions the more stable the results will become.}
 #' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
@@ -120,8 +122,10 @@ FeatureImp = R6::R6Class("FeatureImp",
   public = list(
     loss = NULL,
     original.error = NULL,
-    initialize = function(predictor, loss, method = "shuffle", run = TRUE) {
+    n.repetitions = NULL,
+    initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE) {
       assert_choice(method, c("shuffle", "cartesian"))
+      assert_number(n.repetitions)
       if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
         allowedLosses = c("ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
@@ -139,6 +143,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       self$loss = private$set.loss(loss)
       private$method = method
       private$getData = private$sampler$get.xy
+      self$n.repetitions = n.repetitions
       actual = private$sampler$y[[1]]
       predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
@@ -154,7 +159,7 @@ FeatureImp = R6::R6Class("FeatureImp",
     intervene = function() {
       X.inter.list = lapply(private$sampler$feature.names, 
         function(i) {
-          n.times = ifelse(private$method == "cartesian", nrow(private$dataSample), 1)
+          n.times = ifelse(private$method == "cartesian", nrow(private$dataSample), self$n.repetitions)
           mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
             features = i, n.sample.dist = n.times)$all()
           mg$.feature = i
