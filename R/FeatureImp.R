@@ -117,6 +117,9 @@ NULL
 
 #' @export
 
+## TODO: Restrict to loss functions that can be computed incrementally in batches
+
+
 FeatureImp = R6::R6Class("FeatureImp", 
   inherit = InterpretationMethod,
   public = list(
@@ -126,6 +129,11 @@ FeatureImp = R6::R6Class("FeatureImp",
     initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE) {
       assert_choice(method, c("shuffle", "cartesian"))
       assert_number(n.repetitions)
+      if (n.repetitions > predictor$data$n.rows) {
+        message('Number of repetitions larger than number of unique permutations per row. 
+          Switching to method = "cartesian"')
+        method = "cartesian"
+      }
       if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
         allowedLosses = c("ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
@@ -148,7 +156,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
       # Assuring that levels are the same
       self$original.error = loss(actual, predicted)
-      if(run) private$run.sequentially(self$predictor$batch.size)
+      if(run) private$run(self$predictor$batch.size)
     }
   ),
   private = list(
@@ -160,16 +168,17 @@ FeatureImp = R6::R6Class("FeatureImp",
       if(is.null(agg)) { 
         return(dat) 
       } else {
-
+        
       }
     },
-    run.sequentially = function(n){
+    run = function(n){
       private$dataSample = private$getData()
       result = NULL
       X.inter.list = lapply(private$sampler$feature.names, function(i) {
-        n.times = ifelse(private$method == "cartesian", nrow(private$dataSample), self$n.repetitions)
+        cartesian = ifelse(private$method == "cartesian", TRUE, FALSE)
         mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
-          features = i, n.sample.dist = n.times, y = private$sampler$y)
+          features = i, n.sample.dist = self$n.repetitions, y = private$sampler$y, cartesian = cartesian)
+        mg2 = mg$clone()
         while(!mg$finished) {
           dataDesign = mg$next.batch(n, y = TRUE)
           y = dataDesign[, private$sampler$y.names, with = FALSE]
@@ -186,12 +195,14 @@ FeatureImp = R6::R6Class("FeatureImp",
         }
         result
       })
+      
       private$finished = TRUE
       result = rbindlist(X.inter.list)
       result$original.error = self$original.error
       result[, importance := permutation.error / self$original.error]
       result = result[order(result$importance, decreasing = TRUE),]
-      result$n = NULL
+      # Removes the n column
+      result = result[,list(feature, original.error, permutation.error, importance)]
       self$results = result
     },
     generatePlot = function(sort = TRUE, ...) {
