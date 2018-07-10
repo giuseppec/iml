@@ -138,6 +138,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         ## Only allow metrics from Metrics package
         allowedLosses = c("ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
           "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape")
+        
+        allowedLosses = c("")
         checkmate::assert_choice(loss, allowedLosses)
         private$loss.string  = loss
         loss = getFromNamespace(loss, "Metrics")
