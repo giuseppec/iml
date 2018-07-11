@@ -42,11 +42,10 @@
 #' The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
 #' If you want to use your own loss function it should have this signature: function(actual, predicted).
 #' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
-#' Only use functions that return a single performance value, not a vector. 
-#' Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
-#' "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
-#' See \code{library(help = "Metrics")} to get a list of functions. 
-#' 
+#' Only use functions that return a single performance value, not a vector.
+#' Since the feature importance is computed batch by batch, choose a lost for which an 
+#' weighted average between instance can be computed (anything with a root outside doesn't work for example).
+#' Allowed losses are: "ce", "mae", "mse", "mape", "msle", "percent_bias", "smape" 
 #' 
 #' @section Fields:
 #' \describe{
@@ -116,10 +115,6 @@
 NULL
 
 #' @export
-
-## TODO: Restrict to loss functions that can be computed incrementally in batches
-
-
 FeatureImp = R6::R6Class("FeatureImp", 
   inherit = InterpretationMethod,
   public = list(
@@ -136,10 +131,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       }
       if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
-        allowedLosses = c("ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
-          "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape")
-        
-        allowedLosses = c("")
+        allowedLosses = c("ce", "mae", "mse", "mape", "msle", "percent_bias", "smape")
         checkmate::assert_choice(loss, allowedLosses)
         private$loss.string  = loss
         loss = getFromNamespace(loss, "Metrics")
@@ -258,7 +250,22 @@ plot.FeatureImp = function(x, sort = TRUE, ...) {
 }
 
 
+library("Metrics")
 
+dt =  data.frame(actual = c(1,1,1,0,0, 1), predicted = c(1,0,1, 1,0, 0))
+
+f1(dt$actual, dt$predicted)
+
+
+dt =  data.frame(actual = c(1.1, 1.9, 3.0, 4.4, 5.0, 5.6), predicted = c(0.9, 1.8, 2.5, 4.5, 5.0, 6.2))
+dt1 = dt[c(1,2),]
+dt2 = dt[c(3:nrow(dt)),]
+Metrics::smape(actual = dt$actual, predicted = dt$predicted)
+  
+d1 = Metrics::smape(actual = dt1$actual, predicted = dt1$predicted)
+d2 = Metrics::smape(actual = dt2$actual, predicted = dt2$predicted)
+
+(nrow(dt1)/nrow(dt)) * d1 +  (nrow(dt2)/nrow(dt)) * d2
 
 
 
