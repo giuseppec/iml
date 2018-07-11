@@ -176,13 +176,10 @@ FeatureImp = R6::R6Class("FeatureImp",
         while(!mg$finished) {
           dataDesign = mg$next.batch(n, y = TRUE)
           y = dataDesign[, private$sampler$y.names, with = FALSE]
-          predictResults = self$predictor$predict(data.frame(dataDesign))
-          private$multiClass = ifelse(ncol(predictResults) > 1, TRUE, FALSE)
-          qResults = private$q(predictResults)
+          qResults = private$run.prediction(dataDesign)
           
           # AGGREGATE measurements
-          y.hat = qResults
-          result.intermediate = data.table(feature = i, actual = y[[1]], predicted = predictResults[[1]])
+          result.intermediate = data.table(feature = i, actual = y[[1]], predicted = private$predictResults[[1]])
           result.intermediate = result.intermediate[, list("permutation.error" = self$loss(actual, predicted), "n" = .N), by = feature]
           result = rbind(result, result.intermediate)
           result = result[, list("permutation.error" = sum(permutation.error * n)/sum(n), "n" = sum(n)), by = feature]
@@ -248,24 +245,6 @@ FeatureImp = R6::R6Class("FeatureImp",
 plot.FeatureImp = function(x, sort = TRUE, ...) {
   x$plot(sort = sort, ...)
 }
-
-
-library("Metrics")
-
-dt =  data.frame(actual = c(1,1,1,0,0, 1), predicted = c(1,0,1, 1,0, 0))
-
-f1(dt$actual, dt$predicted)
-
-
-dt =  data.frame(actual = c(1.1, 1.9, 3.0, 4.4, 5.0, 5.6), predicted = c(0.9, 1.8, 2.5, 4.5, 5.0, 6.2))
-dt1 = dt[c(1,2),]
-dt2 = dt[c(3:nrow(dt)),]
-Metrics::smape(actual = dt$actual, predicted = dt$predicted)
-  
-d1 = Metrics::smape(actual = dt1$actual, predicted = dt1$predicted)
-d2 = Metrics::smape(actual = dt2$actual, predicted = dt2$predicted)
-
-(nrow(dt1)/nrow(dt)) * d1 +  (nrow(dt2)/nrow(dt)) * d2
 
 
 

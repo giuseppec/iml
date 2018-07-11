@@ -37,9 +37,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         private$dataSample = private$getData()
         private$dataDesign = private$intervene()
         # EXECUTE experiment
-        private$predictResults = self$predictor$predict(data.frame(private$dataDesign))
-        private$multiClass = ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
-        private$qResults = private$q(private$predictResults)
+        private$qResults = private$run.prediction(private$dataDesign)
         # AGGREGATE measurements
         self$results = data.frame(private$aggregate())
         private$finished = TRUE
@@ -77,6 +75,11 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       self$results = NULL
       private$finished = FALSE
     }, 
+    run.prediction = function(dataDesign) {
+      private$predictResults = self$predictor$predict(data.frame(dataDesign))
+      private$multiClass = ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
+      private$q(private$predictResults)
+    },
     # The data need for plotting of results
     plotData = NULL,
     # Function to generate the plot

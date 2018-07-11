@@ -163,33 +163,39 @@ Partial = R6::R6Class("Partial",
       private$setFeatureFromIndex(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
-      if(run) self$run()
+      if(run) self$run(self$predictor$batch.size)
     }, 
     set.feature = function(feature) {
       feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
       private$flush()
       private$setFeatureFromIndex(feature)
       private$set.grid.size(private$grid.size.original)
-      self$run()
+      self$run(self$predictor$batch.size)
     },
     center = function(center.at) {
       private$anchor.value = center.at
       private$flush()
-      self$run()
-    }
-  ), 
-  private = list(
-    anchor.value = NULL,
-    aggregate = function() {
-      results.ice = private$dataDesign[, c(self$feature.name, ".id.dist"), with = FALSE]
-      if (private$multiClass) {
-        y.hat.names = colnames(private$qResults)
-        results.ice = cbind(results.ice, private$qResults)
-        results.ice = melt(results.ice, variable.name = ".class", 
-          value.name = ".y.hat", measure.vars = y.hat.names)
-      } else {
-        results.ice[, ".y.hat" := private$qResults]
-        results.ice$.class = 1
+      self$run(self$predictor$batch.size)
+    },
+    run = function(n) {
+      private$dataSample = private$getData()
+      grid.dt = private$get.grid()
+      mg = MarginalGenerator$new(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE, cartesian = TRUE)
+      results.ice = data.table()
+      while(!mg$finished) {
+        results.ice.inter = mg$next.batch(n)
+        qResults = private$run.prediction(results.ice.inter)
+        results.ice.inter = results.ice.inter[, c(self$feature.name, ".id.dist"), with = FALSE]
+        if (private$multiClass) {
+          y.hat.names = colnames(qResults)
+          results.ice.inter = cbind(results.ice.inter, qResults)
+          results.ice.inter = melt(results.ice.inter, variable.name = ".class", 
+            value.name = ".y.hat", measure.vars = y.hat.names)
+        } else {
+          results.ice.inter[, ".y.hat" := qResults]
+          results.ice.inter$.class = 1
+        }
+        results.ice = rbind(results.ice, results.ice.inter)
       }
       
       if (!is.null(private$anchor.value)) {
@@ -202,7 +208,6 @@ Partial = R6::R6Class("Partial",
         results.ice$.y.hat = results.ice$.y.hat - results.ice$anchor.yhat
         results.ice$anchor.yhat = NULL
       }
-      
       results = data.table()
       if (self$aggregation == "pdp") {
         if (private$multiClass) {
@@ -224,9 +229,12 @@ Partial = R6::R6Class("Partial",
         results$.id = results$.id.dist
         results$.id.dist = NULL
       }
-      results
-    },
-    intervene = function() {
+      self$results = results
+    }
+  ), 
+  private = list(
+    anchor.value = NULL,
+    get.grid = function() {
       if (self$n.features == 1) {
         grid = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
           self$feature.type[1], self$grid.size[1])
@@ -242,11 +250,10 @@ Partial = R6::R6Class("Partial",
       } else {
         stop("max. number of features is 2")
       }
-      
       grid.dt = data.table(grid)
       colnames(grid.dt) = self$feature.name
-      MarginalGenerator$new(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE)$all()
-    }, 
+      grid.dt
+    },
     grid.size.original = NULL,
     setFeatureFromIndex = function(feature.index) {
       self$n.features = length(feature.index)
