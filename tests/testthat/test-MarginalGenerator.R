@@ -17,7 +17,7 @@ test_that("MarginalGenerator$all()", {
   expect_data_table(res, nrows = nrow(mg.dat) * 2)
   expect_equal(table(res$a), table(mg.dat$a) * 2)
   expect_equal(table(res$b), table(mg.dat$b) * 2)
-  expect_equal(sort(colnames(res)), sort(c(colnames(mg.dat), c(".id", ".id.dist"))))
+  expect_equal(sort(colnames(res)), sort(c(colnames(mg.dat), c(".id"))))
   expect_equal(table(table(res$.id))[[1]], nrow(mg.dat))
   expect_equal(res$a, rep(mg.dat$a, each =  2))
   
@@ -25,7 +25,7 @@ test_that("MarginalGenerator$all()", {
 })
 
 test_that("MarginalGenerator$all()with cartesian n.sample.dist", {
-  mg = MarginalGenerator$new(grid.dat = mg.dat, dist.dat = mg.dat, features = c("a", "b"), cartesian = TRUE)
+  mg = MarginalGenerator$new(grid.dat = mg.dat, dist.dat = mg.dat, features = c("a", "b"), cartesian = TRUE, id.dist = TRUE)
   res = mg$all()
   expect_data_table(res, nrows = nrow(mg.dat) * nrow(mg.dat))
   expect_equal(table(res$a), table(mg.dat$a) * nrow(mg.dat))
@@ -35,7 +35,7 @@ test_that("MarginalGenerator$all()with cartesian n.sample.dist", {
   expect_equal(res$a, rep(mg.dat$a, each = nrow(mg.dat)))
   
   
-  mg = MarginalGenerator$new(grid.dat = mg.dat, n.sample.dist = 200, dist.dat = mg.dat, features = c("a", "b"))
+  mg = MarginalGenerator$new(grid.dat = mg.dat, n.sample.dist = 200, dist.dat = mg.dat, features = c("a", "b"), id.dist = TRUE)
   res = mg$all()
   expect_data_table(res, nrows = nrow(mg.dat) * nrow(mg.dat))
   expect_equal(table(res$a), table(mg.dat$a) * nrow(mg.dat))
@@ -56,7 +56,7 @@ test_that("MarginalGenerator$all() different grid", {
   expect_data_table(res, nrows = nrow(grid) * nrow(mg.dat))
   expect_equal(table(res$a), table(grid$a) * nrow(mg.dat))
   expect_equal(table(res$b), table(grid$b) * nrow(mg.dat))
-  expect_equal(sort(colnames(res)), sort(c(colnames(mg.dat), c(".id", ".id.dist"))))
+  expect_equal(sort(colnames(res)), sort(c(colnames(mg.dat), c(".id"))))
   expect_equal(table(table(res$.id))[[1]], nrow(grid))
 })
 
@@ -93,7 +93,7 @@ test_that("MarginalGenerator$batch()", {
   res = mg$next.batch(10)
   expect_data_table(res, nrows = 10)
   expect_equal(unique(res$a), 1)
-  expect_equal(sort(colnames(res)), sort(c(colnames(mg.dat), c(".id", ".id.dist"))))
+  expect_equal(sort(colnames(res)), sort(c(colnames(mg.dat), c(".id"))))
   
   
   res = mg$next.batch(1)

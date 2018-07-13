@@ -48,10 +48,10 @@ Two permutation schemes are implemented:
 The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
 If you want to use your own loss function it should have this signature: function(actual, predicted).
 Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
-Only use functions that return a single performance value, not a vector. 
-Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
-"msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
-See \code{library(help = "Metrics")} to get a list of functions.
+Only use functions that return a single performance value, not a vector.
+Since the feature importance is computed batch by batch, choose a lost for which an 
+weighted average between instance can be computed (anything with a root outside doesn't work for example).
+Allowed losses are: "ce", "mae", "mse", "mape", "msle", "percent_bias", "smape"
 }
 
 \section{Fields}{

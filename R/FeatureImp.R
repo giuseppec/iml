@@ -171,7 +171,8 @@ FeatureImp = R6::R6Class("FeatureImp",
       X.inter.list = lapply(private$sampler$feature.names, function(i) {
         cartesian = ifelse(private$method == "cartesian", TRUE, FALSE)
         mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
-          features = i, n.sample.dist = self$n.repetitions, y = private$sampler$y, cartesian = cartesian)
+          features = i, n.sample.dist = self$n.repetitions, y = private$sampler$y, cartesian = cartesian, 
+          id.dist = TRUE)
         mg2 = mg$clone()
         while(!mg$finished) {
           dataDesign = mg$next.batch(n, y = TRUE)

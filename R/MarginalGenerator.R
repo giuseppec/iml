@@ -63,7 +63,9 @@ MarginalGenerator = R6Class(
         partial_j = cbind(partial_j1, partial_j2)
         
         partial_j$.id = private$grid.index[batch.index]
-        partial_j$.id.dist = private$dist.index[batch.index]
+        if (private$id.dist) {
+          partial_j$.id.dist = private$dist.index[batch.index]
+        }
         private$counter = private$counter + n
         
         if(y) partial_j = cbind(partial_j, private$y[partial_j$.id.dist,])

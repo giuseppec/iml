@@ -70,40 +70,6 @@ test_that("h.test", {
   expect_number(h.test(f.all = 1:10, f.j = 1:10, f.no.j = c(1:6, 0, 0, 0, 0)), lower = 0, upper = 1)
 })
 
-test_that("MarginalGenerator", {
-  n = 20
-  dat = data.table(x1 = rnorm(n),
-  x2 = rnorm(n), x3 = rnorm(n),
-  x4 = rnorm(n), x5 = rnorm(n), x6 = rnorm(n))
-  f = function(dat) {
-  dat$x1 * dat$x3 + dat$x1 * dat$x3
-  }
-  dat1 = MarginalGenerator$new(dat, dat, "x1")$all()
-  expect_data_table(dat1, any.missing = FALSE, nrows = n * n)
-  expect_equal(colnames(dat1), c(colnames(dat), ".id"))
-  sds = dat1[,lapply(.SD, var), by = ".id"]
-  expect_equal(colMeans(sds)["x1"], c(x1 = 0))
-  expect_true(all(colMeans(sds)[-which(colnames(sds) == "x1")] > 0))
-  
-  expect_error({MarginalGenerator$new(dat, dat, c("x2", "x2"))$all()})
-  
-  dat2 = MarginalGenerator$new(dat, dat, c("x2", "x3"))$all()
-  expect_data_table(dat2, any.missing = FALSE, nrows = n * n)
-  expect_equal(sort(colnames(dat2)), sort(c(colnames(dat), ".id")))
-  sds = dat2[,lapply(.SD, var), by = ".id"]
-  expect_equal(colMeans(sds)[c("x2", "x3")], c(x2 = 0, x3 = 0))
-  expect_true(all(colMeans(sds)[-which(colnames(sds) %in% c("x2", "x3"))] > 0))
-  
-  dat3 = MarginalGenerator$new(dat, dat, c("x2"), n.sample.dist = 2)$all()
-  expect_data_table(dat3, any.missing = FALSE, nrows = n * 2)
-  expect_equal(sort(colnames(dat3)), sort(c(colnames(dat), ".id")))
-  sds = dat3[,lapply(.SD, var), by = ".id"]
-  expect_equal(colMeans(sds)[c("x2")], c(x2 = 0))
-  expect_true(all(colMeans(sds)[-which(colnames(sds) %in% c("x2"))] > 0))
-  
-  # TODO: Add tests for next.batch() method
-})
-
 
 
 
