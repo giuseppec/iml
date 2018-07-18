@@ -31,19 +31,18 @@ Data  = R6::R6Class("Data",
       cat("Sampling from data.frame with", nrow(self$X), "rows and", ncol(self$X), "columns.")
     },
     initialize = function(X, y = NULL, prob = NULL) {
+      
       assertDataFrame(X, all.missing = FALSE)
       assertNamed(X)
-      self$X = data.table(X)
       if (length(y) == 1 & is.character(y)) {
         assert_true(y %in% names(X))
         self$y = X[,y, drop = FALSE]
         self$y.names = y
-        self$X = self$X[, (self$y.names):= NULL ]
       } else if (inherits(y, "data.frame")) {
         assertDataFrame(y, all.missing = FALSE, null.ok = TRUE, nrows = nrow(X))
         self$y = y
         self$y.names = colnames(self$y)
-        if (length(intersect(colnames(self$y), colnames(self$X))) != 0) {
+        if (length(intersect(colnames(self$y), colnames(X))) != 0) {
           stop("colnames of y and X have to be different.")
         }
       } else if (is.vector(y) | is.factor(y)) {
@@ -51,11 +50,12 @@ Data  = R6::R6Class("Data",
         self$y = data.frame(.y = y)
         self$y.names = colnames(self$y)
       } 
+      self$X = data.table(X[,setdiff(colnames(X), self$y.names)])
       self$prob = prob
-      self$feature.types = get.feature.type(unlist(lapply(X, class)))
-      self$feature.names = colnames(X)
-      self$n.features = ncol(X)
-      self$n.rows = nrow(X)
+      self$feature.types = get.feature.type(unlist(lapply(self$X, class)))
+      self$feature.names = colnames(self$X)
+      self$n.features = ncol(self$X)
+      self$n.rows = nrow(self$X)
       names(self$feature.types) = self$feature.names
     }
   )
