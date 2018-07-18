@@ -168,6 +168,7 @@ FeatureImp = R6::R6Class("FeatureImp",
     run = function(n){
       private$dataSample = private$getData()
       result = NULL
+      ## TODO: Use here foreach to parallelize
       X.inter.list = lapply(private$sampler$feature.names, function(i) {
         cartesian = ifelse(private$method == "cartesian", TRUE, FALSE)
         mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
