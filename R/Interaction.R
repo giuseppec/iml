@@ -232,7 +232,7 @@ intervene.interaction = function(dataSample, feature.name, grid.size) {
   assert_character(feature.name, min.len = 1, max.len = 2, any.missing = FALSE)
   assert_number(grid.size)
   
-  grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
+  grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size), ]
   dist.dat = dataSample
   if (length(feature.name) == 1) {
     partial_j = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)$all()
