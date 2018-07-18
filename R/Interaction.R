@@ -40,11 +40,14 @@
 #' 
 #' The interaction measure takes on values between 0 (no interaction) to 1 (100% of variance of f(x) du to interaction).
 #' 
+#' Difference to the interact.gbm function: Interaction works with all models, including but not limited to gbms.
+#' gbm.interact returns the H-statistics, which is the square root of the H-squared statistics that is returned by Interaction.
+#' 
 #' @section Fields:
 #' \describe{
 #' \item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.}
 #' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-#' \item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature and - in the case of a multi-dimensional outcome - per class.}
+#' \item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature calculated as Friedman's H-squared statistic and - in the case of a multi-dimensional outcome - per class.}
 #' }
 #'  
 #' @section Methods:
