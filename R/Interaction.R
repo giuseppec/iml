@@ -169,7 +169,7 @@ Interaction = R6::R6Class("Interaction",
           partial_j$.type = "j"
           partial_k = mg_k$next.batch(batch.size.split)
           partial_k$.type = "k"
-          res.intermediate = rbind(res.intermediate, partial_j, partial_noj, grid.dat, use.names = TRUE)
+          res.intermediate = rbind(res.intermediate, partial_jk, partial_j, partial_k, use.names = TRUE)
         }
       }
       qResults = private$run.prediction(res.intermediate)
@@ -230,18 +230,24 @@ plot.Interaction = function(x, sort = TRUE) {
 # Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 
 # The Annals of Applied Statistics 2.3 (2008): 916-954.
 # Measures the variance explained by the interaction
-## TODO: Solve issue with computing the scale and center parameter 
 h.test = function(f.all, f.j, f.no.j) { 
   assert_numeric(f.all, any.missing = FALSE)
   assert_numeric(f.j, any.missing = FALSE)
   assert_numeric(f.no.j, any.missing = FALSE)
   # center
-  f.all = scale(f.all, center = TRUE, scale = TRUE)
-  f.j =  scale(f.j, center = TRUE, scale = TRUE)
-  f.no.j =  scale(f.no.j, center = TRUE, scale = TRUE)
+  f.all = my.scale(f.all)
+  f.j =  my.scale(f.j)
+  f.no.j =  my.scale(f.no.j)
   # statistics
   sum((f.all  - (f.j + f.no.j))^2) / sum(f.all^2)
 }  
+
+my.scale = function(x) {
+  x.scaled = scale(x, center = TRUE, scale = FALSE)
+  x.scaled[is.na(x.scaled)] = 0
+  x.scaled
+}
+
 
 aggregate.interaction = function(partial_dat, prediction, feature) {
   assert_data_table(partial_dat)
@@ -263,7 +269,6 @@ aggregate.interaction = function(partial_dat, prediction, feature) {
   partial_dat = partial_dat[, c(".id", ".feature", ".type", ".y.hat", ".class")]
   pd = dcast(partial_dat, .feature + .id + .class ~ .type, 
     value.var = ".y.hat", fun.aggregate = mean)
-
   if (length(feature) == 2) {
     res = data.frame(pd[, list(.interaction = h.test(jk, j, k)), by = list(.feature, .class)])
   } else {
