@@ -1,3 +1,5 @@
+
+#' @importFrom doParallel registerDoParallel stopImplicitCluster
 InterpretationMethod = R6::R6Class("InterpretationMethod",
   public = list(
     # The aggregated results of the experiment
@@ -12,11 +14,13 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
           warning("call run() first!")
         }
     },
-    initialize = function(predictor) {
+    initialize = function(predictor, n.threads) {
       checkmate::assert_class(predictor, "Predictor")
+      checkmate::assert_number(n.threads)
       self$predictor = predictor
       private$sampler = predictor$data
       private$getData = private$sampler$get.x
+      private$start.cluster(n.threads)
     },
     print = function() {
       cat("Interpretation method: ", class(self)[1], "\n")
@@ -40,6 +44,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         private$qResults = private$run.prediction(private$dataDesign)
         # AGGREGATE measurements
         self$results = data.frame(private$aggregate())
+        private$stop.cluster()
         private$finished = TRUE
       }
     }
@@ -74,6 +79,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       private$qResults = NULL
       self$results = NULL
       private$finished = FALSE
+      private$start.cluster()
     }, 
     run.prediction = function(dataDesign) {
       private$predictResults = self$predictor$predict(data.frame(dataDesign))
@@ -86,6 +92,22 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     generatePlot = function() NULL,
     # Feature names of X
     feature.names = NULL, 
-    printParameters = function() {}
+    printParameters = function() {},
+    start.cluster = function(n.threads) {
+      private$n.threads = n.threads
+      tryCatch({
+        if (n.threads > 1) {
+          registerDoParallel(n.threads)
+        }
+      }, error = function(e) {
+        warning("Not supported multi-threads, only 1 thread being used")
+        FALSE
+      })
+    }, 
+    stop.cluster = function() {
+      stopImplicitCluster()
+    },
+    n.threads = NULL,
+    cluster = NULL
   )
 )

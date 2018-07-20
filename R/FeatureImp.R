@@ -43,9 +43,9 @@
 #' If you want to use your own loss function it should have this signature: function(actual, predicted).
 #' Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
 #' Only use functions that return a single performance value, not a vector.
-#' Since the feature importance is computed batch by batch, choose a lost for which an 
-#' weighted average between instance can be computed (anything with a root outside doesn't work for example).
-#' Allowed losses are: "ce", "mae", "mse", "mape", "msle", "percent_bias", "smape" 
+#' Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae",
+#' "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
+#' See \code{library(help = "Metrics")} to get a list of functions.
 #' 
 #' @section Fields:
 #' \describe{
@@ -67,6 +67,7 @@
 #' Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #' 
 #' @import Metrics
+#' @importFrom foreach %dopar% foreach
 #' @importFrom data.table copy rbindlist
 #' @examples
 #' if (require("rpart")) {
@@ -77,8 +78,10 @@
 #' X = Boston[-which(names(Boston) == "medv")]
 #' mod = Predictor$new(tree, data = X, y = y)
 #' 
+#' mod = Predictor$new(tree, data = X, y = y
+#' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = FeatureImp$new(mod, loss = "mae")
+#' imp = FeatureImp$new(mod, loss = "mae", n.threads = 2, n.repetitions = 10)
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -121,7 +124,7 @@ FeatureImp = R6::R6Class("FeatureImp",
     loss = NULL,
     original.error = NULL,
     n.repetitions = NULL,
-    initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE) {
+    initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE, n.threads = 1) {
       assert_choice(method, c("shuffle", "cartesian"))
       assert_number(n.repetitions)
       if (n.repetitions > predictor$data$n.rows) {
@@ -131,7 +134,8 @@ FeatureImp = R6::R6Class("FeatureImp",
       }
       if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
-        allowedLosses = c("ce", "mae", "mse", "mape", "msle", "percent_bias", "smape")
+        allowedLosses = c("ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae",
+                 "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape")        
         checkmate::assert_choice(loss, allowedLosses)
         private$loss.string  = loss
         loss = getFromNamespace(loss, "Metrics")
@@ -141,7 +145,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       if (is.null(predictor$data$y)) {
         stop("Please call Predictor$new() with the y target vector.")
       }
-      super$initialize(predictor = predictor)
+      super$initialize(predictor = predictor, n.threads = n.threads)
       self$loss = private$set.loss(loss)
       private$method = method
       private$getData = private$sampler$get.xy
@@ -168,34 +172,42 @@ FeatureImp = R6::R6Class("FeatureImp",
     run = function(n){
       private$dataSample = private$getData()
       result = NULL
-      ## TODO: Use here foreach to parallelize
-      X.inter.list = lapply(private$sampler$feature.names, function(i) {
-        cartesian = ifelse(private$method == "cartesian", TRUE, FALSE)
-        mg = MarginalGenerator$new(private$dataSample, private$dataSample, 
-          features = i, n.sample.dist = self$n.repetitions, y = private$sampler$y, cartesian = cartesian, 
-          id.dist = TRUE)
-        mg2 = mg$clone()
-        while(!mg$finished) {
-          dataDesign = mg$next.batch(n, y = TRUE)
-          y = dataDesign[, private$sampler$y.names, with = FALSE]
-          qResults = private$run.prediction(dataDesign)
-          
-          # AGGREGATE measurements
-          result.intermediate = data.table(feature = i, actual = y[[1]], predicted = private$predictResults[[1]])
-          result.intermediate = result.intermediate[, list("permutation.error" = self$loss(actual, predicted), "n" = .N), by = feature]
-          result = rbind(result, result.intermediate)
-          result = result[, list("permutation.error" = sum(permutation.error * n)/sum(n), "n" = sum(n)), by = feature]
-        }
-        result
-      })
       
-      private$finished = TRUE
-      result = rbindlist(X.inter.list)
+      estimate.feature.imp = function(feature, data.sample, y, n.repetitions, cartesian, y.names, pred, loss) {
+        cartesian = ifelse(private$method == "cartesian", TRUE, FALSE)
+        mg = iml:::MarginalGenerator$new(data.sample, data.sample, 
+          features = feature, n.sample.dist = n.repetitions, y = y, cartesian = cartesian, id.dist = TRUE)
+        qResults = data.table::data.table()
+        y = data.table::data.table()
+        while(!mg$finished) {
+          data.design = mg$next.batch(n, y = TRUE)
+          y = rbind(y, data.design[, , with = FALSE])
+          qResults = rbind(qResults, pred(data.design))
+        }
+        # AGGREGATE measurements
+        results = data.table::data.table(feature = feature, actual = y[[1]], predicted = qResults[[1]])
+        results = results[, list("permutation.error" = loss(actual, predicted)), by = feature]
+        results
+      }
+      
+      loss = self$loss
+      n.repetitions = self$n.repetitions
+      data.sample = private$dataSample
+      y = private$sampler$y
+      y.names = private$sampler$y.names
+      pred  = private$run.prediction
+      loss = self$loss
+      
+      result = foreach(feature = private$sampler$feature.names, .combine = rbind) %dopar% 
+        estimate.feature.imp(feature, data.sample = data.sample, y = y, cartesian = cartesian, 
+          n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss)
       result$original.error = self$original.error
       result[, importance := permutation.error / self$original.error]
       result = result[order(result$importance, decreasing = TRUE),]
       # Removes the n column
       result = result[,list(feature, original.error, permutation.error, importance)]
+      private$finished = TRUE
+      private$stop.cluster()
       self$results = result
     },
     generatePlot = function(sort = TRUE, ...) {

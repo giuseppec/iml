@@ -24,7 +24,9 @@ Imports: R6,
          partykit,
          glmnet, 
          Metrics, 
-         data.table
+         data.table,
+         foreach,
+         doParallel
 Suggests: randomForest,
           gower, 
           testthat, 

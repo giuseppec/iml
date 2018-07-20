@@ -49,9 +49,9 @@ The loss function can be either specified via a string, or by handing a function
 If you want to use your own loss function it should have this signature: function(actual, predicted).
 Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
 Only use functions that return a single performance value, not a vector.
-Since the feature importance is computed batch by batch, choose a lost for which an 
-weighted average between instance can be computed (anything with a root outside doesn't work for example).
-Allowed losses are: "ce", "mae", "mse", "mape", "msle", "percent_bias", "smape"
+Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae",
+"msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
+See \code{library(help = "Metrics")} to get a list of functions.
 }
 
 \section{Fields}{
@@ -83,8 +83,10 @@ y = Boston$medv
 X = Boston[-which(names(Boston) == "medv")]
 mod = Predictor$new(tree, data = X, y = y)
 
+mod = Predictor$new(tree, data = X, y = y
+
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, loss = "mae")
+imp = FeatureImp$new(mod, loss = "mae", n.threads = 2, n.repetitions = 100)
 
 # Plot the results directly
 plot(imp)
