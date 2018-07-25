@@ -1,5 +1,6 @@
 
 #' @importFrom doParallel registerDoParallel stopImplicitCluster
+#' @importFrom foreach getDoParWorkers
 InterpretationMethod = R6::R6Class("InterpretationMethod",
   public = list(
     # The aggregated results of the experiment
@@ -14,13 +15,12 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
           warning("call run() first!")
         }
     },
-    initialize = function(predictor, n.threads) {
+    initialize = function(predictor) {
       checkmate::assert_class(predictor, "Predictor")
-      checkmate::assert_number(n.threads)
       self$predictor = predictor
       private$sampler = predictor$data
       private$getData = private$sampler$get.x
-      private$start.cluster(n.threads)
+      private$start.cluster(predictor$n.threads)
     },
     print = function() {
       cat("Interpretation method: ", class(self)[1], "\n")
@@ -96,7 +96,8 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     start.cluster = function(n.threads) {
       private$n.threads = n.threads
       tryCatch({
-        if (n.threads > 1) {
+        if ((n.threads > 1) & (n.threads != foreach::getDoParWorkers())) {
+          print("trying")
           registerDoParallel(n.threads)
         }
       }, error = function(e) {
@@ -105,7 +106,9 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       })
     }, 
     stop.cluster = function() {
-      stopImplicitCluster()
+      if(getDoParWorkers() > 1) {
+        stopImplicitCluster()
+      }
     },
     n.threads = NULL,
     cluster = NULL

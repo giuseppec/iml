@@ -77,6 +77,7 @@ NULL
 
 Predictor = R6::R6Class("Predictor", 
   public = list(
+    n.threads = NULL,
     data = NULL,
     model = NULL, 
     batch.size = NULL,
@@ -108,7 +109,9 @@ Predictor = R6::R6Class("Predictor",
         cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
       }
     },
-    initialize = function(model = NULL, data, predict.fun = NULL, y = NULL, class=NULL, type = NULL, batch.size = 1000) {
+    initialize = function(model = NULL, data, predict.fun = NULL, y = NULL, class=NULL, 
+      type = NULL, batch.size = 1000, n.threads = 1) {
+      assert_number(n.threads, lower = 1)
       if(is.null(model) & is.null(predict.fun)) { 
         stop("Provide a model, a predict.fun or both!")  
       }
@@ -118,6 +121,7 @@ Predictor = R6::R6Class("Predictor",
       self$task = inferTaskFromModel(model)
       self$prediction.function = createPredictionFunction(model, self$task, predict.fun, type = type)
       self$batch.size = batch.size
+      self$n.threads = n.threads
     }
   ), 
   private = list(

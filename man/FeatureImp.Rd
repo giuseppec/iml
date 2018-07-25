@@ -86,7 +86,7 @@ mod = Predictor$new(tree, data = X, y = y)
 mod = Predictor$new(tree, data = X, y = y
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, loss = "mae", n.threads = 2, n.repetitions = 100)
+imp = FeatureImp$new(mod, loss = "mae", n.threads = 2, n.repetitions = 10)
 
 # Plot the results directly
 plot(imp)

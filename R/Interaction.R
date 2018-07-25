@@ -66,16 +66,37 @@
 #' data("Boston", package  = "MASS")
 #' rf = rpart(medv ~ ., data = Boston)
 #' # Create a model object
-#' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+#' mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 3) 
 #' 
 #' # Measure the interaction strength
 #' ia = Interaction$new(mod)
+#' 
+#' 
+#' library(rbenchmark)
+#' 
+#' benchmark("single-thread" = {
+#'   mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 1) 
+#'   ia = Interaction$new(mod)
+#'   }, 
+#'   "multi" = {
+#'   mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 3) 
+#'   ia = Interaction$new(mod)
+#'   }, 
+#'   replications = 2
+#' )
+#' 
+#' 
+#' system.time({
+#'   mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 1) 
+#'   ia = Interaction$new(mod)
+#'   })
+#' 
 #' 
 #' # Plot the resulting leaf nodes
 #' plot(ia) 
 #' 
 #' 
-#' # Extract the results
+#' # Extract the results 
 #' dat = ia$results
 #' head(dat)
 #' \dontrun{
@@ -94,6 +115,7 @@
 #' }
 #' }
 #' @importFrom data.table dcast
+#' @importFrom foreach %do%
 #' 
 #' @export
 NULL
@@ -119,61 +141,18 @@ Interaction = R6::R6Class("Interaction",
     },
     run = function(batch.size) {
       features = setdiff(private$sampler$feature.names, private$feature)
-      ## TODO: Parallelize with foreach
-      res = lapply(features, function (feature) {
-        dt = private$interaction.run.single(dataSample = private$sampler$get.x(), 
+      data.sample = private$sampler$get.x()
+      probe = self$predictor$predict(data.frame(data.sample[1,]))
+      private$multiClass = ifelse(ncol(probe) > 1, TRUE, FALSE)
+      self$results = foreach(feature = features, .combine = rbind, .export = c("self", "private")) %dopar%   
+        iml:::interaction.run.single(dataSample = data.sample, 
           feature.name = c(feature, private$feature), 
           grid.size = self$grid.size, 
-          batch.size = batch.size)
-        dt
-      })
-      self$results = rbindlist(res, use.names = TRUE)
+          batch.size = batch.size, q = private$q, predictor = self$predictor)
+     private$stop.cluster()
     }
   ), 
   private = list(
-    interaction.run.single = function(batch.size, dataSample, feature.name, grid.size) {
-      assert_data_table(dataSample)
-      assert_character(feature.name, min.len = 1, max.len = 2, any.missing = FALSE)
-      assert_number(grid.size)
-      
-      grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
-      dist.dat = dataSample
-      
-      res.intermediate = data.table()
-      if (length(feature.name) == 1) {
-        mg_j = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
-        batch.size.split = floor(batch.size)/2
-        mg_noj  = MarginalGenerator$new(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name), cartesian = TRUE)
-        
-        while(!mg_j$finished) {
-          partial_j = mg_j$next.batch(batch.size.split)
-          partial_j$.type = "j"
-          partial_noj = mg_noj$next.batch(batch.size.split)
-          partial_noj$.type = "no.j"
-          grid.dat$.type = "f"
-          grid.dat$.id = 1:nrow(grid.dat)
-          res.intermediate = rbind(res.intermediate, partial_j, partial_noj, grid.dat, use.names = TRUE)
-        }
-      } else if (length(feature.name) == 2) {
-        batch.size.split = floor(batch.size/3)
-        mg_jk = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
-        mg_j  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[1], cartesian = TRUE)
-        mg_k  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[2], cartesian = TRUE)
-        
-        while(!mg_j$finished) {
-          partial_jk = mg_jk$next.batch(batch.size.split)
-          partial_jk$.type = "jk"
-          partial_j = mg_j$next.batch(batch.size.split)
-          partial_j$.type = "j"
-          partial_k = mg_k$next.batch(batch.size.split)
-          partial_k$.type = "k"
-          res.intermediate = rbind(res.intermediate, partial_jk, partial_j, partial_k, use.names = TRUE)
-        }
-      }
-      qResults = private$run.prediction(res.intermediate)
-      res.intermediate$.feature = paste(feature.name, collapse = ":")
-      aggregate.interaction(res.intermediate, qResults, feature.name)
-    },
     generatePlot = function(sort = TRUE, ...) {
       res = self$results
       if (sort & !private$multiClass) {
@@ -276,4 +255,50 @@ aggregate.interaction = function(partial_dat, prediction, feature) {
     res$.class = NULL
   }
   res
+}
+
+
+interaction.run.single = function(batch.size, dataSample, feature.name, grid.size, predictor, q) {
+  assert_data_table(dataSample)
+  assert_character(feature.name, min.len = 1, max.len = 2, any.missing = FALSE)
+  assert_number(grid.size)
+  
+  grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
+  dist.dat = dataSample
+  
+  res.intermediate = data.table()
+  if (length(feature.name) == 1) {
+    mg_j = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
+    batch.size.split = floor(batch.size)/2
+    mg_noj  = MarginalGenerator$new(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name), cartesian = TRUE)
+    
+    while(!mg_j$finished) {
+      partial_j = mg_j$next.batch(batch.size.split)
+      partial_j$.type = "j"
+      partial_noj = mg_noj$next.batch(batch.size.split)
+      partial_noj$.type = "no.j"
+      grid.dat$.type = "f"
+      grid.dat$.id = 1:nrow(grid.dat)
+      res.intermediate = rbind(res.intermediate, partial_j, partial_noj, grid.dat, use.names = TRUE)
+    }
+  } else if (length(feature.name) == 2) {
+    batch.size.split = floor(batch.size/3)
+    mg_jk = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
+    mg_j  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[1], cartesian = TRUE)
+    mg_k  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[2], cartesian = TRUE)
+    
+    while(!mg_j$finished) {
+      partial_jk = mg_jk$next.batch(batch.size.split)
+      partial_jk$.type = "jk"
+      partial_j = mg_j$next.batch(batch.size.split)
+      partial_j$.type = "j"
+      partial_k = mg_k$next.batch(batch.size.split)
+      partial_k$.type = "k"
+      res.intermediate = rbind(res.intermediate, partial_jk, partial_j, partial_k, use.names = TRUE)
+    }
+  }
+  predictResults = predictor$predict(data.frame(res.intermediate))
+  qResults = q(predictResults)
+  res.intermediate$.feature = paste(feature.name, collapse = ":")
+  aggregate.interaction(res.intermediate, qResults, feature.name)
 }
