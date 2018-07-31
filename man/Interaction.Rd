@@ -75,31 +75,10 @@ set.seed(42)
 data("Boston", package  = "MASS")
 rf = rpart(medv ~ ., data = Boston)
 # Create a model object
-mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 3) 
+mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
 
 # Measure the interaction strength
 ia = Interaction$new(mod)
-
-
-library(rbenchmark)
-
-benchmark("single-thread" = {
-  mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 1) 
-  ia = Interaction$new(mod)
-  }, 
-  "multi" = {
-  mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 3) 
-  ia = Interaction$new(mod)
-  }, 
-  replications = 2
-)
-
-
-system.time({
-  mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")], n.threads = 1) 
-  ia = Interaction$new(mod)
-  })
-
 
 # Plot the resulting leaf nodes
 plot(ia) 

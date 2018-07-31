@@ -81,7 +81,7 @@
 #' mod = Predictor$new(tree, data = X, y = y
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = FeatureImp$new(mod, loss = "mae", n.threads = 2, n.repetitions = 10)
+#' imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 10)
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -124,7 +124,7 @@ FeatureImp = R6::R6Class("FeatureImp",
     loss = NULL,
     original.error = NULL,
     n.repetitions = NULL,
-    initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE, n.threads = 1) {
+    initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE, parallel = FALSE) {
       assert_choice(method, c("shuffle", "cartesian"))
       assert_number(n.repetitions)
       if (n.repetitions > predictor$data$n.rows) {
@@ -145,7 +145,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       if (is.null(predictor$data$y)) {
         stop("Please call Predictor$new() with the y target vector.")
       }
-      super$initialize(predictor = predictor, n.threads = n.threads)
+      super$initialize(predictor = predictor)
       self$loss = private$set.loss(loss)
       private$method = method
       private$getData = private$sampler$get.xy
@@ -178,14 +178,15 @@ FeatureImp = R6::R6Class("FeatureImp",
         mg = iml:::MarginalGenerator$new(data.sample, data.sample, 
           features = feature, n.sample.dist = n.repetitions, y = y, cartesian = cartesian, id.dist = TRUE)
         qResults = data.table::data.table()
-        y = data.table::data.table()
+        y.vec = data.table::data.table()
         while(!mg$finished) {
           data.design = mg$next.batch(n, y = TRUE)
-          y = rbind(y, data.design[, , with = FALSE])
+          y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
           qResults = rbind(qResults, pred(data.design))
         }
+  
         # AGGREGATE measurements
-        results = data.table::data.table(feature = feature, actual = y[[1]], predicted = qResults[[1]])
+        results = data.table::data.table(feature = feature, actual = y.vec[[1]], predicted = qResults[[1]])
         results = results[, list("permutation.error" = loss(actual, predicted)), by = feature]
         results
       }
@@ -207,7 +208,6 @@ FeatureImp = R6::R6Class("FeatureImp",
       # Removes the n column
       result = result[,list(feature, original.error, permutation.error, importance)]
       private$finished = TRUE
-      private$stop.cluster()
       self$results = result
     },
     generatePlot = function(sort = TRUE, ...) {
