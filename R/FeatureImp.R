@@ -26,6 +26,7 @@
 #' \item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
 #' \item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
 #' The higher the number of repetitions the more stable the results will become.}
+#' \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 #' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
@@ -67,7 +68,7 @@
 #' Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #' 
 #' @import Metrics
-#' @importFrom foreach %dopar% foreach
+#' @importFrom foreach %dopar% foreach %do%
 #' @importFrom data.table copy rbindlist
 #' @examples
 #' if (require("rpart")) {
@@ -78,10 +79,9 @@
 #' X = Boston[-which(names(Boston) == "medv")]
 #' mod = Predictor$new(tree, data = X, y = y)
 #' 
-#' mod = Predictor$new(tree, data = X, y = y
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 10)
+#' imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 100, parallel = TRUE)
 #' 
 #' # Plot the results directly
 #' plot(imp)
@@ -127,6 +127,8 @@ FeatureImp = R6::R6Class("FeatureImp",
     initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE, parallel = FALSE) {
       assert_choice(method, c("shuffle", "cartesian"))
       assert_number(n.repetitions)
+      assert_logical(parallel)
+      private$parallel = parallel
       if (n.repetitions > predictor$data$n.rows) {
         message('Number of repetitions larger than number of unique permutations per row. 
           Switching to method = "cartesian"')
@@ -199,7 +201,8 @@ FeatureImp = R6::R6Class("FeatureImp",
       pred  = private$run.prediction
       loss = self$loss
       
-      result = foreach(feature = private$sampler$feature.names, .combine = rbind) %dopar% 
+      `%mypar%` = private$get.parallel.fct(private$parallel)
+      result = foreach(feature = private$sampler$feature.names, .combine = rbind) %mypar%
         estimate.feature.imp(feature, data.sample = data.sample, y = y, cartesian = cartesian, 
           n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss)
       result$original.error = self$original.error

@@ -31,6 +31,7 @@ If one feature name is selected, the 2-way interactions of this feature with all
 \item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.
 A larger grid.size means more accurate the results but longer the computation time.
 For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}
+\item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }

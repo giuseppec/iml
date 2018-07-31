@@ -30,6 +30,7 @@ The object (created with Predictor$new()) holding the machine learning model and
 \item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
 \item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
 The higher the number of repetitions the more stable the results will become.}
+\item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
@@ -83,10 +84,9 @@ y = Boston$medv
 X = Boston[-which(names(Boston) == "medv")]
 mod = Predictor$new(tree, data = X, y = y)
 
-mod = Predictor$new(tree, data = X, y = y
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 10)
+imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 100, parallel = TRUE)
 
 # Plot the results directly
 plot(imp)

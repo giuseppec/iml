@@ -25,6 +25,7 @@
 #' \item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.
 #' A larger grid.size means more accurate the results but longer the computation time.
 #' For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}
+#' \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 #' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
@@ -105,10 +106,12 @@ Interaction = R6::R6Class("Interaction",
   public = list(
     # The fitted tree
     grid.size = NULL,
-    initialize = function(predictor, feature = NULL, grid.size = 30, run = TRUE) {
+    initialize = function(predictor, feature = NULL, grid.size = 30, run = TRUE, parallel = FALSE) {
       assert_vector(feature, len = 1, null.ok = TRUE)
       assert_number(grid.size, lower = 2)
       assert_logical(run)
+      assert_logical(parallel)
+      private$parallel = parallel
       if (!is.null(feature) && is.numeric(feature)) {
         private$feature = predictor$data$feature.names[feature]
       } else {
@@ -123,11 +126,13 @@ Interaction = R6::R6Class("Interaction",
       data.sample = private$sampler$get.x()
       probe = self$predictor$predict(data.frame(data.sample[1,]))
       private$multiClass = ifelse(ncol(probe) > 1, TRUE, FALSE)
-      self$results = foreach(feature = features, .combine = rbind, .export = c("self", "private")) %dopar%   
+      `%mypar%` = private$get.parallel.fct(private$parallel)
+      self$results = foreach(feature = features, .combine = rbind, .export = c("self")) %mypar%   
         iml:::interaction.run.single(dataSample = data.sample, 
           feature.name = c(feature, private$feature), 
           grid.size = self$grid.size, 
           batch.size = batch.size, q = private$q, predictor = self$predictor)
+      private$finished = TRUE
     }
   ), 
   private = list(
