@@ -1,6 +1,3 @@
-
-#' @importFrom doParallel registerDoParallel stopImplicitCluster
-#' @importFrom foreach getDoParWorkers
 InterpretationMethod = R6::R6Class("InterpretationMethod",
   public = list(
     # The aggregated results of the experiment
