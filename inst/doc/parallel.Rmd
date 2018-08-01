@@ -2,12 +2,12 @@
 title: "Doing model interpretation in parallel"
 output: rmarkdown::html_vignette
 vignette: >
-%\VignetteIndexEntry{Introduction to iml: Interpretable Machine Learning in R}
+  %\VignetteIndexEntry{Introduction to iml: Interpretable Machine Learning in R}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
-  ---
+---
   
-  ```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
 ```
