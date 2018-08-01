@@ -202,7 +202,8 @@ FeatureImp = R6::R6Class("FeatureImp",
       loss = self$loss
       
       `%mypar%` = private$get.parallel.fct(private$parallel)
-      result = foreach(feature = private$sampler$feature.names, .combine = rbind) %mypar%
+      result = foreach(feature = private$sampler$feature.names, .combine = rbind, .export = "self", 
+        .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
         estimate.feature.imp(feature, data.sample = data.sample, y = y, cartesian = cartesian, 
           n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss)
       result$original.error = self$original.error

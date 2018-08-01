@@ -127,8 +127,9 @@ Interaction = R6::R6Class("Interaction",
       probe = self$predictor$predict(data.frame(data.sample[1,]))
       private$multiClass = ifelse(ncol(probe) > 1, TRUE, FALSE)
       `%mypar%` = private$get.parallel.fct(private$parallel)
-      self$results = foreach(feature = features, .combine = rbind, .export = c("self")) %mypar%   
-        iml:::interaction.run.single(dataSample = data.sample, 
+      self$results = foreach(feature = features, .combine = rbind, 
+        .export = c("self"), .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%   
+        private$interaction.run.single(dataSample = data.sample, 
           feature.name = c(feature, private$feature), 
           grid.size = self$grid.size, 
           batch.size = batch.size, q = private$q, predictor = self$predictor)
@@ -152,6 +153,50 @@ Interaction = R6::R6Class("Interaction",
         p = p + facet_wrap(".class")
       }
       p
+    },
+    interaction.run.single = function(batch.size, dataSample, feature.name, grid.size, predictor, q) {
+      assert_data_table(dataSample)
+      assert_character(feature.name, min.len = 1, max.len = 2, any.missing = FALSE)
+      assert_number(grid.size)
+      
+      grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
+      dist.dat = dataSample
+      
+      res.intermediate = data.table()
+      if (length(feature.name) == 1) {
+        mg_j = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
+        batch.size.split = floor(batch.size)/2
+        mg_noj  = MarginalGenerator$new(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name), cartesian = TRUE)
+        
+        while(!mg_j$finished) {
+          partial_j = mg_j$next.batch(batch.size.split)
+          partial_j$.type = "j"
+          partial_noj = mg_noj$next.batch(batch.size.split)
+          partial_noj$.type = "no.j"
+          grid.dat$.type = "f"
+          grid.dat$.id = 1:nrow(grid.dat)
+          res.intermediate = rbind(res.intermediate, partial_j, partial_noj, grid.dat, use.names = TRUE)
+        }
+      } else if (length(feature.name) == 2) {
+        batch.size.split = floor(batch.size/3)
+        mg_jk = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
+        mg_j  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[1], cartesian = TRUE)
+        mg_k  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[2], cartesian = TRUE)
+        
+        while(!mg_j$finished) {
+          partial_jk = mg_jk$next.batch(batch.size.split)
+          partial_jk$.type = "jk"
+          partial_j = mg_j$next.batch(batch.size.split)
+          partial_j$.type = "j"
+          partial_k = mg_k$next.batch(batch.size.split)
+          partial_k$.type = "k"
+          res.intermediate = rbind(res.intermediate, partial_jk, partial_j, partial_k, use.names = TRUE)
+        }
+      }
+      predictResults = predictor$predict(data.frame(res.intermediate))
+      qResults = q(predictResults)
+      res.intermediate$.feature = paste(feature.name, collapse = ":")
+      aggregate.interaction(res.intermediate, qResults, feature.name)
     },
     feature = NULL
   )
@@ -241,47 +286,3 @@ aggregate.interaction = function(partial_dat, prediction, feature) {
 }
 
 
-interaction.run.single = function(batch.size, dataSample, feature.name, grid.size, predictor, q) {
-  assert_data_table(dataSample)
-  assert_character(feature.name, min.len = 1, max.len = 2, any.missing = FALSE)
-  assert_number(grid.size)
-  
-  grid.dat = dataSample[sample(1:nrow(dataSample), size = grid.size),]
-  dist.dat = dataSample
-  
-  res.intermediate = data.table()
-  if (length(feature.name) == 1) {
-    mg_j = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
-    batch.size.split = floor(batch.size)/2
-    mg_noj  = MarginalGenerator$new(grid.dat, dist.dat, setdiff(colnames(dataSample),feature.name), cartesian = TRUE)
-    
-    while(!mg_j$finished) {
-      partial_j = mg_j$next.batch(batch.size.split)
-      partial_j$.type = "j"
-      partial_noj = mg_noj$next.batch(batch.size.split)
-      partial_noj$.type = "no.j"
-      grid.dat$.type = "f"
-      grid.dat$.id = 1:nrow(grid.dat)
-      res.intermediate = rbind(res.intermediate, partial_j, partial_noj, grid.dat, use.names = TRUE)
-    }
-  } else if (length(feature.name) == 2) {
-    batch.size.split = floor(batch.size/3)
-    mg_jk = MarginalGenerator$new(grid.dat, dist.dat, feature.name, cartesian = TRUE)
-    mg_j  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[1], cartesian = TRUE)
-    mg_k  = MarginalGenerator$new(grid.dat, dist.dat, feature.name[2], cartesian = TRUE)
-    
-    while(!mg_j$finished) {
-      partial_jk = mg_jk$next.batch(batch.size.split)
-      partial_jk$.type = "jk"
-      partial_j = mg_j$next.batch(batch.size.split)
-      partial_j$.type = "j"
-      partial_k = mg_k$next.batch(batch.size.split)
-      partial_k$.type = "k"
-      res.intermediate = rbind(res.intermediate, partial_jk, partial_j, partial_k, use.names = TRUE)
-    }
-  }
-  predictResults = predictor$predict(data.frame(res.intermediate))
-  qResults = q(predictResults)
-  res.intermediate$.feature = paste(feature.name, collapse = ":")
-  aggregate.interaction(res.intermediate, qResults, feature.name)
-}
