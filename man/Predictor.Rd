@@ -29,7 +29,7 @@ Other machine learning with a S3 predict functions work as well, but less robust
 \item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
 \item{type: }{(`character(1)`)\cr This argument is passed to the prediction function of the model. The classic use case is to say type="prob" for classification models. 
 For example for caret models or the most S3 predict methods. If both predict.fun and type are used, then type is passed as an argument to predict.fun.}
-\item{batch.size: }{(`numeric(1)`)\cr The maximum number of rows to be input the model for prediction at once.}
+\item{batch.size: }{(`numeric(1)`)\cr The maximum number of rows to be input the model for prediction at once. Currently only respected for FeatureImp, Partial and Interaction.}
 }
 }
 
