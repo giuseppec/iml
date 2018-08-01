@@ -4,6 +4,8 @@ f1 because the implementation used didn't make sense anyways
 * Interaction: The results return as interaction strength now the H-statistic instead of the H-squared-statistic. 
   This makes it more coherent with the gbm pacakge and the interact.gbm function and with what Friedman uses in the plots in the paper.
   For users of the package this means that an interaction of strength x becomes an interaction of strength sqrt(x).
+* `Interaction`, `FeatureImp` and `Partial` are now computed batch-wise in the background. This prevents this methods from overloading the memory. For that, the `Predictor` has a new init argument 'batch.size' which limits the number of rows send to the model for prediction for the methods `Interaction`, `FeatureImp` and `Partial`.
+* `Interaction` and `FeatureImp` additionally allow parallel computation on multiple cores. See `vignette("parallel", package = "iml")` for how to use it.
 
 # iml 0.5.2
 * The `Predictor` can be initialized with a `type` (e.g. `type = "prob"`), which is more convenient than writing a custom `predict.fun`. For caret classification models, the default is now to return the response, so make sure to initialize the `Predictor` with `type = "prob"` for fine-grained results.
