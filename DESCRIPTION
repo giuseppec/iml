@@ -38,7 +38,8 @@ Suggests: randomForest,
           covr, 
           knitr, 
           rmarkdown, 
-          devtools
+          devtools, 
+          doParallel
 License: MIT + file LICENSE
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
