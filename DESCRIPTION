@@ -37,7 +37,8 @@ Suggests: randomForest,
           mlr,
           covr, 
           knitr, 
-          rmarkdown
+          rmarkdown, 
+          devtools
 License: MIT + file LICENSE
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
