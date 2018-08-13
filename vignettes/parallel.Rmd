@@ -38,14 +38,14 @@ Fortunately, the `doParallel` makes it easy to setup and register a cluster:
 
 ```{r}
 library("doParallel")
-# Creates a cluster with 4 cores
-cl = makePSOCKcluster(4)
+# Creates a cluster with 2 cores
+cl = makePSOCKcluster(2)
 # Registers cluster
 registerDoParallel(cl)
 ```
 
 
-Now we can easily compute feature importance in parallel. This means that the computation per feature is distributed among the 4 cores I specified earlier.
+Now we can easily compute feature importance in parallel. This means that the computation per feature is distributed among the 2 cores I specified earlier.
 
 ```{r}
 imp = FeatureImp$new(predictor, loss = "mae", parallel = TRUE)
