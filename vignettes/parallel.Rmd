@@ -1,0 +1,85 @@
+---
+title: "Doing model interpretation in parallel"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to iml: Interpretable Machine Learning in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+  
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = T, comment = "#>")
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+```
+
+
+The `iml` package can now handle bigger datasets. 
+Earlier problems with exploding memory have been fixed for `Partial`, `FeatureImp` and `Interaction`.
+It's also possible now to compute `FeatureImp` and `Interaction` in parallel.
+This document describes how.
+
+First we load some data, fit a random forest and create a Predictor object.
+
+```{r}
+set.seed(42)
+library("iml")
+library("randomForest")
+data("Boston", package  = "MASS")
+rf = randomForest(medv ~ ., data = Boston, ntree = 500)
+X = Boston[which(names(Boston) != "medv")]
+predictor = Predictor$new(rf, data = X, y = Boston$medv)
+```
+
+## Going parallel
+
+You need to install the `doParallel` or a similar framework to compute in parallel.
+Before you can use parallelization to compute for example the feature importance on multiple CPU cores, you have to setup up a cluster. 
+Fortunately, the `doParallel` makes it easy to setup and register a cluster:
+
+```{r}
+library("doParallel")
+# Creates a cluster with 2 cores
+cl = makePSOCKcluster(2)
+# Registers cluster
+registerDoParallel(cl)
+```
+
+
+Now we can easily compute feature importance in parallel. This means that the computation per feature is distributed among the 2 cores I specified earlier.
+
+```{r}
+imp = FeatureImp$new(predictor, loss = "mae", parallel = TRUE)
+plot(imp)
+```
+
+That wasn't very impressive, let's actually see how much speed up we get by parallelization.
+
+```{r}
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = FALSE))
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = TRUE))
+```
+
+A little bit of improvement, but not too impressive.
+Parallelization is more useful in the case where the model uses a lot of features or where the feature importance computation is repeated more often to get more stable results.
+
+```{r}
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = FALSE, n.repetitions = 200))
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = TRUE, n.repetitions = 200))
+```
+
+Here the parallel computation is twice as fast as the sequential computation of the feature importance.
+
+The parallization also speeds up the computation of the interaction statistics:
+
+```{r}
+system.time(Interaction$new(predictor, parallel = FALSE))
+system.time(Interaction$new(predictor, parallel = TRUE))
+```
+
+
+
+Remember to stop the cluster in the end again.
+
+```{r}
+stopCluster(cl)
+```

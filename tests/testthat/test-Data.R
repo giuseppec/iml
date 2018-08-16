@@ -34,4 +34,7 @@ test_that("y as character works", {
   expect_equal(ds$y, iris["Species"])
   expect_equal(ds$X, data.table::data.table(iris[names(iris) != "Species"]))
   expect_equal(ds$get.xy(), data.table::data.table(iris))
+  expect_equal(ds$get.x(), data.table::data.table(iris[names(iris) != "Species"]))
+  expect_equal(ds$feature.names, setdiff(colnames(iris), "Species"))
+  expect_equal(unname(ds$feature.types), rep("numerical", times = 4))
 })

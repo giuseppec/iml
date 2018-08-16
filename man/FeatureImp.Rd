@@ -30,6 +30,7 @@ The object (created with Predictor$new()) holding the machine learning model and
 \item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
 \item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
 The higher the number of repetitions the more stable the results will become.}
+\item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
@@ -48,8 +49,8 @@ Two permutation schemes are implemented:
 The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
 If you want to use your own loss function it should have this signature: function(actual, predicted).
 Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
-Only use functions that return a single performance value, not a vector. 
-Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae", 
+Only use functions that return a single performance value, not a vector.
+Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae",
 "msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
 See \code{library(help = "Metrics")} to get a list of functions.
 }
@@ -83,8 +84,9 @@ y = Boston$medv
 X = Boston[-which(names(Boston) == "medv")]
 mod = Predictor$new(tree, data = X, y = y)
 
+
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, loss = "mae")
+imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 100, parallel = TRUE)
 
 # Plot the results directly
 plot(imp)

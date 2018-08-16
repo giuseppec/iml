@@ -31,6 +31,7 @@ If one feature name is selected, the 2-way interactions of this feature with all
 \item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.
 A larger grid.size means more accurate the results but longer the computation time.
 For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}
+\item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
@@ -46,7 +47,7 @@ Any variance that is not explained can be attributed to the interaction and is u
 The interaction strength between two features is the proportion of the variance of the 2-dimensional partial dependence function that is not explained
 by the sum of the two 1-dimensional partial dependence functions.
 
-The interaction measure takes on values between 0 (no interaction) to 1 (100% of variance of f(x) du to interaction).
+The interaction is measured by Friedman's H-statistic (square root of the H-squared test statistic) and takes on values between 0 (no interaction) to 1 (100% of standard deviation of f(x) du to interaction).
 }
 
 \section{Fields}{
@@ -54,7 +55,7 @@ The interaction measure takes on values between 0 (no interaction) to 1 (100% of
 \describe{
 \item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature and - in the case of a multi-dimensional outcome - per class.}
+\item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature calculated as Friedman's H-statistic and - in the case of a multi-dimensional outcome - per class.}
 }
 }
 
@@ -84,7 +85,7 @@ ia = Interaction$new(mod)
 plot(ia) 
 
 
-# Extract the results
+# Extract the results 
 dat = ia$results
 head(dat)
 \dontrun{
