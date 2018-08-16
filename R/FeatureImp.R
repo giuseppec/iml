@@ -81,7 +81,7 @@
 #' 
 #' 
 #' # Compute feature importances as the performance drop in mean absolute error
-#' imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 100, parallel = TRUE)
+#' imp = FeatureImp$new(mod, loss = "mae", n.repetitions = 10, parallel = TRUE)
 #' 
 #' # Plot the results directly
 #' plot(imp)
