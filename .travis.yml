@@ -2,5 +2,8 @@ language: r
 cache: packages
 r_github_packages:
   - r-lib/covr
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install libmagic-dev
 after_success:
   - Rscript -e 'covr::codecov()'
