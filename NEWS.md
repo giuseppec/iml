@@ -1,4 +1,4 @@
-# imlm 0.6
+# iml 0.6
 * Removed losses: f1, logLoss, rmse, mdae, rae, rmse, rmsle, rse, rrse
 f1 because the implementation used didn't make sense anyways
 * Interaction: The results return as interaction strength now the H-statistic instead of the H-squared-statistic. 
