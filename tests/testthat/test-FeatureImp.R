@@ -9,6 +9,7 @@ test_that("FeatureImp works for single output", {
   var.imp = FeatureImp$new(predictor1, loss = "mse")
   dat = var.imp$results
   expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
   expect_equal(colnames(dat), expectedColnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)

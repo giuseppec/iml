@@ -10,6 +10,7 @@ test_that("Interaction works for all features", {
   inter.obj = Interaction$new(predictor1)
   dat = inter.obj$results
   expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
   expect_equal(colnames(dat), c(".feature", ".interaction"))
   expect_equal(nrow(dat), ncol(X))  
   test.interaction.range(dat)

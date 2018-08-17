@@ -229,7 +229,7 @@ Partial = R6::R6Class("Partial",
         results$.id = results$.id.dist
         results$.id.dist = NULL
       }
-      self$results = results
+      self$results = data.frame(results)
     }
   ), 
   private = list(

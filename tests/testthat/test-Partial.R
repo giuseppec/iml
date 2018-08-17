@@ -5,6 +5,7 @@ test_that("Partial (pdp only) works for single output and single feature", {
   pdp.obj = Partial$new(predictor1, ice = FALSE, feature = 1, grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
   expect_equal(colnames(dat), c("a", ".y.hat", ".type"))
   expect_equal(nrow(dat), grid.size)  
   expect_equal(nrow(unique(dat)), grid.size)

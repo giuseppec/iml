@@ -11,6 +11,7 @@ test_that("LocalModel works for single output and single feature", {
   LocalModel1 = LocalModel$new(predictor1, x.interest=x.interest, k = k)
   dat = LocalModel1$results
   expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
   expect_equal(colnames(dat), expected.colnames)
   expect_lte(nrow(dat), k)
   p = plot(LocalModel1)

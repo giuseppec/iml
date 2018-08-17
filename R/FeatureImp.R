@@ -212,7 +212,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       # Removes the n column
       result = result[,list(feature, original.error, permutation.error, importance)]
       private$finished = TRUE
-      self$results = result
+      self$results = data.frame(result)
     },
     generatePlot = function(sort = TRUE, ...) {
       res = self$results

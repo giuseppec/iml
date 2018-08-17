@@ -9,6 +9,7 @@ test_that("Shapley works for single output and single feature",{
   set.seed(42)
   shap = Shapley$new(predictor1, x.interest, sample.size = 400)
   dat = shap$results
+  expect_false("data.table" %in% class(dat))
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), expected_colnames)
   expect_equal(nrow(dat), ncol(X))  

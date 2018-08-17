@@ -8,6 +8,7 @@ test_that("TreeSurrogate works for single output and single feature", {
   tree = TreeSurrogate$new(predictor1)
   dat = tree$results
   expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
   expect_equal(colnames(dat), c(colnames(X), ".node", ".path", ".y.hat", ".y.hat.tree"))
   expect_equal(nrow(dat), nrow(X))  
   expect_numeric(tree$r.squared, lower = lower.r.squared, upper = upper.r.squared, any.missing = FALSE, len = 1)  
