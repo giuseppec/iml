@@ -78,12 +78,19 @@
 #' # We train a random forest on the Boston dataset:
 #' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
-#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf = lm(medv ~ ., data = Boston, ntree = 50)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the partial dependence for the first feature
-#' pdp.obj = Partial$new(mod, feature = "crim")
+#' pdp.obj = Partial$new(mod, feature = "rm", aggregation = "ale", grid.size = 30, ice = FALSE)
+#' pdp.obj$plot()
+#' y.fun = function(X.model, newdata) {
+#' X.model$predict(newdata)[[1]] 
+#' }
+#' ALEPlot::ALEPlot(Boston, mod, J = "rm", pred.fun = y.fun)
 #' 
+#' pdp.obj = Partial$new(mod, feature = "rm", aggregation = "pdp", grid.size = 30)
+#' plot(pdp.obj)
 #' # Plot the results directly
 #' plot(pdp.obj)
 #' 
@@ -149,7 +156,7 @@ Partial = R6::R6Class("Partial",
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_number(center.at, null.ok = TRUE)
       assert_logical(ice)
-      assert_choice(aggregation, c("none", "pdp"))
+      assert_choice(aggregation, c("none", "pdp", "ale"))
       if (aggregation == "none" & !ice) stop("ice can't be FALSE and aggregation 'none' at the same time")
       if (length(feature) == 2) { 
         assert_false(feature[1] == feature[2])
@@ -163,7 +170,11 @@ Partial = R6::R6Class("Partial",
       private$setFeatureFromIndex(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
-      if(run) self$run(self$predictor$batch.size)
+      if(run & aggregation == "ale") {
+        self$run.ale() 
+      } else {
+        if(run) self$run(self$predictor$batch.size)
+      }
     }, 
     set.feature = function(feature) {
       feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
@@ -176,6 +187,57 @@ Partial = R6::R6Class("Partial",
       private$anchor.value = center.at
       private$flush()
       self$run(self$predictor$batch.size)
+    },
+    # TODO: Implement 2D case of ALE
+    # TODO: Check multi.class case
+    # TODO: Return error when centered
+    # TODO: Quantile grid
+    # TODO: Write test for get.1D.grid for quantiles
+    # TODO: Write tests for ALEPlots
+    # TODO: Implement for categorical
+    run.ale = function() {
+      private$dataSample = private$getData()
+      
+      grid.dt = private$get.grid(type = "equidist")
+      browser()
+      ## Create list of grids in pairs of two
+      interval.index = findInterval(private$dataSample[[self$feature.name]], grid.dt[[1]], left.open = TRUE)
+      # Data point in the left most interval should be in interval 1, not zero
+      interval.index[interval.index == 0] = 1
+      ## Create multiple MarginalGenerators
+      create.ale.interval = function(interval.index.cur, interval.index, grid, dat, pred) {
+        grid.values = grid[c(interval.index.cur, interval.index.cur + 1),]
+        dat.current = dat[which(interval.index == interval.index.cur), ]
+        marginals = iml:::MarginalGenerator$new(grid.dat = grid.values, dist.dat = dat.current, features = colnames(grid.values),
+          id.dist = TRUE, cartesian = TRUE)$all()
+        marginals = marginals[order(.id, .id.dist)]
+        qResults = private$run.prediction(marginals)
+        upper.index = which(marginals$.id == 2)
+        lower.index = which(marginals$.id == 1)
+        qResults = qResults[upper.index,] - qResults[lower.index,]
+        dat.current$.interval = interval.index.cur
+        cbind(dat.current, data.frame(.y.hat = qResults))
+      }
+      
+      res = foreach(interval = unique(interval.index)) %do%
+        create.ale.interval(interval, interval.index, grid.dt, private$dataSample)
+      res = rbindlist(res)
+      res = res[order(.interval), .(.y.hat = mean(.y.hat)), by = .interval]
+      res = res[,.(.y.hat = cumsum(.y.hat))]
+      interval.sizes = as.numeric(table(interval.index))
+      
+      
+      ## TODO: Continue here
+      
+      res = res[, .(.y.hat = .y.hat - sum((c(0, .y.hat[1:(nrow(.DT) - 1)] + .y.hat[2:])))]
+      mean.ale.effect = mean(res$.y.hat)
+      res$.y.hat = res$.y.hat - mean.ale.effect
+      res$.id = res$.interval
+      res$.type = "ale"
+      # mids of intervals
+      grid.mid.points = grid.dt[1:(nrow(grid.dt) - 1),1] + 0.5 * (grid.dt[2:nrow(grid.dt),1] - grid.dt[1:(nrow(grid.dt) - 1),1])
+      res = cbind(res, grid.mid.points)
+      self$results = data.frame(res)
     },
     run = function(n) {
       private$dataSample = private$getData()
@@ -234,16 +296,16 @@ Partial = R6::R6Class("Partial",
   ), 
   private = list(
     anchor.value = NULL,
-    get.grid = function() {
+    get.grid = function(type = "equidist") {
       if (self$n.features == 1) {
         grid = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
-          self$feature.type[1], self$grid.size[1])
+          self$feature.type[1], self$grid.size[1], type  = type)
         if (!is.null(private$anchor.value) && !(private$anchor.value %in% grid)) {
           grid = c(grid, private$anchor.value)
         }
       } else if (self$n.features == 2) {
         grid1 = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
-          self$feature.type[1], self$grid.size[1])
+          self$feature.type[1], self$grid.size[1], type = type)
         grid2 = get.1D.grid(private$dataSample[[self$feature.name[2]]], 
           self$feature.type[2], self$grid.size[2])
         grid = expand.grid(grid1, grid2)
@@ -287,7 +349,7 @@ Partial = R6::R6Class("Partial",
           p = p + geom_boxplot(aes_string(group = self$feature.name)) 
         }
         if (self$aggregation != "none") {
-          aggr = self$results[self$results$.type == "pdp", ]
+          aggr = self$results[self$results$.type != "ice", ]
           if (self$ice) {
             p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = ".y.hat"), 
               size = 2, color = "gold") 
