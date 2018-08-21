@@ -195,12 +195,13 @@ Partial = R6::R6Class("Partial",
     # TODO: Write test for get.1D.grid for quantiles
     # TODO: Write tests for ALEPlots
     # TODO: Implement for categorical
+    # TODO: Take care of intervals without data: Treat as 0
+    # TODO: Test cumsum.na
+    # TODO: Fix problem with missing parts of the ALEPlot
     run.ale = function() {
       private$dataSample = private$getData()
-      
-      grid.dt = private$get.grid(type = "equidist")
-      browser()
-      ## Create list of grids in pairs of two
+      grid.dt = private$get.grid(type = "quantile")
+      grid.dt = unique(grid.dt)
       interval.index = findInterval(private$dataSample[[self$feature.name]], grid.dt[[1]], left.open = TRUE)
       # Data point in the left most interval should be in interval 1, not zero
       interval.index[interval.index == 0] = 1
@@ -218,25 +219,19 @@ Partial = R6::R6Class("Partial",
         dat.current$.interval = interval.index.cur
         cbind(dat.current, data.frame(.y.hat = qResults))
       }
-      
       res = foreach(interval = unique(interval.index)) %do%
         create.ale.interval(interval, interval.index, grid.dt, private$dataSample)
-      res = rbindlist(res)
-      res = res[order(.interval), .(.y.hat = mean(.y.hat)), by = .interval]
-      res = res[,.(.y.hat = cumsum(.y.hat))]
+      res = rbindlist(res, fill = TRUE)
+      y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), ".interval"))
+      res = melt(res, variable.name = ".class", 
+        value.name = ".y.hat", measure.vars = y.hat.names)
+      res = res[order(.class, .interval), .(.y.hat = mean(.y.hat)), by = list(.interval, .class)]
+      res = res[,.(.y.hat = cumsum.na(c(0, .y.hat))), by = .class]
       interval.sizes = as.numeric(table(interval.index))
-      
-      
-      ## TODO: Continue here
-      
-      res = res[, .(.y.hat = .y.hat - sum((c(0, .y.hat[1:(nrow(.DT) - 1)] + .y.hat[2:])))]
-      mean.ale.effect = mean(res$.y.hat)
-      res$.y.hat = res$.y.hat - mean.ale.effect
-      res$.id = res$.interval
+      res = res[, .(.y.hat = .y.hat - sum((res$.y.hat[1:(nrow(.SD) - 1)] + res$.y.hat[2:nrow(.SD)])/2 * interval.sizes)/sum(interval.sizes), .id = 1:nrow(.SD)), by = .class]
       res$.type = "ale"
-      # mids of intervals
-      grid.mid.points = grid.dt[1:(nrow(grid.dt) - 1),1] + 0.5 * (grid.dt[2:nrow(grid.dt),1] - grid.dt[1:(nrow(grid.dt) - 1),1])
-      res = cbind(res, grid.mid.points)
+      grid.dt$.id = 1:nrow(grid.dt)
+      res = merge(res, grid.dt, by = ".id")
       self$results = data.frame(res)
     },
     run = function(n) {
