@@ -125,7 +125,7 @@ get.1D.grid = function(feature, feature.type, grid.size, type = "equidist") {
       length.out = grid.size)
     } else {
       probs = seq(from = 0, to = 1, length.out = grid.size)
-      grid = quantile(feature, probs = probs, names = FALSE)
+      grid = quantile(feature, probs = probs, names = FALSE, type = 1)
     }
   } else if (feature.type == "categorical") {
     grid = unique(feature)

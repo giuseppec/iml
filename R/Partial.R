@@ -35,6 +35,10 @@
 #' It's the aggregate of all individual conditional expectation curves, that describe how, for a single
 #' observation, the prediction changes when the feature changes. 
 #' 
+#' Advantages over ALEPlot implementation in the ALEPlot package
+#' Plot is only produced when deciding to plot, can be used for multi class, returns ggplot which can be modified,
+#' don't have to always define the predict function
+#' 
 #' To learn more about partial dependence plot, read the Interpretable Machine Learning book: 
 #' https://christophm.github.io/interpretable-ml-book/pdp.html
 #' 
@@ -189,39 +193,30 @@ Partial = R6::R6Class("Partial",
       self$run(self$predictor$batch.size)
     },
     # TODO: Implement 2D case of ALE
-    # TODO: Check multi.class case
     # TODO: Return error when centered
-    # TODO: Quantile grid
     # TODO: Write test for get.1D.grid for quantiles
     # TODO: Write tests for ALEPlots
     # TODO: Implement for categorical
     # TODO: Take care of intervals without data: Treat as 0
     # TODO: Test cumsum.na
     # TODO: Fix problem with missing parts of the ALEPlot
+    # TODO: Add vignette on Partial, compare also to ALEPLot
     run.ale = function() {
       private$dataSample = private$getData()
-      grid.dt = private$get.grid(type = "quantile")
-      grid.dt = unique(grid.dt)
+      # Handling duplicated grid values
+      grid.dt = unique(private$get.grid(type = "quantile"))
       interval.index = findInterval(private$dataSample[[self$feature.name]], grid.dt[[1]], left.open = TRUE)
       # Data point in the left most interval should be in interval 1, not zero
       interval.index[interval.index == 0] = 1
-      ## Create multiple MarginalGenerators
-      create.ale.interval = function(interval.index.cur, interval.index, grid, dat, pred) {
-        grid.values = grid[c(interval.index.cur, interval.index.cur + 1),]
-        dat.current = dat[which(interval.index == interval.index.cur), ]
-        marginals = iml:::MarginalGenerator$new(grid.dat = grid.values, dist.dat = dat.current, features = colnames(grid.values),
-          id.dist = TRUE, cartesian = TRUE)$all()
-        marginals = marginals[order(.id, .id.dist)]
-        qResults = private$run.prediction(marginals)
-        upper.index = which(marginals$.id == 2)
-        lower.index = which(marginals$.id == 1)
-        qResults = qResults[upper.index,] - qResults[lower.index,]
-        dat.current$.interval = interval.index.cur
-        cbind(dat.current, data.frame(.y.hat = qResults))
-      }
-      res = foreach(interval = unique(interval.index)) %do%
-        create.ale.interval(interval, interval.index, grid.dt, private$dataSample)
-      res = rbindlist(res, fill = TRUE)
+      
+      X.lower = private$getData()
+      X.lower[,self$feature.name] = grid.dt[interval.index,]
+      X.upper = X.lower
+      X.upper[,self$feature.name] = grid.dt[interval.index + 1,]
+      qResults.lower = private$run.prediction(X.lower)
+      qResults.upper = private$run.prediction(X.upper)
+      qResults = qResults.upper - qResults.lower
+      res = cbind(X.lower[,self$feature.name, with=FALSE], qResults, data.frame(.interval = interval.index))
       y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), ".interval"))
       res = melt(res, variable.name = ".class", 
         value.name = ".y.hat", measure.vars = y.hat.names)
@@ -232,6 +227,9 @@ Partial = R6::R6Class("Partial",
       res$.type = "ale"
       grid.dt$.id = 1:nrow(grid.dt)
       res = merge(res, grid.dt, by = ".id")
+      if (!private$multiClass) { 
+        res$.class = NULL
+      }
       self$results = data.frame(res)
     },
     run = function(n) {
