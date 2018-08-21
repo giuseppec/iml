@@ -196,10 +196,8 @@ Partial = R6::R6Class("Partial",
     # TODO: Return error when centered
     # TODO: Write test for get.1D.grid for quantiles
     # TODO: Write tests for ALEPlots
-    # TODO: Implement for categorical
-    # TODO: Take care of intervals without data: Treat as 0
     # TODO: Test cumsum.na
-    # TODO: Fix problem with missing parts of the ALEPlot
+    # TODO: Implement for categorical
     # TODO: Add vignette on Partial, compare also to ALEPLot
     run.ale = function() {
       private$dataSample = private$getData()
@@ -221,7 +219,7 @@ Partial = R6::R6Class("Partial",
       res = melt(res, variable.name = ".class", 
         value.name = ".y.hat", measure.vars = y.hat.names)
       res = res[order(.class, .interval), .(.y.hat = mean(.y.hat)), by = list(.interval, .class)]
-      res = res[,.(.y.hat = cumsum.na(c(0, .y.hat))), by = .class]
+      res = res[,.(.y.hat = cumsum(c(0, .y.hat))), by = .class]
       interval.sizes = as.numeric(table(interval.index))
       res = res[, .(.y.hat = .y.hat - sum((res$.y.hat[1:(nrow(.SD) - 1)] + res$.y.hat[2:nrow(.SD)])/2 * interval.sizes)/sum(interval.sizes), .id = 1:nrow(.SD)), by = .class]
       res$.type = "ale"

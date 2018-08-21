@@ -162,8 +162,4 @@ sanitizePrediction = function(prediction) {
 }
 
 
-cumsum.na = function(x) {
-  x[is.na(x)] = 0
-  cumsum(x)
-}
 
