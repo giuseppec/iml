@@ -196,39 +196,117 @@ Partial = R6::R6Class("Partial",
     # TODO: Return error when centered
     # TODO: Write test for get.1D.grid for quantiles
     # TODO: Write tests for ALEPlots
-    # TODO: Test cumsum.na
     # TODO: Implement for categorical
     # TODO: Add vignette on Partial, compare also to ALEPLot
+    # TODO: Rename .y.hat to Accumulated Local Effect
     run.ale = function() {
       private$dataSample = private$getData()
-      # Handling duplicated grid values
-      grid.dt = unique(private$get.grid(type = "quantile"))
-      interval.index = findInterval(private$dataSample[[self$feature.name]], grid.dt[[1]], left.open = TRUE)
-      # Data point in the left most interval should be in interval 1, not zero
-      interval.index[interval.index == 0] = 1
       
-      X.lower = private$getData()
-      X.lower[,self$feature.name] = grid.dt[interval.index,]
-      X.upper = X.lower
-      X.upper[,self$feature.name] = grid.dt[interval.index + 1,]
-      qResults.lower = private$run.prediction(X.lower)
-      qResults.upper = private$run.prediction(X.upper)
-      qResults = qResults.upper - qResults.lower
-      res = cbind(X.lower[,self$feature.name, with=FALSE], qResults, data.frame(.interval = interval.index))
-      y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), ".interval"))
-      res = melt(res, variable.name = ".class", 
-        value.name = ".y.hat", measure.vars = y.hat.names)
-      res = res[order(.class, .interval), .(.y.hat = mean(.y.hat)), by = list(.interval, .class)]
-      res = res[,.(.y.hat = cumsum(c(0, .y.hat))), by = .class]
-      interval.sizes = as.numeric(table(interval.index))
-      res = res[, .(.y.hat = .y.hat - sum((res$.y.hat[1:(nrow(.SD) - 1)] + res$.y.hat[2:nrow(.SD)])/2 * interval.sizes)/sum(interval.sizes), .id = 1:nrow(.SD)), by = .class]
-      res$.type = "ale"
-      grid.dt$.id = 1:nrow(grid.dt)
-      res = merge(res, grid.dt, by = ".id")
-      if (!private$multiClass) { 
-        res$.class = NULL
+      
+      if(length(self$feature.name) == 1) {
+        # Handling duplicated grid values
+        grid.dt = unique(private$get.grid(type = "quantile"))
+        interval.index = findInterval(private$dataSample[[self$feature.name]], grid.dt[[1]], left.open = TRUE)
+        # Data point in the left most interval should be in interval 1, not zero
+        interval.index[interval.index == 0] = 1
+        X.lower = X.upper = private$getData()
+        X.lower[,self$feature.name] = grid.dt[interval.index,]
+        X.upper[,self$feature.name] = grid.dt[interval.index + 1,]
+        qResults.lower = private$run.prediction(X.lower)
+        qResults.upper = private$run.prediction(X.upper)
+        qResults = qResults.upper - qResults.lower
+        res = cbind(X.lower[,self$feature.name, with=FALSE], qResults, data.frame(.interval = interval.index))
+        y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), ".interval"))
+        res = melt(res, variable.name = ".class", 
+          value.name = ".y.hat", measure.vars = y.hat.names)
+        res = res[order(.class, .interval), .(.y.hat = mean(.y.hat)), by = list(.interval, .class)]
+        res = res[,.(.y.hat = cumsum(c(0, .y.hat))), by = .class]
+        interval.sizes = as.numeric(table(interval.index))
+        res = res[, .(.y.hat = .y.hat - sum((res$.y.hat[1:(nrow(.SD) - 1)] + res$.y.hat[2:nrow(.SD)])/2 * interval.sizes)/sum(interval.sizes), .id = 1:nrow(.SD)), by = .class]
+        res$.type = "ale"
+        grid.dt$.id = 1:nrow(grid.dt)
+        res = merge(res, grid.dt, by = ".id")
+        if (!private$multiClass) { 
+          res$.class = NULL
+        }
+        self$results = data.frame(res)
+      } else {
+        dat = private$dataSample
+        ## Create ALE for feature 1
+        grid.dt1 = data.frame(get.1D.grid(feature = dat[[self$feature.name[1]]], feature.type = self$feature.type[1], 
+          grid.size = self$grid.size[1], type = "quantile"))
+        colnames(grid.dt1)= self$feature.name[1]
+        interval.index1 = findInterval(dat[[self$feature.name[1]]], grid.dt1[[1]], left.open = TRUE)
+        # Data point in the left most interval should be in interval 1, not zero
+        interval.index1[interval.index1 == 0] = 1
+        ## Create ALE for feature 2
+        grid.dt2 = data.frame(get.1D.grid(feature = dat[[self$feature.name[2]]], feature.type = self$feature.type[2], 
+          grid.size = self$grid.size[2], type = "quantile"))
+        colnames(grid.dt2)= self$feature.name[2]
+        interval.index2 = findInterval(dat[[self$feature.name[2]]], grid.dt2[[1]], left.open = TRUE)
+        # Data point in the left most interval should be in interval 1, not zero
+        interval.index2[interval.index2 == 0] = 1
+        X.low1.low2 = X.up1.low2 = X.low1.up2 = X.up1.up2 = copy(dat)
+        # TODO: Change multiple columns
+        X.low1.low2[,self$feature.name] = data.table(grid.dt1[interval.index1,], grid.dt2[interval.index2,])
+        X.up1.low2[,self$feature.name] = data.table(grid.dt1[interval.index1 + 1,], grid.dt2[interval.index2,])
+        X.low1.up2[,self$feature.name] = data.table(grid.dt1[interval.index1,], grid.dt2[interval.index2 + 1,])
+        X.up1.up2[,self$feature.name] = data.table(grid.dt1[interval.index1 + 1,], grid.dt2[interval.index2 + 1,])
+        # Getting all predictions from the model
+        qResults.11 = private$run.prediction(X.low1.low2)
+        qResults.21 = private$run.prediction(X.up1.low2)
+        qResults.12 = private$run.prediction(X.low1.up2)
+        qResults.22 = private$run.prediction(X.up1.up2)
+        qResults = (qResults.22 - qResults.21) - (qResults.12 - qResults.11) 
+        res = cbind(X.low1.low2[,self$feature.name, with=FALSE], qResults, data.frame(.interval1 = interval.index1, .interval2 = interval.index2))
+        y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), c(".interval1", ".interval2")))
+        # instead of a matrix, we work with melted version of the data
+        # This allows us to work with multi-dimensional predictions
+        res = melt(res, variable.name = ".class", 
+          value.name = ".y.hat", measure.vars = y.hat.names)
+        res = res[order(.class, .interval1, .interval2), .(.y.hat = mean(.y.hat)), by = list(.interval1, .interval2, .class)]
+        res = res[,.(.y.hat = cumsum(c(0, .y.hat)), .interval2 = c(0, .interval2)), by = .(.class, .interval1)]
+        res = res[,.(.y.hat = cumsum(c(0, .y.hat)), .interval1 = c(0, .interval1)), by = .(.class, .interval2)]
+        # How many data instances each cell has
+        cell.counts = as.matrix(table(interval.index1, interval.index2))
+        # Creates melted version of cross table 
+        cell.counts.m = melt(cell.counts)
+        colnames(cell.counts.m) = c(".interval1", ".interval2",  ".count")
+        cell.counts.m$.interval1 = as.numeric(as.character(cell.counts.m$.interval1))
+        cell.counts.m$.interval2 = as.numeric(as.character(cell.counts.m$.interval2))
+        
+        res = merge(res, cell.counts.m, on = c(".interval1", ".interval2"), all.x = TRUE)
+        
+        # Computing the first-order effect of feature 1
+        # First, take the differences across feature 1
+        res1 = res[, .(.y.hat = .y.hat[2:nrow(.SD)] - .y.hat[1:(nrow(.SD) - 1)], .interval1 = .interval1[2:(nrow(.SD))], .count = .count[2:(nrow(.SD))]),
+          by = list(.class, .interval2)]
+        # Then take the prediction at the mid point of each interval, which is the mean of the prediction at the end points
+        #     and take calculate the mean, weighted by the number of data instances per cell
+        res1 = res1[, .(.y.hat1 = sum(.count[2:nrow(.SD)] * (.y.hat[1:nrow(.SD) - 1] + .y.hat[2:(nrow(.SD))]) / 2) / sum(.count[2:nrow(.SD)])), by = list(.class, .interval1)]
+        fJ1 = res1[, .(.y.hat1 = c(0, cumsum(.y.hat1)), .interval1 = c(0, .interval1))]
+        # Computing the first-order effect of feature 1
+        # First, take the differences across feature 1
+        res2 = res[, .(.y.hat = .y.hat[2:nrow(.SD)] - .y.hat[1:(nrow(.SD) - 1)], .interval2 = .interval2[2:(nrow(.SD))], .count = .count[2:(nrow(.SD))]),
+          by = list(.class, .interval1)]
+        # Then take the prediction at the mid point of each interval, which is the mean of the prediction at the end points
+        #     and take calculate the mean, weighted by the number of data instances per cell
+        res2 = res2[, .(.y.hat2 = sum(.count[2:nrow(.SD)] * (.y.hat[1:nrow(.SD) - 1] + .y.hat[2:(nrow(.SD))]) / 2) / sum(.count[2:nrow(.SD)])), by = list(.class, .interval2)]
+        fJ2 = res2[, .(.y.hat2 = c(0, cumsum(.y.hat2)), .interval2 = c(0, .interval2))]
+        # for each cells computes the average prediction through mean of the cell corners
+        # then again a mean over all cells, weighted by the number of data points in the cell
+        fJ0 = lapply(unique(res$.class), function(cl){
+          dd = as.matrix(dcast(res, .interval1 ~ .interval2, value.var = ".y.hat", drop = FALSE))[,-1]
+          sum(cell.counts *(dd[1:(nrow(dd)-1),1:(ncol(dd)-1)] + dd[1:(nrow(dd)-1),2:ncol(dd)] + dd[2:nrow(dd),1:(ncol(dd)-1)] + dd[2:nrow(dd), 2:ncol(dd)])/4)/sum(cell.counts)
+        })
+        
+        browser()
+        
+        
+        full.grid = expand.grid(.interval1 = unique(res$.interval1), .interval2 = unique(res$.interval2))
+        res = merge(full.grid, res, by = c(".interval1", ".interval2"))
       }
-      self$results = data.frame(res)
+      
     },
     run = function(n) {
       private$dataSample = private$getData()
