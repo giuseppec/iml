@@ -39,15 +39,29 @@ test_that("recode",{
 
 
 test_that("get.1D.grid", {
-  expect_equal(get.1D.grid(1:10, "numerical", 4), c(1, 4, 7, 10))
-  expect_equal(get.1D.grid(1:10, "categorical", 1), 1:10)
-  expect_equal(get.1D.grid(letters, "categorical", 4), letters)
-  expect_error(get.1D.grid(letters, "numerical", 4))
-  expect_equal(get.1D.grid(1:10, "numerical", 2), c(1, 10))
-  expect_equal(get.1D.grid(c(NA, 1:10), "numerical", 2), c(1,10))
-  expect_equal(get.1D.grid(c(NaN, 1:10), "numerical", 2), c(1,10))
-  expect_equal(get.1D.grid(c(Inf, 1:10), "numerical", 2), c(1,10))
-  expect_equal(get.1D.grid(c(-Inf, 1:10), "numerical", 2), c(1,10))
+  # testing some with explicit feature type, some without
+  # type equidist
+  expect_equal(get.1D.grid(1:10, feature.type = "numerical", grid.size = 4), c(1, 4, 7, 10))
+  expect_equal(length(get.1D.grid(1:10, feature.type ="numerical", 4)), 4)
+  expect_equal(get.1D.grid(1:10, feature.type ="categorical", 1), 1:10)
+  expect_equal(get.1D.grid(letters, feature.type ="categorical", 4), letters)
+  expect_error(get.1D.grid(letters, feature.type ="numerical", 4))
+  expect_equal(get.1D.grid(1:10,  2), c(1, 10))
+  expect_equal(get.1D.grid(c(NA, 1:10), feature.type ="numerical", 2), c(1,10))
+  expect_equal(get.1D.grid(c(NaN, 1:10), feature.type ="numerical", 2), c(1,10))
+  expect_equal(get.1D.grid(c(Inf, 1:10), feature.type ="numerical", 2), c(1,10))
+  expect_equal(get.1D.grid(c(-Inf, 1:10), feature.type ="numerical", 2), c(1,10))
+  
+  # type quantile
+  expect_equal(get.1D.grid(1:10, feature.type ="numerical", type = "quantile", grid.size = 2), c(1,10))
+  expect_equal(get.1D.grid(rep(0, times = 100), feature.type ="numerical", type = "quantile", grid.size = 2), c(0,0))
+  expect_equal(get.1D.grid(c(rep(0, times = 90), 1:10), type = "quantile", grid.size = 10), c(rep(0, 9), 10))
+  expect_equal(get.1D.grid(c(rep(0, times = 90), 1:10), type = "quantile", grid.size = 20), c(rep(0, 18), c(5,10)))
+  expect_equal(get.1D.grid(1:10, feature.type ="numerical", type = "quantile", grid.size = 3), c(1,5,10))
+  expect_equal(get.1D.grid(c(-Inf, 1:10), type = "quantile", 2), c(1,10))
+  # type should be ignored when feature is categorical
+  expect_equal(get.1D.grid(c("a", "b", "a"), type = "quantile", 2), c("a", "b"))
+  expect_equal(get.1D.grid(factor(c("a", "b", "a")), type = "quantile", 2), factor(c("a", "b")))
 })
 
 test_that("is.label.output", {
