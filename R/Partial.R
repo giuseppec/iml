@@ -192,10 +192,12 @@ Partial = R6::R6Class("Partial",
       private$flush()
       self$run(self$predictor$batch.size)
     },
-    # TODO: Implement 2D case of ALE
+    # TODO: add min value to grid for 1D
+    # TODO: add min value to grid for 2D
     # TODO: Return error when centered
     # TODO: Write test for get.1D.grid for quantiles
     # TODO: Write tests for ALEPlots
+    # TODO: Add tests to test the equivalence to results of ALEPlot::ALEPlot
     # TODO: Implement for categorical
     # TODO: Add vignette on Partial, compare also to ALEPLot
     # TODO: Rename .y.hat to Accumulated Local Effect
@@ -247,7 +249,6 @@ Partial = R6::R6Class("Partial",
         # Data point in the left most interval should be in interval 1, not zero
         interval.index2[interval.index2 == 0] = 1
         X.low1.low2 = X.up1.low2 = X.low1.up2 = X.up1.up2 = copy(dat)
-        # TODO: Change multiple columns
         X.low1.low2[,self$feature.name] = data.table(grid.dt1[interval.index1,], grid.dt2[interval.index2,])
         X.up1.low2[,self$feature.name] = data.table(grid.dt1[interval.index1 + 1,], grid.dt2[interval.index2,])
         X.low1.up2[,self$feature.name] = data.table(grid.dt1[interval.index1,], grid.dt2[interval.index2 + 1,])
@@ -258,7 +259,7 @@ Partial = R6::R6Class("Partial",
         qResults.12 = private$run.prediction(X.low1.up2)
         qResults.22 = private$run.prediction(X.up1.up2)
         qResults = (qResults.22 - qResults.21) - (qResults.12 - qResults.11) 
-        res = cbind(X.low1.low2[,self$feature.name, with=FALSE], qResults, data.frame(.interval1 = interval.index1, .interval2 = interval.index2))
+        res = cbind(dat[,self$feature.name, with=FALSE], qResults, data.frame(.interval1 = interval.index1, .interval2 = interval.index2))
         y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), c(".interval1", ".interval2")))
         # instead of a matrix, we work with melted version of the data
         # This allows us to work with multi-dimensional predictions
@@ -295,16 +296,34 @@ Partial = R6::R6Class("Partial",
         fJ2 = res2[, .(.y.hat2 = c(0, cumsum(.y.hat2)), .interval2 = c(0, .interval2))]
         # for each cells computes the average prediction through mean of the cell corners
         # then again a mean over all cells, weighted by the number of data points in the cell
-        fJ0 = lapply(unique(res$.class), function(cl){
+        cls = unique(res$.class)
+        fJ0 = unlist(lapply(cls, function(cl){
           dd = as.matrix(dcast(res, .interval1 ~ .interval2, value.var = ".y.hat", drop = FALSE))[,-1]
-          sum(cell.counts *(dd[1:(nrow(dd)-1),1:(ncol(dd)-1)] + dd[1:(nrow(dd)-1),2:ncol(dd)] + dd[2:nrow(dd),1:(ncol(dd)-1)] + dd[2:nrow(dd), 2:ncol(dd)])/4)/sum(cell.counts)
-        })
-        
-        browser()
-        
-        
-        full.grid = expand.grid(.interval1 = unique(res$.interval1), .interval2 = unique(res$.interval2))
+          sum(cell.counts *(dd[1:(nrow(dd)-1),1:(ncol(dd)-1)] + dd[1:(nrow(dd)-1),2:ncol(dd)] + dd[2:nrow(dd),1:(ncol(dd)-1)] + dd[2:nrow(dd), 2:ncol(dd)])/4, na.rm = TRUE)/sum(cell.counts)
+        }))
+        fJ0 = data.frame(fJ0 = fJ0, .class = cls)
+        res = merge(res, fJ0, by = c(".class"))
+        res = res[, .y.hat := .y.hat - fJ0]
+        res = res[, fJ0 := NULL]
+        full.grid = data.table(expand.grid(.interval1 = unique(res$.interval1), .interval2 = unique(res$.interval2)))
         res = merge(full.grid, res, by = c(".interval1", ".interval2"))
+        # removes helper intervals at edges
+        res = res[.interval1 != 0 & .interval2 != 0, ]
+
+        # make explicit what are the edges of each cell
+        res$.left = grid.dt1[res$.interval1, 1]
+        res$.right = grid.dt1[res$.interval1 + 1, 1]
+        res$.bottom = grid.dt2[res$.interval2 , 1]
+        res$.top = grid.dt2[res$.interval2 + 1, 1]
+        res[,self$feature.name[1]] = res$.left + 0.5 * (res$.right - res$.left)
+        res[,self$feature.name[2]] = res$.bottom + 0.5 * (res$.bottom - res$.top)
+        
+        # remove class if only single class
+        if(!private$multiClass) {
+          res = res[, .class := NULL]
+        }
+
+        self$results = res
       }
       
     },
@@ -368,15 +387,15 @@ Partial = R6::R6Class("Partial",
     get.grid = function(type = "equidist") {
       if (self$n.features == 1) {
         grid = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
-          self$feature.type[1], self$grid.size[1], type  = type)
+          feature.type = self$feature.type[1], grid.size = self$grid.size[1], type  = type)
         if (!is.null(private$anchor.value) && !(private$anchor.value %in% grid)) {
           grid = c(grid, private$anchor.value)
         }
       } else if (self$n.features == 2) {
         grid1 = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
-          self$feature.type[1], self$grid.size[1], type = type)
+          feature.type = self$feature.type[1], self$grid.size[1], type = type)
         grid2 = get.1D.grid(private$dataSample[[self$feature.name[2]]], 
-          self$feature.type[2], self$grid.size[2])
+          feature.type = self$feature.type[2], self$grid.size[2])
         grid = expand.grid(grid1, grid2)
       } else {
         stop("max. number of features is 2")
@@ -427,7 +446,12 @@ Partial = R6::R6Class("Partial",
             size = 1, color = "black")
         }
       } else if (self$n.features == 2) {
-        if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
+        if (self$aggregation == "ale") {
+          # Adding x and y to aesthetics for the rug plot later
+          p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
+            geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .y.hat)) + 
+            scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2])
+        } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
             y = self$feature.name[2], 
             fill = ".y.hat")) + geom_tile() + 
