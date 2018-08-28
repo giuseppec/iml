@@ -202,6 +202,10 @@ Partial = R6::R6Class("Partial",
     # TODO: Implement for categorical
     # TODO: Add vignette on Partial, compare also to ALEPLot
     # TODO: Rename .y.hat to Accumulated Local Effect
+    # TODO: Test for equality of ALEPlots::ALEPlot for 2D
+    # TODO: Test for equality of 1D
+    # TODO: Check difference for K higher between original and iml implementation. Difference seems to be in the grid already at K >= 10.
+    #        Maybe it doesn't matter.
     run.ale = function() {
       private$dataSample = private$getData()
       if(length(self$feature.name) == 1) {
@@ -313,17 +317,24 @@ Partial = R6::R6Class("Partial",
         res = res[, fJ0 := NULL]
         res = res[, .y.hat1 := NULL]
         res = res[, .y.hat2 := NULL]
+        # For later plotting, define the rectangles
+        # These are not the same as the cells, which is a bit counterintuitive
+        # each value in fJ is where the cells cross
+        # instead of coloring the cells, we color a rectangle around each cell cross point
+        # and for this we need to compute rectangles around these cross points
+        # in image() this happens automatically (see ALEPlot::ALEPlot)
         
-        # removes helper intervals at edges
-        res = res[.interval1 != 0 & .interval2 != 0, ]
-
-        # make explicit what are the edges of each cell
-        res$.left = grid.dt1[res$.interval1, 1]
-        res$.right = grid.dt1[res$.interval1 + 1, 1]
-        res$.bottom = grid.dt2[res$.interval2 , 1]
-        res$.top = grid.dt2[res$.interval2 + 1, 1]
-        res[,self$feature.name[1]] = res$.left + 0.5 * (res$.right - res$.left)
-        res[,self$feature.name[2]] = res$.bottom + 0.5 * (res$.bottom - res$.top)
+        # for the edges, simply use the grid value as the outer values
+        interval.dists = diff(c(grid.dt1[1,1], grid.dt1[,1], grid.dt1[nrow(grid.dt2), 1]))
+        interval.dists = 0.5 *  interval.dists
+        res$.right = grid.dt1[res$.interval1 + 1, ] + interval.dists[res$.interval1 + 2]
+        res$.left = grid.dt1[res$.interval1 + 1, ] - interval.dists[res$.interval1 + 1]
+        interval.dists2 = diff(c(grid.dt2[1,1], grid.dt2[,1], grid.dt2[nrow(grid.dt2), 1]))
+        interval.dists2 = 0.5 *  interval.dists2
+        res$.bottom = grid.dt2[res$.interval2 + 1, ] + interval.dists2[res$.interval2 + 2]
+        res$.top = grid.dt2[res$.interval2 + 1, ] - interval.dists2[res$.interval2 + 1]
+        res[,self$feature.name[1]] =  grid.dt1[res$.interval1 + 1, ]
+        res[,self$feature.name[2]] =  grid.dt2[res$.interval2 + 1, ]
         
         # remove class if only single class
         if(!private$multiClass) {
