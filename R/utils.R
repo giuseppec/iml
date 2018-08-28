@@ -164,4 +164,9 @@ sanitizePrediction = function(prediction) {
 }
 
 
+cumsum_na = function(values) {
+  values[is.na(values)] = 0
+  cumsum(values)
+}
+
 
