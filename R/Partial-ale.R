@@ -141,6 +141,87 @@ calculate.ale.num.num =function(dat, run.prediction, feature.name, grid.size){
 
 
 
-calculate.ale.cat = function(dat, run.prediction, feature.name, grid.size){}
+calculate.ale.cat = function(dat, run.prediction, feature.name){
+  
+  x = dat[,feature.name, with = FALSE][[1]]
+  levels.original = levels(x)
+  
+  # if ordered, than already use that
+  if(class(x) == "ordered") {
+    level_order = 1:nlevels(x)
+  } else {
+    # reorders according to the distance of the levels in the other features
+    level_order = order_levels(dat, feature.name)
+  }
+  # The new order of the levels
+  levels.ordered = levels.original[level_order]
+  # The feature with the levels in the new order
+  x.ordered  = order(levels_order)[as.numeric(x)]
+  X.lower = X.upper = dat
+  
+  # We only want to increase/decrease the ones that are not already the minimum or maximum level
+  row.ind.increase <- (1:nrow(dat))[x.ordered < nlevels(x)]  
+  row.ind.decrease <- (1:nrow(dat))[x.ordered > 1]  
+  
+  
+  # increase / decrease the level where not at minium or maxium already
+  X.lower[row.ind.decrease, feature.name] = levels.ordered[x.ordered[row.ind.increase] + 1]
+  X.upper[row.ind.increase, feature.name] = levels.ordered[x.ordered[row.ind.decrease] - 1]
+  y.hat <- run.prediction(dat)
+  y.hat.increase <- run.prediction(X.upper[row.ind.increase,])
+  y.hat.decrease <- run.prediction(X.lower[row.ind.decrease,])
+  
+  d.increase = y.hat.increase - y.hat[row.ind.increase,]
+  d.decrease = y.hat.decrease - y.hat[row.ind.decrease,]
+  
+  # TODO: melt by class
+  deltas = rbind(d.increase, d.decrease)
+  deltas = cbind(level = c(x.ordered[row.ind.increase], x.ordered[row.ind.decrease] - 1))
+  deltas = melt(deltas, id.vars = c(".class", "level"))
+  # TODO: Compute delta
+  deltas = deltas[order(levels),.(.y.hat = mean(.y.hat)),by = list(.class, levels)]
+  deltas = deltas[, .(.ale = c(0, cumsum(.y.hat))), by = list(.class)]
+  x.count <- as.numeric(table(x))
+  x.prob = x.count/sum(x.count) 
+  deltas = deltas[, .(.ale = .ale - sum(.ale * x.prob), .level = levels.ordered), .by = class]
+  deltas
+}
 calculate.ale.cat.cat = function(){}
 calculate.ale.num.cat = function(){}
+
+
+
+order_levels = function(dat, feature.name) {
+  assert_data_frame(dat)
+  assert_character(feature.name)
+  assert_true(feature.name %in%  names(dat))
+  
+  dat[, feature.name] =  droplevels(dat[, feature.name, with = FALSE])
+  feature = dat[, feature.name, with = FALSE][[1]]
+  x.count = as.numeric(table(dat[, feature.name, with = FALSE]))
+  x.prob = x.count/sum(x.count)
+  K = nlevels( dat[, feature.name, with = FALSE] )
+  
+  dists = lapply(setdiff(colnames(dat), feature.name), function(x){
+    feature.x = dat[, x, with = FALSE][[1]]
+    dists = expand.grid(levels(feature), levels(feature))
+    colnames(dists) = c("from.level", "to.level")
+    if(class(feature.x) == "factor") {
+      A = table(feature, feature.x) / x.count
+      dists$dist = rowSums(abs(A[dists[,"from.level"],] - A[dists[,"to.level"],]))
+    } else {
+      quants = quantile(feature.x, probs = seq(0, 1, length.out = 100), na.rm = TRUE, names = FALSE)
+      ecdfs = data.frame(lapply(levels(feature), function(lev){
+        x.ecdf = ecdf(feature.x[feature == lev])(quants)
+      }))
+      colnames(ecdfs) = levels(feature)
+      dists$dist = max(abs(ecdfs[,dists$from.level] - ecdfs[, dists$to.level]))
+    }
+    dists
+  })
+  
+  dists.cumulated.long = Reduce(function(d1, d2) {d1$dist = d1$dist + d2$dist; d1}, dists)
+  dists.cumulated = dcast(dists.cumulated.long, from.level ~ to.level, value.var = "dist")[,-1]
+  scaled = cmdscale(dists.cumulated, k = 1)
+  order(scaled)
+}

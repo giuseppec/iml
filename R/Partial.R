@@ -215,6 +215,9 @@ Partial = R6::R6Class("Partial",
     # TODO: Rename result columns to something meaningful to the user
     # TODO: Cite paper
     # TODO: Make aggregation = "ale" the default, or at least put a warning or deprecation that it will become default
+    # TODO: Test order_levels
+    # TODO: Continue ale.cat
+    # TODO: implement barplot for ale.cat
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
