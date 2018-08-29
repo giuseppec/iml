@@ -192,15 +192,17 @@ Partial = R6::R6Class("Partial",
       private$flush()
       self$run(self$predictor$batch.size)
     },
-    # TODO: add min value to grid for 1D
-    # TODO: add min value to grid for 2D
     # TODO: Return error when centered
-    # TODO: Write test for get.1D.grid for quantiles
     # TODO: Write tests for ALEPlots
     # TODO: Add tests to test the equivalence to results of ALEPlot::ALEPlot
     # TODO: Implement for categorical
     # TODO: Add vignette on Partial, compare also to ALEPLot
     # TODO: Rename .y.hat to Accumulated Local Effect
+    # TODO: Implement 1D for categorical
+    # TODO: Implement 2D for categorical??
+    # TODO: Implement 2D for categorical x numerical
+    # TODO: Implement 1D for ordered (gives the user a way to decide upon ordering by using 'ordered' instead of 'factor')
+    # TODO: Implement 2D for ordered x numerical
     run.ale = function() {
       private$dataSample = private$getData()
       
