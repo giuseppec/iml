@@ -189,8 +189,8 @@ test_that("aggregation='ale' works for 1D", {
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
   expect_equal(colnames(dat), c(".id", ".ale", ".type", "a"))
-  expect_equal(nrow(dat), grid.size)  
-  expect_equal(nrow(unique(dat)), grid.size)
+  expect_equal(nrow(dat), grid.size + 1)  
+  expect_equal(nrow(unique(dat)), grid.size + 1)
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   checkPlot(ale)
@@ -204,8 +204,8 @@ test_that("aggregation='ale' works for 1D", {
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(ale$results), c(".id", ".ale", ".type", "b"))
-  expect_equal(nrow(dat), grid.size)  
-  expect_equal(nrow(unique(dat)), grid.size)
+  expect_equal(nrow(dat), grid.size + 1)  
+  expect_equal(nrow(unique(dat)), grid.size + 1)
   expect_equal(max(dat$b), 50)
   expect_equal(min(dat$b), 10)
   

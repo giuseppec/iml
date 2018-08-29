@@ -223,7 +223,7 @@ Partial = R6::R6Class("Partial",
         # from number of intervals to number of borders
         self$grid.size = self$grid.size + 1
         # Handling duplicated grid values
-        grid.dt = unique(private$get.grid(type = "quantile"))
+        grid.dt = unique(get.grid(private$getData()[,self$feature.name, with = FALSE], self$grid.size, type = "quantile"))
         interval.index = findInterval(private$dataSample[[self$feature.name]], grid.dt[[1]], left.open = TRUE)
         # Data point in the left most interval should be in interval 1, not zero
         interval.index[interval.index == 0] = 1
@@ -251,15 +251,13 @@ Partial = R6::R6Class("Partial",
       } else {
         dat = private$dataSample
         ## Create ALE for feature 1
-        grid.dt1 = unique(data.frame(get.1D.grid(feature = dat[[self$feature.name[1]]], feature.type = self$feature.type[1], 
-          grid.size = self$grid.size[1] + 1, type = "quantile")))
+        grid.dt1 = unique(get.grid(dat[,self$feature.name[1], with = FALSE], grid.size = self$grid.size[1] + 1, type = "quantile"))
         colnames(grid.dt1)= self$feature.name[1]
-        interval.index1 = findInterval(dat[[self$feature.name[1]]], grid.dt1[[1]], left.open = TRUE)
+        interval.index1 = findInterval(dat[[self$feature.name[1]]], grid.dt1[[1]] , left.open = TRUE)
         # Data point in the left most interval should be in interval 1, not zero
         interval.index1[interval.index1 == 0] = 1
         ## Create ALE for feature 2
-        grid.dt2 = unique(data.frame(get.1D.grid(feature = dat[[self$feature.name[2]]], feature.type = self$feature.type[2], 
-          grid.size = self$grid.size[2] + 1, type = "quantile")))
+        grid.dt2 = unique(get.grid(dat[,self$feature.name[2], with = FALSE], grid.size  =self$grid.size[2] + 1, type = "quantile"))
         colnames(grid.dt2)= self$feature.name[2]
         interval.index2 = findInterval(dat[[self$feature.name[2]]], grid.dt2[[1]], left.open = TRUE)
         # Data point in the left most interval should be in interval 1, not zero
@@ -334,13 +332,12 @@ Partial = R6::R6Class("Partial",
         # instead of coloring the cells, we color a rectangle around each cell cross point
         # and for this we need to compute rectangles around these cross points
         # in image() this happens automatically (see ALEPlot::ALEPlot)
-        
         # for the edges, simply use the grid value as the outer values
-        interval.dists = diff(c(grid.dt1[1,1], grid.dt1[,1], grid.dt1[nrow(grid.dt1), 1]))
+        interval.dists = diff(grid.dt1[c(1, 1:nrow(grid.dt1), nrow(grid.dt1))][[1]])
         interval.dists = 0.5 *  interval.dists
         res$.right = grid.dt1[res$.interval1 + 1, ] + interval.dists[res$.interval1 + 2]
         res$.left = grid.dt1[res$.interval1 + 1, ] - interval.dists[res$.interval1 + 1]
-        interval.dists2 = diff(c(grid.dt2[1,1], grid.dt2[,1], grid.dt2[nrow(grid.dt2), 1]))
+        interval.dists2 = diff(grid.dt2[c(1, 1:nrow(grid.dt2), nrow(grid.dt2))][[1]])
         interval.dists2 = 0.5 *  interval.dists2
         res$.bottom = grid.dt2[res$.interval2 + 1, ] + interval.dists2[res$.interval2 + 2]
         res$.top = grid.dt2[res$.interval2 + 1, ] - interval.dists2[res$.interval2 + 1]
@@ -362,7 +359,7 @@ Partial = R6::R6Class("Partial",
     },
     run.pdp = function(n) {
       private$dataSample = private$getData()
-      grid.dt = private$get.grid()
+      grid.dt = get.grid(private$getData()[,self$feature.name, with = FALSE], self$grid.size, anchor.value = private$anchor.value)
       mg = MarginalGenerator$new(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE, cartesian = TRUE)
       results.ice = data.table()
       while(!mg$finished) {
@@ -417,26 +414,6 @@ Partial = R6::R6Class("Partial",
   ), 
   private = list(
     anchor.value = NULL,
-    get.grid = function(type = "equidist") {
-      if (self$n.features == 1) {
-        grid = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
-          feature.type = self$feature.type[1], grid.size = self$grid.size[1], type  = type)
-        if (!is.null(private$anchor.value) && !(private$anchor.value %in% grid)) {
-          grid = c(grid, private$anchor.value)
-        }
-      } else if (self$n.features == 2) {
-        grid1 = get.1D.grid(private$dataSample[[self$feature.name[1]]], 
-          feature.type = self$feature.type[1], self$grid.size[1], type = type)
-        grid2 = get.1D.grid(private$dataSample[[self$feature.name[2]]], 
-          feature.type = self$feature.type[2], self$grid.size[2])
-        grid = expand.grid(grid1, grid2)
-      } else {
-        stop("max. number of features is 2")
-      }
-      grid.dt = data.table(grid)
-      colnames(grid.dt) = self$feature.name
-      grid.dt
-    },
     grid.size.original = NULL,
     setFeatureFromIndex = function(feature.index) {
       self$n.features = length(feature.index)
@@ -488,7 +465,8 @@ Partial = R6::R6Class("Partial",
           # Adding x and y to aesthetics for the rug plot later
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
             geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
-            scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2])
+            scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
+            scale_fill_continuous(y.axis.label)
         } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
             y = self$feature.name[2], 

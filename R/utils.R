@@ -108,33 +108,6 @@ is.label.output = function(pred) {
 }
 
 
-get.1D.grid = function(feature, grid.size,  feature.type = NULL, type = "equidist") {
-  checkmate::assert_vector(feature, all.missing = FALSE, min.len = 2)
-  checkmate::assert_choice(feature.type, c("numerical", "categorical"), null.ok = TRUE)
-  checkmate::assert_numeric(grid.size)
-  checkmate::assert_choice(type, c("equidist", "quantile"))
-  
-  if(is.null(feature.type)) feature.type = get.feature.type(class(feature))
-  
-  if (feature.type == "numerical") {
-    # remove NaN NA and inf
-    feature = feature[is.finite(feature)]
-    if (length(feature) == 0) stop("Feature does not contain any finite values.")
-    
-    if(type == "equidist") {
-      grid = seq(from = min(feature), 
-        to = max(feature), 
-        length.out = grid.size)
-    } else if(type == "quantile") {
-      probs = seq(from = 0, to = 1, length.out = grid.size)
-      grid = quantile(feature, probs = probs, names = FALSE, type = 1)
-    }
-  } else if (feature.type == "categorical") {
-    grid = unique(feature)
-  }
-  grid
-}
-
 checkPrediction = function(prediction, data) {
   checkmate::assert_data_frame(data)
   checkmate::assert_data_frame(prediction, nrows = nrow(data), any.missing = FALSE, 
@@ -170,3 +143,54 @@ cumsum_na = function(values) {
 }
 
 
+get.grid = function(dat, grid.size, anchor.value = NULL, type = "equidist") {
+  assert_data_frame(dat, min.cols = 1)
+  features = colnames(dat)
+  feature.type = unlist(lapply(dat, function(x){get.feature.type(class(x))}))
+  assert_character(features, min.len = 1, max.len = 2)
+  assert_true(length(features) == length(feature.type))
+  assert_numeric(grid.size, min.len = 1, max.len = length(features))
+  if (length(features) == 1) {
+    grid = get.grid.1D(dat[[features[1]]], 
+      feature.type = feature.type[1], grid.size = grid.size[1], type  = type)
+    if (!is.null(anchor.value) && !(anchor.value %in% grid)) {
+      grid = sort(c(grid, anchor.value))
+    }
+  } else if (length(features) == 2) {
+    if(length(grid.size == 1)) grid.size = c(grid.size, grid.size)
+    grid1 = get.grid.1D(dat[[features[1]]], feature.type = feature.type[1], grid.size[1], type = type)
+    grid2 = get.grid.1D(dat[[features[2]]], feature.type = feature.type[2], grid.size[2], type = type)
+    grid = expand.grid(grid1, grid2)
+  } 
+  grid.dt = data.table(grid)
+  colnames(grid.dt) = features
+  grid.dt
+}
+
+
+get.grid.1D = function(feature, grid.size,  feature.type = NULL, type = "equidist") {
+  checkmate::assert_vector(feature, all.missing = FALSE, min.len = 2)
+  checkmate::assert_choice(feature.type, c("numerical", "categorical"), null.ok = TRUE)
+  checkmate::assert_numeric(grid.size)
+  checkmate::assert_choice(type, c("equidist", "quantile"))
+  
+  if(is.null(feature.type)) feature.type = get.feature.type(class(feature))
+  
+  if (feature.type == "numerical") {
+    # remove NaN NA and inf
+    feature = feature[is.finite(feature)]
+    if (length(feature) == 0) stop("Feature does not contain any finite values.")
+    
+    if(type == "equidist") {
+      grid = seq(from = min(feature), 
+        to = max(feature), 
+        length.out = grid.size)
+    } else if(type == "quantile") {
+      probs = seq(from = 0, to = 1, length.out = grid.size)
+      grid = quantile(feature, probs = probs, names = FALSE, type = 1)
+    }
+  } else if (feature.type == "categorical") {
+    grid = unique(feature)
+  }
+  grid
+}
