@@ -233,7 +233,25 @@ test_that("aggregation='ale' works for 2D", {
 })
 
 test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
-
+  require("ALEPlot")
+  grid.size = 3
+  ale = Partial$new(predictor1, feature = 1, grid.size = grid.size, aggregation = "ale")
+  ale.dat = ale$results
+  ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 1,K = 3)
+  # equality of x values and ALE estimates
+  expect_equal(ale.dat$a, ale.original$x.values)
+  expect_equal(ale.dat$.ale, ale.original$f.values)
+  
+  grid.size = c(5)
+  ale = Partial$new(predictor1, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
+  ale.dat = ale$results
+  ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, 
+    J = c("a", "b"), K = grid.size)
+  
+  expect_equal(unique(ale.dat$a), ale.original$x.values[[1]])
+  expect_equal(unique(ale.dat$b), ale.original$x.values[[2]])
+  dd = as.matrix(data.table::dcast(ale.dat, a ~ b, value.var = ".ale"))[,-1]
+  expect_equal(unname(ale.original$f.values), unname(dd))
 })
 
 

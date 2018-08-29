@@ -200,7 +200,7 @@ Partial = R6::R6Class("Partial",
         self$run.pdp(self$predictor$batch.size)
       }
     },
-    # TODO: Write tests for ALEPlots
+    # TODO: Write tests for ALEPlots for categorical
     # TODO: Add tests to test the equivalence to results of ALEPlot::ALEPlot
     # TODO: Implement for categorical
     # TODO: Add vignette on Partial, compare also to ALEPLot
@@ -220,6 +220,8 @@ Partial = R6::R6Class("Partial",
     run.ale = function() {
       private$dataSample = private$getData()
       if(length(self$feature.name) == 1) {
+        # from number of intervals to number of borders
+        self$grid.size = self$grid.size + 1
         # Handling duplicated grid values
         grid.dt = unique(private$get.grid(type = "quantile"))
         interval.index = findInterval(private$dataSample[[self$feature.name]], grid.dt[[1]], left.open = TRUE)
