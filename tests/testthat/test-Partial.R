@@ -211,7 +211,17 @@ test_that("aggregation='ale' works for 1D", {
   
   # Centering 
   expect_warning(ale$center(0))
-
+  
+  # multi class output
+  grid.size = 3
+  ale = Partial$new(predictor2, feature = "a", aggregation = "ale", grid.size = grid.size)
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(dat), c(".id", ".class", ".ale", ".type", "a"))
+  expect_equal(nrow(dat), (grid.size + 1) * 2)  
+  expect_equal(max(dat$a), 5)
+  expect_equal(min(dat$a), 1)
+  checkPlot(ale)
 })
 
 test_that("aggregation='ale' works for 2D", {
@@ -229,6 +239,22 @@ test_that("aggregation='ale' works for 2D", {
   expect_equal(min(dat$b), 10)
   checkPlot(ale)
   ale2 = Partial$new(predictor1, feature = c("a", "b"), grid.size = grid.size, aggregation = "ale")
+  expect_equal(ale$results, ale2$results)
+  
+  ## two numerical features with 2D prediction
+  grid.size = c(10, 5)
+  ale = Partial$new(predictor2, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_equal(sort(colnames(dat)), sort(c(".class", ".ale", ".right", ".left", ".bottom", ".top", "a", "b", ".type")))
+  expect_lte(nrow(dat), grid.size[1] * grid.size[2])
+  expect_lte(nrow(unique(dat)), grid.size[1] * grid.size[2])
+  expect_equal(max(dat$a), 5)
+  expect_equal(min(dat$a), 1)
+  expect_equal(max(dat$b), 50)
+  expect_equal(min(dat$b), 10)
+  checkPlot(ale)
+  ale2 = Partial$new(predictor2, feature = c("a", "b"), grid.size = grid.size, aggregation = "ale")
   expect_equal(ale$results, ale2$results)
 })
 
