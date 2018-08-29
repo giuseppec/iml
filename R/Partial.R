@@ -174,12 +174,7 @@ Partial = R6::R6Class("Partial",
       private$setFeatureFromIndex(feature)
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
-      if(run & aggregation == "ale") {
-        self$ice = FALSE
-        self$run.ale() 
-      } else {
-        if(run) self$run(self$predictor$batch.size)
-      }
+      if(run) self$run(self$predictor$batch.size)
     }, 
     set.feature = function(feature) {
       feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
@@ -189,11 +184,22 @@ Partial = R6::R6Class("Partial",
       self$run(self$predictor$batch.size)
     },
     center = function(center.at) {
+      if(self$aggregation == "ale") {
+        warning("Centering only works for only for PDPs and ICE, but not for ALE Plots, .")
+        return(NULL)
+      }
       private$anchor.value = center.at
       private$flush()
       self$run(self$predictor$batch.size)
     },
-    # TODO: Return error when centered
+    run = function(n) {
+      if(self$aggregation == "ale") {
+        self$ice = FALSE
+        self$run.ale() 
+      } else {
+        self$run.pdp(self$predictor$batch.size)
+      }
+    },
     # TODO: Write tests for ALEPlots
     # TODO: Add tests to test the equivalence to results of ALEPlot::ALEPlot
     # TODO: Implement for categorical
@@ -208,6 +214,9 @@ Partial = R6::R6Class("Partial",
     # TODO: Test for equality of 1D
     # TODO: Check difference for K higher between original and iml implementation. Difference seems to be in the grid already at K >= 10.
     #        Maybe it doesn't matter.
+    # TODO: Remove inst test stuff
+    # TODO: Update documentation
+    # TODO: Rename result columns to something meaningful to the user
     run.ale = function() {
       private$dataSample = private$getData()
       if(length(self$feature.name) == 1) {
@@ -219,17 +228,17 @@ Partial = R6::R6Class("Partial",
         X.lower = X.upper = private$getData()
         X.lower[,self$feature.name] = grid.dt[interval.index,]
         X.upper[,self$feature.name] = grid.dt[interval.index + 1,]
-        qResults.lower = private$run.prediction(X.lower)
-        qResults.upper = private$run.prediction(X.upper)
-        qResults = qResults.upper - qResults.lower
-        res = cbind(X.lower[,self$feature.name, with=FALSE], qResults, data.frame(.interval = interval.index))
+        predictions.lower = private$run.prediction(X.lower)
+        predictions.upper = private$run.prediction(X.upper)
+        predictions = predictions.upper - predictions.lower
+        res = cbind(X.lower[,self$feature.name, with=FALSE], predictions, data.frame(.interval = interval.index))
         y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), ".interval"))
         res = melt(res, variable.name = ".class", 
           value.name = ".y.hat", measure.vars = y.hat.names)
         res = res[order(.class, .interval), .(.y.hat = mean(.y.hat)), by = list(.interval, .class)]
-        res = res[,.(.y.hat = cumsum_na(c(0, .y.hat))), by = .class]
+        res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .y.hat))), by = .class]
         interval.sizes = as.numeric(table(interval.index))
-        res = res[, .(.y.hat = .y.hat - sum((res$.y.hat[1:(nrow(.SD) - 1)] + res$.y.hat[2:nrow(.SD)])/2 * interval.sizes)/sum(interval.sizes), .id = 1:nrow(.SD)), by = .class]
+        res = res[, .(.ale = .y.hat.cumsum - sum((res$.y.hat.cumsum[1:(nrow(.SD) - 1)] + res$.y.hat.cumsum[2:nrow(.SD)])/2 * interval.sizes)/sum(interval.sizes), .id = 1:nrow(.SD)), by = .class]
         res$.type = "ale"
         grid.dt$.id = 1:nrow(grid.dt)
         res = merge(res, grid.dt, by = ".id")
@@ -240,15 +249,15 @@ Partial = R6::R6Class("Partial",
       } else {
         dat = private$dataSample
         ## Create ALE for feature 1
-        grid.dt1 = data.frame(get.1D.grid(feature = dat[[self$feature.name[1]]], feature.type = self$feature.type[1], 
-          grid.size = self$grid.size[1] + 1, type = "quantile"))
+        grid.dt1 = unique(data.frame(get.1D.grid(feature = dat[[self$feature.name[1]]], feature.type = self$feature.type[1], 
+          grid.size = self$grid.size[1] + 1, type = "quantile")))
         colnames(grid.dt1)= self$feature.name[1]
         interval.index1 = findInterval(dat[[self$feature.name[1]]], grid.dt1[[1]], left.open = TRUE)
         # Data point in the left most interval should be in interval 1, not zero
         interval.index1[interval.index1 == 0] = 1
         ## Create ALE for feature 2
-        grid.dt2 = data.frame(get.1D.grid(feature = dat[[self$feature.name[2]]], feature.type = self$feature.type[2], 
-          grid.size = self$grid.size[2] + 1, type = "quantile"))
+        grid.dt2 = unique(data.frame(get.1D.grid(feature = dat[[self$feature.name[2]]], feature.type = self$feature.type[2], 
+          grid.size = self$grid.size[2] + 1, type = "quantile")))
         colnames(grid.dt2)= self$feature.name[2]
         interval.index2 = findInterval(dat[[self$feature.name[2]]], grid.dt2[[1]], left.open = TRUE)
         # Data point in the left most interval should be in interval 1, not zero
@@ -259,12 +268,12 @@ Partial = R6::R6Class("Partial",
         X.low1.up2[,self$feature.name] = data.table(grid.dt1[interval.index1,], grid.dt2[interval.index2 + 1,])
         X.up1.up2[,self$feature.name] = data.table(grid.dt1[interval.index1 + 1,], grid.dt2[interval.index2 + 1,])
         # Getting all predictions from the model
-        qResults.11 = private$run.prediction(X.low1.low2)
-        qResults.21 = private$run.prediction(X.up1.low2)
-        qResults.12 = private$run.prediction(X.low1.up2)
-        qResults.22 = private$run.prediction(X.up1.up2)
-        qResults = (qResults.22 - qResults.21) - (qResults.12 - qResults.11) 
-        res = cbind(dat[,self$feature.name, with=FALSE], qResults, data.frame(.interval1 = interval.index1, .interval2 = interval.index2))
+        predictions.11 = private$run.prediction(X.low1.low2)
+        predictions.21 = private$run.prediction(X.up1.low2)
+        predictions.12 = private$run.prediction(X.low1.up2)
+        predictions.22 = private$run.prediction(X.up1.up2)
+        predictions = (predictions.22 - predictions.21) - (predictions.12 - predictions.11) 
+        res = cbind(dat[,self$feature.name, with=FALSE], predictions, data.frame(.interval1 = interval.index1, .interval2 = interval.index2))
         y.hat.names = setdiff(colnames(res), c(colnames(private$dataSample), c(".interval1", ".interval2")))
         # instead of a matrix, we work with melted version of the data
         # This allows us to work with multi-dimensional predictions
@@ -274,12 +283,12 @@ Partial = R6::R6Class("Partial",
         interval_grid = expand.grid(.interval1 = unique(res$.interval1), .interval2 = unique(res$.interval2),
           .class = unique(res$.class))
         res = merge(res, interval_grid, on = c(".interval1", ".interval2", ".class"), all.y = TRUE)
-        res = res[order(.class, .interval1, .interval2), .(.y.hat = mean(.y.hat)), by = list(.interval1, .interval2, .class)]
-        res = res[,.(.y.hat = cumsum_na(c(0, .y.hat)), .interval2 = c(0, .interval2)), by = .(.class, .interval1)]
-        res = res[,.(.y.hat = cumsum_na(c(0, .y.hat)), .interval1 = c(0, .interval1)), by = .(.class, .interval2)]
-        # How many data instances each cell has
+        res = res[order(.class, .interval1, .interval2), .(.y.hat.mean = mean(.y.hat)), by = list(.interval1, .interval2, .class)]
+        # Acumulate the predictions from bottom left to top right 
+        res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .y.hat.mean)), .interval2 = c(0, .interval2)), by = .(.class, .interval1)]
+        res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .y.hat.cumsum)), .interval1 = c(0, .interval1)), by = .(.class, .interval2)]
+        # Number of cells are need for weighting later
         cell.counts = as.matrix(table(interval.index1, interval.index2))
-        # Creates melted version of cross table 
         cell.counts.m = melt(cell.counts)
         colnames(cell.counts.m) = c(".interval1", ".interval2",  ".count")
         cell.counts.m$.interval1 = as.numeric(as.character(cell.counts.m$.interval1))
@@ -288,37 +297,35 @@ Partial = R6::R6Class("Partial",
         
         # Computing the first-order effect of feature 1
         # First, take the differences across feature 1
-        res1 = res[, .(.y.hat = .y.hat[2:nrow(.SD)] - .y.hat[1:(nrow(.SD) - 1)], .interval1 = .interval1[2:(nrow(.SD))], .count = .count[2:(nrow(.SD))]),
+        res1 = res[, .(.y.hat.diffs = .y.hat.cumsum[2:nrow(.SD)] - .y.hat.cumsum[1:(nrow(.SD) - 1)], .interval1 = .interval1[2:(nrow(.SD))], .count = .count[2:(nrow(.SD))]),
           by = list(.class, .interval2)]
         # Then take the prediction at the mid point of each interval, which is the mean of the prediction at the end points
         #     and take calculate the mean, weighted by the number of data instances per cell
-        res1 = res1[, .(.y.hat1 = sum(.count[2:nrow(.SD)] * (.y.hat[1:(nrow(.SD) - 1)] + .y.hat[2:(nrow(.SD))]) / 2) / sum(.count[2:nrow(.SD)])), by = list(.class, .interval1)]
-        fJ1 = res1[, .(.y.hat1 = c(0, cumsum_na(.y.hat1)), .interval1 = c(0, .interval1)), by = list(.class)]
-        # Computing the first-order effect of feature 1
-        # First, take the differences across feature 1
-        res2 = res[, .(.y.hat = .y.hat[2:nrow(.SD)] - .y.hat[1:(nrow(.SD) - 1)], .interval2 = .interval2[2:(nrow(.SD))], .count = .count[2:(nrow(.SD))]),
+        res1 = res1[, .(.fJ1 = sum(.count[2:nrow(.SD)] * (.y.hat.diffs[1:(nrow(.SD) - 1)] + 
+            .y.hat.diffs[2:(nrow(.SD))]) / 2) / sum(.count[2:nrow(.SD)])), by = list(.class, .interval1)]
+        fJ1 = res1[, .(.fJ1 = c(0, cumsum_na(.fJ1)), .interval1 = c(0, .interval1)), by = list(.class)]
+        # Computing the first-order effect of feature 2
+        # First, take the differences across feature 2
+        res2 = res[, .(.y.hat.diffs = .y.hat.cumsum[2:nrow(.SD)] - .y.hat.cumsum[1:(nrow(.SD) - 1)], .interval2 = .interval2[2:(nrow(.SD))], .count = .count[2:(nrow(.SD))]),
           by = list(.class, .interval1)]
         # Then take the prediction at the mid point of each interval, which is the mean of the prediction at the end points
         #     and take calculate the mean, weighted by the number of data instances per cell
-        res2 = res2[, .(.y.hat2 = sum(.count[2:nrow(.SD)] * (.y.hat[1:(nrow(.SD) - 1)] + .y.hat[2:(nrow(.SD))]) / 2) / sum(.count[2:nrow(.SD)])), by = list(.class, .interval2)]
-        fJ2 = res2[, .(.y.hat2 = c(0, cumsum_na(.y.hat2)), .interval2 = c(0, .interval2)), by = list(.class)]
+        res2 = res2[, .(.fJ2 = sum(.count[2:nrow(.SD)] * (.y.hat.diffs[1:(nrow(.SD) - 1)] + 
+            .y.hat.diffs[2:(nrow(.SD))]) / 2) / sum(.count[2:nrow(.SD)])), by = list(.class, .interval2)]
+        fJ2 = res2[, .(.fJ2 = c(0, cumsum_na(.fJ2)), .interval2 = c(0, .interval2)), by = list(.class)]
         # for each cells computes the average prediction through mean of the cell corners
         # then again a mean over all cells, weighted by the number of data points in the cell
         cls = unique(res$.class)
         fJ0 = unlist(lapply(cls, function(cl){
-          dd = as.matrix(dcast(res, .interval1 ~ .interval2, value.var = ".y.hat", drop = FALSE))[,-1]
-          dd = dd  - outer(fJ1$.y.hat1,rep(1,nrow(fJ1))) - outer(rep(1,nrow(fJ2)),fJ2$.y.hat2)
+          dd = as.matrix(dcast(res, .interval1 ~ .interval2, value.var = ".y.hat.cumsum", drop = FALSE))[,-1]
+          dd = dd  - outer(fJ1$.fJ1,rep(1,nrow(fJ2))) - outer(rep(1,nrow(fJ1)),fJ2$.fJ2)
           sum(cell.counts *(dd[1:(nrow(dd)-1),1:(ncol(dd)-1)] + dd[1:(nrow(dd)-1),2:ncol(dd)] + dd[2:nrow(dd),1:(ncol(dd)-1)] + dd[2:nrow(dd), 2:ncol(dd)])/4, na.rm = TRUE)/sum(cell.counts)
         }))
-        fJ0 = data.frame(fJ0 = fJ0, .class = cls)
+        fJ0 = data.frame(.fJ0 = fJ0, .class = cls)
         res = merge(res, fJ0, by = c(".class"))
         res = merge(res, fJ1, by = c(".class", ".interval1"))
         res = merge(res, fJ2, by = c(".class", ".interval2"))
-        res = res[, .y.hat := .y.hat - .y.hat1 - .y.hat2 - fJ0]
-        # TODO: Simplify by deleting all columns at once
-        res = res[, fJ0 := NULL]
-        res = res[, .y.hat1 := NULL]
-        res = res[, .y.hat2 := NULL]
+        res = res[, .ale := .y.hat.cumsum - .fJ1 - .fJ2 - .fJ0]
         # For later plotting, define the rectangles
         # These are not the same as the cells, which is a bit counterintuitive
         # each value in fJ is where the cells cross
@@ -327,7 +334,7 @@ Partial = R6::R6Class("Partial",
         # in image() this happens automatically (see ALEPlot::ALEPlot)
         
         # for the edges, simply use the grid value as the outer values
-        interval.dists = diff(c(grid.dt1[1,1], grid.dt1[,1], grid.dt1[nrow(grid.dt2), 1]))
+        interval.dists = diff(c(grid.dt1[1,1], grid.dt1[,1], grid.dt1[nrow(grid.dt1), 1]))
         interval.dists = 0.5 *  interval.dists
         res$.right = grid.dt1[res$.interval1 + 1, ] + interval.dists[res$.interval1 + 2]
         res$.left = grid.dt1[res$.interval1 + 1, ] - interval.dists[res$.interval1 + 1]
@@ -338,6 +345,10 @@ Partial = R6::R6Class("Partial",
         res[,self$feature.name[1]] =  grid.dt1[res$.interval1 + 1, ]
         res[,self$feature.name[2]] =  grid.dt2[res$.interval2 + 1, ]
         
+        res = res[, setdiff(colnames(res), c(".fJ0", ".fJ1", ".fJ2", ".y.hat.cumsum", ".count", 
+          ".interval1", ".interval2")), with = FALSE]
+        res$.type = "ale"
+        
         # remove class if only single class
         if(!private$multiClass) {
           res = res[, .class := NULL]
@@ -347,22 +358,22 @@ Partial = R6::R6Class("Partial",
       }
       
     },
-    run = function(n) {
+    run.pdp = function(n) {
       private$dataSample = private$getData()
       grid.dt = private$get.grid()
       mg = MarginalGenerator$new(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE, cartesian = TRUE)
       results.ice = data.table()
       while(!mg$finished) {
         results.ice.inter = mg$next.batch(n)
-        qResults = private$run.prediction(results.ice.inter)
+        predictions = private$run.prediction(results.ice.inter)
         results.ice.inter = results.ice.inter[, c(self$feature.name, ".id.dist"), with = FALSE]
         if (private$multiClass) {
-          y.hat.names = colnames(qResults)
-          results.ice.inter = cbind(results.ice.inter, qResults)
+          y.hat.names = colnames(predictions)
+          results.ice.inter = cbind(results.ice.inter, predictions)
           results.ice.inter = melt(results.ice.inter, variable.name = ".class", 
             value.name = ".y.hat", measure.vars = y.hat.names)
         } else {
-          results.ice.inter[, ".y.hat" := qResults]
+          results.ice.inter[, ".y.hat" := predictions]
           results.ice.inter$.class = 1
         }
         results.ice = rbind(results.ice, results.ice.inter)
@@ -437,18 +448,23 @@ Partial = R6::R6Class("Partial",
     },
     generatePlot = function(rug = TRUE) {
       if (is.null(private$anchor.value)) {
-        y.axis.label = expression(hat(y))
+        if(self$aggregation == "ale") {
+          y.axis.label = "ALE"
+        } else {
+          y.axis.label = expression(hat(y))
+        }
       } else {
         y.axis.label = bquote(hat(y)-hat(y)[x == .(private$anchor.value)])
       }
       
       if (self$n.features == 1) {
+        y.name = ifelse(self$aggregation == "ale", ".ale", ".y.hat")
         if (self$ice) {
           p = ggplot(self$results[self$results$.type == "ice",], 
             mapping = aes_string(x = self$feature.name, 
               y = ".y.hat", group = ".id")) + scale_y_continuous(y.axis.label)
         } else {
-          p = ggplot(self$results, mapping = aes_string(x = self$feature.name, y = ".y.hat")) + 
+          p = ggplot(self$results, mapping = aes_string(x = self$feature.name, y = y.name)) + 
             scale_y_continuous(y.axis.label)
         }
         if (self$feature.type == "numerical") {
@@ -459,17 +475,17 @@ Partial = R6::R6Class("Partial",
         if (self$aggregation != "none") {
           aggr = self$results[self$results$.type != "ice", ]
           if (self$ice) {
-            p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = ".y.hat"), 
+            p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = y.name), 
               size = 2, color = "gold") 
           }
-          p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = ".y.hat"), 
+          p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = y.name), 
             size = 1, color = "black")
         }
       } else if (self$n.features == 2) {
         if (self$aggregation == "ale") {
           # Adding x and y to aesthetics for the rug plot later
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
-            geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .y.hat)) + 
+            geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
             scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2])
         } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
@@ -485,8 +501,8 @@ Partial = R6::R6Class("Partial",
         }
       }
       if (rug) {
-        rug.dat = cbind(private$sampler$get.x(), data.frame(.y.hat = self$results$.y.hat[1]), 
-          .id = 1)
+        # Need some dummy data for ggplot to accept the data.frame
+        rug.dat = cbind(private$sampler$get.x(), data.frame(.y.hat = 1, .id = 1, .ale = 1))
         rug.dat = rug.dat[sample(1:nrow(rug.dat)),]
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
         p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
@@ -541,7 +557,8 @@ Partial = R6::R6Class("Partial",
 #' plot.Partial() plots the results of a Partial object.
 #' 
 #' @param x A Partial R6 object
-#' @param rug [logical] Should a rug be plotted to indicate the feature distribution?
+#' @param rug [logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
+#' but it avoids overplotting.
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Partial}
