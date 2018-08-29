@@ -180,3 +180,63 @@ test_that("centered Partial (ice) works for multiple output", {
   
 })
 
+
+
+test_that("aggregation='ale' works for 1D", {
+  grid.size = 3
+  ale = Partial$new(predictor1, ice = FALSE, feature = 1, grid.size = grid.size, aggregation = "ale")
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), c(".id", ".ale", ".type", "a"))
+  expect_equal(nrow(dat), grid.size)  
+  expect_equal(nrow(unique(dat)), grid.size)
+  expect_equal(max(dat$a), 5)
+  expect_equal(min(dat$a), 1)
+  checkPlot(ale)
+  
+  expect_equal(ale$feature.name, "a")
+  ale$set.feature(3)
+  expect_equal(ale$feature.name, "c")
+  expect_equal(colnames(ale$results), c(".id", ".ale", ".type", "c"))
+  ale$set.feature("b")
+  expect_equal(ale$feature.name, "b")
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(ale$results), c(".id", ".ale", ".type", "b"))
+  expect_equal(nrow(dat), grid.size)  
+  expect_equal(nrow(unique(dat)), grid.size)
+  expect_equal(max(dat$b), 50)
+  expect_equal(min(dat$b), 10)
+  
+  # Centering 
+  expect_warning(ale$center(0))
+
+})
+
+test_that("aggregation='ale' works for 2D", {
+  ## two numerical features with 2 grid.sizes
+  grid.size = c(10, 5)
+  ale = Partial$new(predictor1, ice = FALSE, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_equal(sort(colnames(dat)), sort(c(".ale", ".right", ".left", ".bottom", ".top", "a", "b", ".type")))
+  expect_lte(nrow(dat), grid.size[1] * grid.size[2])
+  expect_lte(nrow(unique(dat)), grid.size[1] * grid.size[2])
+  expect_equal(max(dat$a), 5)
+  expect_equal(min(dat$a), 1)
+  expect_equal(max(dat$b), 50)
+  expect_equal(min(dat$b), 10)
+  checkPlot(ale)
+  ale2 = Partial$new(predictor1, feature = c("a", "b"), grid.size = grid.size, aggregation = "ale")
+  expect_equal(ale$results, ale2$results)
+})
+
+test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
+
+})
+
+
+
+
+
