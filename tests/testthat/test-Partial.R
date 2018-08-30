@@ -312,7 +312,19 @@ test_that("aggregation='ale' works for 1D categorical", {
   expect_equal(colnames(dat), c(".class", ".ale",  "c"))
   expect_equal(nrow(dat), length(unique(X$c)) * 2)  
   checkPlot(ale)
+  
+  # ordered by the user
+  X2 = X
+  X2$c = ordered(X2$c)
+  pred1.order = Predictor$new(data = X2, y = y, predict.fun = f)
+  ale = Partial$new(pred1.order, ice = FALSE, feature = 'c', aggregation = "ale")
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), c( ".ale", "c"))
+  expect_equal(nrow(dat), length(unique(X$c)))  
+  expect_equal(as.character(dat$c), c("a", "b", "c"))
+  checkPlot(ale)
 })
-
 
 

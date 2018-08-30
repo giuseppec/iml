@@ -137,9 +137,8 @@ calculate.ale.num.num =function(dat, run.prediction, feature.name, grid.size){
 calculate.ale.cat = function(dat, run.prediction, feature.name){
   x = dat[,feature.name, with = FALSE][[1]]
   levels.original = levels(x)
-  
   # if ordered, than already use that
-  if(class(x) == "ordered") {
+  if(inherits(x, "ordered")){
     level_order = 1:nlevels(x)
   } else {
     # reorders according to the distance of the levels in the other features
