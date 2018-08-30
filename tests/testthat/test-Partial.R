@@ -182,7 +182,7 @@ test_that("centered Partial (ice) works for multiple output", {
 
 
 
-test_that("aggregation='ale' works for 1D", {
+test_that("aggregation='ale' works for 1D numerical", {
   grid.size = 3
   ale = Partial$new(predictor1, ice = FALSE, feature = 1, grid.size = grid.size, aggregation = "ale")
   dat = ale$results
@@ -196,9 +196,6 @@ test_that("aggregation='ale' works for 1D", {
   checkPlot(ale)
   
   expect_equal(ale$feature.name, "a")
-  ale$set.feature(3)
-  expect_equal(ale$feature.name, "c")
-  expect_equal(colnames(ale$results), c(".id", ".ale", ".type", "c"))
   ale$set.feature("b")
   expect_equal(ale$feature.name, "b")
   dat = ale$results
@@ -224,7 +221,7 @@ test_that("aggregation='ale' works for 1D", {
   checkPlot(ale)
 })
 
-test_that("aggregation='ale' works for 2D", {
+test_that("aggregation='ale' works for 2D numerical", {
   ## two numerical features with 2 grid.sizes
   grid.size = c(10, 5)
   ale = Partial$new(predictor1, ice = FALSE, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
@@ -260,6 +257,8 @@ test_that("aggregation='ale' works for 2D", {
 
 test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   require("ALEPlot")
+  
+  # one numerical feature
   grid.size = 3
   ale = Partial$new(predictor1, feature = 1, grid.size = grid.size, aggregation = "ale")
   ale.dat = ale$results
@@ -268,6 +267,7 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   expect_equal(ale.dat$a, ale.original$x.values)
   expect_equal(ale.dat$.ale, ale.original$f.values)
   
+  # two numerical features
   grid.size = c(5)
   ale = Partial$new(predictor1, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
   ale.dat = ale$results
@@ -278,9 +278,41 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   expect_equal(unique(ale.dat$b), ale.original$x.values[[2]])
   dd = as.matrix(data.table::dcast(ale.dat, a ~ b, value.var = ".ale"))[,-1]
   expect_equal(unname(ale.original$f.values), unname(dd))
+  
+  # one categorical feature
+  ale = Partial$new(predictor1, feature = "c", aggregation = "ale")
+  ale.dat = ale$results
+  ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 3)
+  # equality of x values and ALE estimates
+  expect_equal(as.character(ale.dat$c), ale.original$x.values)
+  expect_equal(ale.dat$.ale, ale.original$f.values)
 })
 
 
+test_that("aggregation='ale' works for 1D categorical", {
+  ale = Partial$new(predictor1, ice = FALSE, feature = 'c', aggregation = "ale")
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), c( ".ale", "c"))
+  expect_equal(nrow(dat), length(unique(X$c)))  
+  checkPlot(ale)
+  
+  expect_equal(ale$feature.name, "c")
+  ale$set.feature(4)
+  expect_equal(ale$feature.name, "d")
+  expect_equal(colnames(ale$results), c(".ale", "d"))
+  # Centering 
+  expect_warning(ale$center(0))
+  
+  # multi class output
+  ale = Partial$new(predictor2, feature = "c", aggregation = "ale", grid.size = 100)
+  dat = ale$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(dat), c(".class", ".ale",  "c"))
+  expect_equal(nrow(dat), length(unique(X$c)) * 2)  
+  checkPlot(ale)
+})
 
 
 

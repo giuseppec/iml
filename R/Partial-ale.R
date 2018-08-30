@@ -23,9 +23,6 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   res$.type = "ale"
   grid.dt$.id = 1:nrow(grid.dt)
   res = merge(res, grid.dt, by = ".id")
-  if (nrow(predictions) == 1){
-    res$.class = NULL
-  }
   data.frame(res)
 }
 
@@ -131,10 +128,6 @@ calculate.ale.num.num =function(dat, run.prediction, feature.name, grid.size){
     ".interval1", ".interval2")), with = FALSE]
   res$.type = "ale"
   
-  # remove class if only single class
-  if(ncol(predictions) == 1) {
-    res = res[, .class := NULL]
-  }
   data.frame(res)
 }
 
@@ -142,7 +135,6 @@ calculate.ale.num.num =function(dat, run.prediction, feature.name, grid.size){
 
 
 calculate.ale.cat = function(dat, run.prediction, feature.name){
-  
   x = dat[,feature.name, with = FALSE][[1]]
   levels.original = levels(x)
   
@@ -156,7 +148,7 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   # The new order of the levels
   levels.ordered = levels.original[level_order]
   # The feature with the levels in the new order
-  x.ordered  = order(levels_order)[as.numeric(x)]
+  x.ordered  = order(level_order)[as.numeric(x)]
   X.lower = X.upper = dat
   
   # We only want to increase/decrease the ones that are not already the minimum or maximum level
@@ -165,29 +157,36 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   
   
   # increase / decrease the level where not at minium or maxium already
-  X.lower[row.ind.decrease, feature.name] = levels.ordered[x.ordered[row.ind.increase] + 1]
-  X.upper[row.ind.increase, feature.name] = levels.ordered[x.ordered[row.ind.decrease] - 1]
+  X.lower[row.ind.decrease, feature.name] = levels.ordered[x.ordered[row.ind.decrease] - 1]
+  X.upper[row.ind.increase, feature.name] = levels.ordered[x.ordered[row.ind.increase] + 1]
   y.hat <- run.prediction(dat)
   y.hat.increase <- run.prediction(X.upper[row.ind.increase,])
   y.hat.decrease <- run.prediction(X.lower[row.ind.decrease,])
   
   d.increase = y.hat.increase - y.hat[row.ind.increase,]
-  d.decrease = y.hat.decrease - y.hat[row.ind.decrease,]
+  d.decrease = y.hat[row.ind.decrease,] - y.hat.decrease
   
-  # TODO: melt by class
+  # Compute the differences and the ALE
   deltas = rbind(d.increase, d.decrease)
-  deltas = cbind(level = c(x.ordered[row.ind.increase], x.ordered[row.ind.decrease] - 1))
-  deltas = melt(deltas, id.vars = c(".class", "level"))
-  # TODO: Compute delta
-  deltas = deltas[order(levels),.(.y.hat = mean(.y.hat)),by = list(.class, levels)]
-  deltas = deltas[, .(.ale = c(0, cumsum(.y.hat))), by = list(.class)]
+  deltas = cbind(deltas, .level = c(x.ordered[row.ind.increase], x.ordered[row.ind.decrease] - 1))
+  y.hat.names = colnames(y.hat)
+  deltas = data.table(melt(deltas, id.vars = c(".level"), variable.name = ".class", value.name = ".yhat.diff"))
+  deltas = deltas[order(.level),.(.yhat.diff = mean(.yhat.diff)),by = list(.class, .level)]
+  deltas = deltas[, .(.ale = c(0, cumsum(.yhat.diff))), by = list(.class)]
   x.count <- as.numeric(table(x))
   x.prob = x.count/sum(x.count) 
-  deltas = deltas[, .(.ale = .ale - sum(.ale * x.prob), .level = levels.ordered), .by = class]
-  deltas
+  deltas = deltas[, .(.ale = .ale - sum(.ale * x.prob[level_order]), .level = levels.ordered), by = ".class"]
+  colnames(deltas) = c(".class", ".ale", feature.name)
+  deltas[, feature.name] = factor(deltas[,feature.name,with=FALSE][[1]], levels = levels.ordered)
+  # make sure the rows are ordered by the new level order
+  data.frame(deltas[order(deltas[[feature.name]]),])
 }
-calculate.ale.cat.cat = function(){}
-calculate.ale.num.cat = function(){}
+
+
+
+
+calculate.ale.cat.cat = function(){stop("Two categorical features are not yet implemented")}
+calculate.ale.num.cat = function(){stop("Categorical plus numerical feature is not yet implemented")}
 
 
 
@@ -222,6 +221,8 @@ order_levels = function(dat, feature.name) {
   
   dists.cumulated.long = Reduce(function(d1, d2) {d1$dist = d1$dist + d2$dist; d1}, dists)
   dists.cumulated = dcast(dists.cumulated.long, from.level ~ to.level, value.var = "dist")[,-1]
+  diag(dists.cumulated) = 0
   scaled = cmdscale(dists.cumulated, k = 1)
   order(scaled)
 }
+

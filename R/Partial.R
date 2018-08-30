@@ -218,15 +218,31 @@ Partial = R6::R6Class("Partial",
     # TODO: Test order_levels
     # TODO: Continue ale.cat
     # TODO: implement barplot for ale.cat
+    # TODO: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
+    # TODO MAYBE: Allow to plot data as points into the plot??
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
-        self$results = calculate.ale.num(dat = private$dataSample, run.prediction = private$run.prediction, 
+        if(self$feature.type == "numerical") { # one numerical feature
+          results = calculate.ale.num(dat = private$dataSample, run.prediction = private$run.prediction, 
+            feature.name = self$feature.name, grid.size = self$grid.size)
+        } else { # one categorical feature
+          results = calculate.ale.cat(dat = private$dataSample, run.prediction = private$run.prediction, 
+            feature.name = self$feature.name)
+        }
+      } else { # two features
+        if(all(self$feature.type == "numerical")){ # two numerical features
+        results = calculate.ale.num.num(dat = private$dataSample, run.prediction = private$run.prediction, 
           feature.name = self$feature.name, grid.size = self$grid.size)
-      } else {
-        self$results = calculate.ale.num.num(dat = private$dataSample, run.prediction = private$run.prediction, 
-          feature.name = self$feature.name, grid.size = self$grid.size)
+        } else if(all(self$feature.type == "categorical")) { # two categorical features
+          calculate.ale.cat.cat()
+        } else { # mixed numerical and categorical
+          calculate.ale.num.cat()
+        }
       }
+      # only keep .class when multiple outputs
+      if(!private$multiClass) results$.class = NULL
+      self$results = results
     },
     run.pdp = function(n) {
       private$dataSample = private$getData()
