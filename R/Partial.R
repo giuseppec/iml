@@ -219,6 +219,14 @@ Partial = R6::R6Class("Partial",
     # TODO: Renam res to deltas within the functions?
     # TODO: Fix cat x num plot
     # TODO: Compare cat x num with implementation from ALEPLot package
+    # TODO: Implement NA behaviour for 2D num x num. seems to affect computation.
+    # TODO: Implement NA behaviour for 2D cat x num. seems to affect computation.
+    # TODO: Make grid.dt a vector, maybe that simplifies things
+    # TODO: Thoroughly document code, because it will be tough to understand it again
+    #       Maybe rename some variable to reflect if you are working with the cells or with the cell edges
+    # TODO: Test impute_cells
+    # TODO: Use impute_cells for numerical x numerical
+    # TODO: Test num x cat 
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {

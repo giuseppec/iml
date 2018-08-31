@@ -286,6 +286,16 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   # equality of x values and ALE estimates
   expect_equal(as.character(ale.dat$c), ale.original$x.values)
   expect_equal(ale.dat$.ale, ale.original$f.values)
+  
+  # one numerical, one categorical feature
+  ale = Partial$new(predictor1.inter, feature = c("a", "c"), aggregation = "ale")
+  ale.dat = ale$results
+  ale.original = ALEPlot(X, predictor1.inter, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = c(3,1))
+  # equality of x values and ALE estimates
+  expect_equal(unique(ale.dat$c), ale.original$x.values[[1]])
+  expect_equal(unique(ale.dat$a), ale.original$x.values[[2]])
+  res.iml = unname(as.matrix(data.table::dcast(ale.dat, c ~ a, value.var = ".ale")[, -1]))
+  expect_equal(res.iml, unname(ale.original$f.values))
 })
 
 

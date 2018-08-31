@@ -25,7 +25,8 @@ Imports: R6,
          glmnet, 
          Metrics, 
          data.table,
-         foreach
+         foreach,
+         yaImpute
 Suggests: randomForest,
           gower, 
           testthat, 

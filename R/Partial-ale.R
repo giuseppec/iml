@@ -185,7 +185,6 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
 
 calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   
-  
   # Figure out which feature is numeric and which categeorical
   x.num.index = ifelse(inherits(dat[,feature.name,with = FALSE][[1]], "numeric"), 1, 2)
   x.cat.index = setdiff(c(1,2), x.num.index)
@@ -277,24 +276,31 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   deltas = cbind(deltas, .level = c(x.cat.ordered[row.ind.increase], x.cat.ordered[row.ind.decrease] - 1), 
     .num = interval.index[c(row.ind.increase, row.ind.decrease)])
   y.hat.names = colnames(predictions.22)
-  #colnames(deltas) = c(y.hat.names, feature.name[c(x.cat.index, x.num.index)])
   deltas = data.table(melt(deltas, measure.vars = y.hat.names, variable.name = ".class", value.name = ".yhat.diff"))
   # add empty cells
   interval_grid = expand.grid(.level = unique(deltas$.level), .num = unique(deltas$.num),
     .class = unique(deltas$.class))
   deltas = merge(deltas, interval_grid, on = c(".level", ".num", ".class"), all.y = TRUE)
-  
   deltas = deltas[order(.class, .level, .num),.(.yhat.diff = mean(.yhat.diff)),by = list(.class, .level, .num)]
+  
+  # fill empty cells with the closest neighbour cells value
+  # remember cell status for later
+  deltas.na.cell = copy(deltas)
+  deltas.na.cell[, missing := is.na(.yhat.diff)]
+  deltas.na.cell[, .yhat.diff := NULL]
+  # replace the missing ones with the closest non-missing difference (measured in number of intervals)
+  deltas = impute_cells(deltas, grid2 = grid.dt, x1.ind = ".level", x2.ind = ".num")
+  
   # Acumulate the predictions from bottom left to top right 
-  deltas = deltas[, .(.ale = cumsum_na(c(0, .yhat.diff)), .num = c(0, .num)), by = list(.class, .level)]
-  deltas = deltas[, .(.ale = cumsum_na(c(0, .ale)), .level = c(0, .level)), by = list(.class, .num)]
+  deltas = deltas[, .(.ale = cumsum(c(0, .yhat.diff)), .num = c(0, .num)), by = list(.class, .level)]
+  deltas = deltas[, .(.ale = cumsum(c(0, .ale)), .level = c(0, .level)), by = list(.class, .num)]
   
   # Number of cells are need for weighting later
   cell.counts = as.matrix(table(x.cat.ordered, interval.index))
   cell.counts.m = melt(cell.counts)
   colnames(cell.counts.m) = c(".level", ".num",  ".count")
-  cell.counts.m$.level = as.numeric(as.character(cell.counts.m$.level))
-  cell.counts.m$.num = as.numeric(as.character(cell.counts.m$.num))
+  cell.counts.m$.level = as.numeric(as.character(cell.counts.m$.level)) - 1
+  cell.counts.m$.num = as.numeric(as.character(cell.counts.m$.num)) 
   deltas = merge(deltas, cell.counts.m, on = c(".level", ".num"), all.x = TRUE)
   deltas[is.na(.count), .count := 0] 
   
@@ -304,15 +310,15 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
     by = list(.class, .level)]
   # Then take the weighted average over the categories to get the effect at each numerical grid point.
   deltas2 = deltas2[, .(.ale2 = sum(.count * .ale2) / sum(.count)), by = list(.class, .num)]
-  fJ2 = deltas2[order(.num), .(.ale2 = c(0, cumsum_na(.ale2)), .num = c(0, .num)), by = list(.class)]
+  fJ2 = deltas2[order(.num), .(.ale2 = c(0, cumsum(.ale2)), .num = c(0, .num)), by = list(.class)]
   
   
   deltas1 = deltas[, .(.ale1 = .ale[2:nrow(.SD)] - .ale[1:(nrow(.SD) - 1)], .level = .level[2:(nrow(.SD))], 
-    .count = .count[2:(nrow(.SD))]), by = list(.class, .num)]
+     .count = (.count[2:nrow(.SD)] + .count[1:(nrow(.SD)-1)]) / 2), by = list(.class, .num)]
   # mid points between numerical intervals
   deltas1 = deltas1[, .(
-    .ale1 = (.ale1[2:nrow(.SD)] + .ale1[1:(nrow(.SD)-1)]) / 2, 
-    .count = (.count[2:nrow(.SD)] + .count[1:(nrow(.SD)-1)]) / 2, 
+    .ale1 = (.ale1[2:nrow(.SD)] + .ale1[1:(nrow(.SD)-1)]) / 2,
+    .count = .count[2:nrow(.SD)],
     .num = .num[2:nrow(.SD)]), by = list(.class, .level)]
   
   deltas1  = deltas1[,.(.ale1 = sum(.ale1 * .count) / sum(.count)), by = list(.class, .level)]
@@ -349,7 +355,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   deltas$.bottom = grid.dt[deltas$.num + 1, ] + interval.dists2[deltas$.num + 2]
   deltas$.top = grid.dt[deltas$.num + 1, ] - interval.dists2[deltas$.num + 1]
   deltas[,feature.name[x.num.index]] =  grid.dt[deltas$.num + 1, ]
-  deltas[,feature.name[x.cat.index]] =  levels.ordered[deltas$.level + 1]
+  deltas[,feature.name[x.cat.index]] =  factor(levels.ordered[deltas$.level + 1], levels = levels.ordered)
   
   deltas = deltas[, setdiff(colnames(deltas), c(".fJ0", ".ale1", ".ale2", ".count", 
     ".level", ".num")), with = FALSE]
@@ -395,4 +401,33 @@ order_levels = function(dat, feature.name) {
   scaled = cmdscale(dists.cumulated, k = 1)
   order(scaled)
 }
+
+
+# by default assumes first column of cell.dat is x1 and second is x2
+# leave grid1 NULL if feature x1 is a factor
+impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
+  assert_data_table(cell.dat)
+  assert_data_table(grid1, null.ok = TRUE)
+  assert_data_table(grid2)
+  d.miss.ind = is.na(cell.dat$.yhat.diff)
+  if(!any(d.miss.ind)) return(deltas)
+  
+  if(is.null(grid1)) {
+    range.x1 = length(unique(cell.dat[[x1.ind]]))
+    x1.normalized = cell.dat[[x1.ind]] / range.x1
+  } else {
+    range.x1 = max(grid1[[1]]) - min(grid1[[1]])
+    x1.normalized = (grid1[cell.dat[[x1.ind]],][[1]] + grid1[cell.dat[[x1.ind]] + 1,][[1]]) / (2 * range.x1)
+  }
+  range.x2 =  max(grid2[[1]]) - min(grid2[[1]])
+  x2.normalized =   (grid2[cell.dat[[x2.ind]],][[1]] + grid2[cell.dat[[x2.ind]] + 1,][[1]]) / (2 * range.x2)
+  
+  z.na = cbind(x1.normalized[d.miss.ind], x2.normalized[d.miss.ind])
+  z.non.na = cbind(x1.normalized[!d.miss.ind], x2.normalized[!d.miss.ind])
+  
+  nbrs <- yaImpute::ann(as.matrix(z.non.na), as.matrix(z.na), k=1, verbose = FALSE)$knnIndexDist[,1] 
+  cell.dat[d.miss.ind, ".yhat.diff"] = cell.dat[which(!d.miss.ind)[nbrs], .yhat.diff] 
+  cell.dat
+}
+
 
