@@ -358,7 +358,6 @@ Partial = R6::R6Class("Partial",
       } else if (self$n.features == 2) {
         if (self$aggregation == "ale") {
           if(any(self$feature.type %in% "categorical")){
-            browser()
             categorical.feature = self$feature.name[self$feature.type=="categorical"]
             numerical.feature = setdiff(self$feature.name, categorical.feature)
             p = ggplot(self$results, x = as.numeric(self$results[categorical.feature])) + 

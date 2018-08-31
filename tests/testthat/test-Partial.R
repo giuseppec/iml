@@ -72,7 +72,7 @@ test_that("Partial (pdp only) works for single output and numerical + categorica
   
   ## One feature categorical
   grid.size = 11
-  pdp.obj = Partial$new(predictor1, feature = c(1,3), grid.size = grid.size, aggregation = "ale")
+  pdp.obj = Partial$new(predictor1, feature = c(1,3), grid.size = grid.size, aggregation = "pdp")
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "c", ".y.hat", ".type"))
@@ -292,7 +292,7 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   ale.dat = ale$results
   ale.original = ALEPlot(X, predictor1.inter, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = c(3,1))
   # equality of x values and ALE estimates
-  expect_equal(unique(ale.dat$c), ale.original$x.values[[1]])
+  expect_equal(as.character(unique(ale.dat$c)), ale.original$x.values[[1]])
   expect_equal(unique(ale.dat$a), ale.original$x.values[[2]])
   res.iml = unname(as.matrix(data.table::dcast(ale.dat, c ~ a, value.var = ".ale")[, -1]))
   expect_equal(res.iml, unname(ale.original$f.values))
