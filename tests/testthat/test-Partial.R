@@ -72,7 +72,7 @@ test_that("Partial (pdp only) works for single output and numerical + categorica
   
   ## One feature categorical
   grid.size = 11
-  pdp.obj = Partial$new(predictor1, feature = c(1,3), grid.size = grid.size)
+  pdp.obj = Partial$new(predictor1, feature = c(1,3), grid.size = grid.size, aggregation = "ale")
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "c", ".y.hat", ".type"))

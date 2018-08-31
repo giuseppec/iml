@@ -200,14 +200,9 @@ Partial = R6::R6Class("Partial",
         self$run.pdp(self$predictor$batch.size)
       }
     },
-    # TODO: Write tests for ALEPlots for categorical
-    # TODO: Add tests to test the equivalence to results of ALEPlot::ALEPlot for cat
     # TODO: Add vignette on Partial, compare also to ALEPLot
-    # TODO: Implement 1D for categorical
-    # TODO: Implement 2D for categorical??
+    # TODO: Implement 2D for categorical?? Or just create an issue
     # TODO: Implement 2D for categorical x numerical
-    # TODO: Implement 1D for ordered (gives the user a way to decide upon ordering by using 'ordered' instead of 'factor')
-    # TODO: Implement 2D for ordered x numerical
     # TODO: Check difference for K higher between original and iml implementation. Difference seems to be in the grid already at K >= 10.
     #        Maybe it doesn't matter.
     # TODO: Remove inst test stuff
@@ -220,6 +215,10 @@ Partial = R6::R6Class("Partial",
     # TODO: implement barplot for ale.cat
     # TODO: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
     # TODO MAYBE: Allow to plot data as points into the plot??
+    # TODO: Implement nearest neighbour tile for 2D plot or create issue
+    # TODO: Renam res to deltas within the functions?
+    # TODO: Fix cat x num plot
+    # TODO: Compare cat x num with implementation from ALEPLot package
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
@@ -232,12 +231,13 @@ Partial = R6::R6Class("Partial",
         }
       } else { # two features
         if(all(self$feature.type == "numerical")){ # two numerical features
-        results = calculate.ale.num.num(dat = private$dataSample, run.prediction = private$run.prediction, 
-          feature.name = self$feature.name, grid.size = self$grid.size)
+          results = calculate.ale.num.num(dat = private$dataSample, run.prediction = private$run.prediction, 
+            feature.name = self$feature.name, grid.size = self$grid.size)
         } else if(all(self$feature.type == "categorical")) { # two categorical features
-          calculate.ale.cat.cat()
+          stop("ALE for two categorical features is not yet implemented.")
         } else { # mixed numerical and categorical
-          calculate.ale.num.cat()
+          results = calculate.ale.num.cat(dat = private$dataSample, run.prediction = private$run.prediction, 
+            feature.name = self$feature.name, grid.size = self$grid.size)
         }
       }
       # only keep .class when multiple outputs
@@ -349,11 +349,21 @@ Partial = R6::R6Class("Partial",
         }
       } else if (self$n.features == 2) {
         if (self$aggregation == "ale") {
-          # Adding x and y to aesthetics for the rug plot later
-          p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
-            geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
-            scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
-            scale_fill_continuous(y.axis.label)
+          if(any(self$feature.type %in% "categorical")){
+            browser()
+            categorical.feature = self$feature.name[self$feature.type=="categorical"]
+            numerical.feature = setdiff(self$feature.name, categorical.feature)
+            p = ggplot(self$results, x = as.numeric(self$results[categorical.feature])) + 
+              geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale), xmin = self$results$.left, xmax = self$results$.right) + 
+              scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
+              scale_fill_continuous(y.axis.label)
+          } else {
+            # Adding x and y to aesthetics for the rug plot later
+            p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
+              geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
+              scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
+              scale_fill_continuous(y.axis.label)
+          }
         } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
             y = self$feature.name[2], 
@@ -380,6 +390,7 @@ Partial = R6::R6Class("Partial",
       } 
       p
     }, 
+    # This function ensures that the grid is always of length 2 when 2 features are provided
     set.grid.size = function(size) {
       self$grid.size = numeric(length=self$n.features)
       names(self$grid.size) = self$feature.name

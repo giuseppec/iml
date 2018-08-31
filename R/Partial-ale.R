@@ -26,7 +26,7 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   data.frame(res)
 }
 
-calculate.ale.num.num =function(dat, run.prediction, feature.name, grid.size){
+calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   ## Create ALE for feature 1
   grid.dt1 = unique(get.grid(dat[,feature.name[1], with = FALSE], grid.size = grid.size[1] + 1, type = "quantile"))
   colnames(grid.dt1)= feature.name[1]
@@ -151,16 +151,16 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   X.lower = X.upper = dat
   
   # We only want to increase/decrease the ones that are not already the minimum or maximum level
-  row.ind.increase <- (1:nrow(dat))[x.ordered < nlevels(x)]  
-  row.ind.decrease <- (1:nrow(dat))[x.ordered > 1]  
+  row.ind.increase = (1:nrow(dat))[x.ordered < nlevels(x)]  
+  row.ind.decrease = (1:nrow(dat))[x.ordered > 1]  
   
   
   # increase / decrease the level where not at minium or maxium already
   X.lower[row.ind.decrease, feature.name] = levels.ordered[x.ordered[row.ind.decrease] - 1]
   X.upper[row.ind.increase, feature.name] = levels.ordered[x.ordered[row.ind.increase] + 1]
-  y.hat <- run.prediction(dat)
-  y.hat.increase <- run.prediction(X.upper[row.ind.increase,])
-  y.hat.decrease <- run.prediction(X.lower[row.ind.decrease,])
+  y.hat = run.prediction(dat)
+  y.hat.increase = run.prediction(X.upper[row.ind.increase,])
+  y.hat.decrease = run.prediction(X.lower[row.ind.decrease,])
   
   d.increase = y.hat.increase - y.hat[row.ind.increase,]
   d.decrease = y.hat[row.ind.decrease,] - y.hat.decrease
@@ -172,7 +172,7 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   deltas = data.table(melt(deltas, id.vars = c(".level"), variable.name = ".class", value.name = ".yhat.diff"))
   deltas = deltas[order(.level),.(.yhat.diff = mean(.yhat.diff)),by = list(.class, .level)]
   deltas = deltas[, .(.ale = c(0, cumsum(.yhat.diff))), by = list(.class)]
-  x.count <- as.numeric(table(x))
+  x.count = as.numeric(table(x))
   x.prob = x.count/sum(x.count) 
   deltas = deltas[, .(.ale = .ale - sum(.ale * x.prob[level_order]), .level = levels.ordered), by = ".class"]
   colnames(deltas) = c(".class", ".ale", feature.name)
@@ -183,9 +183,180 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
 
 
 
+calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
+  
+  
+  # Figure out which feature is numeric and which categeorical
+  x.num.index = ifelse(inherits(dat[,feature.name,with = FALSE][[1]], "numeric"), 1, 2)
+  x.cat.index = setdiff(c(1,2), x.num.index)
+  x.num = dat[,feature.name[x.num.index],with = FALSE][[1]]
+  x.cat = dat[,feature.name[x.cat.index],with = FALSE][[1]]
+  
+  levels.original = levels(x.cat)
+  # if ordered, than already use that
+  if(inherits(x.cat, "ordered")){
+    level_order = 1:nlevels(x.cat)
+  } else {
+    # reorders according to the distance of the levels in the other features
+    level_order = order_levels(dat, feature.name[x.cat.index])
+  }
+  # The new order of the levels
+  levels.ordered = levels.original[level_order]
+  # The feature with the levels in the new order
+  x.cat.ordered  = order(level_order)[as.numeric(x.cat)]
+  # The rows for which the category can be increased
+  row.ind.increase = (1:nrow(dat))[x.cat.ordered < nlevels(x.cat)]  
+  row.ind.decrease <- (1:nrow(dat))[x.cat.ordered > 1]  
 
-calculate.ale.cat.cat = function(){stop("Two categorical features are not yet implemented")}
-calculate.ale.num.cat = function(){stop("Categorical plus numerical feature is not yet implemented")}
+  
+  ## Create ALE for increasing categorical feature
+  grid.dt = unique(get.grid(dat[,feature.name[x.num.index], with = FALSE], 
+    grid.size  = grid.size[x.num.index] + 1, type = "quantile"))
+  colnames(grid.dt)= feature.name[x.num.index]
+  interval.index = findInterval(dat[[feature.name[x.num.index]]], grid.dt[[1]], left.open = TRUE)
+  # Data point in the left most interval should be in interval 1, not zero
+  interval.index[interval.index == 0] = 1
+  
+  
+  # We have to do this differencing thing twice, since we have a categorical feature involved
+  # The categorical feature is treated by increase and decreasing the levels
+  
+  X.low1.low2 = X.up1.low2 = X.low1.up2 = X.up1.up2 = copy(dat)
+  
+  # put category as first dimension without loss of generality
+  X.low1.low2[row.ind.increase, feature.name[x.num.index]] = 
+    grid.dt[interval.index,][[1]][row.ind.increase]
+  X.low1.up2[row.ind.increase, feature.name[x.num.index]] = 
+    grid.dt[interval.index + 1,][[1]][row.ind.increase]
+  X.up1.low2[row.ind.increase, feature.name[x.cat.index]] = 
+    levels.ordered[x.cat.ordered[row.ind.increase] + 1]
+  X.up1.low2[row.ind.increase, feature.name[x.num.index]] = 
+    grid.dt[interval.index,][[1]][row.ind.increase]
+  X.up1.up2[row.ind.increase, feature.name[x.cat.index]] =  
+    levels.ordered[x.cat.ordered[row.ind.increase] + 1]
+  X.up1.up2[row.ind.increase, feature.name[x.num.index]] = 
+    grid.dt[interval.index+1,1][[1]][row.ind.increase]
+  
+  
+  # Getting all predictions from the model
+  predictions.11 = run.prediction(X.low1.low2[row.ind.increase,])
+  predictions.21 = run.prediction(X.up1.low2[row.ind.increase,])
+  predictions.12 = run.prediction(X.low1.up2[row.ind.increase,])
+  predictions.22 = run.prediction(X.up1.up2[row.ind.increase,])
+  
+  d.increase = (predictions.22  - predictions.21) - (predictions.12 - predictions.11)
+  
+  X.low1.low2 = X.up1.low2 = X.low1.up2 = X.up1.up2 = copy(dat)
+  
+  # put category as first dimension without loss of generality
+  X.low1.low2[row.ind.decrease, feature.name[x.cat.index]] = 
+    levels.ordered[x.cat.ordered[row.ind.decrease] - 1]
+  X.low1.low2[row.ind.decrease, feature.name[x.num.index]] = 
+    grid.dt[interval.index,][[1]][row.ind.decrease]
+  X.low1.up2[row.ind.decrease, feature.name[x.cat.index]] = 
+    levels.ordered[x.cat.ordered[row.ind.decrease] - 1]
+  X.low1.up2[row.ind.decrease, feature.name[x.num.index]] = 
+    grid.dt[interval.index  + 1,][[1]][row.ind.decrease]
+  X.up1.low2[row.ind.decrease, feature.name[x.num.index]] = 
+    grid.dt[interval.index,][[1]][row.ind.decrease]
+  X.up1.up2[row.ind.decrease, feature.name[x.num.index]] = 
+    grid.dt[interval.index + 1,1][[1]][row.ind.decrease]
+  
+  
+  # Getting all predictions from the model
+  predictions.11 = run.prediction(X.low1.low2[row.ind.decrease,])
+  predictions.21 = run.prediction(X.up1.low2[row.ind.decrease,])
+  predictions.12 = run.prediction(X.low1.up2[row.ind.decrease,])
+  predictions.22 = run.prediction(X.up1.up2[row.ind.decrease,])
+  
+  d.decrease = (predictions.22  - predictions.21) - (predictions.12 - predictions.11)
+  
+  
+  # Compute the differences and the ALE
+  deltas = rbind(d.increase, d.decrease)
+  deltas = cbind(deltas, .level = c(x.cat.ordered[row.ind.increase], x.cat.ordered[row.ind.decrease] - 1), 
+    .num = interval.index[c(row.ind.increase, row.ind.decrease)])
+  y.hat.names = colnames(predictions.22)
+  #colnames(deltas) = c(y.hat.names, feature.name[c(x.cat.index, x.num.index)])
+  deltas = data.table(melt(deltas, measure.vars = y.hat.names, variable.name = ".class", value.name = ".yhat.diff"))
+  # add empty cells
+  interval_grid = expand.grid(.level = unique(deltas$.level), .num = unique(deltas$.num),
+    .class = unique(deltas$.class))
+  deltas = merge(deltas, interval_grid, on = c(".level", ".num", ".class"), all.y = TRUE)
+  
+  deltas = deltas[order(.class, .level, .num),.(.yhat.diff = mean(.yhat.diff)),by = list(.class, .level, .num)]
+  # Acumulate the predictions from bottom left to top right 
+  deltas = deltas[, .(.ale = cumsum_na(c(0, .yhat.diff)), .num = c(0, .num)), by = list(.class, .level)]
+  deltas = deltas[, .(.ale = cumsum_na(c(0, .ale)), .level = c(0, .level)), by = list(.class, .num)]
+  
+  # Number of cells are need for weighting later
+  cell.counts = as.matrix(table(x.cat.ordered, interval.index))
+  cell.counts.m = melt(cell.counts)
+  colnames(cell.counts.m) = c(".level", ".num",  ".count")
+  cell.counts.m$.level = as.numeric(as.character(cell.counts.m$.level))
+  cell.counts.m$.num = as.numeric(as.character(cell.counts.m$.num))
+  deltas = merge(deltas, cell.counts.m, on = c(".level", ".num"), all.x = TRUE)
+  deltas[is.na(.count), .count := 0] 
+  
+  # Computing the first-order effect of feature 2, the numerical feature.
+  # First, take the differences across feature 2
+  deltas2 = deltas[, .(.ale2 = .ale[2:nrow(.SD)] - .ale[1:(nrow(.SD) - 1)], .num = .num[2:(nrow(.SD))], .count = .count[2:(nrow(.SD))]),
+    by = list(.class, .level)]
+  # Then take the weighted average over the categories to get the effect at each numerical grid point.
+  deltas2 = deltas2[, .(.ale2 = sum(.count * .ale2) / sum(.count)), by = list(.class, .num)]
+  fJ2 = deltas2[order(.num), .(.ale2 = c(0, cumsum_na(.ale2)), .num = c(0, .num)), by = list(.class)]
+  
+  
+  deltas1 = deltas[, .(.ale1 = .ale[2:nrow(.SD)] - .ale[1:(nrow(.SD) - 1)], .level = .level[2:(nrow(.SD))], 
+    .count = .count[2:(nrow(.SD))]), by = list(.class, .num)]
+  # mid points between numerical intervals
+  deltas1 = deltas1[, .(
+    .ale1 = (.ale1[2:nrow(.SD)] + .ale1[1:(nrow(.SD)-1)]) / 2, 
+    .count = (.count[2:nrow(.SD)] + .count[1:(nrow(.SD)-1)]) / 2, 
+    .num = .num[2:nrow(.SD)]), by = list(.class, .level)]
+  
+  deltas1  = deltas1[,.(.ale1 = sum(.ale1 * .count) / sum(.count)), by = list(.class, .level)]
+  fJ1 = deltas1[order(.level), .(.ale1 = c(0, cumsum_na(.ale1)), .level = c(0, .level)), by = list(.class)]
+  
+  cls = unique(deltas$.class)
+  fJ0 = unlist(lapply(cls, function(cl){
+    deltas.cl = deltas[.class == cl,]
+    fJ1.cl = fJ1[.class == cl,]
+    fJ2.cl = fJ2[.class == cl,]
+    dd = as.matrix(dcast(deltas.cl, .level ~ .num, value.var = ".ale", drop = FALSE))[,-1]
+    dd = dd  - outer(fJ1.cl$.ale1,rep(1,nrow(fJ2.cl))) - outer(rep(1,nrow(fJ1.cl)),fJ2.cl$.ale2)
+    sum(cell.counts *(dd[,1:(ncol(dd)-1)] + dd[,2:ncol(dd)])/2, na.rm = TRUE)/sum(cell.counts)
+  }))
+  
+  fJ0 = data.frame(.fJ0 = fJ0, .class = cls)
+  deltas = merge(deltas, fJ0, by = c(".class"))
+  deltas = merge(deltas, fJ1, by = c(".class", ".level"))
+  deltas = merge(deltas, fJ2, by = c(".class", ".num"))
+  deltas = deltas[, .ale := .ale - .ale1 - .ale2 - .fJ0]
+  
+  # For later plotting, define the rectangles
+  # These are not the same as the cells, which is a bit counterintuitive
+  # each value in fJ is where the cells cross
+  # instead of coloring the cells, we color a rectangle around each cell cross point
+  # and for this we need to compute rectangles around these cross points
+  # in image() this happens automatically (see ALEPlot::ALEPlot)
+  # for the edges, simply use the grid value as the outer values
+
+  deltas$.right = pmin(deltas$.level + 0.5, max(deltas$.level))
+  deltas$.left = pmax(deltas$.level - 0.5, min(deltas$.level))
+  interval.dists2 = diff(grid.dt[c(1, 1:nrow(grid.dt), nrow(grid.dt))][[1]])
+  interval.dists2 = 0.5 *  interval.dists2
+  deltas$.bottom = grid.dt[deltas$.num + 1, ] + interval.dists2[deltas$.num + 2]
+  deltas$.top = grid.dt[deltas$.num + 1, ] - interval.dists2[deltas$.num + 1]
+  deltas[,feature.name[x.num.index]] =  grid.dt[deltas$.num + 1, ]
+  deltas[,feature.name[x.cat.index]] =  levels.ordered[deltas$.level + 1]
+  
+  deltas = deltas[, setdiff(colnames(deltas), c(".fJ0", ".ale1", ".ale2", ".count", 
+    ".level", ".num")), with = FALSE]
+  deltas$.type = "ale"
+  
+  data.frame(deltas)
+}
 
 
 
