@@ -77,6 +77,7 @@
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
 #' @importFrom data.table melt
 #' @import ggplot2
+#' @importFrom stats cmdscale ecdf quantile
 #' @export
 #' @examples
 #' # We train a random forest on the Boston dataset:
@@ -91,7 +92,6 @@
 #' y.fun = function(X.model, newdata) {
 #' X.model$predict(newdata)[[1]] 
 #' }
-#' ALEPlot::ALEPlot(Boston, mod, J = "rm", pred.fun = y.fun)
 #' 
 #' pdp.obj = Partial$new(mod, feature = "rm", aggregation = "pdp", grid.size = 30)
 #' plot(pdp.obj)
@@ -210,17 +210,16 @@ Partial = R6::R6Class("Partial",
     # TODO: Cite paper
     # TODO: Make aggregation = "ale" the default, or at least put a warning or deprecation that it will become default
     # TODO: Test order_levels
+    # TODO: Test impute_cells
     # TODO: implement barplot for ale.cat
     # TODO: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
     # TODO MAYBE: Allow to plot data as points into the plot??
     # TODO: Renam res to deltas within the functions?
-    # TODO: Fix cat x num plot
-    # TODO: Implement option to hide NA cells in plot
+    # TODO: Implement option to hide NA cells in plot for num x num and num x cat
     # TODO: Make grid.dt a vector, maybe that simplifies things
     # TODO: Thoroughly document code, because it will be tough to understand it again
     #       Maybe rename some variable to reflect if you are working with the cells or with the cell edges
-    # TODO: Test impute_cells
-    # TODO: Test num x cat 
+    # TODO: Add example with ale plots
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
