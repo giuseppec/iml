@@ -9,7 +9,7 @@ f = function(newdata, multi = FALSE) {
 
 # With some interaction
 f.inter = function(newdata, multi = FALSE) {
-  pred = unlist(newdata[, "a"] + newdata[, "b"] + 100 * (newdata[,"c"] == "a") + newdata[, "a"]  * (newdata[, "c"] == "a")) / (155)
+  pred = unlist(newdata[, "a"] + newdata[, "b"] + newdata[, "a"]  * newdata[, "b"]+ 100 * (newdata[,"c"] == "a") + newdata[, "a"]  * (newdata[, "c"] == "a")) / (155)
   dat = data.frame(pred = pred)
   colnames(dat) = "pred"
   if (multi) dat$pred2 = 1 - dat$pred

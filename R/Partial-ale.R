@@ -60,9 +60,20 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   interval_grid = expand.grid(.interval1 = unique(res$.interval1), .interval2 = unique(res$.interval2),
     .class = unique(res$.class))
   res = merge(res, interval_grid, on = c(".interval1", ".interval2", ".class"), all.y = TRUE)
-  res = res[order(.class, .interval1, .interval2), .(.y.hat.mean = mean(.y.hat)), by = list(.interval1, .interval2, .class)]
+  res = res[order(.class, .interval1, .interval2), .(.yhat.diff = mean(.y.hat)), by = list(.interval1, .interval2, .class)]
+  
+  
+  # fill empty cells with the closest neighbour cells value
+  # remember cell status for later
+  res.na.cell = copy(res)
+  res.na.cell[, missing := is.na(.yhat.diff)]
+  res.na.cell[, .yhat.diff := NULL]
+  # replace the missing ones with the closest non-missing difference (measured in number of intervals)
+  res = impute_cells(res, grid1 = grid.dt1, grid2 = grid.dt2, 
+    x1.ind = ".interval1", x2.ind = ".interval2")
+  
   # Acumulate the predictions from bottom left to top right 
-  res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .y.hat.mean)), .interval2 = c(0, .interval2)), by = .(.class, .interval1)]
+  res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .yhat.diff)), .interval2 = c(0, .interval2)), by = .(.class, .interval1)]
   res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .y.hat.cumsum)), .interval1 = c(0, .interval1)), by = .(.class, .interval2)]
   # Number of cells are need for weighting later
   cell.counts = as.matrix(table(interval.index1, interval.index2))
@@ -410,6 +421,7 @@ order_levels = function(dat, feature.name) {
 
 # by default assumes first column of cell.dat is x1 and second is x2
 # leave grid1 NULL if feature x1 is a factor
+# the difference variable has to be named .yhat.diff
 impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   assert_data_table(cell.dat)
   assert_data_table(grid1, null.ok = TRUE)

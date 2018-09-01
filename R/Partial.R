@@ -211,21 +211,16 @@ Partial = R6::R6Class("Partial",
     # TODO: Cite paper
     # TODO: Make aggregation = "ale" the default, or at least put a warning or deprecation that it will become default
     # TODO: Test order_levels
-    # TODO: Continue ale.cat
     # TODO: implement barplot for ale.cat
     # TODO: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
     # TODO MAYBE: Allow to plot data as points into the plot??
-    # TODO: Implement nearest neighbour tile for 2D plot or create issue
     # TODO: Renam res to deltas within the functions?
     # TODO: Fix cat x num plot
-    # TODO: Compare cat x num with implementation from ALEPLot package
-    # TODO: Implement NA behaviour for 2D num x num. seems to affect computation.
-    # TODO: Implement NA behaviour for 2D cat x num. seems to affect computation.
+    # TODO: Implement option to hide NA cells in plot
     # TODO: Make grid.dt a vector, maybe that simplifies things
     # TODO: Thoroughly document code, because it will be tough to understand it again
     #       Maybe rename some variable to reflect if you are working with the cells or with the cell edges
     # TODO: Test impute_cells
-    # TODO: Use impute_cells for numerical x numerical
     # TODO: Test num x cat 
     run.ale = function() {
       private$dataSample = private$getData()
