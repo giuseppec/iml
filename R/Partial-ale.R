@@ -427,7 +427,7 @@ impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   assert_data_table(grid1, null.ok = TRUE)
   assert_data_table(grid2)
   d.miss.ind = is.na(cell.dat$.yhat.diff)
-  if(!any(d.miss.ind)) return(deltas)
+  if(!any(d.miss.ind)) return(cell.dat)
   
   if(is.null(grid1)) {
     range.x1 = length(unique(cell.dat[[x1.ind]]))
