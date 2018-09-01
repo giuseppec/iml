@@ -81,7 +81,7 @@
 #' 
 #' \code{\link{Shapley}} can also be used to explain single predictions
 #' 
-#' \code{\link[lime]{lime}}, the original implementation
+#' The package `lime` with the original implementation
 #' @export
 #' @importFrom glmnet glmnet
 #' @importFrom stats dist
