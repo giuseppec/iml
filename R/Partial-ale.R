@@ -162,15 +162,19 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   y.hat.increase = run.prediction(X.upper[row.ind.increase,])
   y.hat.decrease = run.prediction(X.lower[row.ind.decrease,])
   
+  # To measure the difference or 'jump' in prediction between categories, we come from both directions:
+  # We measure the difference in prediction when we increase category k to k+1 for instances with category k
+  # We also measure the difference in prediction when we decrease category k+1 to k for instance with category k+1
   d.increase = y.hat.increase - y.hat[row.ind.increase,]
   d.decrease = y.hat[row.ind.decrease,] - y.hat.decrease
-  
   # Compute the differences and the ALE
   deltas = rbind(d.increase, d.decrease)
-  deltas = cbind(deltas, .level = c(x.ordered[row.ind.increase], x.ordered[row.ind.decrease] - 1))
+  deltas = cbind(deltas, .level.jump = c(x.ordered[row.ind.increase], x.ordered[row.ind.decrease] - 1))
   y.hat.names = colnames(y.hat)
-  deltas = data.table(melt(deltas, id.vars = c(".level"), variable.name = ".class", value.name = ".yhat.diff"))
-  deltas = deltas[order(.level),.(.yhat.diff = mean(.yhat.diff)),by = list(.class, .level)]
+  deltas = data.table(melt(deltas, id.vars = c(".level.jump"), variable.name = ".class", value.name = ".yhat.diff"))
+  
+  # All those difference are aggregated (averaged) grouped by the jump between levels (and by .class for multi output)
+  deltas = deltas[order(.level.jump),.(.yhat.diff = mean(.yhat.diff)),by = list(.class, .level.jump)]
   deltas = deltas[, .(.ale = c(0, cumsum(.yhat.diff))), by = list(.class)]
   x.count = as.numeric(table(x))
   x.prob = x.count/sum(x.count) 
@@ -383,18 +387,19 @@ order_levels = function(dat, feature.name) {
     colnames(dists) = c("from.level", "to.level")
     if(class(feature.x) == "factor") {
       A = table(feature, feature.x) / x.count
-      dists$dist = rowSums(abs(A[dists[,"from.level"],] - A[dists[,"to.level"],]))
+      dists$dist = rowSums(abs(A[dists[,"from.level"],] - A[dists[,"to.level"],]))/2
     } else {
       quants = quantile(feature.x, probs = seq(0, 1, length.out = 100), na.rm = TRUE, names = FALSE)
       ecdfs = data.frame(lapply(levels(feature), function(lev){
         x.ecdf = ecdf(feature.x[feature == lev])(quants)
       }))
       colnames(ecdfs) = levels(feature)
-      dists$dist = max(abs(ecdfs[,dists$from.level] - ecdfs[, dists$to.level]))
+      ecdf.dists.all = abs(ecdfs[,dists$from.level] - ecdfs[, dists$to.level])
+      dists$dist = apply(ecdf.dists.all, 2, max)
     }
     dists
   })
-  
+
   dists.cumulated.long = Reduce(function(d1, d2) {d1$dist = d1$dist + d2$dist; d1}, dists)
   dists.cumulated = dcast(dists.cumulated.long, from.level ~ to.level, value.var = "dist")[,-1]
   diag(dists.cumulated) = 0
