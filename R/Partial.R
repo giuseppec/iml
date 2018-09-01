@@ -202,7 +202,6 @@ Partial = R6::R6Class("Partial",
     },
     # TODO: Add vignette on Partial, compare also to ALEPLot
     # TODO: Implement 2D for categorical?? Or just create an issue
-    # TODO: Implement 2D for categorical x numerical
     # TODO: Check difference for K higher between original and iml implementation. Difference seems to be in the grid already at K >= 10.
     #        Maybe it doesn't matter.
     # TODO: Remove inst test stuff
@@ -352,13 +351,31 @@ Partial = R6::R6Class("Partial",
         }
       } else if (self$n.features == 2) {
         if (self$aggregation == "ale") {
+          # 2D ALEPlot with categorical x numerical
           if(any(self$feature.type %in% "categorical")){
+            res = self$results
             categorical.feature = self$feature.name[self$feature.type=="categorical"]
             numerical.feature = setdiff(self$feature.name, categorical.feature)
-            p = ggplot(self$results, x = as.numeric(self$results[categorical.feature])) + 
-              geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale), xmin = self$results$.left, xmax = self$results$.right) + 
-              scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
+            res[,categorical.feature] = as.numeric(res[,categorical.feature])
+            cat.breaks = unique(res[[categorical.feature]])
+            cat.labels = levels(self$results[[categorical.feature]])[cat.breaks]
+            p = ggplot(res, aes_string(x = categorical.feature, y = numerical.feature)) + 
+              geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) + 
+              scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) + 
+              scale_y_continuous(numerical.feature) + 
               scale_fill_continuous(y.axis.label)
+            
+            # A bit stupid, but can't adding a rug is special here, because i handle the 
+            # categorical feature as a numeric feauture in the plot
+            if (rug) {
+              dat = private$sampler$get.x()
+              dat[,categorical.feature] = as.numeric(dat[,categorical.feature,with=FALSE][[1]])
+              # Need some dummy data for ggplot to accept the data.frame
+              rug.dat = cbind(dat, data.frame(.y.hat = 1, .id = 1, .ale = 1))
+              p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = "bl", 
+                position = position_jitter(width = 0.1, height = 0.1))
+              rug = FALSE
+            }
           } else {
             # Adding x and y to aesthetics for the rug plot later
             p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 

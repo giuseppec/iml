@@ -363,8 +363,8 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   # in image() this happens automatically (see ALEPlot::ALEPlot)
   # for the edges, simply use the grid value as the outer values
 
-  deltas$.right = pmin(deltas$.level + 0.5, max(deltas$.level))
-  deltas$.left = pmax(deltas$.level - 0.5, min(deltas$.level))
+  deltas$.right = 1 + deltas$.level + 0.5
+  deltas$.left = 1 + deltas$.level - 0.5
   interval.dists2 = diff(grid.dt[c(1, 1:nrow(grid.dt), nrow(grid.dt))][[1]])
   interval.dists2 = 0.5 *  interval.dists2
   deltas$.bottom = grid.dt[deltas$.num + 1, ] + interval.dists2[deltas$.num + 2]
