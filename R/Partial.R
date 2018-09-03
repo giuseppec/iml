@@ -201,7 +201,7 @@ Partial = R6::R6Class("Partial",
       }
     },
     # TODO: Add vignette on Partial, compare also to ALEPLot
-    # TODO: Implement 2D for categorical?? Or just create an issue
+    # TODO: Create issue to implement 2D for categorical
     # TODO: Check difference for K higher between original and iml implementation. Difference seems to be in the grid already at K >= 10.
     #        Maybe it doesn't matter.
     # TODO: Remove inst test stuff
@@ -209,10 +209,9 @@ Partial = R6::R6Class("Partial",
     # TODO: Rename result columns to something meaningful to the user
     # TODO: Cite paper
     # TODO: Make aggregation = "ale" the default, or at least put a warning or deprecation that it will become default
-    # TODO: Test order_levels
     # TODO: Test impute_cells
     # TODO: implement barplot for ale.cat
-    # TODO: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
+    # TODO: Create issue, depending on answer by authors: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
     # TODO MAYBE: Allow to plot data as points into the plot??
     # TODO: Renam res to deltas within the functions?
     # TODO: Implement option to hide NA cells in plot for num x num and num x cat
@@ -220,6 +219,8 @@ Partial = R6::R6Class("Partial",
     # TODO: Thoroughly document code, because it will be tough to understand it again
     #       Maybe rename some variable to reflect if you are working with the cells or with the cell edges
     # TODO: Add example with ale plots
+    # TODO: Remove all warnings
+    # TODO: Document plot.Partial
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {

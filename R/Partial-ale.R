@@ -1,3 +1,10 @@
+
+#' Compute ALE for 1 numerical feature
+#' 
+#' @param dat the data.frame with same columns as training data
+#' @param run.prediction Predict function of type: f(newdata)
+#' @param feature.name The column name of the feature for which to compute ALE
+#' @param grid.size The number of intervals
 calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   # from number of intervals to number of borders
   n.borders = grid.size + 1
@@ -11,21 +18,39 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   X.upper[,feature.name] = grid.dt[interval.index + 1,]
   predictions.lower = run.prediction(X.lower)
   predictions.upper =  run.prediction(X.upper)
-  predictions = predictions.upper - predictions.lower
-  res = cbind(X.lower[,feature.name, with=FALSE], predictions, data.frame(.interval = interval.index))
-  y.hat.names = setdiff(colnames(res), c(colnames(dat), ".interval"))
-  res = melt(res, variable.name = ".class", 
-    value.name = ".y.hat", measure.vars = y.hat.names)
-  res = res[order(.class, .interval), .(.y.hat = mean(.y.hat)), by = list(.interval, .class)]
-  res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .y.hat))), by = .class]
-  interval.sizes = as.numeric(table(interval.index))
-  res = res[, .(.ale = .y.hat.cumsum - sum((res$.y.hat.cumsum[1:(nrow(.SD) - 1)] + res$.y.hat.cumsum[2:nrow(.SD)])/2 * interval.sizes)/sum(interval.sizes), .id = 1:nrow(.SD)), by = .class]
-  res$.type = "ale"
+  prediction.deltas = predictions.upper - predictions.lower
+  deltas = cbind(X.lower[,feature.name, with=FALSE], prediction.deltas, data.frame(.interval = interval.index))
+  y.hat.names = setdiff(colnames(deltas), c(colnames(dat), ".interval"))
+  deltas = melt(deltas, variable.name = ".class", 
+    value.name = ".yhat.diff", measure.vars = y.hat.names)
+  deltas = deltas[order(.class, .interval), .(.yhat.diff = mean(.yhat.diff)), by = list(.interval, .class)]
+  deltas.accumulated = deltas[,.(.y.hat.cumsum = cumsum_na(c(0, .yhat.diff))), by = .class]
+  interval.n.dat = as.numeric(table(interval.index))
+  # the mean effect is the weighted mean of the interval mid point effects
+  # weighted by the number of points in the interval
+  fJ0 =  deltas.accumulated[, .(.ale0 = sum(((deltas.accumulated$.y.hat.cumsum[1:(nrow(.SD) - 1)] + 
+      deltas.accumulated$.y.hat.cumsum[2:nrow(.SD)])/2) * interval.n.dat)/sum(interval.n.dat)), 
+    by = .class]
+  deltas.accumulated = merge(deltas.accumulated, fJ0, all.x = TRUE, by = c(".class"))
+  fJ = deltas.accumulated[, list(.ale = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"), 
+    by = .class]
   grid.dt$.id = 1:nrow(grid.dt)
-  res = merge(res, grid.dt, by = ".id")
-  data.frame(res)
+  fJ = merge(fJ, grid.dt, by = ".id")
+  # fJ0$.type = "ale0"
+  # fJ0$.ale = fJ0$.ale0
+  # fJ0$.ale0 = NULL
+  # res = rbind(fJ, fJ0, fill = TRUE)
+  fJ$.id = NULL
+  data.frame(fJ)
 }
 
+
+#' Compute ALE for 2 numerical features
+#' 
+#' @param dat the data.frame with same columns as training data
+#' @param run.prediction Predict function of type: f(newdata)
+#' @param feature.name The column names of the feature for which to compute ALE
+#' @param grid.size The number of cells
 calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   ## Create ALE for feature 1
   grid.dt1 = unique(get.grid(dat[,feature.name[1], with = FALSE], grid.size = grid.size[1] + 1, type = "quantile"))
@@ -143,8 +168,11 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
 }
 
 
-
-
+#' Compute ALE for 1 categorical feature
+#' 
+#' @param dat the data.frame with same columns as training data
+#' @param run.prediction Predict function of type: f(newdata)
+#' @param feature.name The column name of the feature for which to compute ALE
 calculate.ale.cat = function(dat, run.prediction, feature.name){
   x = dat[,feature.name, with = FALSE][[1]]
   levels.original = levels(x)
@@ -197,7 +225,12 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
 }
 
 
-
+#' Compute ALE for 2 features, one numerical, one categorical
+#' 
+#' @param dat the data.frame with same columns as training data
+#' @param run.prediction Predict function of type: f(newdata)
+#' @param feature.name The column name of the features for which to compute ALE
+#' @param grid.size The number of intervals for the numerical feature
 calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   
   # Figure out which feature is numeric and which categeorical

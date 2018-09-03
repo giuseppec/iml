@@ -188,11 +188,11 @@ test_that("aggregation='ale' works for 1D numerical", {
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), c(".id", ".ale", ".type", "a"))
+  expect_equal(colnames(dat), c(".ale", ".type", "a"))
   expect_equal(nrow(dat), grid.size + 1)  
   expect_equal(nrow(unique(dat)), grid.size + 1)
-  expect_equal(max(dat$a), 5)
-  expect_equal(min(dat$a), 1)
+  expect_equal(max(dat$a, na.rm = TRUE), 5)
+  expect_equal(min(dat$a, na.rm = TRUE), 1)
   checkPlot(ale)
   
   expect_equal(ale$feature.name, "a")
@@ -200,11 +200,11 @@ test_that("aggregation='ale' works for 1D numerical", {
   expect_equal(ale$feature.name, "b")
   dat = ale$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(ale$results), c(".id", ".ale", ".type", "b"))
-  expect_equal(nrow(dat), grid.size + 1)  
-  expect_equal(nrow(unique(dat)), grid.size + 1)
-  expect_equal(max(dat$b), 50)
-  expect_equal(min(dat$b), 10)
+  expect_equal(colnames(ale$results), c(".ale", ".type", "b"))
+  expect_equal(nrow(dat), grid.size + 1 + 1)  
+  expect_equal(nrow(unique(dat)), grid.size + 1 + 1)
+  expect_equal(max(dat$b, na.rm = TRUE), 50)
+  expect_equal(min(dat$b, na.rm = TRUE), 10)
   
   # Centering 
   expect_warning(ale$center(0))
