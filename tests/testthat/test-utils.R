@@ -86,3 +86,21 @@ test_that("is.label.output", {
   expect_equal(is.label.output(c(NA, 1:10)), FALSE)
   expect_equal(is.label.output(iris), FALSE)
 })
+
+
+test_that("order_levels", {
+  set.seed(42)
+  n = 100
+  x1 =  factor(sample(c("a", "b", "c", "d"), size = n, replace=TRUE))
+  # a and c similar, b and d and slightly a and d
+  dat = data.table(x1 = x1, 
+    x2 = rnorm(n, mean = 1 * x1 %in% c("a", "c")), 
+    x3 =  rnorm(n, mean = 1 * x1 %in% c("b", "d")), 
+    x4 = sample(1:4, size = n, replace = TRUE))
+  ord = order_levels(dat, "x1")
+  expect_equal(ord, c(4,2,1,3))
+  expect_error(order_levels(cars, "dist"))
+  expect_error(order_levels(dat, "x10"))
+  
+})
+

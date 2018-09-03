@@ -194,3 +194,49 @@ get.grid.1D = function(feature, grid.size,  feature.type = NULL, type = "equidis
   }
   grid
 }
+
+
+
+#' Order levels of a categorical features
+#' 
+#' Orders the levels by their similarity in other features.
+#' Computes per feature the distance, sums up all distances and does multi-dimensional scaling
+#' @return the order of the levels (not levels itself)
+order_levels = function(dat, feature.name) {
+  assert_data_frame(dat)
+  assert_character(feature.name)
+  assert_true(feature.name %in%  names(dat))
+  assert_factor(dat[, feature.name, with = FALSE][[1]])
+  
+  dat[, feature.name] =  droplevels(dat[, feature.name, with = FALSE])
+  feature = dat[, feature.name, with = FALSE][[1]]
+  x.count = as.numeric(table(dat[, feature.name, with = FALSE]))
+  x.prob = x.count/sum(x.count)
+  K = nlevels( dat[, feature.name, with = FALSE] )
+  
+  dists = lapply(setdiff(colnames(dat), feature.name), function(x){
+    feature.x = dat[, x, with = FALSE][[1]]
+    dists = expand.grid(levels(feature), levels(feature))
+    colnames(dists) = c("from.level", "to.level")
+    if(class(feature.x) == "factor") {
+      A = table(feature, feature.x) / x.count
+      dists$dist = rowSums(abs(A[dists[,"from.level"],] - A[dists[,"to.level"],]))/2
+    } else {
+      quants = quantile(feature.x, probs = seq(0, 1, length.out = 100), na.rm = TRUE, names = FALSE)
+      ecdfs = data.frame(lapply(levels(feature), function(lev){
+        x.ecdf = ecdf(feature.x[feature == lev])(quants)
+      }))
+      colnames(ecdfs) = levels(feature)
+      ecdf.dists.all = abs(ecdfs[,dists$from.level] - ecdfs[, dists$to.level])
+      dists$dist = apply(ecdf.dists.all, 2, max)
+    }
+    dists
+  })
+  
+  dists.cumulated.long = Reduce(function(d1, d2) {d1$dist = d1$dist + d2$dist; d1}, dists)
+  dists.cumulated = dcast(dists.cumulated.long, from.level ~ to.level, value.var = "dist")[,-1]
+  diag(dists.cumulated) = 0
+  scaled = cmdscale(dists.cumulated, k = 1)
+  order(scaled)
+}
+
