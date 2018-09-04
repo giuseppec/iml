@@ -39,7 +39,8 @@ Suggests: randomForest,
           covr, 
           rmarkdown, 
           devtools, 
-          doParallel
+          doParallel,
+          ALEPlot
 License: MIT + file LICENSE
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr
