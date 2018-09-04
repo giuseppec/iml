@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{A Partial R6 object}
 
-\item{rug}{[logical] Should a rug be plotted to indicate the feature distribution?}
+\item{rug}{[logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
+but it avoids overplotting.}
 }
 \value{
 ggplot2 plot object

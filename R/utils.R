@@ -201,6 +201,8 @@ get.grid.1D = function(feature, grid.size,  feature.type = NULL, type = "equidis
 #' 
 #' Orders the levels by their similarity in other features.
 #' Computes per feature the distance, sums up all distances and does multi-dimensional scaling
+#' @param dat data.frame with the training data
+#' @param feature.name the name of the categorical feature
 #' @return the order of the levels (not levels itself)
 order_levels = function(dat, feature.name) {
   assert_data_frame(dat)

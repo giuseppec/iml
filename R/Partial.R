@@ -75,7 +75,7 @@
 #' 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
-#' @importFrom data.table melt
+#' @importFrom data.table melt setkeyv
 #' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #' @export
@@ -206,18 +206,11 @@ Partial = R6::R6Class("Partial",
     #        Maybe it doesn't matter.
     # TODO: Remove inst test stuff
     # TODO: Update documentation
-    # TODO: Rename result columns to something meaningful to the user
     # TODO: Cite paper
     # TODO: Make aggregation = "ale" the default, or at least put a warning or deprecation that it will become default
-    # TODO: Test impute_cells
     # TODO: implement barplot for ale.cat
     # TODO: Create issue, depending on answer by authors: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
-    # TODO MAYBE: Allow to plot data as points into the plot??
-    # TODO: Renam res to deltas within the functions?
     # TODO: Implement option to hide NA cells in plot for num x num and num x cat
-    # TODO: Make grid.dt a vector, maybe that simplifies things
-    # TODO: Thoroughly document code, because it will be tough to understand it again
-    #       Maybe rename some variable to reflect if you are working with the cells or with the cell edges
     # TODO: Add example with ale plots
     # TODO: Remove all warnings
     # TODO: Document plot.Partial
