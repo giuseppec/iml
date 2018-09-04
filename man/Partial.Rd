@@ -42,6 +42,10 @@ The partial dependence plot calculates and plots the dependence of f(X) on a sin
 It's the aggregate of all individual conditional expectation curves, that describe how, for a single
 observation, the prediction changes when the feature changes. 
 
+Advantages over ALEPlot implementation in the ALEPlot package
+Plot is only produced when deciding to plot, can be used for multi class, returns ggplot which can be modified,
+don't have to always define the predict function
+
 To learn more about partial dependence plot, read the Interpretable Machine Learning book: 
 https://christophm.github.io/interpretable-ml-book/pdp.html
 

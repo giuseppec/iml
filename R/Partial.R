@@ -212,7 +212,6 @@ Partial = R6::R6Class("Partial",
     # TODO: Create issue, depending on answer by authors: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
     # TODO: Implement option to hide NA cells in plot for num x num and num x cat
     # TODO: Add example with ale plots
-    # TODO: Remove all warnings
     # TODO: Document plot.Partial
     run.ale = function() {
       private$dataSample = private$getData()
