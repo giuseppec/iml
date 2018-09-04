@@ -1,4 +1,3 @@
-
 #' Compute ALE for 1 numerical feature
 #' 
 #' @param dat the data.frame with same columns as training data
@@ -94,8 +93,10 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   res.na.cell[, missing := is.na(.yhat.diff)]
   res.na.cell[, .yhat.diff := NULL]
   # replace the missing ones with the closest non-missing difference (measured in number of intervals)
-  res = impute_cells(res, grid1 = grid.dt1, grid2 = grid.dt2, 
-    x1.ind = ".interval1", x2.ind = ".interval2")
+  res = rbindlist(lapply(unique(res$.class), function(cl) {
+    impute_cells(res[.class == cl, ], grid1 = grid.dt1, grid2 = grid.dt2, 
+      x1.ind = ".interval1", x2.ind = ".interval2")
+  }))
   
   # Acumulate the predictions from bottom left to top right 
   res = res[,.(.y.hat.cumsum = cumsum_na(c(0, .yhat.diff)), .interval2 = c(0, .interval2)), by = .(.class, .interval1)]
@@ -254,7 +255,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   # The rows for which the category can be increased
   row.ind.increase = (1:nrow(dat))[x.cat.ordered < nlevels(x.cat)]  
   row.ind.decrease <- (1:nrow(dat))[x.cat.ordered > 1]  
-
+  
   
   ## Create ALE for increasing categorical feature
   grid.dt = unique(get.grid(dat[,feature.name[x.num.index], with = FALSE], 
@@ -337,8 +338,10 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   deltas.na.cell[, missing := is.na(.yhat.diff)]
   deltas.na.cell[, .yhat.diff := NULL]
   # replace the missing ones with the closest non-missing difference (measured in number of intervals)
-  deltas = impute_cells(deltas, grid2 = grid.dt, x1.ind = ".level", x2.ind = ".num")
-  
+  deltas = rbindlist(lapply(unique(deltas$.class), function(cl) {
+    impute_cells(deltas[.class == cl, ], grid2 = grid.dt, 
+      x1.ind = ".level", x2.ind = ".num")
+  }))
   # Acumulate the predictions from bottom left to top right 
   deltas = deltas[, .(.ale = cumsum(c(0, .yhat.diff)), .num = c(0, .num)), by = list(.class, .level)]
   deltas = deltas[, .(.ale = cumsum(c(0, .ale)), .level = c(0, .level)), by = list(.class, .num)]
@@ -362,7 +365,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   
   
   deltas1 = deltas[, .(.ale1 = .ale[2:nrow(.SD)] - .ale[1:(nrow(.SD) - 1)], .level = .level[2:(nrow(.SD))], 
-     .count = (.count[2:nrow(.SD)] + .count[1:(nrow(.SD)-1)]) / 2), by = list(.class, .num)]
+    .count = (.count[2:nrow(.SD)] + .count[1:(nrow(.SD)-1)]) / 2), by = list(.class, .num)]
   # mid points between numerical intervals
   deltas1 = deltas1[, .(
     .ale1 = (.ale1[2:nrow(.SD)] + .ale1[1:(nrow(.SD)-1)]) / 2,
@@ -395,7 +398,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   # and for this we need to compute rectangles around these cross points
   # in image() this happens automatically (see ALEPlot::ALEPlot)
   # for the edges, simply use the grid value as the outer values
-
+  
   deltas$.right = 1 + deltas$.level + 0.5
   deltas$.left = 1 + deltas$.level - 0.5
   interval.dists2 = diff(grid.dt[c(1, 1:nrow(grid.dt), nrow(grid.dt))][[1]])
@@ -414,30 +417,49 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
 
 
 
-
-# by default assumes first column of cell.dat is x1 and second is x2
-# leave grid1 NULL if feature x1 is a factor
-# the difference variable has to be named .yhat.diff
+#' Impute missing cells of grid
+#' 
+#' by default assumes first column of cell.dat is x1 and second is x2
+#' leave grid1 NULL if feature x1 is a factor
+#' the difference variable has to be named .yhat.diff
+#' 
+#' @param cell.dat data.table with at least 4 columns: .yhat.diff and the two interval indices. 
+#' Make sure that empty cells are also included and cell.dat is not the sparse representation.
+#' @param grid1 data.frame where each row is the actual value for a given interval index for feature 1. 
+#' If empty impute_cells  assumes that the feature is categorical (factor).
+#' @param grid2 data.frame where each row is the actual value for a given interval index for feature 2
+#' @param x1.ind column number or name of cell.dat for feature 1. If one feature is categorical, has to be x1
+#' @param x2.ind column number or name of cell.dat for feature 2
 impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   assert_data_table(cell.dat)
   assert_data_table(grid1, null.ok = TRUE)
   assert_data_table(grid2)
+  # Making sure cell.dat contains all possible cells
+  stopifnot(nrow(cell.dat) == length(unique(cell.dat[,x1.ind,with=FALSE][[1]])) * length(unique(cell.dat[,x2.ind,with=FALSE][[1]])))
   d.miss.ind = is.na(cell.dat$.yhat.diff)
+  
+  # We don't have to impute anything when all cells are missing.
   if(!any(d.miss.ind)) return(cell.dat)
   
+  # Distinguishes for normalization between categorical and numerical feature x1
   if(is.null(grid1)) {
+    # For categorical feature, the range is the number of levels, and
+    # scaled to range 1/n.categories to 1
     range.x1 = length(unique(cell.dat[[x1.ind]]))
     x1.normalized = cell.dat[[x1.ind]] / range.x1
   } else {
+    # For numerical feature range is from min to max
+    # normalizing means taking the mean of neighbours and dividing by range
     range.x1 = max(grid1[[1]]) - min(grid1[[1]])
     x1.normalized = (grid1[cell.dat[[x1.ind]],][[1]] + grid1[cell.dat[[x1.ind]] + 1,][[1]]) / (2 * range.x1)
   }
+  # same for the second numerical feature
   range.x2 =  max(grid2[[1]]) - min(grid2[[1]])
   x2.normalized =   (grid2[cell.dat[[x2.ind]],][[1]] + grid2[cell.dat[[x2.ind]] + 1,][[1]]) / (2 * range.x2)
-  
+  # preparation for yaImpute::ann function
   z.na = cbind(x1.normalized[d.miss.ind], x2.normalized[d.miss.ind])
   z.non.na = cbind(x1.normalized[!d.miss.ind], x2.normalized[!d.miss.ind])
-  
+  # matches closest non-missing neighbour
   nbrs <- yaImpute::ann(as.matrix(z.non.na), as.matrix(z.na), k=1, verbose = FALSE)$knnIndexDist[,1] 
   cell.dat[d.miss.ind, ".yhat.diff"] = cell.dat[which(!d.miss.ind)[nbrs], .yhat.diff] 
   cell.dat
