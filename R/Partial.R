@@ -219,7 +219,6 @@ Partial = R6::R6Class("Partial",
     # TODO: Update documentation
     # TODO: Cite paper
     # TODO: Create issue, depending on answer by authors: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
-    # TODO: Implement option to hide NA cells in plot for num x num and num x cat
     # TODO: Add example with ale plots
     # TODO: Document plot.Partial
     run.ale = function() {
@@ -312,7 +311,7 @@ Partial = R6::R6Class("Partial",
         self$feature.name, self$feature.type), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
-    generatePlot = function(rug = TRUE) {
+    generatePlot = function(rug = TRUE, show.data) {
       if (is.null(private$anchor.value)) {
         if(self$method == "ale") {
           y.axis.label = "ALE"
@@ -343,7 +342,7 @@ Partial = R6::R6Class("Partial",
             p = p + geom_line(data = aggr, size = 2, color = "gold") 
           }
           if (self$method %in% c("ale", "pdp")) {
-           p =  p + geom_line()
+            p =  p + geom_line()
           }
         }
       } else if (self$n.features == 2) {
@@ -366,12 +365,20 @@ Partial = R6::R6Class("Partial",
             # categorical feature as a numeric feauture in the plot
             if (rug) {
               dat = private$sampler$get.x()
+              levels(dat[[categorical.feature]]) = levels(self$results[, categorical.feature])
               dat[,categorical.feature] = as.numeric(dat[,categorical.feature,with=FALSE][[1]])
               # Need some dummy data for ggplot to accept the data.frame
               rug.dat = cbind(dat, data.frame(.y.hat = 1, .id = 1, .ale = 1))
               p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = "bl", 
                 position = position_jitter(width = 0.1, height = 0.1))
               rug = FALSE
+            }
+            if (show.data) {
+              dat = private$sampler$get.x()
+              levels(dat[[categorical.feature]]) = levels(self$results[, categorical.feature])
+              dat[,categorical.feature] = as.numeric(dat[,categorical.feature,with=FALSE][[1]])
+              p = p + geom_point(data = dat, alpha = 0.3)
+              show.data = FALSE
             }
           } else {
             # Adding x and y to aesthetics for the rug plot later
@@ -382,15 +389,21 @@ Partial = R6::R6Class("Partial",
           }
         } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
-            y = self$feature.name[2], 
-            fill = ".y.hat")) + geom_tile() + 
+            y = self$feature.name[2])) + geom_tile(aes(fill = .y.hat)) + 
             scale_fill_continuous(y.axis.label)
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
-          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat", 
-            group = categorical.feature, color = categorical.feature)) + 
-            geom_line() + scale_y_continuous(y.axis.label)
+          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat")) + 
+            geom_line(aes_string(group = categorical.feature, color = categorical.feature)) + 
+                scale_y_continuous(y.axis.label)
+          show.data = FALSE
+        }
+        
+        if (show.data) {
+          dat = private$sampler$get.x()
+          dat[,self$feature.name] = lapply(dat[,self$feature.name,with=FALSE], as.numeric)
+          p = p + geom_point(data = dat, alpha = 0.3)
         }
       }
       if (rug) {
@@ -455,6 +468,7 @@ Partial = R6::R6Class("Partial",
 #' @param x A Partial R6 object
 #' @param rug [logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
 #' but it avoids overplotting.
+#' @param show.data Should the data points be shown? Only affects 2D plots, and ignored for 1D plots, because rug has the same information.
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Partial}
@@ -471,6 +485,6 @@ Partial = R6::R6Class("Partial",
 #' # Plot the results directly
 #' plot(pdp.obj)
 #' }
-plot.Partial = function(x, rug = TRUE) {
-  x$plot(rug)
+plot.Partial = function(x, rug = TRUE, show.data = FALSE) {
+  x$plot(rug, show.data)
 }
