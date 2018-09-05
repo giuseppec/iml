@@ -24,7 +24,11 @@
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
 #' \item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the partial dependencies.}
-#' \item{ice: }{(`logical(1)`)\cr Should individual curves be calculated? Ignored in the case of two features.}
+#' \item{method: }{(`character(1)`)\cr 
+#' 'ale' for accumulated local effects, 
+#' 'pdp' for partial dependence plot, 
+#' 'ice' for individual conditional expectation curves,
+#' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
 #' \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered. Ignored in the case of two features.}
 #' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
 #' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
@@ -48,6 +52,11 @@
 #' 
 #' @section Fields:
 #' \describe{
+#' \item{method: }{(`character(1)`)\cr
+#' 'ale' for accumulated local effects, 
+#' 'pdp' for partial dependence plot, 
+#' 'ice' for individual conditional expectation curves,
+#' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
 #' \item{feature.name: }{(`character(1)` | `character(2)`)\cr The names of the features for which the partial dependence was computed.}
 #' \item{feature.type: }{(`character(1)` | `character(2)`)\cr The detected types of the features, either "categorical" or "numerical".}
 #' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid.}
@@ -153,23 +162,23 @@ Partial = R6::R6Class("Partial",
     grid.size = NULL, 
     feature.name = NULL,
     n.features = NULL, 
-    feature.type= NULL,
-    initialize = function(predictor, feature, ice = TRUE, aggregation = "pdp", center.at = NULL, grid.size = 20, run = TRUE) {
+    feature.type = NULL,
+    method  = NULL,
+    initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20, run = TRUE) {
       feature = private$sanitize.feature(feature, predictor$data$feature.names)
       assert_numeric(feature, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_number(center.at, null.ok = TRUE)
-      assert_logical(ice)
-      assert_choice(aggregation, c("none", "pdp", "ale"))
-      if (aggregation == "none" & !ice) stop("ice can't be FALSE and aggregation 'none' at the same time")
+      assert_choice(method, c("ale", "pdp", "ice", "pdp+ice"))
+      self$method = method
       if (length(feature) == 2) { 
         assert_false(feature[1] == feature[2])
-        ice = FALSE
         center.at = NULL
+        if(method %in% c("ice", "pdp+ice")) {
+          stop("ICE is not implemented for two features.")
+        } 
       }
       private$anchor.value = center.at
-      self$ice = ice
-      self$aggregation = aggregation
       super$initialize(predictor)
       private$setFeatureFromIndex(feature)
       private$set.grid.size(grid.size)
@@ -184,7 +193,7 @@ Partial = R6::R6Class("Partial",
       self$run(self$predictor$batch.size)
     },
     center = function(center.at) {
-      if(self$aggregation == "ale") {
+      if(self$method == "ale") {
         warning("Centering only works for only for PDPs and ICE, but not for ALE Plots, .")
         return(NULL)
       }
@@ -193,13 +202,15 @@ Partial = R6::R6Class("Partial",
       self$run(self$predictor$batch.size)
     },
     run = function(n) {
-      if(self$aggregation == "ale") {
-        self$ice = FALSE
-        self$run.ale() 
+      if(self$method == "ale") {
+        private$run.ale() 
       } else {
-        self$run.pdp(self$predictor$batch.size)
+        private$run.pdp(self$predictor$batch.size)
       }
-    },
+    }),
+  private = list(
+    anchor.value = NULL,
+    grid.size.original = NULL,
     # TODO: Add vignette on Partial, compare also to ALEPLot
     # TODO: Create issue to implement 2D for categorical
     # TODO: Check difference for K higher between original and iml implementation. Difference seems to be in the grid already at K >= 10.
@@ -207,8 +218,6 @@ Partial = R6::R6Class("Partial",
     # TODO: Remove inst test stuff
     # TODO: Update documentation
     # TODO: Cite paper
-    # TODO: Make aggregation = "ale" the default, or at least put a warning or deprecation that it will become default
-    # TODO: implement barplot for ale.cat
     # TODO: Create issue, depending on answer by authors: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
     # TODO: Implement option to hide NA cells in plot for num x num and num x cat
     # TODO: Add example with ale plots
@@ -270,7 +279,7 @@ Partial = R6::R6Class("Partial",
         results.ice$anchor.yhat = NULL
       }
       results = data.table()
-      if (self$aggregation == "pdp") {
+      if (self$method %in% c("pdp", "pdp+ice")) {
         if (private$multiClass) {
           results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
             by = c(self$feature.name, ".class")]
@@ -284,7 +293,7 @@ Partial = R6::R6Class("Partial",
       if (!private$multiClass) { 
         results.ice$.class = NULL
       }
-      if (self$ice) {
+      if (self$method %in% c("ice", "pdp+ice")) {
         results.ice$.type = "ice"
         results = rbind(results, results.ice, fill = TRUE)
         results$.id = results$.id.dist
@@ -292,10 +301,7 @@ Partial = R6::R6Class("Partial",
       }
       self$results = data.frame(results)
     }
-  ), 
-  private = list(
-    anchor.value = NULL,
-    grid.size.original = NULL,
+    , 
     setFeatureFromIndex = function(feature.index) {
       self$n.features = length(feature.index)
       self$feature.type = private$sampler$feature.types[feature.index]
@@ -308,7 +314,7 @@ Partial = R6::R6Class("Partial",
     },
     generatePlot = function(rug = TRUE) {
       if (is.null(private$anchor.value)) {
-        if(self$aggregation == "ale") {
+        if(self$method == "ale") {
           y.axis.label = "ALE"
         } else {
           y.axis.label = expression(hat(y))
@@ -318,31 +324,30 @@ Partial = R6::R6Class("Partial",
       }
       
       if (self$n.features == 1) {
-        y.name = ifelse(self$aggregation == "ale", ".ale", ".y.hat")
-        if (self$ice) {
-          p = ggplot(self$results[self$results$.type == "ice",], 
-            mapping = aes_string(x = self$feature.name, 
-              y = ".y.hat", group = ".id")) + scale_y_continuous(y.axis.label)
-        } else {
-          p = ggplot(self$results, mapping = aes_string(x = self$feature.name, y = y.name)) + 
-            scale_y_continuous(y.axis.label)
-        }
-        if (self$feature.type == "numerical") {
-          p = p + geom_line(alpha = 0.2) 
-        } else if (self$feature.type == "categorical") {
-          p = p + geom_boxplot(aes_string(group = self$feature.name)) 
-        }
-        if (self$aggregation != "none") {
-          aggr = self$results[self$results$.type != "ice", ]
-          if (self$ice) {
-            p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = y.name), 
-              size = 2, color = "gold") 
+        y.name = ifelse(self$method == "ale", ".ale", ".y.hat")
+        p = ggplot(self$results, 
+          mapping = aes_string(x = self$feature.name, 
+            y = y.name)) + scale_y_continuous(y.axis.label)
+        if (self$feature.type == "categorical") {
+          if (self$method %in% c("ice", "pdp+ice")){
+            p = p + geom_boxplot(data = self$results[self$results$.type == "ice",], aes_string(group = self$feature.name))
+          } else {
+            p = p + geom_col() 
           }
-          p = p + geom_line(data = aggr, mapping = aes_string(x = self$feature.name, y = y.name), 
-            size = 1, color = "black")
+        } else {
+          if (self$method %in% c("ice", "pdp+ice")) {
+            p = p + geom_line(alpha = 0.2, mapping = aes(group = .id))
+          }
+          if (self$method == "pdp+ice") {
+            aggr = self$results[self$results$.type != "ice", ]
+            p = p + geom_line(data = aggr, size = 2, color = "gold") 
+          }
+          if (self$method %in% c("ale", "pdp")) {
+           p =  p + geom_line()
+          }
         }
       } else if (self$n.features == 2) {
-        if (self$aggregation == "ale") {
+        if (self$method == "ale") {
           # 2D ALEPlot with categorical x numerical
           if(any(self$feature.type %in% "categorical")){
             res = self$results
@@ -390,8 +395,10 @@ Partial = R6::R6Class("Partial",
       }
       if (rug) {
         # Need some dummy data for ggplot to accept the data.frame
-        rug.dat = cbind(private$sampler$get.x(), data.frame(.y.hat = 1, .id = 1, .ale = 1))
-        rug.dat = rug.dat[sample(1:nrow(rug.dat)),]
+        rug.dat = private$sampler$get.x()
+        rug.dat$.id =    ifelse(is.null(self$results$.id), NA, self$results$.id[1])
+        rug.dat$.ale =   ifelse(is.null(self$results$.ale), NA, self$results$.ale[1])
+        rug.dat$.y.hat = ifelse(is.null(self$results$.y.hat), NA, self$results$.y.hat[1])
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
         p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
           position = position_jitter(width = 0.1, height = 0.1))

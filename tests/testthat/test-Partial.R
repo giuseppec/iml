@@ -2,7 +2,7 @@ context("Partial()")
 
 test_that("Partial (pdp only) works for single output and single feature", {
   grid.size = 10
-  pdp.obj = Partial$new(predictor1, ice = FALSE, feature = 1, grid.size = grid.size)
+  pdp.obj = Partial$new(predictor1, method = "pdp", feature = 1, grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
@@ -37,7 +37,7 @@ test_that("Partial (pdp only) works for single output and single feature", {
 test_that("Partial (pdp only) works for single output and 2 features, 2D grid.size", {
   ## two numerical features with 2 grid.sizes
   grid.size = c(10,2)
-  pdp.obj = Partial$new(predictor1, ice = FALSE, feature = c("a", "b"), grid.size = grid.size)
+  pdp.obj = Partial$new(predictor1, method="pdp", feature = c("a", "b"), grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "b", ".y.hat", ".type"))
@@ -48,16 +48,16 @@ test_that("Partial (pdp only) works for single output and 2 features, 2D grid.si
   expect_equal(max(dat$b), 50)
   expect_equal(min(dat$b), 10)
   checkPlot(pdp.obj)
-  pdp.obj2 = Partial$new(predictor1, ice = TRUE, feature = c("a", "b"), grid.size = grid.size)
+  pdp.obj2 = Partial$new(predictor1, method="pdp", feature = c("a", "b"), grid.size = grid.size)
   expect_equal(pdp.obj$results, pdp.obj2$results)
-  pdp.obj3 = Partial$new(predictor1, center.at = 0, feature = c("a", "b"), grid.size = grid.size)
+  pdp.obj3 = Partial$new(predictor1, method = "pdp", center.at = 0, feature = c("a", "b"), grid.size = grid.size)
   expect_equal(pdp.obj$results, pdp.obj3$results)
 })
 
 test_that("Partial (pdp only) works for single output and 2 numerical features, 1D grid.size", {
   ## Two numerical with same grid.size
   grid.size = 7
-  pdp.obj = Partial$new(predictor1, feature = c(1,2), grid.size = grid.size)
+  pdp.obj = Partial$new(predictor1, method = "pdp", feature = c(1,2), grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "b", ".y.hat", ".type"))
@@ -72,7 +72,7 @@ test_that("Partial (pdp only) works for single output and numerical + categorica
   
   ## One feature categorical
   grid.size = 11
-  pdp.obj = Partial$new(predictor1, feature = c(1,3), grid.size = grid.size, aggregation = "pdp")
+  pdp.obj = Partial$new(predictor1, feature = c(1,3), grid.size = grid.size, method = "pdp")
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", "c", ".y.hat", ".type"))
@@ -85,7 +85,7 @@ test_that("Partial (pdp only) works for single output and numerical + categorica
   
   ## One feature categorical
   grid.size = c(7,9)
-  pdp.obj = Partial$new(predictor1, feature = c(3,2), grid.size = grid.size)
+  pdp.obj = Partial$new(predictor1, method = "pdp", feature = c(3,2), grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("c", "b", ".y.hat", ".type"))
@@ -97,9 +97,19 @@ test_that("Partial (pdp only) works for single output and numerical + categorica
   checkPlot(pdp.obj)
 })
 
+test_that("Partial (pdp) works for categorical output", {
+  grid.size = 10
+  pdp.obj = Partial$new(predictor1, method = "pdp+ice", feature = "c", grid.size = grid.size)
+  dat = pdp.obj$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(dat), c("c",  ".y.hat", ".type", ".id"))
+  expect_equal(nrow(dat), length(unique(X$c)) * (nrow(X) + 1))  
+  checkPlot(pdp.obj)
+})
+
 test_that("Partial (pdp) works for multiple output", {
   grid.size = 10
-  pdp.obj = Partial$new(predictor2, ice = FALSE, feature = "a", grid.size = grid.size)
+  pdp.obj = Partial$new(predictor2, method = "pdp", feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type"))
@@ -112,7 +122,7 @@ test_that("Partial (pdp) works for multiple output", {
 
 test_that("Partial (pdp+ice) works for multiple output", {
   grid.size = 10
-  pdp.obj = Partial$new(predictor2, feature = "a", grid.size = grid.size)
+  pdp.obj = Partial$new(predictor2, method = "pdp+ice", feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type", ".id"))
@@ -127,7 +137,7 @@ test_that("Partial (pdp+ice) works for multiple output", {
 
 test_that("Partial (ice) works for single output and single feature", {
   grid.size = 10
-  ice.obj = Partial$new(predictor1, aggregation = "none", feature = 1, grid.size = grid.size)
+  ice.obj = Partial$new(predictor1, method = "ice", feature = 1, grid.size = grid.size)
   dat = ice.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", ".y.hat", ".type", ".id"))
@@ -136,12 +146,13 @@ test_that("Partial (ice) works for single output and single feature", {
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   checkPlot(ice.obj)
+  expect_error({Partial$new(predictor1, method = "ice", feature = c("a", "c"), grid.size = grid.size)})
 })
 
 test_that("Partial (ice) works for multiple output", {
   
   grid.size = 10
-  ice.obj = Partial$new(predictor2, feature = "a", grid.size = grid.size, aggregation = "none")
+  ice.obj = Partial$new(predictor2, feature = "a", grid.size = grid.size, method = "ice")
   dat = ice.obj$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type",  ".id"))
@@ -156,7 +167,7 @@ test_that("Partial (ice) works for multiple output", {
 test_that("centered Partial (ice) works for multiple output", {
   
   grid.size = 10
-  ice.obj = Partial$new(predictor2, feature = "a", grid.size = grid.size, center = 10, ice = TRUE)
+  ice.obj = Partial$new(predictor2, feature = "a", grid.size = grid.size, center = 10, method = "pdp+ice")
   dat = ice.obj$results
   expect_equal(ice.obj$center.at, 10)
   expect_class(dat, "data.frame")
@@ -182,9 +193,9 @@ test_that("centered Partial (ice) works for multiple output", {
 
 
 
-test_that("aggregation='ale' works for 1D numerical", {
+test_that("method='ale' works for 1D numerical", {
   grid.size = 3
-  ale = Partial$new(predictor1, ice = FALSE, feature = 1, grid.size = grid.size, aggregation = "ale")
+  ale = Partial$new(predictor1, feature = 1, grid.size = grid.size, method = "ale")
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
@@ -211,7 +222,7 @@ test_that("aggregation='ale' works for 1D numerical", {
   
   # multi class output
   grid.size = 3
-  ale = Partial$new(predictor2, feature = "a", aggregation = "ale", grid.size = grid.size)
+  ale = Partial$new(predictor2, feature = "a", method = "ale", grid.size = grid.size)
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c(".class", ".ale", ".type", "a"))
@@ -221,10 +232,10 @@ test_that("aggregation='ale' works for 1D numerical", {
   checkPlot(ale)
 })
 
-test_that("aggregation='ale' works for 2D numerical", {
+test_that("method='ale' works for 2D numerical", {
   ## two numerical features with 2 grid.sizes
   grid.size = c(10, 5)
-  ale = Partial$new(predictor1, ice = FALSE, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
+  ale = Partial$new(predictor1, feature = c("a", "b"), grid.size = grid.size)
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_equal(sort(colnames(dat)), sort(c(".ale", ".right", ".left", ".bottom", ".top", "a", "b", ".type")))
@@ -235,12 +246,12 @@ test_that("aggregation='ale' works for 2D numerical", {
   expect_equal(max(dat$b), 50)
   expect_equal(min(dat$b), 10)
   checkPlot(ale)
-  ale2 = Partial$new(predictor1, feature = c("a", "b"), grid.size = grid.size, aggregation = "ale")
+  ale2 = Partial$new(predictor1, feature = c("a", "b"), grid.size = grid.size, method = "ale")
   expect_equal(ale$results, ale2$results)
   
   ## two numerical features with 2D prediction
   grid.size = c(10, 5)
-  ale = Partial$new(predictor2, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
+  ale = Partial$new(predictor2, method = "ale", feature = c("a", "b"), grid.size = grid.size)
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_equal(sort(colnames(dat)), sort(c(".class", ".ale", ".right", ".left", ".bottom", ".top", "a", "b", ".type")))
@@ -251,16 +262,16 @@ test_that("aggregation='ale' works for 2D numerical", {
   expect_equal(max(dat$b), 50)
   expect_equal(min(dat$b), 10)
   checkPlot(ale)
-  ale2 = Partial$new(predictor2, feature = c("a", "b"), grid.size = grid.size, aggregation = "ale")
+  ale2 = Partial$new(predictor2, feature = c("a", "b"), grid.size = grid.size, method = "ale")
   expect_equal(ale$results, ale2$results)
 })
 
-test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
+test_that("iml::Partial with method='ale' equal to ALEPLot::ALEPlot", {
   require("ALEPlot")
   
   # one numerical feature
   grid.size = 3
-  ale = Partial$new(predictor1, feature = 1, grid.size = grid.size, aggregation = "ale")
+  ale = Partial$new(predictor1, feature = 1, grid.size = grid.size)
   ale.dat = ale$results
   ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 1,K = 3)
   # equality of x values and ALE estimates
@@ -269,7 +280,7 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   
   # two numerical features
   grid.size = c(5)
-  ale = Partial$new(predictor1, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
+  ale = Partial$new(predictor1, method = "ale", feature = c("a", "b"), grid.size = grid.size)
   ale.dat = ale$results
   ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, 
     J = c("a", "b"), K = grid.size)
@@ -282,7 +293,7 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   
   # two numerical features, but this time with more interaction
   grid.size = c(5)
-  ale = Partial$new(predictor1.inter, aggregation = "ale", feature = c("a", "b"), grid.size = grid.size)
+  ale = Partial$new(predictor1.inter,feature = c("a", "b"), grid.size = grid.size)
   ale.dat = ale$results
   ale.original = ALEPlot(X, predictor1.inter, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, 
     J = c("a", "b"), K = grid.size)
@@ -293,7 +304,7 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   expect_equal(unname(ale.original$f.values), unname(dd))
   
   # one categorical feature
-  ale = Partial$new(predictor1, feature = "c", aggregation = "ale")
+  ale = Partial$new(predictor1, feature = "c")
   ale.dat = ale$results
   ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 3)
   # equality of x values and ALE estimates
@@ -301,7 +312,7 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   expect_equal(ale.dat$.ale, ale.original$f.values)
   
   # another categorical feature
-  ale = Partial$new(predictor1.inter, feature = "c", aggregation = "ale")
+  ale = Partial$new(predictor1.inter, feature = "c", method = "ale")
   ale.dat = ale$results
   ale.original = ALEPlot(X, predictor1.inter, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 3)
   # equality of x values and ALE estimates
@@ -309,7 +320,7 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
   expect_equal(ale.dat$.ale, ale.original$f.values)
   
   # one numerical, one categorical feature
-  ale = Partial$new(predictor1.inter, feature = c("a", "c"), aggregation = "ale")
+  ale = Partial$new(predictor1.inter, feature = c("a", "c"))
   ale.dat = ale$results
   ale.original = ALEPlot(X, predictor1.inter, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = c(3,1))
   # equality of x values and ALE estimates
@@ -320,8 +331,8 @@ test_that("iml::Partial with aggregation='ale' equal to ALEPLot::ALEPlot", {
 })
 
 
-test_that("aggregation='ale' works for 1D categorical", {
-  ale = Partial$new(predictor1, ice = FALSE, feature = 'c', aggregation = "ale")
+test_that("method='ale' works for 1D categorical", {
+  ale = Partial$new(predictor1, feature = 'c')
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
@@ -337,7 +348,7 @@ test_that("aggregation='ale' works for 1D categorical", {
   expect_warning(ale$center(0))
   
   # multi class output
-  ale = Partial$new(predictor2, feature = "c", aggregation = "ale", grid.size = 100)
+  ale = Partial$new(predictor2, feature = "c", method = "ale", grid.size = 100)
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c(".class", ".ale",  "c"))
@@ -348,7 +359,7 @@ test_that("aggregation='ale' works for 1D categorical", {
   X2 = X
   X2$c = ordered(X2$c)
   pred1.order = Predictor$new(data = X2, y = y, predict.fun = f)
-  ale = Partial$new(pred1.order, ice = FALSE, feature = 'c', aggregation = "ale")
+  ale = Partial$new(pred1.order, feature = 'c')
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
@@ -359,10 +370,10 @@ test_that("aggregation='ale' works for 1D categorical", {
 })
 
 
-test_that("aggregation='ale' works for 2D numerical x categorical", {
+test_that("method='ale' works for 2D numerical x categorical", {
   ## two numerical features with 2 grid.sizes
   grid.size = c(2)
-  ale = Partial$new(predictor1, ice = FALSE, aggregation = "ale", feature = c("a", "c"), grid.size = grid.size)
+  ale = Partial$new(predictor1, feature = c("a", "c"), grid.size = grid.size)
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_equal(sort(colnames(dat)), sort(c(".ale", ".right", ".left", ".bottom", ".top", "a", "c", ".type")))
@@ -370,12 +381,12 @@ test_that("aggregation='ale' works for 2D numerical x categorical", {
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   checkPlot(ale)
-  ale2 = Partial$new(predictor1, feature = c("c", "a"), grid.size = grid.size, aggregation = "ale")
+  ale2 = Partial$new(predictor1, feature = c("c", "a"), grid.size = grid.size, method = "ale")
   expect_equal(ale$results, ale2$results)
   
   ## two numerical features with 2D prediction
   grid.size = c(3, 5)
-  ale = Partial$new(predictor2, aggregation = "ale", feature = c("a", "c"), grid.size = grid.size)
+  ale = Partial$new(predictor2,  feature = c("a", "c"), grid.size = grid.size)
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_equal(sort(colnames(dat)), sort(c(".class", ".ale", ".right", ".left", ".bottom", ".top", "a", "c", ".type")))
@@ -383,7 +394,7 @@ test_that("aggregation='ale' works for 2D numerical x categorical", {
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   checkPlot(ale)
-  ale2 = Partial$new(predictor2, feature = c("a", "c"), grid.size = grid.size, aggregation = "ale")
+  ale2 = Partial$new(predictor2, feature = c("a", "c"), grid.size = grid.size, method = "ale")
   expect_equal(ale$results, ale2$results)
 })
 

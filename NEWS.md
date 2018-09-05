@@ -1,3 +1,8 @@
+# iml 0.7.0
+* Introduced ALE plots
+* Plot for categorical features in PDP changed.
+
+
 # iml 0.6
 * Removed losses: f1, logLoss, rmse, mdae, rae, rmse, rmsle, rse, rrse
 f1 because the implementation used didn't make sense anyways
