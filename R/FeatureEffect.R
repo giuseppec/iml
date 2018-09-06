@@ -1,31 +1,59 @@
-#' Partial Dependence and Individual Conditional Expectation
+#' Effect of features on the model predictions (deprecated)
 #' 
-#' \code{Partial} computes and plots (individual) partial dependence functions of prediction models. 
+#' Deprecated, please use 'FeatureEffect', see ?FeatureEffect
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Partial
 #' 
+#' @seealso 
+#' \link{FeatureEffect} 
+NULL
+
+#' @export
+Partial = R6::R6Class("Partial", 
+  inherit = FeatureEffect,
+  public = list(
+    initialize = function(predictor, feature, aggregation = "pdp",ice = TRUE, center.at = NULL, grid.size = 20, run = TRUE) {
+      assert_choice(aggregation, c("ale", "pdp", "none"))
+      assert_logical(ice)
+      .Deprecated("FeatureEffect", "iml", "The FeatureEffect class replaces the Partial class. Partial will be removed in future versions.")
+      if(aggregation == "none") method = "ice"
+      if((aggregation == "pdp") & ice) method = "pdp+ice"
+      if((aggregation == "pdp") & !ice) method = "pdp"
+      if(aggregation == "ale") method = "ale"
+      super$initialize(predictor=predictor, feature=feature, method = method, center.at = center.at, 
+        grid.size = grid.size, run = run)
+    }))
+
+
+
+#' Effect of features on the model predictions
+#' 
+#' \code{FeatureEffect} computes and plots (individual) feature effects of prediction models. 
+#' 
+#' @format \code{\link{R6Class}} object.
+#' @name FeatureEffect
+#' 
 #' @section Usage:
 #' \preformatted{
-#' pd = Partial$new(predictor, feature, ice = TRUE, aggregation = "pdp", 
+#' effect = FeatureEffect$new(predictor, feature, method = "ale", 
 #'     grid.size = 20,  center.at = NULL, run = TRUE)
 #' 
-#' plot(pd)
-#' pd$results
-#' print(pd)
-#' pd$set.feature(2)
-#' pd$center(1)
+#' plot(effect)
+#' effect$results
+#' print(effect)
+#' effectd$set.feature("x2")
 #' }
 #' 
 #' @section Arguments:
 #' 
-#' For Partial$new():
+#' For FeatureEffect$new():
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
 #' \item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the partial dependencies.}
 #' \item{method: }{(`character(1)`)\cr 
-#' 'ale' for accumulated local effects, 
+#' 'ale' for accumulated local effects (the default), 
 #' 'pdp' for partial dependence plot, 
 #' 'ice' for individual conditional expectation curves,
 #' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
@@ -35,15 +63,27 @@
 #' }
 #' 
 #' @section Details:
-#' The partial dependence plot calculates and plots the dependence of f(X) on a single or two features.
-#' It's the aggregate of all individual conditional expectation curves, that describe how, for a single
-#' observation, the prediction changes when the feature changes. 
 #' 
-#' Advantages over ALEPlot implementation in the ALEPlot package
-#' Plot is only produced when deciding to plot, can be used for multi class, returns ggplot which can be modified,
-#' don't have to always define the predict function
+#' The FeatureEffect class compute the effect a feature has on the prediction. 
+#' Different methods are implemented:
+#' \itemize{
+#' \item{Accumulated Local Effect (ALE) plots}
+#' \item{Partial Dependence Plots (PDPs)}
+#' \item{Individual Conditional Expectation (ICE) curves}
+#' }
+#'  
+#' Accumuluated local effects and partial dependence plots both show the average model prediction over the feature.
+#' The difference is that ALE are computed as accumulated differences over the conditional distribution and partial dependence plots 
+#' over the marginal distribution.
+#' ALE plots preferable to PDPs, because they are faster and unbiased when features are correlated.
 #' 
-#' To learn more about partial dependence plot, read the Interpretable Machine Learning book: 
+#' Individual conditional expectation curves describe how, for a single
+#' observation, the prediction changes when the feature changes and can be combined with partial dependence plots.
+#' 
+#' To learn more about accumulated local effects, read the Interpretable Machine Learning book: 
+#' https://christophm.github.io/interpretable-ml-book/ale.html
+#' 
+#' And for the partial dependence plot:
 #' https://christophm.github.io/interpretable-ml-book/pdp.html
 #' 
 #' And for individual conditional expectation: 
@@ -71,15 +111,17 @@
 #' \describe{
 #' \item{center()}{method to set the value at which the ice computations are centered. See examples.}
 #' \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
-#' \item{plot()}{method to plot the partial dependence function. See \link{plot.Partial}}
+#' \item{plot()}{method to plot the partial dependence function. See \link{plot.FeatureEffect}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' @seealso 
-#' \link{plot.Partial} 
+#' \link{plot.FeatureEffect} 
 #' 
 #' @references 
+#' Apley, D. W. 2016. "Visualizing the Effects of Predictor Variables in Black Box Supervised Learning Models." ArXiv Preprint.
+#' 
 #' Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 #' 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
@@ -92,45 +134,41 @@
 #' # We train a random forest on the Boston dataset:
 #' if (require("randomForest")) {
 #' data("Boston", package  = "MASS")
-#' rf = lm(medv ~ ., data = Boston, ntree = 50)
+#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
-#' # Compute the partial dependence for the first feature
-#' pdp.obj = Partial$new(mod, feature = "rm", aggregation = "ale", grid.size = 30, ice = FALSE)
-#' pdp.obj$plot()
-#' y.fun = function(X.model, newdata) {
-#' X.model$predict(newdata)[[1]] 
-#' }
+#' # Compute the accumulated local effects for the first feature
+#' eff = FeatureEffect$new(mod, feature = "rm",grid.size = 30)
+#' eff$plot()
 #' 
-#' pdp.obj = Partial$new(mod, feature = "rm", aggregation = "pdp", grid.size = 30)
-#' plot(pdp.obj)
-#' # Plot the results directly
-#' plot(pdp.obj)
+#' # Again, but this time with a partial dependence plot and ice curves
+#' eff = FeatureEffect$new(mod, feature = "rm", method = "pdp+ice", grid.size = 30)
+#' plot(eff)
 #' 
 #' # Since the result is a ggplot object, you can extend it: 
 #' if (require("ggplot2")) {
-#'  plot(pdp.obj) + theme_bw()
+#'  plot(eff) + ggtitle("Partial dependence")
 #' }
 #' 
 #' # If you want to do your own thing, just extract the data: 
-#' pdp.dat = pdp.obj$results
-#' head(pdp.dat)
+#' eff.dat = eff$results
+#' head(eff.dat)
 #' 
 #' # You can reuse the pdp object for other features: 
-#' pdp.obj$set.feature("lstat")
-#' plot(pdp.obj)
+#' eff$set.feature("lstat")
+#' plot(eff)
 #'
 #' # Only plotting the aggregated partial dependence:  
-#' pdp.obj = Partial$new(mod, feature = "crim", ice = FALSE)
-#' pdp.obj$plot() 
+#' eff = FeatureEffect$new(mod, feature = "crim", method = "pdp")
+#' eff$plot() 
 #'
 #' # Only plotting the individual conditional expectation:  
-#' pdp.obj = Partial$new(mod, feature = "crim", aggregation = "none")
-#' pdp.obj$plot() 
+#' eff = FeatureEffect$new(mod, feature = "crim", method = "ice")
+#' eff$plot() 
 #'   
-#' # Partial dependence plots support up to two features: 
-#' pdp.obj = Partial$new(mod, feature = c("crim", "lstat"))  
-#' plot(pdp.obj)
+#' # Accumulated local effects and partial dependence plots support up to two features: 
+#' eff = FeatureEffect$new(mod, feature = c("crim", "lstat"))  
+#' plot(eff)
 #' 
 #' 
 #' # Partial dependence plots also works with multiclass classification
@@ -138,15 +176,18 @@
 #' mod = Predictor$new(rf, data = iris, type = "prob")
 #' 
 #' # For some models we have to specify additional arguments for the predict function
-#' plot(Partial$new(mod, feature = "Petal.Width"))
+#' plot(FeatureEffect$new(mod, feature = "Petal.Width"))
 #'
 #' # Partial dependence plots support up to two features: 
-#' pdp.obj = Partial$new(mod, feature = c("Sepal.Length", "Petal.Length"))
-#' pdp.obj$plot()   
+#' eff = FeatureEffect$new(mod, feature = c("Sepal.Length", "Petal.Length"))
+#' eff$plot()   
+#' 
+#' # show where the actual data lies
+#' eff$plot(show.data = TRUE)   
 #' 
 #' # For multiclass classification models, you can choose to only show one class:
 #' mod = Predictor$new(rf, data = iris, type = "prob", class = 1)
-#' plot(Partial$new(mod, feature = "Sepal.Length"))
+#' plot(FeatureEffect$new(mod, feature = "Sepal.Length"))
 #' }
 NULL
 
@@ -154,7 +195,7 @@ NULL
 
 #' @export
 
-Partial = R6::R6Class("Partial", 
+FeatureEffect = R6::R6Class("FeatureEffect", 
   inherit = InterpretationMethod,
   public = list(
     ice = NULL,
@@ -211,16 +252,6 @@ Partial = R6::R6Class("Partial",
   private = list(
     anchor.value = NULL,
     grid.size.original = NULL,
-    # TODO: Add vignette on Partial, compare also to ALEPLot
-    # TODO: Create issue to implement 2D for categorical
-    # TODO: Check difference for K higher between original and iml implementation. Difference seems to be in the grid already at K >= 10.
-    #        Maybe it doesn't matter.
-    # TODO: Remove inst test stuff
-    # TODO: Update documentation
-    # TODO: Cite paper
-    # TODO: Create issue, depending on answer by authors: Add option to plot total effects for 1D and 2D. for this add ale0, ale1, ale2 to results
-    # TODO: Add example with ale plots
-    # TODO: Document plot.Partial
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
@@ -297,6 +328,8 @@ Partial = R6::R6Class("Partial",
         results = rbind(results, results.ice, fill = TRUE)
         results$.id = results$.id.dist
         results$.id.dist = NULL
+        # sory by id
+        setkeyv(results, ".id")
       }
       self$results = data.frame(results)
     }
@@ -311,7 +344,8 @@ Partial = R6::R6Class("Partial",
         self$feature.name, self$feature.type), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
-    generatePlot = function(rug = TRUE, show.data) {
+    # make sure the default arguments match with plot.FeatureEffect
+    generatePlot = function(rug = TRUE, show.data=FALSE) {
       if (is.null(private$anchor.value)) {
         if(self$method == "ale") {
           y.axis.label = "ALE"
@@ -396,7 +430,7 @@ Partial = R6::R6Class("Partial",
           numerical.feature = setdiff(self$feature.name, categorical.feature)
           p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat")) + 
             geom_line(aes_string(group = categorical.feature, color = categorical.feature)) + 
-                scale_y_continuous(y.axis.label)
+            scale_y_continuous(y.axis.label)
           show.data = FALSE
         }
         
@@ -461,17 +495,17 @@ Partial = R6::R6Class("Partial",
 )
 
 
-#' Plot Partial Dependence
+#' Plot FeatureEffect
 #' 
-#' plot.Partial() plots the results of a Partial object.
+#' plot.FeatureEffect() plots the results of a FeatureEffect object.
 #' 
-#' @param x A Partial R6 object
+#' @param x A FeatureEffect R6 object
 #' @param rug [logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
 #' but it avoids overplotting.
 #' @param show.data Should the data points be shown? Only affects 2D plots, and ignored for 1D plots, because rug has the same information.
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{Partial}
+#' \link{FeatureEffect}
 #' @examples
 #' # We train a random forest on the Boston dataset:
 #' if (require("randomForest")) {
@@ -480,11 +514,11 @@ Partial = R6::R6Class("Partial",
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the partial dependence for the first feature
-#' pdp.obj = Partial$new(mod, feature = "crim")
+#' eff = FeatureEffect$new(mod, feature = "crim")
 #' 
 #' # Plot the results directly
-#' plot(pdp.obj)
+#' plot(eff)
 #' }
-plot.Partial = function(x, rug = TRUE, show.data = FALSE) {
+plot.FeatureEffect = function(x, rug = TRUE, show.data = FALSE) {
   x$plot(rug, show.data)
 }

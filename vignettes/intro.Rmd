@@ -18,7 +18,7 @@ The iml package provides tools for analysing any black box machine learning mode
 
 * Feature importance: Which were the most important features?
 
-* Feature effects: How does a feature influence the prediction? (Partial dependence plots and individual conditional expectation curves)
+* Feature effects: How does a feature influence the prediction? (Accumulated local effects, partial dependence plots and individual conditional expectation curves)
 
 * Explanations for single predictions: How did the feature values of a single data point affect its prediction?  (LIME and Shapley value)
 
@@ -75,28 +75,26 @@ plot(imp)
 imp$results
 ```
 
-## Partial dependence
+## Feature effects
 
-Besides knowing which features were important, we are interested in how the features influence the predicted outcome. The `Partial` class implements partial dependence plots and individual conditional expectation curves. Each individual line represents the predictions (y-axis) for one data point when we change one of the features (e.g. 'lstat' on the x-axis). The highlighted line is the point-wise average of the individual lines and equals the partial dependence plot. The marks on the x-axis indicates the distribution of the 'lstat' feature, showing how relevant a region is for interpretation (little or no points mean that we should not over-interpret this region).
+Besides knowing which features were important, we are interested in how the features influence the predicted outcome. 
+The `FeatureEffect` class implements accumulated local effect plots, partial dependence plots and individual conditional expectation curves. 
+The following plot shows the accumulated local effects (ALE) for the feature 'lstat'.
+ALE shows how the prediction changes locally, when the feature is varied.
+The marks on the x-axis indicates the distribution of the 'lstat' feature, showing how relevant a region is for interpretation (little or no points mean that we should not over-interpret this region).
 
 ```{r}
-pdp.obj = Partial$new(predictor, feature = "lstat")
-pdp.obj$plot()
+ale = FeatureEffect$new(predictor, feature = "lstat")
+ale$plot()
 ```
 
 If we want to compute the partial dependence curves on another feature, we can simply reset the feature:
 
 ```{r}
-pdp.obj$set.feature("rm")
-pdp.obj$plot()
+ale$set.feature("rm")
+ale$plot()
 ```
 
-We can center the curves at a feature value of our choice, which makes it easier to see the trend of the curves:
-
-```{r}
-pdp.obj$center(min(Boston$rm))
-pdp.obj$plot()
-```
 
 ## Measure interactions
 We can also measure how strongly features interact with each other.
