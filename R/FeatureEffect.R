@@ -16,6 +16,7 @@ Partial = R6::R6Class("Partial",
     initialize = function(predictor, feature, aggregation = "pdp",ice = TRUE, center.at = NULL, grid.size = 20, run = TRUE) {
       assert_choice(aggregation, c("ale", "pdp", "none"))
       assert_logical(ice)
+      if(length(feature) == 2) ice = FALSE
       .Deprecated("FeatureEffect", "iml", "The FeatureEffect class replaces the Partial class. Partial will be removed in future versions.")
       if(aggregation == "none") method = "ice"
       if((aggregation == "pdp") & ice) method = "pdp+ice"
