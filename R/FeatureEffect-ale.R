@@ -190,7 +190,6 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
 
 
 #' Compute ALE for 1 categorical feature
-#' 
 #' @param dat the data.frame with same columns as training data
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE

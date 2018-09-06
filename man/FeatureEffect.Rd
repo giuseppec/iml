@@ -55,6 +55,9 @@ The difference is that ALE are computed as accumulated differences over the cond
 over the marginal distribution.
 ALE plots preferable to PDPs, because they are faster and unbiased when features are correlated.
 
+ALE plots for categorical features are automatically ordered by the similarity of the categories based on the distribution of the other features for instances in a category.
+When the feature is an ordered factor, the ALE plot leaves the order as is.
+
 Individual conditional expectation curves describe how, for a single
 observation, the prediction changes when the feature changes and can be combined with partial dependence plots.
 
