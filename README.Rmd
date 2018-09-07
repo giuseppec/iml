@@ -18,6 +18,7 @@ output: github_document
  - Feature importance
  - Partial dependence plots
  - Individual conditional expectation plots (ICE)
+ - Accumulated local effects
  - Tree surrogate
  - LocalModel: Local Interpretable Model-agnostic Explanations
  - Shapley value for explaining single predictions
@@ -34,7 +35,7 @@ set.seed(42)
 ```
 
 # Installation 
-The package can be installed directly from CRAN and the develoopment version from github:
+The package can be installed directly from CRAN and the development version from github:
 ```{r, results = "hide", eval = FALSE}
 # Stable version
 install.packages("iml")
@@ -47,7 +48,7 @@ Changes of the packages can be accessed in the [NEWS file](https://github.com/ch
 
 # Examples
 
-First we train a randomForest to predict the Boston median housing value. How does lstat influence the prediction individually and on average? (Partial dependence plot and ICE)
+First we train a randomForest to predict the Boston median housing value. How does lstat influence the prediction individually and on average? (Accumulated local effects)
 ```{r}
 library("iml")
 library("randomForest")
@@ -55,8 +56,8 @@ data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 X =  Boston[which(names(Boston) != "medv")]
 model = Predictor$new(rf, data = X, y = Boston$medv)
-pdp.obj = Partial$new(model, feature = "lstat")
-pdp.obj$plot()
+effect = FeatureEffect$new(model, feature = "lstat")
+effect$plot()
 ```
 
 # Contribute

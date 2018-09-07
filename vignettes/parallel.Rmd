@@ -14,7 +14,7 @@ options(tibble.print_min = 4L, tibble.print_max = 4L)
 
 
 The `iml` package can now handle bigger datasets. 
-Earlier problems with exploding memory have been fixed for `Partial`, `FeatureImp` and `Interaction`.
+Earlier problems with exploding memory have been fixed for `FeatureEffect`, `FeatureImp` and `Interaction`.
 It's also possible now to compute `FeatureImp` and `Interaction` in parallel.
 This document describes how.
 
@@ -63,8 +63,8 @@ A little bit of improvement, but not too impressive.
 Parallelization is more useful in the case where the model uses a lot of features or where the feature importance computation is repeated more often to get more stable results.
 
 ```{r}
-system.time(FeatureImp$new(predictor, loss = "mae", parallel = FALSE, n.repetitions = 200))
-system.time(FeatureImp$new(predictor, loss = "mae", parallel = TRUE, n.repetitions = 200))
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = FALSE, n.repetitions = 20))
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = TRUE, n.repetitions = 20))
 ```
 
 Here the parallel computation is twice as fast as the sequential computation of the feature importance.

@@ -26,7 +26,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       cat("\n\nAnalysed data:\n")
       print(private$sampler)
       cat("\n\nHead of results:\n")
-      if (private$finished) {
+      if (!is.null(self$results)) {
         print(head(self$results))
       }
     },

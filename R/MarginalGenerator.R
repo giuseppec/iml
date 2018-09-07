@@ -90,6 +90,3 @@ MarginalGenerator = R6Class(
     y = NULL
   )
 )
-
-# TODO: Implement parallisable version
-# Parallelize on Interpretation method by splitting grid.dat and creating multiple MarginalGenerators or by feature 

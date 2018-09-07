@@ -1,3 +1,9 @@
+# iml 0.7.0
+* The `Partial` class is deprecated and will be removed in future versions. You should use `FeatureEffect` now. Its usage is similar to `Partial` but the `aggregation` and `ice` argument are now combined in the new `method` argument, where you can choose between 'ale', 'pdp', 'ice', 'pdp+ice'.
+* Introduced ALE plots into the `FeatureEffect` class  (`method='ale'`). They are now the default instead of PDPs, because they are faster and unbiased.
+* Plot for categorical features in PDP changed. Now showing bar plots instead of boxplots when `method='pdp'`
+
+
 # iml 0.6
 * Removed losses: f1, logLoss, rmse, mdae, rae, rmse, rmsle, rse, rrse
 f1 because the implementation used didn't make sense anyways
