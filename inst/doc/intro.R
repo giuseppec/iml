@@ -23,16 +23,12 @@ plot(imp)
 imp$results
 
 ## ------------------------------------------------------------------------
-pdp.obj = Partial$new(predictor, feature = "lstat")
-pdp.obj$plot()
+ale = FeatureEffect$new(predictor, feature = "lstat")
+ale$plot()
 
 ## ------------------------------------------------------------------------
-pdp.obj$set.feature("rm")
-pdp.obj$plot()
-
-## ------------------------------------------------------------------------
-pdp.obj$center(min(Boston$rm))
-pdp.obj$plot()
+ale$set.feature("rm")
+ale$plot()
 
 ## ------------------------------------------------------------------------
 interact = Interaction$new(predictor)

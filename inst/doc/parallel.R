@@ -13,8 +13,8 @@ predictor = Predictor$new(rf, data = X, y = Boston$medv)
 
 ## ------------------------------------------------------------------------
 library("doParallel")
-# Creates a cluster with 4 cores
-cl = makePSOCKcluster(4)
+# Creates a cluster with 2 cores
+cl = makePSOCKcluster(2)
 # Registers cluster
 registerDoParallel(cl)
 
@@ -27,8 +27,8 @@ system.time(FeatureImp$new(predictor, loss = "mae", parallel = FALSE))
 system.time(FeatureImp$new(predictor, loss = "mae", parallel = TRUE))
 
 ## ------------------------------------------------------------------------
-system.time(FeatureImp$new(predictor, loss = "mae", parallel = FALSE, n.repetitions = 200))
-system.time(FeatureImp$new(predictor, loss = "mae", parallel = TRUE, n.repetitions = 200))
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = FALSE, n.repetitions = 20))
+system.time(FeatureImp$new(predictor, loss = "mae", parallel = TRUE, n.repetitions = 20))
 
 ## ------------------------------------------------------------------------
 system.time(Interaction$new(predictor, parallel = FALSE))
