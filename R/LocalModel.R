@@ -50,6 +50,9 @@
 #' because a negative beta might still increase the prediction when the feature value is also negative.
 #' }
 #' 
+#' To learn more about local surrogate models, read the Interpretable Machine Learning book: 
+#' \url{https://christophm.github.io/interpretable-ml-book/lime.html}
+#' 
 #' @section Fields:
 #' \describe{
 #' \item{best.fit.index: }{(`numeric(1)`)\cr The index of the best glmnet fit.}

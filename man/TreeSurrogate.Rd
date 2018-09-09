@@ -37,6 +37,9 @@ The object (created with Predictor$new()) holding the machine learning model and
 A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data.
 The \code{partykit} package and function are used to fit the tree. 
 By default a tree of maximum depth of 2 is fitted to improve interpretability.
+
+To learn more about global surrogate models, read the Interpretable Machine Learning book: 
+\url{https://christophm.github.io/interpretable-ml-book/global.html}
 }
 
 \section{Fields}{

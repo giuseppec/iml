@@ -62,13 +62,13 @@ Individual conditional expectation curves describe how, for a single
 observation, the prediction changes when the feature changes and can be combined with partial dependence plots.
 
 To learn more about accumulated local effects, read the Interpretable Machine Learning book: 
-https://christophm.github.io/interpretable-ml-book/ale.html
+\url{https://christophm.github.io/interpretable-ml-book/ale.html}
 
 And for the partial dependence plot:
-https://christophm.github.io/interpretable-ml-book/pdp.html
+\url{https://christophm.github.io/interpretable-ml-book/pdp.html}
 
 And for individual conditional expectation: 
-https://christophm.github.io/interpretable-ml-book/ice.html
+\url{https://christophm.github.io/interpretable-ml-book/ice.html}
 }
 
 \section{Fields}{

@@ -41,6 +41,8 @@
 #' 
 #' The interaction is measured by Friedman's H-statistic (square root of the H-squared test statistic) and takes on values between 0 (no interaction) to 1 (100% of standard deviation of f(x) du to interaction).
 #' 
+#' To learn more about interaction effects, read the Interpretable Machine Learning book: 
+#' \url{https://christophm.github.io/interpretable-ml-book/interaction.html}
 #' 
 #' @section Fields:
 #' \describe{
