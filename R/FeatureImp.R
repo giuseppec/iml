@@ -153,7 +153,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       private$getData = private$sampler$get.xy
       self$n.repetitions = n.repetitions
       actual = private$sampler$y[[1]]
-      predicted = private$q(self$predictor$predict(private$sampler$X))[[1]]
+      predicted = private$run.prediction(private$sampler$X)[[1]]
       # Assuring that levels are the same
       self$original.error = loss(actual, predicted)
       if(run) private$run(self$predictor$batch.size)
@@ -177,6 +177,9 @@ FeatureImp = R6::R6Class("FeatureImp",
       
       estimate.feature.imp = function(feature, data.sample, y, n.repetitions, cartesian, y.names, pred, loss) {
         cartesian = ifelse(private$method == "cartesian", TRUE, FALSE)
+        
+        cnames = setdiff(colnames(data.sample), y.names)
+        
         mg = iml:::MarginalGenerator$new(data.sample, data.sample, 
           features = feature, n.sample.dist = n.repetitions, y = y, cartesian = cartesian, id.dist = TRUE)
         qResults = data.table::data.table()
@@ -184,9 +187,9 @@ FeatureImp = R6::R6Class("FeatureImp",
         while(!mg$finished) {
           data.design = mg$next.batch(n, y = TRUE)
           y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
-          qResults = rbind(qResults, pred(data.design))
+          qResults = rbind(qResults, pred(data.design[,cnames, with = FALSE]))
         }
-  
+        
         # AGGREGATE measurements
         results = data.table::data.table(feature = feature, actual = y.vec[[1]], predicted = qResults[[1]])
         results = results[, list("permutation.error" = loss(actual, predicted)), by = feature]

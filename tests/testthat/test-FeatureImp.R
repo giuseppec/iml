@@ -98,3 +98,17 @@ test_that("Works for different repetitions.",{
 })
 
 
+test_that("Model receives data.frame without additional columns", {
+  # https://stackoverflow.com/questions/51980808/r-plotting-importance-feature-using-featureimpnew
+  library(mlr)
+  library(ranger)
+  data("iris")
+  tsk = mlr::makeClassifTask(data = iris, target = "Species")
+  lrn = mlr::makeLearner("classif.ranger",predict.type = "prob")
+  mod = mlr:::train(lrn, tsk)
+  X = iris[which(names(iris) != "Species")]
+  predictor = Predictor$new(mod, data = X, y = iris$Species)
+  imp = FeatureImp$new(predictor, loss = "ce")
+  expect_r6(imp)
+})
+
