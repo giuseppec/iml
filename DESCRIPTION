@@ -10,6 +10,7 @@ Description: Interpretability methods to analyze the behavior and predictions of
  any machine learning model.
  Implemented methods are:
  Feature importance described by Fisher et al. (2018) <arXiv:1801.01489>,
+ accumulated local effects plots described by Apley (2018) <arXiv:1612.08468>,
  partial dependence plots described by Friedman (2001) <http://www.jstor.org/stable/2699986>,
  individual conditional expectation ('ice') plots described by Goldstein et al. (2013) <doi:10.1080/10618600.2014.907095>,
  local models (variant of 'lime') described by Ribeiro et. al (2016) <arXiv:1602.04938>,
