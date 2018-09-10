@@ -43,6 +43,8 @@
 #' The approach is similar to LIME, but has the following differences:
 #' \itemize{
 #' \item Distance measure: Uses as default the gower proximity (= 1 - gower distance) instead of a kernel based on the Euclidean distance. Has the advantage to have a meaningful neighbourhood and no kernel width to tune.
+#' When the distance is not "gower", then the stats::dist() function with the chosen method will be used, 
+#' and turned into a similarity measure: sqrt(exp(-(distance^2) / (kernel.width^2))).
 #' \item Sampling: Uses the original data instead of sampling from normal distributions. 
 #' Has the advantage to follow the original data distribution. 
 #' \item Visualisation: Plots effects instead of betas. Both are the same for binary features, but ared different for numerical features. 
@@ -215,12 +217,14 @@ LocalModel = R6::R6Class("LocalModel",
         function(X, x.interest) {
           1 - gower_dist(X, x.interest)
         }
-      } else {
+      } else if(is.character(dist.fun)) {
         assert_numeric(kernel.width)
         function(X, x.interest) {
           d = dist(rbind(x.interest, X), method = dist.fun)[1+1:nrow(X)]
           sqrt(exp(-(d^2) / (kernel.width^2)))
         }
+      } else {
+        dist.fun
       }
     },
     weight.fun = NULL
