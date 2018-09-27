@@ -1,3 +1,6 @@
+# iml 0.7.1
+* Fixes problems with wrong computation of feature importance, features effects and so on for xgboost models.
+
 # iml 0.7.0
 * The `Partial` class is deprecated and will be removed in future versions. You should use `FeatureEffect` now. Its usage is similar to `Partial` but the `aggregation` and `ice` argument are now combined in the new `method` argument, where you can choose between 'ale', 'pdp', 'ice', 'pdp+ice'.
 * Introduced ALE plots into the `FeatureEffect` class  (`method='ale'`). They are now the default instead of PDPs, because they are faster and unbiased.

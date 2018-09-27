@@ -82,6 +82,10 @@ Predictor = R6::R6Class("Predictor",
     batch.size = NULL,
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
+      # Makes sure it's not a data.table
+      newdata = as.data.frame(newdata)
+      # make sure only features are used
+      newdata = newdata[,intersect(colnames(newdata), self$data$feature.names), drop = FALSE]
       prediction = self$prediction.function(newdata)
       if (!private$predictionChecked) {
         checkPrediction(prediction, newdata)
