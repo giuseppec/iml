@@ -207,7 +207,10 @@ LocalModel = R6::R6Class("LocalModel",
     intervene = function() private$dataSample, 
     generatePlot = function() {
       p = ggplot(self$results) + 
-        geom_col(aes(y = effect, x = reorder(feature.value,effect))) + coord_flip()
+        geom_col(aes(y = effect, x = reorder(feature.value,effect))) + 
+        coord_flip() + 
+        ylab("effect") + 
+        xlab("feature.value")
       if (private$multiClass) p = p + facet_wrap(".class")
       p
     },
