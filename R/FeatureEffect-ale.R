@@ -38,8 +38,8 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   interval.n.dat = as.numeric(table(interval.index))
   # the mean effect is the weighted mean of the interval mid point effects
   # weighted by the number of points in the interval
-  fJ0 =  deltas.accumulated[, list(.ale0 = sum(((deltas.accumulated$.y.hat.cumsum[1:(nrow(.SD) - 1)] + 
-      deltas.accumulated$.y.hat.cumsum[2:nrow(.SD)])/2) * interval.n.dat)/sum(interval.n.dat)), 
+  fJ0 =  deltas.accumulated[, list(.ale0 = sum(((.y.hat.cumsum[1:(nrow(.SD) - 1)] + 
+      .y.hat.cumsum[2:nrow(.SD)])/2) * interval.n.dat)/sum(interval.n.dat)), 
     by = ".class"]
   # centering the ALEs
   deltas.accumulated = merge(deltas.accumulated, fJ0, all.x = TRUE, by = ".class")

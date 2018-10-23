@@ -1,3 +1,6 @@
+# iml 0.7.2
+* Fixes problems with missing centering of ALE plots when using multiclass
+
 # iml 0.7.1
 * Fixes problems with wrong computation of feature importance, features effects and so on for xgboost models.
 
