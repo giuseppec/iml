@@ -237,7 +237,7 @@ order_levels = function(dat, feature.name) {
     feature.x = dat[, x, with = FALSE][[1]]
     dists = expand.grid(levels(feature), levels(feature))
     colnames(dists) = c("from.level", "to.level")
-    if(class(feature.x) == "factor") {
+    if(inherits(feature.x,  "factor")) {
       A = table(feature, feature.x) / x.count
       dists$dist = rowSums(abs(A[dists[,"from.level"],] - A[dists[,"to.level"],]))/2
     } else {
