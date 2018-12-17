@@ -79,12 +79,12 @@ test_that("get.grid", {
   
 })
 
-test_that("is.label.output", {
-  expect_equal(is.label.output(letters), TRUE)
-  expect_equal(is.label.output(as.factor(letters)), TRUE)
-  expect_equal(is.label.output(1:10), FALSE)
-  expect_equal(is.label.output(c(NA, 1:10)), FALSE)
-  expect_equal(is.label.output(iris), FALSE)
+test_that("is_label", {
+  expect_equal(is_label(letters), TRUE)
+  expect_equal(is_label(as.factor(letters)), TRUE)
+  expect_equal(is_label(1:10), FALSE)
+  expect_equal(is_label(c(NA, 1:10)), FALSE)
+  expect_equal(is_label(iris), FALSE)
 })
 
 

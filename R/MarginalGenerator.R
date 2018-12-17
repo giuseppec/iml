@@ -8,7 +8,7 @@
 MarginalGenerator = R6Class(
   public = list(
     finished = FALSE,
-    n.total = NULL,
+    n_total = NULL,
     initialize = function(grid.dat, dist.dat, features, n.sample.dist = NULL, y = NULL, id.dist = FALSE, cartesian = FALSE) {
       assert_data_table(grid.dat)
       assert_data_table(dist.dat)
@@ -33,7 +33,7 @@ MarginalGenerator = R6Class(
       private$n.sample.dist = n.sample.dist
       private$id.dist = id.dist
       private$y = y
-      self$n.total = n.sample.dist * nrow(grid.dat)
+      self$n_total = n.sample.dist * nrow(grid.dat)
       
       private$grid.index = rep(1:nrow(grid.dat), each = n.sample.dist)
       

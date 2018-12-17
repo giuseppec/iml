@@ -134,7 +134,7 @@ Predictor = R6::R6Class("Predictor",
       self$class = class
       self$model = model
       self$task = inferTaskFromModel(model)
-      self$prediction.function = createPredictionFunction(model, self$task, predict.fun, type = type)
+      self$prediction.function = create_predict_fun(model, self$task, predict.fun, type = type)
       self$batch.size = batch.size
     }
   ), 

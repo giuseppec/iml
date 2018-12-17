@@ -172,13 +172,13 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
         .y.hat.tree = self$predict(private$dataDesign, type = "prob")
         colnames(.y.hat.tree) = paste(".y.hat.tree.", colnames(.y.hat.tree), sep="")
         private$tree.predict.colnames = colnames(.y.hat.tree)
-        self$r.squared = private$compute.r.squared(.y.hat.tree, outcome)
+        self$r.squared = private$compute_r2(.y.hat.tree, outcome)
         #.y.hat.tree = gather(.y.hat.tree, ".class.tree", ".y.hat.tree")
         result = cbind(result, outcome, .y.hat.tree)
       } else {
         result$.y.hat = private$qResults[[1]]
         result$.y.hat.tree = self$predict(private$dataDesign)[[1]]
-        self$r.squared = private$compute.r.squared(result$.y.hat.tree, result$.y.hat)
+        self$r.squared = private$compute_r2(result$.y.hat.tree, result$.y.hat)
       }
       design = private$dataDesign
       rownames(design) = NULL
@@ -202,7 +202,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
       }
       p
     }, 
-    compute.r.squared = function(predict.tree, predict.model) {
+    compute_r2 = function(predict.tree, predict.model) {
       r.squared = function(pred.tree, pred.mod) {
         SST = var(pred.mod)
         SSE = var(pred.tree - pred.mod)

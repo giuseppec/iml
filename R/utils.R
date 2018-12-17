@@ -98,7 +98,7 @@ pathpred = function(object, ...) {
 }
 
 
-is.label.output = function(pred) {
+is_label = function(pred) {
   if (inherits(pred, c("character", "factor"))) return(TRUE)
   if (inherits(pred, c("data.frame", "matrix")) && 
       inherits(pred[,1], "character") && ncol(pred) == 1) {
