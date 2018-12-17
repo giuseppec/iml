@@ -210,14 +210,14 @@ FeatureEffect = R6::R6Class("FeatureEffect",
     feature.type = NULL,
     method  = NULL,
     initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20, run = TRUE) {
-      feature = private$sanitize.feature(feature, predictor$data$feature.names)
-      assert_numeric(feature, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
+      feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
+      assert_numeric(feature_index, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_number(center.at, null.ok = TRUE)
       assert_choice(method, c("ale", "pdp", "ice", "pdp+ice"))
       self$method = method
-      if (length(feature) == 2) { 
-        assert_false(feature[1] == feature[2])
+      if (length(feature_index) == 2) { 
+        assert_false(feature_index[1] == feature_index[2])
         center.at = NULL
         if(method %in% c("ice", "pdp+ice")) {
           stop("ICE is not implemented for two features.")
@@ -225,7 +225,9 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       }
       private$anchor.value = center.at
       super$initialize(predictor)
-      private$setFeatureFromIndex(feature)
+      private$set_feature_from_index(feature_index)
+      if(length(feature_index) == 1 & length(unique(self$predictor$data$get.x()[[feature_index]])) == 1) 
+        stop("feature has only one unique value")
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
       if(run) self$run(self$predictor$batch.size)
@@ -233,7 +235,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
     set.feature = function(feature) {
       feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
       private$flush()
-      private$setFeatureFromIndex(feature)
+      private$set_feature_from_index(feature)
       private$set.grid.size(private$grid.size.original)
       self$run(self$predictor$batch.size)
     },
@@ -338,7 +340,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       self$results = data.frame(results)
     }
     , 
-    setFeatureFromIndex = function(feature.index) {
+    set_feature_from_index = function(feature.index) {
       self$n.features = length(feature.index)
       self$feature.type = private$sampler$feature.types[feature.index]
       self$feature.name = private$sampler$feature.names[feature.index]

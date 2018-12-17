@@ -423,3 +423,8 @@ test_that("method='ale' works for 2D numerical x categorical", {
 })
 
 
+test_that("method='ale' in case of single category as well", {
+  dat.reduced = X[3:5,]
+  pred.reduced = Predictor$new(data = dat.reduced, predict.fun = f)
+  expect_error(FeatureEffect$new(pred.reduced, feature = 4, method = "ale"), "feature has only one unique value")
+})
