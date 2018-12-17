@@ -129,6 +129,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     }, 
     predict = function(newdata, type = "prob", ...) {
       assert_choice(type, c("prob", "class"))
+      newdata = private$match_cols(newdata)
       res = data.frame(predict(self$tree, newdata = newdata, type = "response", ...))
       if (private$multiClass) {
         if (type == "class") {
@@ -147,6 +148,7 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     # Only relevant in multiClass case
     object.predict.colnames = NULL,
     intervene = function() private$dataSample,
+    match_cols = function(newdata) self$predictor$data$match_cols(data.frame(newdata)),
     aggregate = function() {
       y.hat = private$qResults
       if (private$multiClass) {

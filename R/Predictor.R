@@ -123,6 +123,13 @@ Predictor = R6::R6Class("Predictor",
       if(is.null(model) & is.null(predict.fun)) { 
         stop("Provide a model, a predict.fun or both!")  
       }
+      
+      # if (is.null(y) & inherits(model, "WrappedModel")) {
+      #   target = mod$task.desc$target
+      #   if (target %in% colnames(data)) {
+      #     y = target
+      #   }
+      # }
       self$data = Data$new(data, y = y)
       self$class = class
       self$model = model

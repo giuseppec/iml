@@ -58,3 +58,13 @@ test_that("TreeSurrogate works for multiple output with selected class", {
   expect_numeric(tree$r.squared, lower = lower.r.squared, upper = upper.r.squared, any.missing = FALSE, len = )  
   
 })
+
+
+test_that("TreeSurrogate prediction expects same cols as training dat", {
+  
+  tree = TreeSurrogate$new(predictor1)
+  dat = tree$results
+  expect_warning(tree$predict(cbind(X, data.frame(blabla = 1))))
+  expect_error(tree$predict(X[-2]), "Missing")
+})
+

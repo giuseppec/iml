@@ -65,3 +65,16 @@ test_that("LocalModel works for multiple output", {
 
 
 
+
+test_that("LocalModel prediction expects same cols as training dat", {
+  
+  x.interest = X[2,]
+  k = 2
+  set.seed(42)
+  LocalModel1 = LocalModel$new(predictor1, x.interest=x.interest, k = k)
+  expect_warning(LocalModel1$predict(cbind(x.interest, data.frame(blabla = 1))))
+  expect_error(LocalModel1$predict(x.interest[-2]), "Missing")
+})
+
+
+

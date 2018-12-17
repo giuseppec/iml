@@ -9,6 +9,19 @@ Data  = R6::R6Class("Data",
     n.features = NULL,
     n.rows = NULL,
     prob = NULL,
+    # Removes additional columns, stops when some are missing
+    match_cols = function(newdata) {
+      colnames_new = colnames(newdata)
+      missing_columns = setdiff(self$feature.names, colnames_new)
+      if(length(missing_columns) > 0) {
+        stop(sprintf("Missing columns: %s", paste(missing_columns, collapse = ", ")))
+      }
+      additional_columns = setdiff(colnames_new, self$feature.names)
+      if(length(additional_columns) > 0) {
+        warning(sprintf("Dropping additional columns: %s", paste(additional_columns, collapse = ", ")))
+      }
+      newdata[self$feature.names]
+    },
     sample = function(n=100, replace = TRUE, prob = NULL, get.y=FALSE) {
       if (is.null(prob) & !is.null(self$prob)) {
         prob = self$prob
