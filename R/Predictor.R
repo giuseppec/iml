@@ -19,10 +19,15 @@
 #' Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).}
 #' \item{data: }{(data.frame)\cr The data to be used for analysing the prediction model. Allowed column classes are: numeric, factor, integer, ordered and character.}
 #' \item{y: }{((`character(1)`) | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.}
-#' \item{class: }{(`character(1)`)\cr The class column to be returned in case of multiclass output.}
-#' \item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.}
-#' \item{type: }{(`character(1)`)\cr This argument is passed to the prediction function of the model. The classic use case is to say type="prob" for classification models. 
-#' For example for caret models or the most S3 predict methods. If both predict.fun and type are used, then type is passed as an argument to predict.fun.}
+#' \item{class: }{(`character(1)`)\cr The class column to be returned in case of multiclass output. 
+#' You can either use numbers, e.g. class=2 would take the 2nd column from the predictions, or the column name of the predicted class, e.g. class="dog".}
+#' \item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package. 
+#' The first argument of predict.fun has to be the model, the second the newdata: function(model, newdata)}
+#' \item{type: }{(`character(1)`)\cr This argument is passed to the prediction function of the model. 
+#' For regression models you usually don't have to provide the type argument.
+#' The classic use case is to say type="prob" for classification models. 
+#' Consult the documentation of the machine learning package you use to find which type options you have.
+#' If both predict.fun and type are used, then type is passed as an argument to predict.fun.}
 #' \item{batch.size: }{(`numeric(1)`)\cr The maximum number of rows to be input the model for prediction at once. Currently only respected for FeatureImp, Partial and Interaction.}
 #' }
 #' 
