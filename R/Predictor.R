@@ -17,8 +17,10 @@
 #' \describe{
 #' \item{model: }{(any)\cr The machine learning model. Recommended are models from mlr and caret.
 #' Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).}
-#' \item{data: }{(data.frame)\cr The data to be used for analysing the prediction model. Allowed column classes are: numeric, factor, integer, ordered and character.}
-#' \item{y: }{((`character(1)`) | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.}
+#' \item{data: }{(data.frame)\cr The data to be used for analysing the prediction model. Allowed column classes are: numeric, factor, integer, ordered and character.
+#' For some models the data can be extracted automatically. Predictor$new throws an error when it can't extract the data automatically.}
+#' \item{y: }{((`character(1)`) | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.
+#' Predictor tries to infer the target automatically from the model.}
 #' \item{class: }{(`character(1)`)\cr The class column to be returned in case of multiclass output. 
 #' You can either use numbers, e.g. class=2 would take the 2nd column from the predictions, or the column name of the predicted class, e.g. class="dog".}
 #' \item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package. 
