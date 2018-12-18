@@ -119,7 +119,12 @@ plot(eff)
 
 # Since the result is a ggplot object, you can extend it: 
 if (require("ggplot2")) {
- plot(eff) + ggtitle("Partial dependence")
+ plot(eff) + 
+ # Adds a title
+ ggtitle("Partial dependence") + 
+ # Adds original predictions
+ geom_point(data = Boston, aes(y = mod$predict(Boston)[[1]], x = rm), 
+ color =  "pink", size = 0.5)
 }
 
 # If you want to do your own thing, just extract the data: 
