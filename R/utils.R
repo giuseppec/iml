@@ -259,3 +259,5 @@ order_levels = function(dat, feature.name) {
   order(scaled)
 }
 
+
+

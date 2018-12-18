@@ -44,6 +44,28 @@ test_that("f works", {
   expect_equal(prediction.f[,1], predictor.f.1$predict(iris.test)$setosa)
 })
 
+test_that("extracts y automatically for mlr::WrappedModel", {
+  expect_equal(predictor.mlr$data$y.names, "Species")
+})
+
+test_that("extracts y automatically for caret::train", {
+  expect_equal(predictor.caret$data$y.names, "Species")
+})
+
+test_that("extracts y automatically for randomForest", {
+  expect_equal(predictor.S3$data$y.names, "Species")
+})
+
+test_that("extracts data automatically for caret::train", {
+  predictor.caret2 = Predictor$new(mod.caret, type = "prob")
+  expect_equal(data.frame(predictor.caret2$data$X), iris[,-which(names(iris) == "Species")])
+})
+
+test_that("errors when trying to extrat data from for mlr::WrappedModel", {
+  expect_error(Predictor$new(mod.mlr, type = "prob"))
+})
+
+
 
 # Test single class  predictions
 

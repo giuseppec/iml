@@ -117,19 +117,28 @@ Predictor = R6::R6Class("Predictor",
         cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
       }
     },
-    initialize = function(model = NULL, data, predict.fun = NULL, y = NULL, class=NULL, 
+    initialize = function(model = NULL, data = NULL, predict.fun = NULL, y = NULL, class=NULL, 
       type = NULL, batch.size = 1000) {
       assert_number(batch.size, lower = 1)
       if(is.null(model) & is.null(predict.fun)) { 
         stop("Provide a model, a predict.fun or both!")  
       }
+      if (is.null(data)) {
+        tryCatch({data = prediction::find_data(model)}, 
+          error = function(e) stop("Can't extract data from model, please provide via data="))
+      }
+      if (is.null(y)) {
+        y = find_y(model)
+        # Extra fix for caret, because it renames the target in the data
+        if(inherits(model, "train")) {
+          colnames(data)[colnames(data) == ".outcome"] = y
+        }
+        # y not always needed, so ignore when not in data
+        if(is.character(y) && !(y %in% names(data))) {
+          y = NULL
+        }
+      }
       
-      # if (is.null(y) & inherits(model, "WrappedModel")) {
-      #   target = mod$task.desc$target
-      #   if (target %in% colnames(data)) {
-      #     y = target
-      #   }
-      # }
       self$data = Data$new(data, y = y)
       self$class = class
       self$model = model

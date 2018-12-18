@@ -27,7 +27,9 @@ Imports: R6,
          Metrics, 
          data.table,
          foreach,
-         yaImpute
+         yaImpute,
+         prediction,
+         Formula
 Suggests: randomForest,
           gower, 
           testthat, 
