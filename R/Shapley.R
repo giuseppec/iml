@@ -181,7 +181,13 @@ Shapley = R6::R6Class("Shapley",
       }
       p = ggplot(res) + 
         geom_col(aes(y = phi, x=feature.value)) + coord_flip()
-      if (private$multiClass) p = p + facet_wrap("class")
+      if (private$multiClass) {
+        p = p + facet_wrap("class")
+      } else {
+        p = p + ggtitle(sprintf("Actual prediction: %.2f\nAverage prediction: %.2f", 
+          self$y.hat.interest, self$y.hat.average))
+        
+      }
       p
     },
     printParameters = function() {

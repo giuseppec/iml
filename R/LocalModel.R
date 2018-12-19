@@ -216,7 +216,12 @@ LocalModel = R6::R6Class("LocalModel",
         geom_col(aes(y = effect, x = reorder(feature.value,effect))) + 
         coord_flip() + 
         ylab("effect") + 
-        xlab("feature.value")
+        xlab("feature.value") 
+      if (!private$multiClass) {
+        original_prediction = self$predictor$predict(self$x.interest)[[1]]
+        p = p + ggtitle(sprintf("Actual prediction: %.2f\nLocalModel prediction: %.2f", 
+          original_prediction, self$predict()))
+      }
       if (private$multiClass) p = p + facet_wrap(".class")
       p
     },
