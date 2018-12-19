@@ -36,7 +36,6 @@ test_that("FeatureImp works for single output", {
   cart.indices = c(1, 1, 1, 2, 2, 2, 3, 3, 3)
   cartesian.error = Metrics::mse(y.exact[cart.indices], c(1, 2, 3, 1, 2, 3, 1, 2, 3))
   
-  # TODO: Check where the error comes from. Maybe something with that the predictor does not give correct results
   # n.repetitions should be ignored
   var.imp = FeatureImp$new(f.exact, loss = "mse", method = "cartesian")
   dat = var.imp$results
@@ -49,6 +48,11 @@ test_that("FeatureImp works for single output", {
   expect_s3_class(p, c("gg", "ggplot"))
   p
   
+  var.imp = FeatureImp$new(f.exact, loss = "mse", method = "cartesian", compare = "difference")
+  expect_equal(model.error, var.imp$original.error)
+  expect_equal(var.imp$results$importance, c(cartesian.error, 1) - 1)
+  
+  
   p = plot(var.imp, sort = FALSE)
   expect_s3_class(p, c("gg", "ggplot"))
   p
@@ -57,6 +61,19 @@ test_that("FeatureImp works for single output", {
   expect_s3_class(p, c("gg", "ggplot"))
   p
 
+})
+
+test_that("FeatureImp with difference", {
+  
+  var.imp = FeatureImp$new(predictor1, loss = "mse", compare = "difference")
+  dat = var.imp$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(nrow(dat), ncol(X))  
+  p = plot(var.imp)
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
 })
 
 test_that("FeatureImp works for single output and function as loss", {

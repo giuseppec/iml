@@ -11,7 +11,7 @@ The importance is measured as the factor by which the model's prediction error i
 \section{Usage}{
 
 \preformatted{
-imp = FeatureImp$new(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE)
+imp = FeatureImp$new(predictor, loss, method = "shuffle", compare = "ratio", n.repetitions = 3, run = TRUE)
 
 plot(imp)
 imp$results
@@ -28,6 +28,9 @@ For FeatureImp$new():
 The object (created with Predictor$new()) holding the machine learning model and the data.}
 \item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a loss function. See Details for allowed losses.}
 \item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
+\item{compare: }{(`character(1)`)\cr Either "ratio" or "difference". 
+Should importance be measured as the difference or as the ratio of original model error and model error after permutation?
+Ratio: error.permutation/error.orig,   Difference: error.permutation - error.orig}
 \item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
 The higher the number of repetitions the more stable the results will become.}
 \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
@@ -60,6 +63,7 @@ See \code{library(help = "Metrics")} to get a list of functions.
 \describe{
 \item{original.error: }{(`numeric(1)`)\cr The loss of the model before perturbing features.}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
+#' \item{compare: }{(`character(1)`)\cr Either "ratio" or "difference", depending on whether the importance was calculated as difference between original model error and model error after permutation or as ratio.}
 \item{results: }{(data.frame)\cr data.frame with the results of the feature importance computation.}
 }
 }
@@ -101,6 +105,13 @@ if (require("ggplot2")) {
   ggplot(imp.dat, aes(x = feature, y = importance)) + geom_point() + 
   theme_bw()
 }
+
+# We can also look at the difference in model error instead of the ratio
+imp = FeatureImp$new(mod, loss = "mae", compare = "difference")
+
+# Plot the results directly
+plot(imp)
+
 
 # FeatureImp also works with multiclass classification. 
 # In this case, the importance measurement regards all classes

@@ -9,7 +9,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' imp = FeatureImp$new(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE)
+#' imp = FeatureImp$new(predictor, loss, method = "shuffle", compare = "ratio", n.repetitions = 3, run = TRUE)
 #' 
 #' plot(imp)
 #' imp$results
@@ -24,6 +24,9 @@
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
 #' \item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a loss function. See Details for allowed losses.}
 #' \item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
+#' \item{compare: }{(`character(1)`)\cr Either "ratio" or "difference". 
+#' Should importance be measured as the difference or as the ratio of original model error and model error after permutation?
+#' Ratio: error.permutation/error.orig,   Difference: error.permutation - error.orig}
 #' \item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
 #' The higher the number of repetitions the more stable the results will become.}
 #' \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
@@ -52,6 +55,7 @@
 #' \describe{
 #' \item{original.error: }{(`numeric(1)`)\cr The loss of the model before perturbing features.}
 #' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
+#' #' \item{compare: }{(`character(1)`)\cr Either "ratio" or "difference", depending on whether the importance was calculated as difference between original model error and model error after permutation or as ratio.}
 #' \item{results: }{(data.frame)\cr data.frame with the results of the feature importance computation.}
 #' }
 #' 
@@ -97,6 +101,13 @@
 #'   theme_bw()
 #' }
 #' 
+#' # We can also look at the difference in model error instead of the ratio
+#' imp = FeatureImp$new(mod, loss = "mae", compare = "difference")
+#' 
+#' # Plot the results directly
+#' plot(imp)
+#' 
+#' 
 #' # FeatureImp also works with multiclass classification. 
 #' # In this case, the importance measurement regards all classes
 #' tree = rpart(Species ~ ., data= iris)
@@ -124,11 +135,14 @@ FeatureImp = R6::R6Class("FeatureImp",
     loss = NULL,
     original.error = NULL,
     n.repetitions = NULL,
-    initialize = function(predictor, loss, method = "shuffle", n.repetitions = 3, run = TRUE, parallel = FALSE) {
+    compare = NULL,
+    initialize = function(predictor, loss, method = "shuffle", compare = "ratio", n.repetitions = 3, run = TRUE, parallel = FALSE) {
       assert_choice(method, c("shuffle", "cartesian"))
+      assert_choice(compare, c("ratio", "difference"))
       assert_number(n.repetitions)
       assert_logical(parallel)
       private$parallel = parallel
+      self$compare = compare
       if (n.repetitions > predictor$data$n.rows) {
         message('Number of repetitions larger than number of unique permutations per row. 
           Switching to method = "cartesian"')
@@ -210,7 +224,11 @@ FeatureImp = R6::R6Class("FeatureImp",
         estimate.feature.imp(feature, data.sample = data.sample, y = y, cartesian = cartesian, 
           n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss)
       result$original.error = self$original.error
-      result[, importance := permutation.error / self$original.error]
+      if (self$compare == "ratio") {
+        result[, importance := permutation.error / self$original.error]
+      } else {
+        result[, importance := permutation.error - self$original.error]
+      }
       result = result[order(result$importance, decreasing = TRUE),]
       # Removes the n column
       result = result[,list(feature, original.error, permutation.error, importance)]
@@ -222,8 +240,9 @@ FeatureImp = R6::R6Class("FeatureImp",
       if (sort) {
         res$feature = factor(res$feature, levels = res$feature[order(res$importance)])
       }
+      xstart = ifelse(self$compare == "ratio", 1, 0)
       ggplot(res, aes(y = feature, x = importance)) + geom_point()+ 
-        geom_segment(aes(y = feature, yend = feature, x=1, xend = importance)) + 
+        geom_segment(aes(y = feature, yend = feature, x=xstart, xend = importance)) + 
         scale_x_continuous("Feature Importance") + 
         scale_y_discrete("Feature")
     }, 

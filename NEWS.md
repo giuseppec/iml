@@ -1,7 +1,7 @@
 # iml 0.7.2
 * Fixes problems with missing centering of ALE plots when using multiclass
 * Automatically extracts data and target from the model when possible (based on  the `prediction::find_data` function). Data extraction doesn't work with mlr, but target extraction does.
-*
+* Feature importance (`FeatureImp`) automatically returned the ratio of permuted model error and original model error. With 0.7.2 the user can choose between the ratio (default) and the difference.
 
 # iml 0.7.1
 * Fixes problems with wrong computation of feature importance, features effects and so on for xgboost models.
