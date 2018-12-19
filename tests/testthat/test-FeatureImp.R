@@ -76,6 +76,24 @@ test_that("FeatureImp with difference", {
   p
 })
 
+test_that("FeatureImp with 0 model error", {
+  data(iris)
+  require("mlr")
+  lrn = mlr::makeLearner("classif.rpart", predict.type = "prob")
+  tsk = mlr::makeClassifTask(data = iris, target = "Species")
+  mod = mlr::train(lrn, tsk)
+  pred = Predictor$new(mod, data = iris, y = iris$Species == "setosa", class = "setosa")
+  expect_warning({var.imp = FeatureImp$new(pred, loss = "mae")}, "Model error is 0")
+  expect_equal(var.imp$compare, "difference")
+  dat = var.imp$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), expectedColnames)
+  p = plot(var.imp)
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
+})
+
 test_that("FeatureImp works for single output and function as loss", {
     
   var.imp = FeatureImp$new(predictor1, loss = Metrics::mse)
