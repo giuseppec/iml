@@ -2,7 +2,7 @@ context("FeatureImp()")
 
 #set.seed(42)
 
-expectedColnames = c("feature", "original.error", "permutation.error", "importance")
+expectedColnames = c("feature", "importance.05", "importance", "importance.95", "permutation.error")
 
 test_that("FeatureImp works for single output", {
   
@@ -16,42 +16,6 @@ test_that("FeatureImp works for single output", {
   expect_s3_class(p, c("gg", "ggplot"))
   p
   
-  var.imp = FeatureImp$new(predictor1,  loss = "mse", method = "cartesian")
-  dat = var.imp$results
-  # Making sure the result is sorted by decreasing importance
-  expect_class(dat, "data.frame")
-  expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
-  expect_equal(colnames(dat), expectedColnames)
-  expect_equal(nrow(dat), ncol(X))  
-  p = plot(var.imp)
-  expect_s3_class(p, c("gg", "ggplot"))
-  p
-  
-  X.exact = data.frame(x1 = c(1,2,3), x2 = c(9,4,2))
-  y.exact = c(2,3,4)
-  f.exact = Predictor$new(predict.fun = function(newdata) newdata[["x1"]], data = X.exact, y = y.exact)
-  # creates a problem on win builder
-  # model.error = Metrics::mse(y.exact, f.exact$predict(X.exact))
-  model.error = 1
-  cart.indices = c(1, 1, 1, 2, 2, 2, 3, 3, 3)
-  cartesian.error = Metrics::mse(y.exact[cart.indices], c(1, 2, 3, 1, 2, 3, 1, 2, 3))
-  
-  # n.repetitions should be ignored
-  var.imp = FeatureImp$new(f.exact, loss = "mse", method = "cartesian")
-  dat = var.imp$results
-  expect_class(dat, "data.frame")
-  expect_equal(dat$importance, c(cartesian.error, 1))
-  expect_equal(colnames(dat), expectedColnames)
-  expect_equal(model.error, var.imp$original.error)
-  expect_equal(nrow(dat), ncol(X.exact))  
-  p = plot(var.imp)
-  expect_s3_class(p, c("gg", "ggplot"))
-  p
-  
-  var.imp = FeatureImp$new(f.exact, loss = "mse", method = "cartesian", compare = "difference")
-  expect_equal(model.error, var.imp$original.error)
-  expect_equal(var.imp$results$importance, c(cartesian.error, 1) - 1)
-  
   
   p = plot(var.imp, sort = FALSE)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -60,7 +24,19 @@ test_that("FeatureImp works for single output", {
   p = var.imp$plot()
   expect_s3_class(p, c("gg", "ggplot"))
   p
+})
 
+test_that("FeatureImp works for single output with single repetition", {
+  
+  var.imp = FeatureImp$new(predictor1, loss = "mse", n.repetitions = 1)
+  dat = var.imp$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(nrow(dat), ncol(X))  
+  p = plot(var.imp)
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
 })
 
 test_that("FeatureImp with difference", {
@@ -95,7 +71,7 @@ test_that("FeatureImp with 0 model error", {
 })
 
 test_that("FeatureImp works for single output and function as loss", {
-    
+  
   var.imp = FeatureImp$new(predictor1, loss = Metrics::mse)
   dat = var.imp$results
   expect_class(dat, "data.frame")

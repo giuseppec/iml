@@ -19,6 +19,13 @@ ggplot2 plot object
 \description{
 plot.FeatureImp() plots the feature importance results of a FeatureImp object.
 }
+\details{
+The plot shows the importance per feature.
+
+When n.repetitions in `FeatureImp$new` was larger than 1, then we get multiple importance estimates per feature.
+The importances are aggregated and the plot shows the median importance per feature (as dots) and also the 90%-quantile, which 
+helps to understand how much variance the computation has per feature.
+}
 \examples{
  
 if (require("rpart")) {

@@ -11,9 +11,9 @@ The importance is measured as the factor by which the model's prediction error i
 \section{Usage}{
 
 \preformatted{
-imp = FeatureImp$new(predictor, loss, method = "shuffle", compare = "ratio", n.repetitions = 3, run = TRUE)
+imp = FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5, run = TRUE)
 
-plot(imp)
+imp$plot()
 imp$results
 print(imp)
 }
@@ -26,13 +26,13 @@ For FeatureImp$new():
 \describe{
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a loss function. See Details for allowed losses.}
-\item{method: }{(`character(1)`\cr Either "shuffle" or "cartesian". See Details.}
+\item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
 \item{compare: }{(`character(1)`)\cr Either "ratio" or "difference". 
 Should importance be measured as the difference or as the ratio of original model error and model error after permutation?
 Ratio: error.permutation/error.orig,   Difference: error.permutation - error.orig}
-\item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated? Ignored if method is set to "cartesian".
-The higher the number of repetitions the more stable the results will become.}
+\item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated?
+The higher the number of repetitions the more stable and accurate the results become. 
+}
 \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
@@ -40,14 +40,15 @@ The higher the number of repetitions the more stable the results will become.}
 
 \section{Details}{
 
-Read the Interpretable Machine Learning book to learn in detail about feature importance: 
+
+To compute the feature importance for a single feature, the model prediction loss (error) is measured before
+and after shuffling the values of the feature. By shuffling the feature values, the association between the 
+outcome and the feature is destroyed. The larger the increase in prediction error, the more important
+the feature was. The shuffling is repeated to get more accurate results, since the permutation 
+feature importance tends to be quite instable.
+Read the Interpretable Machine Learning book to learn about feature importance  in detail: 
 \url{https://christophm.github.io/interpretable-ml-book/feature-importance.html}
 
-Two permutation schemes are implemented: 
-\itemize{
-\item shuffle: A simple shuffling of the feature values, yielding n perturbed instances per feature (fast)
-\item cartesian: Matching every instance with the feature value of all other instances, yielding n x (n-1) perturbed instances per feature (very slow)
-}
 
 The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
 If you want to use your own loss function it should have this signature: function(actual, predicted).
@@ -63,8 +64,12 @@ See \code{library(help = "Metrics")} to get a list of functions.
 \describe{
 \item{original.error: }{(`numeric(1)`)\cr The loss of the model before perturbing features.}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-#' \item{compare: }{(`character(1)`)\cr Either "ratio" or "difference", depending on whether the importance was calculated as difference between original model error and model error after permutation or as ratio.}
-\item{results: }{(data.frame)\cr data.frame with the results of the feature importance computation.}
+\item{compare: }{(`character(1)`)\cr Either "ratio" or "difference", depending on whether the importance was calculated as difference between original model error and model error after permutation or as ratio.}
+\item{results: }{(data.frame)\cr data.frame with the results of the feature importance computation. One row per feature with the following columns:
+                 importance.05 (5% quantile of importance values from the repetitions), 
+                 importance (median importance),
+                 importance.95 (95% quantile) and the permutation.error (median error over all repetitions). The distribution of the importance 
+                 is also visualized as a bar in the plots, the median importance over the repetitions as a point.}
 }
 }
 

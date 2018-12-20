@@ -1,4 +1,9 @@
-# iml 0.7.2
+# iml 0.8.0
+* Some bigger changes in the feature importance class `FeatureImp`:
+  - The `method` argument was removed, only shuffling is now possible. This means the cartesian product of all data points with all data points is not an option any longer. It was never really practical to use, except for toy examples.
+  - The importance plot shows the name of the loss function in the x-axis label.
+  - The importance plot shows the quantiles of importance over the different repetitions.
+  - Default number of repetitions increased to 5.
 * Fixes problems with missing centering of ALE plots when using multiclass
 * Automatically extracts data and target from the model when possible (based on  the `prediction::find_data` function). Data extraction doesn't work with mlr, but target extraction does.
 * Feature importance (`FeatureImp`) automatically returned the ratio of permuted model error and original model error. With 0.7.2 the user can choose between the ratio (default) and the difference.
