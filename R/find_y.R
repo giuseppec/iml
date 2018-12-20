@@ -1,4 +1,5 @@
 
+#' @importFrom stats formula terms
 find_y = function(mod) {
   if(is.null(mod)) return(NULL)
   UseMethod("find_y")
