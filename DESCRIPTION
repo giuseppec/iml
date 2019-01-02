@@ -1,8 +1,8 @@
 Package: iml
 Type: Package
 Title: Interpretable Machine Learning
-Version: 0.8.0
-Date: 2018-12-20
+Version: 0.8.1
+Date: 2019-01-02
 Authors@R: c(person(given = "Christoph", family = "Molnar", 
                     role = c("aut", "cre"), email = "christoph.molnar@gmail.com"))
 Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
