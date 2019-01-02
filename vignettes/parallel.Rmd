@@ -1,8 +1,8 @@
 ---
-title: "Doing model interpretation in parallel"
+title: "Parallelization of iml"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to iml: Interpretable Machine Learning in R}
+  %\VignetteIndexEntry{Parallelization of iml}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
