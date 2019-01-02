@@ -1,8 +1,8 @@
 ---
-title: "Parallelization of iml"
+title: "Parallel computation of interpretation methods"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Parallelization of iml}
+  %\VignetteIndexEntry{Parallel computation of interpretation methods}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
