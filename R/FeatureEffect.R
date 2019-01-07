@@ -1,4 +1,4 @@
-#' Effect of features on the model predictions (deprecated)
+#' Effect of one or two feature(s) on the model predictions (deprecated)
 #' 
 #' Deprecated, please use 'FeatureEffect', see ?FeatureEffect
 #' 
@@ -28,7 +28,7 @@ Partial = R6::R6Class("Partial",
 
 
 
-#' Effect of features on the model predictions
+#' Effect of a feature on the model predictions
 #' 
 #' \code{FeatureEffect} computes and plots (individual) feature effects of prediction models. 
 #' 
