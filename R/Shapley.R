@@ -116,6 +116,7 @@ Shapley = R6::R6Class("Shapley",
     initialize = function(predictor, x.interest = NULL, sample.size = 100,  run = TRUE) {
       checkmate::assert_data_frame(x.interest, null.ok = TRUE)
       super$initialize(predictor = predictor)
+      x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
       self$sample.size = sample.size
       if (!is.null(x.interest)) {
         private$set.x.interest(x.interest)
