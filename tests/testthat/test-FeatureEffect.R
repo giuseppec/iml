@@ -360,14 +360,14 @@ test_that("method='ale' works for 1D categorical", {
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), c( ".ale", "c"))
+  expect_equal(colnames(dat), c( ".ale", "c", ".type"))
   expect_equal(nrow(dat), length(unique(X$c)))  
   checkPlot(ale)
   
   expect_equal(ale$feature.name, "c")
   ale$set.feature(4)
   expect_equal(ale$feature.name, "d")
-  expect_equal(colnames(ale$results), c(".ale", "d"))
+  expect_equal(colnames(ale$results), c(".ale", "d", ".type"))
   # Centering 
   expect_warning(ale$center(0))
   
@@ -375,7 +375,7 @@ test_that("method='ale' works for 1D categorical", {
   ale = FeatureEffect$new(predictor2, feature = "c", method = "ale", grid.size = 100)
   dat = ale$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c(".class", ".ale",  "c"))
+  expect_equal(colnames(dat), c(".class", ".ale",  "c", ".type"))
   expect_equal(nrow(dat), length(unique(X$c)) * 2)  
   checkPlot(ale)
   
@@ -387,7 +387,7 @@ test_that("method='ale' works for 1D categorical", {
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), c( ".ale", "c"))
+  expect_equal(colnames(dat), c( ".ale", "c", ".type"))
   expect_equal(nrow(dat), length(unique(X$c)))  
   expect_equal(as.character(dat$c), c("a", "b", "c"))
   checkPlot(ale)

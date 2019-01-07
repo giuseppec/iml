@@ -243,6 +243,7 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   deltas = deltas[, list(.ale = .ale - sum(.ale * x.prob[level_order]), .level = levels.ordered), by = ".class"]
   colnames(deltas) = c(".class", ".ale", feature.name)
   deltas[, feature.name] = factor(deltas[,feature.name,with=FALSE][[1]], levels = levels.ordered)
+  deltas$.type = "ale"
   # make sure the rows are ordered by the new level order
   data.frame(deltas[order(deltas[[feature.name]]),])
 }

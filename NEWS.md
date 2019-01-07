@@ -1,3 +1,9 @@
+# iml 0.8.2
+* Add column ".type" to `$result` data.frame of `FeatureEffect` when `method="ale"` and the feature is categorical
+
+# iml 0.8.1
+* Fix vignette titles
+
 # iml 0.8.0
 * Some bigger changes in the feature importance class `FeatureImp`:
   - The `method` argument was removed, only shuffling is now possible. This means the cartesian product of all data points with all data points is not an option any longer. It was never really practical to use, except for toy examples.
