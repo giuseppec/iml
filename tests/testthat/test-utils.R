@@ -104,6 +104,18 @@ test_that("order_levels", {
   
 })
 
+test_that("get_layout", {
+  expect_equal(get_layout(10), list(nrows = 4, ncols = 3))
+  expect_equal(get_layout(1), list(nrows = 1, ncols = 3))
+  expect_equal(get_layout(10, ncols = 10), list(nrows = 1, ncols = 10))
+  expect_equal(get_layout(4, ncols = 10), list(nrows = 1, ncols = 10))
+  expect_equal(get_layout(100, nrows = 2), list(nrows = 2, ncols = 50))
+  expect_equal(get_layout(7,nrows = 2), list(nrows = 2, ncols = 4))
+  expect_equal(get_layout(7,nrows = 2, ncols = 1), list(nrows = 2, ncols = 1))
+  expect_equal(get_layout(2, nrows = 2, ncols = 2), list(nrows = 2, ncols = 2))
+  expect_equal(get_layout(200, nrows = 6, ncols = 2), list(nrows = 6, ncols = 2))
+  
+})
 
 
 

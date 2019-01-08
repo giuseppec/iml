@@ -2,7 +2,7 @@
 % Please edit documentation in R/FeatureEffect.R
 \name{FeatureEffect}
 \alias{FeatureEffect}
-\title{Effect of features on the model predictions}
+\title{Effect of a feature on the model predictions}
 \format{\code{\link{R6Class}} object.}
 \description{
 \code{FeatureEffect} computes and plots (individual) feature effects of prediction models.

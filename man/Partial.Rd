@@ -2,7 +2,7 @@
 % Please edit documentation in R/FeatureEffect.R
 \name{Partial}
 \alias{Partial}
-\title{Effect of features on the model predictions (deprecated)}
+\title{Effect of one or two feature(s) on the model predictions (deprecated)}
 \format{\code{\link{R6Class}} object.}
 \description{
 Deprecated, please use 'FeatureEffect', see ?FeatureEffect

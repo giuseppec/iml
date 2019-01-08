@@ -260,4 +260,27 @@ order_levels = function(dat, feature.name) {
 }
 
 
+# Get the layout for plotting multiple feature effects
+get_layout = function(n_features, nrows = NULL, ncols = NULL) {
+  assert_integerish(n_features, lower = 1, null.ok = FALSE, any.missing = FALSE)
+  assert_integerish(ncols, lower = 1, null.ok = TRUE, len = 1, any.missing = FALSE)
+  assert_integerish(nrows, lower = 1, null.ok = TRUE, len = 1, all.missing = FALSE)
+  
+  # Get the size of the gtable
+  if(is.null(nrows) & is.null(ncols)) {
+    ncols = 3
+    nrows = ceiling(n_features/ ncols)
+  } else {
+    if(is.null(nrows)) {
+      nrows = ceiling(n_features / ncols)
+    }
+    if(is.null(ncols)) {
+      ncols = ceiling(n_features / nrows)
+    }
+  }
+  list("nrows" = nrows, "ncols" = ncols)
+}
+
+
+
 

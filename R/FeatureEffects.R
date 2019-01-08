@@ -1,18 +1,18 @@
 #' Effect of all features on the model predictions
 #' 
-#' \code{FeatureEffects} computes and plots (individual) feature effects of prediction models. 
+#' \code{FeatureEffects} computes effects of multiple features on the prediction.
 #' 
 #' @format \code{\link{R6Class}} object.
-#' @name FeatureEffect
+#' @name FeatureEffects
 #' 
 #' @section Usage:
 #' \preformatted{
-#' effect = FeatureEffects$new(predictor, method = "ale", 
-#'     grid.size = 20, center.at = NULL, run = TRUE, parallel = FALSE)
+#' effects = FeatureEffects$new(predictor, features = NULL, method = "ale", 
+#'     grid.size = 20, center.at = NULL, parallel = FALSE)
 #' 
-#' plot(effect)
-#' effect$results
-#' print(effect)
+#' plot(effects)
+#' effects$results
+#' print(effects)
 #' }
 #' 
 #' @section Arguments:
@@ -21,29 +21,27 @@
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
+#' \item{features: }{(`character()`)}\cr 
+#' The names of the features for which the effects should be computed.
+#' Default is all features used in the prediction model.
 #' \item{method: }{(`character(1)`)\cr 
 #' 'ale' for accumulated local effects (the default), 
 #' 'pdp' for partial dependence plot, 
 #' 'ice' for individual conditional expectation curves,
 #' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
-#' \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered. Ignored in the case of two features.}
+#' \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered.}
 #' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
-#' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 #' }
 #' 
 #' @section Details:
 #' 
-#' The FeatureEffect class compute the effect a feature has on the prediction. 
-#' Different methods are implemented:
-#' \itemize{
-#' \item{Accumulated Local Effect (ALE) plots}
-#' \item{Partial Dependence Plots (PDPs)}
-#' \item{Individual Conditional Expectation (ICE) curves}
-#' }
-#'  
-#' FeatureEffects calls FeatureEffect for each feature.
+#' FeatureEffects computes the effects for all given features on the model prediction.
+#' FeatureEffects is a convenience class that calls FeatureEffect multiple times.
 #' See ?FeatureEffect for Detais what's actually computed.
+#' 
+#' Only first-order effects can be computed with the FeatureEffects interface. 
+#' If you are intereated in the visualization of interactions between two features, directly use FeatureEffect.
 #' 
 #' 
 #' @section Fields:
@@ -53,22 +51,25 @@
 #' 'pdp' for partial dependence plot, 
 #' 'ice' for individual conditional expectation curves,
 #' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
-#' \item{feature.name: }{(`character(1)` | `character(2)`)\cr The names of the features for which the partial dependence was computed.}
-#' \item{feature.type: }{(`character(1)` | `character(2)`)\cr The detected types of the features, either "categorical" or "numerical".}
-#' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid.}
-#' \item{center.at: }{(`numeric(1)` | `character(1)`)\cr The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
-#' \item{n.features: }{(`numeric(1)`)\cr The number of features (either 1 or 2)}
-#' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-#' \item{results: }{(data.frame)\cr data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
+#' \item{features: }{(`character()`)}\cr
+#' The names of the features for which the effects were computed.
+#' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr
+#' The size of the grid.}
+#' \item{center.at: }{(`numeric(1)` | `character(1)`)\cr
+#' The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
+#' \item{predictor: }{(Predictor)\cr
+#' The prediction model that was analysed.}
+#' \item{results: }{(list)\cr
+#' A list with the results of each feature effect. Each entry is a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' Can be used for creating custom partial dependence plots.}
+#' \item{effects: }{(list)\cr
+#' A list of the FeatureEffect objects for each feature. See ?FeatureEffect what you can do with them (e.g. plot the individually).
+#' }
 #' }
 #' 
 #' @section Methods:
 #' \describe{
-#' \item{center()}{method to set the value at which the ice computations are centered. See examples.}
-#' \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 #' \item{plot()}{method to plot the partial dependence function. See \link{plot.FeatureEffect}}
-#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -93,70 +94,40 @@
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
-#' # Compute the accumulated local effects for the first feature
-#' eff = FeatureEffects$new(mod, grid.size = 30, run = TRUE)
+#' # Compute the accumulated local effects for all features
+#' eff = FeatureEffects$new(mod)
 #' eff$plot()
 #' 
 #' # Again, but this time with a partial dependence plot and ice curves
-#' eff = FeatureEffect$new(mod, feature = "rm", method = "pdp+ice", grid.size = 30)
-#' plot(eff)
+#' eff = FeatureEffects$new(mod, method = "pdp+ice", grid.size = 30)
+#' eff$plot()
 #' 
-#' # Since the result is a ggplot object, you can extend it: 
-#' if (require("ggplot2")) {
-#'  plot(eff) + 
-#'  # Adds a title
-#'  ggtitle("Partial dependence") + 
-#'  # Adds original predictions
-#'  geom_point(data = Boston, aes(y = mod$predict(Boston)[[1]], x = rm), 
-#'  color =  "pink", size = 0.5)
-#' }
+#' # Only a subset of features
+#' eff = FeatureEffects$new(mod, features = c("nox", "crim", "lstat"))
+#' eff$plot()
 #' 
-#' # If you want to do your own thing, just extract the data: 
-#' eff.dat = eff$results
-#' head(eff.dat)
+#' # Centering the lines
+#' eff = FeatureEffects$new(mod, method = "ice", center.at = 0)
+#' plot(eff) 
 #' 
-#' # You can reuse the pdp object for other features: 
-#' eff$set.feature("lstat")
-#' plot(eff)
-#'#' eff = FeatureEffects$new
-#' # Only plotting the aggregated partial dependence:  
-#' eff = FeatureEffect$new(mod, feature = "crim", method = "pdp")
-#' eff$plot() 
-#'
-#' # Only plotting the individual conditional expectation:  
-#' eff = FeatureEffect$new(mod, feature = "crim", method = "ice")
-#' eff$plot() 
-#'   
-#' # Accumulated local effects and partial dependence plots support up to two features: 
-#' eff = FeatureEffect$new(mod, feature = c("crim", "lstat"))  
-#' plot(eff)
+#' # You can access each FeatureEffect individually
+#' 
+#' eff.nox = eff$effects[["nox"]]
+#' eff.nox$plot()
+#' 
 #' 
 #' 
 #' # Partial dependence plots also works with multiclass classification
 #' rf = randomForest(Species ~ ., data = iris, ntree=50)
 #' mod = Predictor$new(rf, data = iris, type = "prob")
 #' 
-#' # For some models we have to specify additional arguments for the predict function
-#' plot(FeatureEffect$new(mod, feature = "Petal.Width"))
-#'
-#' # Partial dependence plots support up to two features: 
-#' eff = FeatureEffect$new(mod, feature = c("Sepal.Length", "Petal.Length"))
-#' eff$plot()   
-#' 
-#' # show where the actual data lies
-#' eff$plot(show.data = TRUE)   
-#' 
-#' # For multiclass classification models, you can choose to only show one class:
-#' mod = Predictor$new(rf, data = iris, type = "prob", class = 1)
-#' plot(FeatureEffect$new(mod, feature = "Sepal.Length"))
+#' FeatureEffects$new(mod)$plot(ncol = 2)
 #' }
 NULL
 
 
 
 #' @export
-
-
 FeatureEffects = R6::R6Class("FeatureEffects", 
   inherit = InterpretationMethod,
   public = list(
@@ -166,36 +137,32 @@ FeatureEffects = R6::R6Class("FeatureEffects",
     method  = NULL,
     # The named list of FeatureEffect
     effects = NULL,
-    initialize = function(predictor, method = "ale", center.at = NULL, 
-      grid.size = 20, run = run, parallel = FALSE) {
-      
-      # TODO: Implement possibility to select features here
-      
+    features = NULL,
+    center.at = NULL,
+    initialize = function(predictor, features = NULL, method = "ale", grid.size = 20, 
+                          center.at = NULL, parallel = FALSE) {
+      if(is.null(features)) {
+        self$features = predictor$data$feature.names
+      } else {
+        stopifnot(all(features %in% predictor$data$feature.names))
+        self$features = features
+      }
       assert_numeric(grid.size, min.len = 1)
       assert_number(center.at, null.ok = TRUE)
       private$parallel = parallel
       assert_choice(method, c("ale", "pdp", "ice", "pdp+ice"))
       self$grid.size = grid.size
       self$method = method
+      self$center.at = center.at
       super$initialize(predictor)
-      if(run) self$run()
+      self$run()
     }, 
-    
-    center = function(center.at) {
-      if(self$method == "ale") {
-        warning("Centering only works for only for PDPs and ICE, but not for ALE Plots, .")
-        return(NULL)
-      }
-      private$anchor.value = center.at
-      private$flush()
-      self$run(self$predictor$batch.size)
-    },
     run = function() {
       predictor = self$predictor
       method = self$method
       center.at = self$center.at
       grid.size = self$grid.size
-      feature.names = predictor$data$feature.names
+      feature.names = self$features
       `%mypar%` = private$get.parallel.fct(private$parallel)
       feature_effect = function(x, predictor, method, center.at, grid.size) {
         FeatureEffect$new(feature = x, predictor = predictor, method = method, center.at = center.at, 
@@ -206,7 +173,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
         feature_effect(feature, predictor = predictor, method = method, center.at = center.at, 
           grid.size = grid.size)
       self$effects = effects
-      names(self$effects) = predictor$data$feature.names
+      names(self$effects) = self$features
       self$results = lapply(self$effects, function(x) {
         res = x$results
         fname.index = which(colnames(res) %in% names(self$effects))
@@ -214,35 +181,57 @@ FeatureEffects = R6::R6Class("FeatureEffects",
         colnames(res)[fname.index] = ".feature"
         res
       })
-    
+      private$finished = TRUE
     }
   ),
   private = list(
     printParameters = function() {
-      # TODO: Implement
+      cat("features:", paste(sprintf("%s", 
+        self$features), collapse = ", "))
+      cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
     # make sure the default arguments match with plot.FeatureEffect
-    generatePlot = function(rug = TRUE, show.data=FALSE) {
-      # TODO: Build up a gtable based on user input (nrow or ncol)
-      # create ggplot grid from each graphic
+    generatePlot = function(features = NULL, ncols = NULL, nrows = NULL, ...) {
+      assert_character(features, null.ok = TRUE)
+      if(length(features) > 0) {
+        assert_true(all(features %in% self$features))
+      } else {
+        features = self$features
+      }
+      
+      # Compute size of gtable
+      layout = get_layout(length(features), nrows, ncols)
+      # Get graphics
+      plts = lapply(features, function(fname) {ggplotGrob(self$effects[[fname]]$plot(...))})
+      # Fill gtable with graphics
+      ml = marrangeGrob(grobs = plts, nrow = layout$nrows, ncol = layout$ncols, top = NULL)
+      # For graphics not on left side, remove y-axis names and x-axis names
+      # return grid
+      ml
     }
-  ), 
-  active = list()
+  )
 )
-
 
 
 #' Plot FeatureEffect
 #' 
 #' plot.FeatureEffect() plots the results of a FeatureEffect object.
 #' 
-#' @param x A FeatureEffect R6 object
-#' @param rug [logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
-#' but it avoids overplotting.
-#' @param show.data Should the data points be shown? Only affects 2D plots, and ignored for 1D plots, because rug has the same information.
-#' @return ggplot2 plot object
+#' @details 
+#' 
+#' In contrast to other plot methods in iml, for FeatureEffects the returned plot is not a ggplot2 object, but a grid object, 
+#' a collection of multiple ggplot2 plots.
+#' 
+#' @param features [character()] For which features should the effects be plotted? Default is all features. 
+#'                               You can also sort the order of the plots with this argument.
+#' @param ncols The number of columns in the table of graphics
+#' @param nrows The number of rows in the table of graphics
+#' @param ... Further arguments for FeatureEffect$plot()
+#' @return grid object
+#' @importFrom gridExtra marrangeGrob
 #' @seealso 
-#' \link{FeatureEffect}
+#' \link{FeatureEffects}
+#' \link{plot.FeatureEffect}
 #' @examples
 #' # We train a random forest on the Boston dataset:
 #' if (require("randomForest")) {
@@ -251,11 +240,17 @@ FeatureEffects = R6::R6Class("FeatureEffects",
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the partial dependence for the first feature
-#' eff = FeatureEffect$new(mod, feature = "crim")
+#' eff = FeatureEffects$new(mod)
 #' 
 #' # Plot the results directly
-#' plot(eff)
+#' eff$plot()
+#' 
+#' # For a subset of features
+#' eff$plot(features = c("lstat", "crim"))
+#' 
+#' # With a different layout
+#' eff$plot(nrows = 2)
 #' }
-plot.FeatureEffect = function(x, rug = TRUE, show.data = FALSE) {
-  x$plot(rug, show.data)
+plot.FeatureEffects = function(x, features = NULL, nrows = NULL, ncols = NULL, ...) {
+  x$plot(features = features, nrows = nrows, ncols = ncols, ...)
 }
