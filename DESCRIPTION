@@ -29,7 +29,8 @@ Imports: R6,
          foreach,
          yaImpute,
          prediction,
-         Formula
+         Formula,
+         gridExtra
 Suggests: randomForest,
           gower, 
           testthat, 
