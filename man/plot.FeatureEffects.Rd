@@ -8,6 +8,8 @@
   ncols = NULL, ...)
 }
 \arguments{
+\item{x}{A FeatureEffect R6 object}
+
 \item{features}{[character()] For which features should the effects be plotted? Default is all features. 
 You can also sort the order of the plots with this argument.}
 

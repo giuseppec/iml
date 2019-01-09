@@ -232,6 +232,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
 #' In contrast to other plot methods in iml, for FeatureEffects the returned plot is not a ggplot2 object, but a grid object, 
 #' a collection of multiple ggplot2 plots.
 #' 
+#' @param x A FeatureEffect R6 object
 #' @param features [character()] For which features should the effects be plotted? Default is all features. 
 #'                               You can also sort the order of the plots with this argument.
 #' @param ncols The number of columns in the table of graphics
