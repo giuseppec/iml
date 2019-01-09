@@ -415,7 +415,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
               scale_y_continuous(numerical.feature) + 
               scale_fill_continuous(private$y_axis_label)
             
-            # A bit stupid, but can't adding a rug is special here, because i handle the 
+            # A bit stupid, but adding a rug is special here, because i handle the 
             # categorical feature as a numeric feauture in the plot
             if (rug) {
               dat = private$sampler$get.x()
@@ -424,7 +424,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
               # Need some dummy data for ggplot to accept the data.frame
               rug.dat = cbind(dat, data.frame(.y.hat = 1, .id = 1, .ale = 1))
               p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = "bl", 
-                position = position_jitter(width = 0.1, height = 0.1))
+                position = position_jitter(width = 0.07, height = 0.07))
               rug = FALSE
             }
             if (show.data) {
@@ -467,8 +467,10 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         rug.dat$.ale =   ifelse(is.null(self$results$.ale), NA, self$results$.ale[1])
         rug.dat$.y.hat = ifelse(is.null(self$results$.y.hat), NA, self$results$.y.hat[1])
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
+        jitter_dist = 0.01 * diff(range(rug.dat[,self$feature.name,with=FALSE][[1]]))
+        
         p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
-          position = position_jitter(width = 0.1, height = 0.1))
+          position = position_jitter(width = jitter_dist, height = jitter_dist))
       }
       if (private$multiClass) {
         p = p + facet_wrap(".class")
