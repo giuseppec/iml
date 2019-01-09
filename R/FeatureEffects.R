@@ -140,7 +140,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
     features = NULL,
     center.at = NULL,
     initialize = function(predictor, features = NULL, method = "ale", grid.size = 20, 
-                          center.at = NULL, parallel = FALSE) {
+      center.at = NULL, parallel = FALSE) {
       if(is.null(features)) {
         self$features = predictor$data$feature.names
       } else {
@@ -201,10 +201,20 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       
       # Compute size of gtable
       layout = get_layout(length(features), nrows, ncols)
+
+      # Based on layout, infer which figures will be left and or bottom
+      del_ylab_index = setdiff(1:length(features), 1:min(layout$nrows, length(features)))
+      
       # Get graphics
-      plts = lapply(features, function(fname) {ggplotGrob(self$effects[[fname]]$plot(...))})
+      plts = lapply(features, function(fname) {
+        gg = self$effects[[fname]]$plot(...) + 
+          theme(axis.title.y=element_blank()) 
+        ggplotGrob(gg)
+      })
+      
+      y_axis_label = self$effects[[1]]$.__enclos_env__$private$y_axis_label
       # Fill gtable with graphics
-      ml = marrangeGrob(grobs = plts, nrow = layout$nrows, ncol = layout$ncols, top = NULL)
+      ml = marrangeGrob(grobs = plts, nrow = layout$nrows, ncol = layout$ncols, top = NULL, left = y_axis_label)
       # For graphics not on left side, remove y-axis names and x-axis names
       # return grid
       ml

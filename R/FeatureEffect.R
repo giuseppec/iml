@@ -263,6 +263,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
   private = list(
     anchor.value = NULL,
     grid.size.original = NULL,
+    y_axis_label = NULL,
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
@@ -359,27 +360,27 @@ FeatureEffect = R6::R6Class("FeatureEffect",
     generatePlot = function(rug = TRUE, show.data=FALSE) {
       if (is.null(private$anchor.value)) {
         if(self$method == "ale") {
-          y_axis_label = "ALE"
+          private$y_axis_label = "ALE"
           if(!is.null(self$predictor$data$y.names) & self$n.features == 1) {
             axis_label_names = paste(self$predictor$data$y.names, sep = ", ")
-            y_axis_label = sprintf("ALE of %s", axis_label_names)
+            private$y_axis_label = sprintf("ALE of %s", axis_label_names)
           }
         } else {
-          y_axis_label = expression(hat(y))
+          private$y_axis_label = expression(hat(y))
           if(!is.null(self$predictor$data$y.names) & self$n.features == 1) {
             axis_label_names = paste(self$predictor$data$y.names, sep = ", ")
-            y_axis_label = sprintf("Predicted %s", axis_label_names)
+            private$y_axis_label = sprintf("Predicted %s", axis_label_names)
           }
         }
       } else {
-        y_axis_label = bquote(hat(y)-hat(y)[x == .(private$anchor.value)])
+        private$y_axis_label = bquote(hat(y)-hat(y)[x == .(private$anchor.value)])
       }
       
       if (self$n.features == 1) {
         y.name = ifelse(self$method == "ale", ".ale", ".y.hat")
         p = ggplot(self$results, 
           mapping = aes_string(x = self$feature.name, 
-            y = y.name)) + scale_y_continuous(y_axis_label)
+            y = y.name)) + scale_y_continuous(private$y_axis_label)
         if (self$feature.type == "categorical") {
           if (self$method %in% c("ice", "pdp+ice")){
             p = p + geom_boxplot(data = self$results[self$results$.type == "ice",], aes_string(group = self$feature.name))
@@ -412,7 +413,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
               geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) + 
               scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) + 
               scale_y_continuous(numerical.feature) + 
-              scale_fill_continuous(y_axis_label)
+              scale_fill_continuous(private$y_axis_label)
             
             # A bit stupid, but can't adding a rug is special here, because i handle the 
             # categorical feature as a numeric feauture in the plot
@@ -438,18 +439,18 @@ FeatureEffect = R6::R6Class("FeatureEffect",
             p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
               geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
               scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
-              scale_fill_continuous(y_axis_label)
+              scale_fill_continuous(private$y_axis_label)
           }
         } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
             y = self$feature.name[2])) + geom_tile(aes(fill = .y.hat)) + 
-            scale_fill_continuous(y_axis_label)
+            scale_fill_continuous(private$y_axis_label)
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
           p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat")) + 
             geom_line(aes_string(group = categorical.feature, color = categorical.feature)) + 
-            scale_y_continuous(y_axis_label)
+            scale_y_continuous(private$y_axis_label)
           show.data = FALSE
         }
         
