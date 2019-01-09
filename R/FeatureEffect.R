@@ -467,10 +467,27 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         rug.dat$.ale =   ifelse(is.null(self$results$.ale), NA, self$results$.ale[1])
         rug.dat$.y.hat = ifelse(is.null(self$results$.y.hat), NA, self$results$.y.hat[1])
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
-        jitter_dist = 0.01 * diff(range(rug.dat[,self$feature.name,with=FALSE][[1]]))
+        
+        if (sides == "b") {
+          jitter_height = 0
+          if (self$feature.type[1] == "numerical") {
+            jitter_width = 0.01 * diff(range(rug.dat[,self$feature.name[1],with=FALSE][[1]]))
+          } else {
+            jitter_width = 0.07
+          }
+        } else {
+          if(all(self$feature.type == "numerical")) {
+            jitter_width = 0.01 * diff(range(rug.dat[,self$feature.name[1],with=FALSE][[1]]))
+            jitter_height = 0.01 * diff(range(rug.dat[,self$feature.name[2],with=FALSE][[1]]))
+            
+          } else {
+            jitter_width = 0.07
+            jitter_height = 0.07
+          }
+        }
         
         p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
-          position = position_jitter(width = jitter_dist, height = jitter_dist))
+          position = position_jitter(width = jitter_width, height = jitter_height))
       }
       if (private$multiClass) {
         p = p + facet_wrap(".class")
