@@ -28,7 +28,7 @@ Partial = R6::R6Class("Partial",
 
 
 
-#' Effect of a feature on the model predictions
+#' Effect of a feature on predictions
 #' 
 #' \code{FeatureEffect} computes and plots (individual) feature effects of prediction models. 
 #' 
@@ -52,7 +52,7 @@ Partial = R6::R6Class("Partial",
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
-#' \item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the partial dependencies.}
+#' \item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the effects.}
 #' \item{method: }{(`character(1)`)\cr 
 #' 'ale' for accumulated local effects (the default), 
 #' 'pdp' for partial dependence plot, 
@@ -108,14 +108,14 @@ Partial = R6::R6Class("Partial",
 #' \item{n.features: }{(`numeric(1)`)\cr The number of features (either 1 or 2)}
 #' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
 #' \item{results: }{(data.frame)\cr data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-#' Can be used for creating custom partial dependence plots.}
+#' Can be used for creating custom effect plots.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
 #' \item{center()}{method to set the value at which the ice computations are centered. See examples.}
 #' \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
-#' \item{plot()}{method to plot the partial dependence function. See \link{plot.FeatureEffect}}
+#' \item{plot()}{method to plot the effects. See \link{plot.FeatureEffect}}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
@@ -180,14 +180,14 @@ Partial = R6::R6Class("Partial",
 #' plot(eff)
 #' 
 #' 
-#' # Partial dependence plots also works with multiclass classification
+#' # FeatureEffect plots also works with multiclass classification
 #' rf = randomForest(Species ~ ., data = iris, ntree=50)
 #' mod = Predictor$new(rf, data = iris, type = "prob")
 #' 
 #' # For some models we have to specify additional arguments for the predict function
 #' plot(FeatureEffect$new(mod, feature = "Petal.Width"))
 #'
-#' # Partial dependence plots support up to two features: 
+#' # FeatureEffect plots support up to two features: 
 #' eff = FeatureEffect$new(mod, feature = c("Sepal.Length", "Petal.Length"))
 #' eff$plot()   
 #' 
@@ -535,7 +535,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
-#' # Compute the partial dependence for the first feature
+#' # Compute the ALE for the first feature
 #' eff = FeatureEffect$new(mod, feature = "crim")
 #' 
 #' # Plot the results directly

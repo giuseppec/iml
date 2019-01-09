@@ -27,7 +27,7 @@ data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 mod = Predictor$new(rf, data = Boston)
 
-# Compute the partial dependence for the first feature
+# Compute the ALE for the first feature
 eff = FeatureEffect$new(mod, feature = "crim")
 
 # Plot the results directly

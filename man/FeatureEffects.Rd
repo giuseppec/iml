@@ -2,7 +2,7 @@
 % Please edit documentation in R/FeatureEffects.R
 \name{FeatureEffects}
 \alias{FeatureEffects}
-\title{Effect of all features on the model predictions}
+\title{Effect of all features on predictions}
 \format{\code{\link{R6Class}} object.}
 \description{
 \code{FeatureEffects} computes effects of multiple features on the prediction.
@@ -26,9 +26,9 @@ For FeatureEffects$new():
 \describe{
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{features: }{(`character()`)}\cr 
+\item{features: }{(`character()`)\cr 
 The names of the features for which the effects should be computed.
-Default is all features used in the prediction model.
+Default is all features used in the prediction model.}
 \item{method: }{(`character(1)`)\cr 
 'ale' for accumulated local effects (the default), 
 'pdp' for partial dependence plot, 
@@ -45,7 +45,7 @@ Default is all features used in the prediction model.
 
 FeatureEffects computes the effects for all given features on the model prediction.
 FeatureEffects is a convenience class that calls FeatureEffect multiple times.
-See ?FeatureEffect for Detais what's actually computed.
+See ?FeatureEffect for details what's actually computed.
 
 Only first-order effects can be computed with the FeatureEffects interface. 
 If you are intereated in the visualization of interactions between two features, directly use FeatureEffect.
@@ -59,8 +59,8 @@ If you are intereated in the visualization of interactions between two features,
 'pdp' for partial dependence plot, 
 'ice' for individual conditional expectation curves,
 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
-\item{features: }{(`character()`)}\cr
-The names of the features for which the effects were computed.
+\item{features: }{(`character()`)\cr
+The names of the features for which the effects were computed.}
 \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr
 The size of the grid.}
 \item{center.at: }{(`numeric(1)` | `character(1)`)\cr
@@ -69,9 +69,9 @@ The value for the centering of the plot. Numeric for numeric features, and the l
 The prediction model that was analysed.}
 \item{results: }{(list)\cr
 A list with the results of each feature effect. Each entry is a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-Can be used for creating custom partial dependence plots.}
+Can be used for creating custom effect plots.}
 \item{effects: }{(list)\cr
-A list of the FeatureEffect objects for each feature. See ?FeatureEffect what you can do with them (e.g. plot the individually).
+A list of the FeatureEffect objects for each feature. See ?FeatureEffect what you can do with them (e.g. plot them individually).
 }
 }
 }
@@ -79,7 +79,7 @@ A list of the FeatureEffect objects for each feature. See ?FeatureEffect what yo
 \section{Methods}{
 
 \describe{
-\item{plot()}{method to plot the partial dependence function. See \link{plot.FeatureEffect}}
+\item{plot()}{method to plot the all effects. See \link{plot.FeatureEffects}}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }
@@ -115,11 +115,12 @@ eff.nox$plot()
 
 
 
-# Partial dependence plots also works with multiclass classification
+# FeatureEffects also works with multiclass classification
 rf = randomForest(Species ~ ., data = iris, ntree=50)
 mod = Predictor$new(rf, data = iris, type = "prob")
 
 FeatureEffects$new(mod)$plot(ncol = 2)
+
 }
 }
 \references{
