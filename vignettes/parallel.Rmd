@@ -77,6 +77,13 @@ system.time(Interaction$new(predictor, parallel = TRUE))
 ```
 
 
+Same for `FeatureEffects`:
+
+```{r}
+system.time(FeatureEffects$new(predictor, parallel = FALSE))
+system.time(FeatureEffects$new(predictor, parallel = TRUE))
+```
+
 
 Remember to stop the cluster in the end again.
 

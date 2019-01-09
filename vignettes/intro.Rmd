@@ -115,6 +115,14 @@ interact = Interaction$new(predictor, feature = "crim")
 plot(interact)
 ```
 
+You can also plot the feature effects for all features at once:
+
+```{r}
+effs = FeatureEffects$new(predictor)
+plot(effs)
+```
+
+
 
 ## Surrogate model
 Another way to make the models more interpretable is to replace the black box with a simpler model - a decision tree. We take the predictions of the black box model (in our case the random forest) and train a decision tree on the original features and the predicted outcome. 
