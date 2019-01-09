@@ -215,7 +215,8 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       
       y_axis_label = self$effects[[1]]$.__enclos_env__$private$y_axis_label
       # Fill gtable with graphics
-      ml = marrangeGrob(grobs = plts, nrow = layout$nrows, ncol = layout$ncols, top = NULL, left = y_axis_label)
+      ml = marrangeGrob(grobs = plts, nrow = layout$nrows, ncol = layout$ncols, 
+                        top = NULL, left = y_axis_label)
       # For graphics not on left side, remove y-axis names and x-axis names
       # return grid
       ml

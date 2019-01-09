@@ -373,7 +373,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
           }
         }
       } else {
-        private$y_axis_label = bquote(hat(y)-hat(y)[x == .(private$anchor.value)])
+        private$y_axis_label = sprintf("Prediction centered at x = %s", 
+         as.character(private$anchor.value))
       }
       
       if (self$n.features == 1) {
