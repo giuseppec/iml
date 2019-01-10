@@ -116,6 +116,8 @@ Partial = R6::R6Class("Partial",
 #' \item{center()}{method to set the value at which the ice computations are centered. See examples.}
 #' \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 #' \item{plot()}{method to plot the effects. See \link{plot.FeatureEffect}}
+#' \item{predict()}{method to predict the marginal outcome given a feature. Accepts a data.frame with the feature or a vector. 
+#'                 Returns the values of the effect curves at the given values.}
 #' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
@@ -162,6 +164,11 @@ Partial = R6::R6Class("Partial",
 #' # If you want to do your own thing, just extract the data: 
 #' eff.dat = eff$results
 #' head(eff.dat)
+#' 
+#' # You can also use the object to "predict" the marginal values.
+#' eff$predict(Boston[1:3,])
+#' # Instead of the entire data.frame, you can also use feature values:
+#' eff$predict(c(5,6,7))
 #' 
 #' # You can reuse the pdp object for other features: 
 #' eff$set.feature("lstat")
@@ -259,11 +266,45 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       } else {
         private$run.pdp(self$predictor$batch.size)
       }
-    }),
+      
+      # create the partial predict function
+      if(self$n.features == 1 & !private$multiClass & 
+         self$method %in% c("ale", "pdp", "pdp+ice")) {
+        if(self$feature.type == "numerical"){
+          if(self$method == "ale")  y = self$results$.ale
+          if(self$method %in% c("pdp", "pdp+ice")) y = self$results$.y.hat[self$results$.type == "pdp"]
+          x = self$results[self$results$.type %in% c("ale", "pdp"), self$feature.name]
+          private$predict_inner = approxfun(x = x, y = y)
+        } else {
+          private$predict_inner = function(x){
+            df = data.frame(as.character(x), stringsAsFactors = FALSE)
+            colnames(df) = self$feature.name
+            results = self$results
+            results[,self$feature.name] = as.character(results[,self$feature.name])
+            output_col = ifelse(self$method == "ale", ".ale", ".y.hat")
+            merge(x = df, y = results, by = self$feature.name, all.x = TRUE, sort = FALSE)[,output_col]
+          }
+        }
+      }
+    }, 
+    # Partial prediction function, which only looks at feature use in FeatureEffect
+    # Returns value of ALE / PD curve at particular feature value
+    predict = function(x){
+      if(self$n.features == 2) stop("Only implemented for single feature")
+      if(private$multiClass) stop("Only works for one-dimensional output")
+      if(inherits(x, "data.frame")) {
+        x = x[, self$feature.name]
+      }
+      assert_vector(x)
+      private$predict_inner(x)
+    }
+  ),
   private = list(
     anchor.value = NULL,
     grid.size.original = NULL,
     y_axis_label = NULL,
+    # core functionality of self$predict
+    predict_inner = NULL,
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
@@ -374,7 +415,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         }
       } else {
         private$y_axis_label = sprintf("Prediction centered at x = %s", 
-         as.character(private$anchor.value))
+          as.character(private$anchor.value))
       }
       
       if (self$n.features == 1) {

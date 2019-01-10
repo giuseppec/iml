@@ -96,6 +96,8 @@ Can be used for creating custom effect plots.}
 \item{center()}{method to set the value at which the ice computations are centered. See examples.}
 \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
 \item{plot()}{method to plot the effects. See \link{plot.FeatureEffect}}
+\item{predict()}{method to predict the marginal outcome given a feature. Accepts a data.frame with the feature or a vector. 
+                Returns the values of the effect curves at the given values.}
 \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
@@ -130,6 +132,11 @@ if (require("ggplot2")) {
 # If you want to do your own thing, just extract the data: 
 eff.dat = eff$results
 head(eff.dat)
+
+# You can also use the object to "predict" the marginal values.
+eff$predict(Boston[1:3,])
+# Instead of the entire data.frame, you can also use feature values:
+eff$predict(c(5,6,7))
 
 # You can reuse the pdp object for other features: 
 eff$set.feature("lstat")
