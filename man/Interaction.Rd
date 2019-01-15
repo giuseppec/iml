@@ -32,7 +32,6 @@ If one feature name is selected, the 2-way interactions of this feature with all
 A larger grid.size means more accurate the results but longer the computation time.
 For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}
 \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
-\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
@@ -66,7 +65,6 @@ To learn more about interaction effects, read the Interpretable Machine Learning
 
 \describe{
 \item{plot()}{method to plot the feature interactions. See \link{plot.Interaction}.}
-\item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }

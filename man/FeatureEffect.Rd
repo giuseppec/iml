@@ -35,7 +35,6 @@ The object (created with Predictor$new()) holding the machine learning model and
 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
 \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered. Ignored in the case of two features.}
 \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
-\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
@@ -98,7 +97,6 @@ Can be used for creating custom effect plots.}
 \item{plot()}{method to plot the effects. See \link{plot.FeatureEffect}}
 \item{predict()}{method to predict the marginal outcome given a feature. Accepts a data.frame with the feature or a vector. 
                 Returns the values of the effect curves at the given values.}
-\item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }

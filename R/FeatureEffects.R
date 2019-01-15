@@ -156,8 +156,10 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       self$method = method
       self$center.at = center.at
       super$initialize(predictor)
-      self$run()
-    }, 
+      private$run()
+    }
+  ),
+  private = list(
     run = function() {
       predictor = self$predictor
       method = self$method
@@ -167,7 +169,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       `%mypar%` = private$get.parallel.fct(private$parallel)
       feature_effect = function(x, predictor, method, center.at, grid.size) {
         FeatureEffect$new(feature = x, predictor = predictor, method = method, center.at = center.at, 
-          grid.size = grid.size, run = TRUE)
+          grid.size = grid.size)
       }
       effects = foreach(feature = feature.names,
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
@@ -183,9 +185,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
         res
       })
       private$finished = TRUE
-    }
-  ),
-  private = list(
+    },
     printParameters = function() {
       cat("features:", paste(sprintf("%s", 
         self$features), collapse = ", "))
@@ -202,11 +202,15 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       
       # Compute size of gtable
       layout = get_layout(length(features), nrows, ncols)
-
+      
       # Based on layout, infer which figures will be left and or bottom
       del_ylab_index = setdiff(1:length(features), 1:min(layout$nrows, length(features)))
       
       # Get graphics
+      # TODO: Add opption in FeatureEffect$plot() to add ylimits. 
+      # TODO: Find in all $results the minimum and maximum of y-axis
+      # TODO: set same axis for all.
+      # TODO: Add option to plot to say if fixed or not
       plts = lapply(features, function(fname) {
         gg = self$effects[[fname]]$plot(...) + 
           theme(axis.title.y=element_blank()) 
@@ -216,7 +220,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       y_axis_label = self$effects[[1]]$.__enclos_env__$private$y_axis_label
       # Fill gtable with graphics
       ml = marrangeGrob(grobs = plts, nrow = layout$nrows, ncol = layout$ncols, 
-                        top = NULL, left = y_axis_label)
+        top = NULL, left = y_axis_label)
       # For graphics not on left side, remove y-axis names and x-axis names
       # return grid
       ml

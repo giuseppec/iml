@@ -45,7 +45,7 @@ test_that("LocalModel works for multiple output", {
   library('rpart')
   clf = rpart(Species ~ ., data = iris)
   mod = Predictor$new(clf, data = iris)
-  x.interest = iris[1,]
+  x.interest = iris[1,-5]
   k = 1
   set.seed(42)
   # rbind X a few times to eliminate glm warning
@@ -53,7 +53,7 @@ test_that("LocalModel works for multiple output", {
   dat = LocalModel1$results
   expect_equal(colnames(dat), c(expected.colnames, ".class"))
   expect_lte(nrow(dat), k * 3)  
-  pred2 = predict(LocalModel1, iris[c(2,3),])
+  pred2 = predict(LocalModel1, iris[c(2,3),-5])
   expect_class(dat, "data.frame")
   expect_data_frame(pred2, nrows=2)
   expect_equal(colnames(pred2), c("setosa", "versicolor", "virginica"))

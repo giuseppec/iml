@@ -13,7 +13,7 @@ NULL
 Partial = R6::R6Class("Partial", 
   inherit = FeatureEffect,
   public = list(
-    initialize = function(predictor, feature, aggregation = "pdp",ice = TRUE, center.at = NULL, grid.size = 20, run = TRUE) {
+    initialize = function(predictor, feature, aggregation = "pdp",ice = TRUE, center.at = NULL, grid.size = 20) {
       assert_choice(aggregation, c("ale", "pdp", "none"))
       assert_logical(ice)
       if(length(feature) == 2) ice = FALSE
@@ -23,7 +23,7 @@ Partial = R6::R6Class("Partial",
       if((aggregation == "pdp") & !ice) method = "pdp"
       if(aggregation == "ale") method = "ale"
       super$initialize(predictor=predictor, feature=feature, method = method, center.at = center.at, 
-        grid.size = grid.size, run = run)
+        grid.size = grid.size)
     }))
 
 
@@ -60,7 +60,6 @@ Partial = R6::R6Class("Partial",
 #' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
 #' \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered. Ignored in the case of two features.}
 #' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
-#' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
 #' @section Details:
@@ -118,7 +117,6 @@ Partial = R6::R6Class("Partial",
 #' \item{plot()}{method to plot the effects. See \link{plot.FeatureEffect}}
 #' \item{predict()}{method to predict the marginal outcome given a feature. Accepts a data.frame with the feature or a vector. 
 #'                 Returns the values of the effect curves at the given values.}
-#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -221,7 +219,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
     n.features = NULL, 
     feature.type = NULL,
     method  = NULL,
-    initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20, run = TRUE) {
+    initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20) {
       feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
       assert_numeric(feature_index, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
@@ -242,14 +240,14 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         stop("feature has only one unique value")
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
-      if(run) self$run(self$predictor$batch.size)
+      private$run(self$predictor$batch.size)
     }, 
     set.feature = function(feature) {
       feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
       private$flush()
       private$set_feature_from_index(feature)
       private$set.grid.size(private$grid.size.original)
-      self$run(self$predictor$batch.size)
+      private$run(self$predictor$batch.size)
     },
     center = function(center.at) {
       if(self$method == "ale") {
@@ -258,8 +256,20 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       }
       private$anchor.value = center.at
       private$flush()
-      self$run(self$predictor$batch.size)
-    },
+      private$run(self$predictor$batch.size)
+    },    # Partial prediction function, which only looks at feature use in FeatureEffect
+    # Returns value of ALE / PD curve at particular feature value
+    predict = function(x){
+      if(self$n.features == 2) stop("Only implemented for single feature")
+      if(private$multiClass) stop("Only works for one-dimensional output")
+      if(inherits(x, "data.frame")) {
+        x = x[, self$feature.name]
+      }
+      assert_vector(x)
+      private$predict_inner(x)
+    }
+  ),
+  private = list(
     run = function(n) {
       if(self$method == "ale") {
         private$run.ale() 
@@ -269,7 +279,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       
       # create the partial predict function
       if(self$n.features == 1 & !private$multiClass & 
-         self$method %in% c("ale", "pdp", "pdp+ice")) {
+          self$method %in% c("ale", "pdp", "pdp+ice")) {
         if(self$feature.type == "numerical"){
           if(self$method == "ale")  y = self$results$.ale
           if(self$method %in% c("pdp", "pdp+ice")) y = self$results$.y.hat[self$results$.type == "pdp"]
@@ -287,19 +297,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         }
       }
     }, 
-    # Partial prediction function, which only looks at feature use in FeatureEffect
-    # Returns value of ALE / PD curve at particular feature value
-    predict = function(x){
-      if(self$n.features == 2) stop("Only implemented for single feature")
-      if(private$multiClass) stop("Only works for one-dimensional output")
-      if(inherits(x, "data.frame")) {
-        x = x[, self$feature.name]
-      }
-      assert_vector(x)
-      private$predict_inner(x)
-    }
-  ),
-  private = list(
+    
     anchor.value = NULL,
     grid.size.original = NULL,
     y_axis_label = NULL,

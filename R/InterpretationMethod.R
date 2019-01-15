@@ -29,19 +29,6 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       if (!is.null(self$results)) {
         print(head(self$results))
       }
-    },
-    run = function(force = FALSE, ...) {
-      if (force) private$flush()
-      if (!private$finished) {
-        # DESIGN experiment
-        private$dataSample = private$getData()
-        private$dataDesign = private$intervene()
-        # EXECUTE experiment
-        private$qResults = private$run.prediction(private$dataDesign)
-        # AGGREGATE measurements
-        self$results = data.frame(private$aggregate())
-        private$finished = TRUE
-      }
     }
   ),
   private = list(
@@ -76,6 +63,19 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
       self$results = NULL
       private$finished = FALSE
     }, 
+    run = function(force = FALSE, ...) {
+      if (force) private$flush()
+      if (!private$finished) {
+        # DESIGN experiment
+        private$dataSample = private$getData()
+        private$dataDesign = private$intervene()
+        # EXECUTE experiment
+        private$qResults = private$run.prediction(private$dataDesign)
+        # AGGREGATE measurements
+        self$results = data.frame(private$aggregate())
+        private$finished = TRUE
+      }
+    },
     run.prediction = function(dataDesign) {
       private$predictResults = self$predictor$predict(data.frame(dataDesign))
       private$multiClass = ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)

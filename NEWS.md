@@ -1,6 +1,7 @@
 # iml 0.9.0 (IN PROGRESS)
 * Add column ".type" to `$result` data.frame of `FeatureEffect` when `method="ale"` and the feature is categorical
 * Adds class `FeatureEffects` which wraps `FeatureEffect` and allows to compute feature effects for all features of a model with one call.
+* Removes the `run` parameter from all Interpretation methods.
 
 # iml 0.8.1
 * Fix vignette titles

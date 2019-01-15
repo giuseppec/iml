@@ -12,7 +12,7 @@ The Shapley value fairly distributes the difference of the instance's prediction
 \section{Usage}{
 
 \preformatted{
-shapley = Shapley$new(predictor, x.interest = NULL, sample.size = 100, run = TRUE)
+shapley = Shapley$new(predictor, x.interest = NULL, sample.size = 100)
 
 plot(shapley)
 shapley$results
@@ -29,7 +29,6 @@ For Shapley$new():
 The object (created with Predictor$new()) holding the machine learning model and the data.}
 \item{x.interest: }{(data.frame)\cr  Single row with the instance to be explained.}
 \item{sample.size: }{(`numeric(1)`)\cr The number of  Monte Carlo samples for estimating the Shapley value.} 
-\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
@@ -56,7 +55,6 @@ The object (created with Predictor$new()) holding the machine learning model and
 \describe{
 \item{explain(x.interest)}{method to set a new data point which to explain.}
 \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
-\item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }

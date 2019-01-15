@@ -8,7 +8,7 @@
 #' @name Shapley
 #' @section Usage:
 #' \preformatted{
-#' shapley = Shapley$new(predictor, x.interest = NULL, sample.size = 100, run = TRUE)
+#' shapley = Shapley$new(predictor, x.interest = NULL, sample.size = 100)
 #' 
 #' plot(shapley)
 #' shapley$results
@@ -23,7 +23,6 @@
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
 #' \item{x.interest: }{(data.frame)\cr  Single row with the instance to be explained.}
 #' \item{sample.size: }{(`numeric(1)`)\cr The number of  Monte Carlo samples for estimating the Shapley value.} 
-#' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
 #' @section Details:
@@ -44,7 +43,6 @@
 #' \describe{
 #' \item{explain(x.interest)}{method to set a new data point which to explain.}
 #' \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
-#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -111,9 +109,9 @@ Shapley = R6::R6Class("Shapley",
     explain = function(x.interest) {
       private$flush()
       private$set.x.interest(x.interest)
-      self$run()
+      private$run()
     },
-    initialize = function(predictor, x.interest = NULL, sample.size = 100,  run = TRUE) {
+    initialize = function(predictor, x.interest = NULL, sample.size = 100) {
       checkmate::assert_data_frame(x.interest, null.ok = TRUE)
       super$initialize(predictor = predictor)
       x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
@@ -122,7 +120,7 @@ Shapley = R6::R6Class("Shapley",
         private$set.x.interest(x.interest)
       }
       private$getData = function(...) private$sampler$sample(n = self$sample.size, ...)
-      if (run & !is.null(x.interest)) self$run()
+      if (!is.null(x.interest)) private$run()
     }
   ), 
   private = list(
