@@ -5,7 +5,7 @@
 \title{Plot FeatureEffect}
 \usage{
 \method{plot}{FeatureEffects}(x, features = NULL, nrows = NULL,
-  ncols = NULL, ...)
+  ncols = NULL, fixed_y = TRUE, ...)
 }
 \arguments{
 \item{x}{A FeatureEffect R6 object}
@@ -16,6 +16,8 @@ You can also sort the order of the plots with this argument.}
 \item{nrows}{The number of rows in the table of graphics}
 
 \item{ncols}{The number of columns in the table of graphics}
+
+\item{fixed_y}{Should the y-axis range be the same for all effects? Defaults to TRUE.}
 
 \item{...}{Further arguments for FeatureEffect$plot()}
 }

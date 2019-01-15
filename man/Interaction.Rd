@@ -10,7 +10,7 @@
 \section{Usage}{
 
 \preformatted{
-ia = Interaction$new(predictor, feature = NULL, grid.size = 20, run = TRUE)
+ia = Interaction$new(predictor, feature = NULL, grid.size = 20)
 
 plot(ia)
 ia$results

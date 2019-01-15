@@ -2,6 +2,7 @@
 * Add column ".type" to `$result` data.frame of `FeatureEffect` when `method="ale"` and the feature is categorical
 * Adds class `FeatureEffects` which wraps `FeatureEffect` and allows to compute feature effects for all features of a model with one call.
 * Removes the `run` parameter from all Interpretation methods.
+* Adds parameter `ylim` to `FeatureEffect$plot` to manually set the limits of the y-axis for feature effect plots with one feature.
 
 # iml 0.8.1
 * Fix vignette titles

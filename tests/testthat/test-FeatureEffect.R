@@ -68,6 +68,12 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   checkPlot(pdp.obj)
   dat = pdp.obj$results
   expect_equal(min(dat$.y), 0)
+  
+  
+  # Centering 
+  p = plot(pdp.obj, ylim = c(1,2))
+  expect_s3_class(p, c("gg", "ggplot"))
+  plot(p)
 })
 
 test_that("FeatureEffect (method=pdp) works for single output and 2 features, 2D grid.size", {

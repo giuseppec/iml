@@ -396,7 +396,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
     # make sure the default arguments match with plot.FeatureEffect
-    generatePlot = function(rug = TRUE, show.data=FALSE) {
+    generatePlot = function(rug = TRUE, show.data = FALSE, ylim = NULL) {
+      if (is.null(ylim)) ylim = c(NA, NA)
       if (is.null(private$anchor.value)) {
         if(self$method == "ale") {
           private$y_axis_label = "ALE"
@@ -419,8 +420,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       if (self$n.features == 1) {
         y.name = ifelse(self$method == "ale", ".ale", ".y.hat")
         p = ggplot(self$results, 
-          mapping = aes_string(x = self$feature.name, 
-            y = y.name)) + scale_y_continuous(private$y_axis_label)
+          mapping = aes_string(x = self$feature.name, y = y.name)) + 
+          scale_y_continuous(private$y_axis_label, limits = ylim)
         if (self$feature.type == "categorical") {
           if (self$method %in% c("ice", "pdp+ice")){
             p = p + geom_boxplot(data = self$results[self$results$.type == "ice",], aes_string(group = self$feature.name))
@@ -582,6 +583,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
 #' @param rug [logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
 #' but it avoids overplotting.
 #' @param show.data Should the data points be shown? Only affects 2D plots, and ignored for 1D plots, because rug has the same information.
+#' @param ylim Vector with two coordinates for the y-axis. Only works when one feature is used in FeatureEffet, ignored when two are used.
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{FeatureEffect}
@@ -598,6 +600,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
 #' # Plot the results directly
 #' plot(eff)
 #' }
-plot.FeatureEffect = function(x, rug = TRUE, show.data = FALSE) {
-  x$plot(rug, show.data)
+plot.FeatureEffect = function(x, rug = TRUE, show.data = FALSE, ylim = NULL) {
+  assert_numeric(x = ylim, len = 2, all.missing = TRUE, any.missing = TRUE, null.ok = TRUE)
+  x$plot(rug = rug, show.data = show.data, ylim = ylim)
 }

@@ -192,7 +192,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
     # make sure the default arguments match with plot.FeatureEffect
-    generatePlot = function(features = NULL, ncols = NULL, nrows = NULL, ...) {
+    generatePlot = function(features = NULL, ncols = NULL, nrows = NULL, fixed_y = TRUE, ...) {
       assert_character(features, null.ok = TRUE)
       if(length(features) > 0) {
         assert_true(all(features %in% self$features))
@@ -206,13 +206,19 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       # Based on layout, infer which figures will be left and or bottom
       del_ylab_index = setdiff(1:length(features), 1:min(layout$nrows, length(features)))
       
-      # Get graphics
-      # TODO: Add opption in FeatureEffect$plot() to add ylimits. 
-      # TODO: Find in all $results the minimum and maximum of y-axis
-      # TODO: set same axis for all.
-      # TODO: Add option to plot to say if fixed or not
+      
+      if(fixed_y) { 
+        res = unlist(lapply(features, function(fname){
+          cname = ifelse(self$method == "ale", ".ale", ".y.hat")
+          values = self$effects[[fname]]$results[cname]
+          c(min(values), max(values))
+        }))
+        ylim = c(min(res), max(res))
+      } else {
+        ylim = c(NA, NA)
+      }
       plts = lapply(features, function(fname) {
-        gg = self$effects[[fname]]$plot(...) + 
+        gg = self$effects[[fname]]$plot(..., ylim = ylim) + 
           theme(axis.title.y=element_blank()) 
         ggplotGrob(gg)
       })
@@ -243,6 +249,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
 #'                               You can also sort the order of the plots with this argument.
 #' @param ncols The number of columns in the table of graphics
 #' @param nrows The number of rows in the table of graphics
+#' @param fixed_y Should the y-axis range be the same for all effects? Defaults to TRUE.
 #' @param ... Further arguments for FeatureEffect$plot()
 #' @return grid object
 #' @importFrom gridExtra marrangeGrob
@@ -268,6 +275,6 @@ FeatureEffects = R6::R6Class("FeatureEffects",
 #' # With a different layout
 #' eff$plot(nrows = 2)
 #' }
-plot.FeatureEffects = function(x, features = NULL, nrows = NULL, ncols = NULL, ...) {
-  x$plot(features = features, nrows = nrows, ncols = ncols, ...)
+plot.FeatureEffects = function(x, features = NULL, nrows = NULL, ncols = NULL,  fixed_y = TRUE, ...) {
+  x$plot(features = features, nrows = nrows, ncols = ncols, fixed_y = fixed_y, ...)
 }
