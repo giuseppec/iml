@@ -130,7 +130,7 @@ Partial = R6::R6Class("Partial",
 #' 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
-#' @importFrom data.table melt setkeyv
+#' @importFrom data.table melt setkeyv merge.data.table
 #' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #' @export
@@ -287,12 +287,13 @@ FeatureEffect = R6::R6Class("FeatureEffect",
           private$predict_inner = approxfun(x = x, y = y)
         } else {
           private$predict_inner = function(x){
-            df = data.frame(as.character(x), stringsAsFactors = FALSE)
+            df = data.table(as.character(x), stringsAsFactors = FALSE)
             colnames(df) = self$feature.name
             results = self$results
             results[,self$feature.name] = as.character(results[,self$feature.name])
             output_col = ifelse(self$method == "ale", ".ale", ".y.hat")
-            merge(x = df, y = results, by = self$feature.name, all.x = TRUE, sort = FALSE)[,output_col]
+            res = merge(x = df, y = results, by = self$feature.name, all.x = TRUE, sort = FALSE)
+            data.frame(res)[,output_col]
           }
         }
       }
