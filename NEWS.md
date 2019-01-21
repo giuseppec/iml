@@ -1,8 +1,9 @@
 # iml 0.9.0 (IN PROGRESS)
-* Add column ".type" to `$result` data.frame of `FeatureEffect` when `method="ale"` and the feature is categorical
-* Adds class `FeatureEffects` which wraps `FeatureEffect` and allows to compute feature effects for all features of a model with one call.
 * Removes the `run` parameter from all Interpretation methods.
+* Adds class `FeatureEffects` which wraps `FeatureEffect` and allows to compute feature effects for all features of a model with one call.
+* Add column ".type" to `$result` data.frame of `FeatureEffect` when `method="ale"` and the feature is categorical
 * Adds parameter `ylim` to `FeatureEffect$plot` to manually set the limits of the y-axis for feature effect plots with one feature.
+* Adds `predict` method to FeatureEffect, which predicts the marginal effect for data instances.
 
 # iml 0.8.1
 * Fix vignette titles
