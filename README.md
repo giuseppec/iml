@@ -72,7 +72,7 @@ effect$plot()
 
 # Contribute
 
-Please check the [contribution guidelines](CONTRIBUTION.md)
+Please check the [contribution guidelines](CONTRIBUTING.md)
 
 # License
 
