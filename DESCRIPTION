@@ -30,7 +30,8 @@ Imports: R6,
          yaImpute,
          prediction,
          Formula,
-         gridExtra
+         gridExtra,
+         prediction
 Suggests: randomForest,
           gower, 
           testthat, 

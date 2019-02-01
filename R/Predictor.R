@@ -55,6 +55,7 @@
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
 #' 
+#' @importFrom prediction find_data
 #' @export
 #' @examples
 #' if (require("mlr")) {
@@ -126,7 +127,7 @@ Predictor = R6::R6Class("Predictor",
         stop("Provide a model, a predict.fun or both!")  
       }
       if (is.null(data)) {
-        tryCatch({data = prediction::find_data(model)}, 
+        tryCatch({data = find_data(model)}, 
           error = function(e) stop("Can't extract data from model, please provide via data="))
       }
       if (is.null(y)) {
