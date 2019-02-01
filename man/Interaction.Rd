@@ -71,6 +71,7 @@ To learn more about interaction effects, read the Interpretable Machine Learning
 }
 
 \examples{
+\dontrun{
 if (require("rpart")) {
 set.seed(42)
 # Fit a CART on the Boston housing data set
@@ -89,7 +90,7 @@ plot(ia)
 # Extract the results 
 dat = ia$results
 head(dat)
-\dontrun{
+
 # Interaction also works with multiclass classification
 rf = rpart(Species ~ ., data = iris)
 mod = Predictor$new(rf, data = iris, type = "prob")

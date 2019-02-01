@@ -61,6 +61,7 @@
 #' Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 
 #' The Annals of Applied Statistics 2.3 (2008): 916-954. 
 #' @examples
+#' \dontrun{
 #' if (require("rpart")) {
 #' set.seed(42)
 #' # Fit a CART on the Boston housing data set
@@ -79,7 +80,7 @@
 #' # Extract the results 
 #' dat = ia$results
 #' head(dat)
-#' \dontrun{
+#' 
 #' # Interaction also works with multiclass classification
 #' rf = rpart(Species ~ ., data = iris)
 #' mod = Predictor$new(rf, data = iris, type = "prob")
