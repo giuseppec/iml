@@ -1,5 +1,5 @@
-# iml 0.9.0 (IN PROGRESS)
-* Removes the `run` parameter from all Interpretation methods.
+# iml 0.9.0
+* Removes the `run` parameter from all interpretation methods.
 * Adds class `FeatureEffects` which wraps `FeatureEffect` and allows to compute feature effects for all features of a model with one call.
 * Add column ".type" to `$result` data.frame of `FeatureEffect` when `method="ale"` and the feature is categorical
 * Adds parameter `ylim` to `FeatureEffect$plot` to manually set the limits of the y-axis for feature effect plots with one feature.
