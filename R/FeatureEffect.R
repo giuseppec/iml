@@ -130,7 +130,7 @@ Partial = R6::R6Class("Partial",
 #' 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
-#' @importFrom data.table melt setkeyv merge.data.table
+#' @importFrom data.table melt setkeyv
 #' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #' @export
