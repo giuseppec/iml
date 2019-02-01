@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r, echo = FALSE, message = FALSE}
-knitr::opts_chunk$set(collapse = T, comment = "#>")
+knitr::opts_chunk$set(collapse = T, comment = "#>", fig.width = 7, fig.height = 7, fig.align = "center")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
 ```
 
@@ -114,6 +114,14 @@ We can also specify a feature and measure all it's 2-way interactions with all o
 interact = Interaction$new(predictor, feature = "crim")
 plot(interact)
 ```
+
+You can also plot the feature effects for all features at once:
+
+```{r}
+effs = FeatureEffects$new(predictor)
+plot(effs)
+```
+
 
 
 ## Surrogate model

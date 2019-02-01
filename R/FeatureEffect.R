@@ -1,4 +1,4 @@
-#' Effect of features on the model predictions (deprecated)
+#' Effect of one or two feature(s) on the model predictions (deprecated)
 #' 
 #' Deprecated, please use 'FeatureEffect', see ?FeatureEffect
 #' 
@@ -13,7 +13,7 @@ NULL
 Partial = R6::R6Class("Partial", 
   inherit = FeatureEffect,
   public = list(
-    initialize = function(predictor, feature, aggregation = "pdp",ice = TRUE, center.at = NULL, grid.size = 20, run = TRUE) {
+    initialize = function(predictor, feature, aggregation = "pdp",ice = TRUE, center.at = NULL, grid.size = 20) {
       assert_choice(aggregation, c("ale", "pdp", "none"))
       assert_logical(ice)
       if(length(feature) == 2) ice = FALSE
@@ -23,12 +23,12 @@ Partial = R6::R6Class("Partial",
       if((aggregation == "pdp") & !ice) method = "pdp"
       if(aggregation == "ale") method = "ale"
       super$initialize(predictor=predictor, feature=feature, method = method, center.at = center.at, 
-        grid.size = grid.size, run = run)
+        grid.size = grid.size)
     }))
 
 
 
-#' Effect of features on the model predictions
+#' Effect of a feature on predictions
 #' 
 #' \code{FeatureEffect} computes and plots (individual) feature effects of prediction models. 
 #' 
@@ -52,7 +52,7 @@ Partial = R6::R6Class("Partial",
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
-#' \item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the partial dependencies.}
+#' \item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the effects.}
 #' \item{method: }{(`character(1)`)\cr 
 #' 'ale' for accumulated local effects (the default), 
 #' 'pdp' for partial dependence plot, 
@@ -60,7 +60,6 @@ Partial = R6::R6Class("Partial",
 #' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
 #' \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered. Ignored in the case of two features.}
 #' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
-#' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
 #' @section Details:
@@ -108,15 +107,16 @@ Partial = R6::R6Class("Partial",
 #' \item{n.features: }{(`numeric(1)`)\cr The number of features (either 1 or 2)}
 #' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
 #' \item{results: }{(data.frame)\cr data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-#' Can be used for creating custom partial dependence plots.}
+#' Can be used for creating custom effect plots.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
 #' \item{center()}{method to set the value at which the ice computations are centered. See examples.}
 #' \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
-#' \item{plot()}{method to plot the partial dependence function. See \link{plot.FeatureEffect}}
-#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
+#' \item{plot()}{method to plot the effects. See \link{plot.FeatureEffect}}
+#' \item{predict()}{method to predict the marginal outcome given a feature. Accepts a data.frame with the feature or a vector. 
+#'                 Returns the values of the effect curves at the given values.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -163,6 +163,11 @@ Partial = R6::R6Class("Partial",
 #' eff.dat = eff$results
 #' head(eff.dat)
 #' 
+#' # You can also use the object to "predict" the marginal values.
+#' eff$predict(Boston[1:3,])
+#' # Instead of the entire data.frame, you can also use feature values:
+#' eff$predict(c(5,6,7))
+#' 
 #' # You can reuse the pdp object for other features: 
 #' eff$set.feature("lstat")
 #' plot(eff)
@@ -180,14 +185,14 @@ Partial = R6::R6Class("Partial",
 #' plot(eff)
 #' 
 #' 
-#' # Partial dependence plots also works with multiclass classification
+#' # FeatureEffect plots also works with multiclass classification
 #' rf = randomForest(Species ~ ., data = iris, ntree=50)
 #' mod = Predictor$new(rf, data = iris, type = "prob")
 #' 
 #' # For some models we have to specify additional arguments for the predict function
 #' plot(FeatureEffect$new(mod, feature = "Petal.Width"))
 #'
-#' # Partial dependence plots support up to two features: 
+#' # FeatureEffect plots support up to two features: 
 #' eff = FeatureEffect$new(mod, feature = c("Sepal.Length", "Petal.Length"))
 #' eff$plot()   
 #' 
@@ -214,7 +219,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
     n.features = NULL, 
     feature.type = NULL,
     method  = NULL,
-    initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20, run = TRUE) {
+    initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20) {
       feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
       assert_numeric(feature_index, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
@@ -235,14 +240,14 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         stop("feature has only one unique value")
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
-      if(run) self$run(self$predictor$batch.size)
+      private$run(self$predictor$batch.size)
     }, 
     set.feature = function(feature) {
       feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
       private$flush()
       private$set_feature_from_index(feature)
       private$set.grid.size(private$grid.size.original)
-      self$run(self$predictor$batch.size)
+      private$run(self$predictor$batch.size)
     },
     center = function(center.at) {
       if(self$method == "ale") {
@@ -251,18 +256,54 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       }
       private$anchor.value = center.at
       private$flush()
-      self$run(self$predictor$batch.size)
-    },
+      private$run(self$predictor$batch.size)
+    },    # Partial prediction function, which only looks at feature use in FeatureEffect
+    # Returns value of ALE / PD curve at particular feature value
+    predict = function(x){
+      if(self$n.features == 2) stop("Only implemented for single feature")
+      if(private$multiClass) stop("Only works for one-dimensional output")
+      if(inherits(x, "data.frame")) {
+        x = x[, self$feature.name]
+      }
+      assert_vector(x)
+      private$predict_inner(x)
+    }
+  ),
+  private = list(
     run = function(n) {
       if(self$method == "ale") {
         private$run.ale() 
       } else {
         private$run.pdp(self$predictor$batch.size)
       }
-    }),
-  private = list(
+      
+      # create the partial predict function
+      if(self$n.features == 1 & !private$multiClass & 
+          self$method %in% c("ale", "pdp", "pdp+ice")) {
+        if(self$feature.type == "numerical"){
+          if(self$method == "ale")  y = self$results$.ale
+          if(self$method %in% c("pdp", "pdp+ice")) y = self$results$.y.hat[self$results$.type == "pdp"]
+          x = self$results[self$results$.type %in% c("ale", "pdp"), self$feature.name]
+          private$predict_inner = approxfun(x = x, y = y)
+        } else {
+          private$predict_inner = function(x){
+            df = data.table(as.character(x), stringsAsFactors = FALSE)
+            colnames(df) = self$feature.name
+            results = self$results
+            results[,self$feature.name] = as.character(results[,self$feature.name])
+            output_col = ifelse(self$method == "ale", ".ale", ".y.hat")
+            res = merge(x = df, y = results, by = self$feature.name, all.x = TRUE, sort = FALSE)
+            data.frame(res)[,output_col]
+          }
+        }
+      }
+    }, 
+    
     anchor.value = NULL,
     grid.size.original = NULL,
+    y_axis_label = NULL,
+    # core functionality of self$predict
+    predict_inner = NULL,
     run.ale = function() {
       private$dataSample = private$getData()
       if(self$n.features  == 1) {
@@ -356,30 +397,32 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
     # make sure the default arguments match with plot.FeatureEffect
-    generatePlot = function(rug = TRUE, show.data=FALSE) {
+    generatePlot = function(rug = TRUE, show.data = FALSE, ylim = NULL) {
+      if (is.null(ylim)) ylim = c(NA, NA)
       if (is.null(private$anchor.value)) {
         if(self$method == "ale") {
-          y_axis_label = "ALE"
+          private$y_axis_label = "ALE"
           if(!is.null(self$predictor$data$y.names) & self$n.features == 1) {
             axis_label_names = paste(self$predictor$data$y.names, sep = ", ")
-            y_axis_label = sprintf("ALE of %s", axis_label_names)
+            private$y_axis_label = sprintf("ALE of %s", axis_label_names)
           }
         } else {
-          y_axis_label = expression(hat(y))
+          private$y_axis_label = expression(hat(y))
           if(!is.null(self$predictor$data$y.names) & self$n.features == 1) {
             axis_label_names = paste(self$predictor$data$y.names, sep = ", ")
-            y_axis_label = sprintf("Predicted %s", axis_label_names)
+            private$y_axis_label = sprintf("Predicted %s", axis_label_names)
           }
         }
       } else {
-        y_axis_label = bquote(hat(y)-hat(y)[x == .(private$anchor.value)])
+        private$y_axis_label = sprintf("Prediction centered at x = %s", 
+          as.character(private$anchor.value))
       }
       
       if (self$n.features == 1) {
         y.name = ifelse(self$method == "ale", ".ale", ".y.hat")
         p = ggplot(self$results, 
-          mapping = aes_string(x = self$feature.name, 
-            y = y.name)) + scale_y_continuous(y_axis_label)
+          mapping = aes_string(x = self$feature.name, y = y.name)) + 
+          scale_y_continuous(private$y_axis_label, limits = ylim)
         if (self$feature.type == "categorical") {
           if (self$method %in% c("ice", "pdp+ice")){
             p = p + geom_boxplot(data = self$results[self$results$.type == "ice",], aes_string(group = self$feature.name))
@@ -412,9 +455,9 @@ FeatureEffect = R6::R6Class("FeatureEffect",
               geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) + 
               scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) + 
               scale_y_continuous(numerical.feature) + 
-              scale_fill_continuous(y_axis_label)
+              scale_fill_continuous(private$y_axis_label)
             
-            # A bit stupid, but can't adding a rug is special here, because i handle the 
+            # A bit stupid, but adding a rug is special here, because i handle the 
             # categorical feature as a numeric feauture in the plot
             if (rug) {
               dat = private$sampler$get.x()
@@ -423,7 +466,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
               # Need some dummy data for ggplot to accept the data.frame
               rug.dat = cbind(dat, data.frame(.y.hat = 1, .id = 1, .ale = 1))
               p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = "bl", 
-                position = position_jitter(width = 0.1, height = 0.1))
+                position = position_jitter(width = 0.07, height = 0.07))
               rug = FALSE
             }
             if (show.data) {
@@ -438,18 +481,18 @@ FeatureEffect = R6::R6Class("FeatureEffect",
             p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
               geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
               scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
-              scale_fill_continuous(y_axis_label)
+              scale_fill_continuous(private$y_axis_label)
           }
         } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
           p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
             y = self$feature.name[2])) + geom_tile(aes(fill = .y.hat)) + 
-            scale_fill_continuous(y_axis_label)
+            scale_fill_continuous(private$y_axis_label)
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
           p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat")) + 
             geom_line(aes_string(group = categorical.feature, color = categorical.feature)) + 
-            scale_y_continuous(y_axis_label)
+            scale_y_continuous(private$y_axis_label)
           show.data = FALSE
         }
         
@@ -466,8 +509,27 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         rug.dat$.ale =   ifelse(is.null(self$results$.ale), NA, self$results$.ale[1])
         rug.dat$.y.hat = ifelse(is.null(self$results$.y.hat), NA, self$results$.y.hat[1])
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
+        
+        if (sides == "b") {
+          jitter_height = 0
+          if (self$feature.type[1] == "numerical") {
+            jitter_width = 0.01 * diff(range(rug.dat[,self$feature.name[1],with=FALSE][[1]]))
+          } else {
+            jitter_width = 0.07
+          }
+        } else {
+          if(all(self$feature.type == "numerical")) {
+            jitter_width = 0.01 * diff(range(rug.dat[,self$feature.name[1],with=FALSE][[1]]))
+            jitter_height = 0.01 * diff(range(rug.dat[,self$feature.name[2],with=FALSE][[1]]))
+            
+          } else {
+            jitter_width = 0.07
+            jitter_height = 0.07
+          }
+        }
+        
         p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
-          position = position_jitter(width = 0.1, height = 0.1))
+          position = position_jitter(width = jitter_width, height = jitter_height))
       }
       if (private$multiClass) {
         p = p + facet_wrap(".class")
@@ -522,6 +584,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
 #' @param rug [logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
 #' but it avoids overplotting.
 #' @param show.data Should the data points be shown? Only affects 2D plots, and ignored for 1D plots, because rug has the same information.
+#' @param ylim Vector with two coordinates for the y-axis. Only works when one feature is used in FeatureEffet, ignored when two are used.
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{FeatureEffect}
@@ -532,12 +595,13 @@ FeatureEffect = R6::R6Class("FeatureEffect",
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
-#' # Compute the partial dependence for the first feature
+#' # Compute the ALE for the first feature
 #' eff = FeatureEffect$new(mod, feature = "crim")
 #' 
 #' # Plot the results directly
 #' plot(eff)
 #' }
-plot.FeatureEffect = function(x, rug = TRUE, show.data = FALSE) {
-  x$plot(rug, show.data)
+plot.FeatureEffect = function(x, rug = TRUE, show.data = FALSE, ylim = NULL) {
+  assert_numeric(x = ylim, len = 2, all.missing = TRUE, any.missing = TRUE, null.ok = TRUE)
+  x$plot(rug = rug, show.data = show.data, ylim = ylim)
 }

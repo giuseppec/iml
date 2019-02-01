@@ -4,7 +4,8 @@
 \alias{plot.FeatureEffect}
 \title{Plot FeatureEffect}
 \usage{
-\method{plot}{FeatureEffect}(x, rug = TRUE, show.data = FALSE)
+\method{plot}{FeatureEffect}(x, rug = TRUE, show.data = FALSE,
+  ylim = NULL)
 }
 \arguments{
 \item{x}{A FeatureEffect R6 object}
@@ -13,6 +14,8 @@
 but it avoids overplotting.}
 
 \item{show.data}{Should the data points be shown? Only affects 2D plots, and ignored for 1D plots, because rug has the same information.}
+
+\item{ylim}{Vector with two coordinates for the y-axis. Only works when one feature is used in FeatureEffet, ignored when two are used.}
 }
 \value{
 ggplot2 plot object
@@ -27,7 +30,7 @@ data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 mod = Predictor$new(rf, data = Boston)
 
-# Compute the partial dependence for the first feature
+# Compute the ALE for the first feature
 eff = FeatureEffect$new(mod, feature = "crim")
 
 # Plot the results directly

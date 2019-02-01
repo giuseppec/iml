@@ -9,7 +9,7 @@
 #' 
 #' @section Usage:
 #' \preformatted{
-#' imp = FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5, run = TRUE)
+#' imp = FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5)
 #' 
 #' imp$plot()
 #' imp$results
@@ -30,7 +30,6 @@
 #' The higher the number of repetitions the more stable and accurate the results become. 
 #' }
 #' \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
-#' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' }
 #' 
 #' @section Details:
@@ -68,7 +67,6 @@
 #' \describe{
 #' \item{loss(actual,predicted)}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 #' \item{plot()}{method to plot the feature importances. See \link{plot.FeatureImp}}
-#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -142,7 +140,7 @@ FeatureImp = R6::R6Class("FeatureImp",
     n.repetitions = NULL,
     compare = NULL,
     initialize = function(predictor, loss, compare = "ratio", 
-                          n.repetitions = 5, run = TRUE, parallel = FALSE) {
+                          n.repetitions = 5, parallel = FALSE) {
       assert_choice(compare, c("ratio", "difference"))
       assert_number(n.repetitions)
       assert_logical(parallel)
@@ -173,7 +171,7 @@ FeatureImp = R6::R6Class("FeatureImp",
         warning("Model error is 0, switching from compare='ratio' to compare='difference'")
         self$compare = "difference"
       }
-      if(run) private$run(self$predictor$batch.size)
+      private$run(self$predictor$batch.size)
     }
   ),
   private = list(

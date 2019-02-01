@@ -51,7 +51,7 @@ Changes of the packages can be accessed in the [NEWS
 file](https://github.com/christophM/iml/blob/master/NEWS.md) shipped
 with the package.
 
-# Examples
+# Example
 
 First we train a randomForest to predict the Boston median housing
 value. How does lstat influence the prediction individually and on
@@ -64,8 +64,8 @@ data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 X =  Boston[which(names(Boston) != "medv")]
 model = Predictor$new(rf, data = X, y = Boston$medv)
-effect = FeatureEffect$new(model, feature = "lstat")
-effect$plot()
+effect = FeatureEffects$new(model)
+effect$plot(features = c("lstat", "age", "rm"))
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->

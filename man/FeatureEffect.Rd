@@ -2,7 +2,7 @@
 % Please edit documentation in R/FeatureEffect.R
 \name{FeatureEffect}
 \alias{FeatureEffect}
-\title{Effect of features on the model predictions}
+\title{Effect of a feature on predictions}
 \format{\code{\link{R6Class}} object.}
 \description{
 \code{FeatureEffect} computes and plots (individual) feature effects of prediction models.
@@ -27,7 +27,7 @@ For FeatureEffect$new():
 \describe{
 \item{predictor: }{(Predictor)\cr 
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the partial dependencies.}
+\item{feature: }{(`character(1)` | `character(2)` | `numeric(1)` | `numeric(2)`) \cr The feature name or index for which to compute the effects.}
 \item{method: }{(`character(1)`)\cr 
 'ale' for accumulated local effects (the default), 
 'pdp' for partial dependence plot, 
@@ -35,7 +35,6 @@ The object (created with Predictor$new()) holding the machine learning model and
 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
 \item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered. Ignored in the case of two features.}
 \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
-\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
@@ -86,7 +85,7 @@ And for individual conditional expectation:
 \item{n.features: }{(`numeric(1)`)\cr The number of features (either 1 or 2)}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
 \item{results: }{(data.frame)\cr data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-Can be used for creating custom partial dependence plots.}
+Can be used for creating custom effect plots.}
 }
 }
 
@@ -95,8 +94,9 @@ Can be used for creating custom partial dependence plots.}
 \describe{
 \item{center()}{method to set the value at which the ice computations are centered. See examples.}
 \item{set.feature()}{method to get/set feature(s) (by index) fpr  which to compute pdp. See examples for usage.}
-\item{plot()}{method to plot the partial dependence function. See \link{plot.FeatureEffect}}
-\item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
+\item{plot()}{method to plot the effects. See \link{plot.FeatureEffect}}
+\item{predict()}{method to predict the marginal outcome given a feature. Accepts a data.frame with the feature or a vector. 
+                Returns the values of the effect curves at the given values.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }
@@ -131,6 +131,11 @@ if (require("ggplot2")) {
 eff.dat = eff$results
 head(eff.dat)
 
+# You can also use the object to "predict" the marginal values.
+eff$predict(Boston[1:3,])
+# Instead of the entire data.frame, you can also use feature values:
+eff$predict(c(5,6,7))
+
 # You can reuse the pdp object for other features: 
 eff$set.feature("lstat")
 plot(eff)
@@ -148,14 +153,14 @@ eff = FeatureEffect$new(mod, feature = c("crim", "lstat"))
 plot(eff)
 
 
-# Partial dependence plots also works with multiclass classification
+# FeatureEffect plots also works with multiclass classification
 rf = randomForest(Species ~ ., data = iris, ntree=50)
 mod = Predictor$new(rf, data = iris, type = "prob")
 
 # For some models we have to specify additional arguments for the predict function
 plot(FeatureEffect$new(mod, feature = "Petal.Width"))
 
-# Partial dependence plots support up to two features: 
+# FeatureEffect plots support up to two features: 
 eff = FeatureEffect$new(mod, feature = c("Sepal.Length", "Petal.Length"))
 eff$plot()   
 

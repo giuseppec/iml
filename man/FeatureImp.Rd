@@ -11,7 +11,7 @@ The importance is measured as the factor by which the model's prediction error i
 \section{Usage}{
 
 \preformatted{
-imp = FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5, run = TRUE)
+imp = FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5)
 
 imp$plot()
 imp$results
@@ -34,7 +34,6 @@ Ratio: error.permutation/error.orig,   Difference: error.permutation - error.ori
 The higher the number of repetitions the more stable and accurate the results become. 
 }
 \item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
-\item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 }
 }
 
@@ -78,7 +77,6 @@ See \code{library(help = "Metrics")} to get a list of functions.
 \describe{
 \item{loss(actual,predicted)}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
 \item{plot()}{method to plot the feature importances. See \link{plot.FeatureImp}}
-\item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }

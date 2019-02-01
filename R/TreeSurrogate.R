@@ -6,7 +6,7 @@
 #' @name TreeSurrogate
 #' @section Usage:
 #' \preformatted{
-#' tree = TreeSurrogate$new(predictor, maxdepth = 2, tree.args = NULL, run = TRUE)
+#' tree = TreeSurrogate$new(predictor, maxdepth = 2, tree.args = NULL)
 #' 
 #' plot(tree)
 #' predict(tree, newdata)
@@ -21,7 +21,6 @@
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
 #' \item{maxdepth: }{(`numeric(1)`)\cr The maximum depth of the tree. Default is 2.}
-#' \item{run: }{(`logical(1)`)\cr Should the Interpretation method be run?}
 #' \item{tree.args: }{(named list)\cr Further arguments for \code{ctree}.}
 #' }
 #' 
@@ -49,7 +48,6 @@
 #' \describe{
 #' \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}.}
 #' \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
-#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -121,11 +119,11 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     # Maximal depth as set by the user
     maxdepth = NULL,
     r.squared = NULL,
-    initialize = function(predictor, maxdepth = 2, tree.args = NULL, run = TRUE) {
+    initialize = function(predictor, maxdepth = 2, tree.args = NULL) {
       super$initialize(predictor)
       private$tree.args = tree.args
       self$maxdepth = maxdepth
-      if(run) self$run()
+      private$run()
     }, 
     predict = function(newdata, type = "prob", ...) {
       assert_choice(type, c("prob", "class"))

@@ -11,7 +11,7 @@
 
 \preformatted{
 lime = LocalModel$new(predictor, x.interest = NULL, dist.fun = "gower",  
-                      kernel.width = NULL, k = 3, run = TRUE)
+                      kernel.width = NULL, k = 3)
 
 plot(lime)
 predict(lime, newdata)
@@ -33,8 +33,6 @@ The object (created with Predictor$new()) holding the machine learning model and
 \item{kernel.width: }{(`numeric(1)`)\cr The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
 \item{k: }{(`numeric(1)`)\cr
 The (maximum) number of features to be used for the surrogate model.}
-\item{run: }{(`logical(1)`)\cr
-Should the Interpretation method be run?}
 }
 }
 
@@ -81,7 +79,6 @@ To learn more about local surrogate models, read the Interpretable Machine Learn
 \item{explain(x.interest)}{method to set a new data point which to explain.}
 \item{plot()}{method to plot the LocalModel feature effects. See \link{plot.LocalModel}}
 \item{predict()}{method to predict new data with the local model See also \link{predict.LocalModel}}
-\item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 \item{\code{clone()}}{[internal] method to clone the R6 object.}
 \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 }

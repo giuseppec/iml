@@ -24,7 +24,7 @@ test_that("FeatureEffect is Partial", {
   expect_equal(pdp.obj1$results, pdp.obj2$results)
 })
 
-test_that("FeatureEffect (pdp only) works for single output and single feature", {
+test_that("FeatureEffect (method=pdp) works for single output and single feature", {
   grid.size = 10
   pdp.obj = FeatureEffect$new(predictor1, method = "pdp", feature = 1, grid.size = grid.size)
   dat = pdp.obj$results
@@ -36,8 +36,24 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   checkPlot(pdp.obj)
-  
+  expect_numeric(pdp.obj$predict(1), len = 1)
+  expect_numeric(pdp.obj$predict(c(1,2)), len = 2, any.missing = FALSE)
+  expect_numeric(pdp.obj$predict(X), len = nrow(X), any.missing = FALSE)
+  expect_numeric(pdp.obj$predict(X[1:2, ]), len = 2, any.missing = FALSE)
+  expect_equal(pdp.obj$predict(10), as.numeric(NA))
   expect_equal(pdp.obj$feature.name, "a")
+  
+  pdp.obj$set.feature("c")
+  # make sure the merging in $predict does not shuffle results
+  expect_equal(pdp.obj$predict(X), pdp.obj$results$.y.hat[pdp.obj$results$c[X$c]])
+  
+  pdp.obj$set.feature("d")
+  expect_numeric(pdp.obj$predict("A"), len = 1)
+  expect_numeric(pdp.obj$predict(c("A","B")), len = 2, any.missing = FALSE)
+  expect_numeric(pdp.obj$predict(X), len = nrow(X), any.missing = FALSE)
+  expect_numeric(pdp.obj$predict(X[1:2, ]), len = 2, any.missing = FALSE)
+  expect_equal(pdp.obj$predict(10), as.numeric(NA))
+  
   pdp.obj$set.feature(3)
   expect_equal(pdp.obj$feature.name, "c")
   pdp.obj$set.feature("b")
@@ -56,9 +72,15 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
   checkPlot(pdp.obj)
   dat = pdp.obj$results
   expect_equal(min(dat$.y), 0)
+  
+  
+  # Centering 
+  p = plot(pdp.obj, ylim = c(1,2))
+  expect_s3_class(p, c("gg", "ggplot"))
+  plot(p)
 })
 
-test_that("FeatureEffect (pdp only) works for single output and 2 features, 2D grid.size", {
+test_that("FeatureEffect (method=pdp) works for single output and 2 features, 2D grid.size", {
   ## two numerical features with 2 grid.sizes
   grid.size = c(10,2)
   pdp.obj = FeatureEffect$new(predictor1, method="pdp", feature = c("a", "b"), grid.size = grid.size)
@@ -72,13 +94,14 @@ test_that("FeatureEffect (pdp only) works for single output and 2 features, 2D g
   expect_equal(max(dat$b), 50)
   expect_equal(min(dat$b), 10)
   checkPlot(pdp.obj)
+  expect_error(pdp.obj$predict(1))
   pdp.obj2 = FeatureEffect$new(predictor1, method="pdp", feature = c("a", "b"), grid.size = grid.size)
   expect_equal(pdp.obj$results, pdp.obj2$results)
   pdp.obj3 = FeatureEffect$new(predictor1, method = "pdp", center.at = 0, feature = c("a", "b"), grid.size = grid.size)
   expect_equal(pdp.obj$results, pdp.obj3$results)
 })
 
-test_that("FeatureEffect (pdp only) works for single output and 2 numerical features, 1D grid.size", {
+test_that("FeatureEffect (method=pdp) works for single output and 2 numerical features, 1D grid.size", {
   ## Two numerical with same grid.size
   grid.size = 7
   pdp.obj = FeatureEffect$new(predictor1, method = "pdp", feature = c(1,2), grid.size = grid.size)
@@ -90,9 +113,10 @@ test_that("FeatureEffect (pdp only) works for single output and 2 numerical feat
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   checkPlot(pdp.obj)
+  expect_error(pdp.obj$predict(1))
 })
 
-test_that("FeatureEffect (pdp only) works for single output and numerical + categorical feature", {
+test_that("FeatureEffect (method=pdp) works for single output and numerical + categorical feature", {
   
   ## One feature categorical
   grid.size = 11
@@ -106,6 +130,7 @@ test_that("FeatureEffect (pdp only) works for single output and numerical + cate
   expect_equal(min(dat$a), 1)
   expect_equal(unique(dat$c), unique(X$c))  
   checkPlot(pdp.obj)
+  expect_error(pdp.obj$predict(1))
   
   ## One feature categorical
   grid.size = c(7,9)
@@ -119,6 +144,7 @@ test_that("FeatureEffect (pdp only) works for single output and numerical + cate
   expect_equal(min(dat$b), 10)
   expect_equal(unique(dat$c), unique(X$c))  
   checkPlot(pdp.obj)
+  expect_error(pdp.obj$predict(1))
 })
 
 test_that("FeatureEffect (pdp) works for categorical output", {
@@ -135,6 +161,7 @@ test_that("FeatureEffect (pdp) works for multiple output", {
   grid.size = 10
   pdp.obj = FeatureEffect$new(predictor2, method = "pdp", feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
+  expect_error(pdp.oj$predict(2))
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type"))
   expect_equal(nrow(dat), grid.size * 2)  

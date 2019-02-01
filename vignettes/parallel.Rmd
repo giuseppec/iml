@@ -8,7 +8,7 @@ vignette: >
 ---
   
 ```{r, echo = FALSE, message = FALSE}
-knitr::opts_chunk$set(collapse = T, comment = "#>")
+knitr::opts_chunk$set(collapse = T, comment = "#>", fig.width = 7, fig.height = 7, fig.align = "center")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
 ```
 
@@ -76,6 +76,13 @@ system.time(Interaction$new(predictor, parallel = FALSE))
 system.time(Interaction$new(predictor, parallel = TRUE))
 ```
 
+
+Same for `FeatureEffects`:
+
+```{r}
+system.time(FeatureEffects$new(predictor, parallel = FALSE))
+system.time(FeatureEffects$new(predictor, parallel = TRUE))
+```
 
 
 Remember to stop the cluster in the end again.

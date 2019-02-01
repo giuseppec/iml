@@ -8,7 +8,7 @@
 #' @section Usage:
 #' \preformatted{
 #' lime = LocalModel$new(predictor, x.interest = NULL, dist.fun = "gower",  
-#'                       kernel.width = NULL, k = 3, run = TRUE)
+#'                       kernel.width = NULL, k = 3)
 #' 
 #' plot(lime)
 #' predict(lime, newdata)
@@ -28,8 +28,6 @@
 #' \item{kernel.width: }{(`numeric(1)`)\cr The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
 #' \item{k: }{(`numeric(1)`)\cr
 #' The (maximum) number of features to be used for the surrogate model.}
-#' \item{run: }{(`logical(1)`)\cr
-#' Should the Interpretation method be run?}
 #' }
 #' 
 #' @section Details: 
@@ -70,7 +68,6 @@
 #' \item{explain(x.interest)}{method to set a new data point which to explain.}
 #' \item{plot()}{method to plot the LocalModel feature effects. See \link{plot.LocalModel}}
 #' \item{predict()}{method to predict new data with the local model See also \link{predict.LocalModel}}
-#' \item{\code{run()}}{[internal] method to run the interpretability method. Use \code{obj$run(force = TRUE)} to force a rerun.}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
 #' }
@@ -159,9 +156,9 @@ LocalModel = R6::R6Class("LocalModel",
     explain = function(x.interest) {
       self$x.interest = private$match_cols(x.interest)
       private$flush()
-      self$run()
+      private$run()
     },
-    initialize = function(predictor, x.interest = NULL, dist.fun = "gower", kernel.width = NULL, k = 3, run = TRUE) {
+    initialize = function(predictor, x.interest, dist.fun = "gower", kernel.width = NULL, k = 3) {
       assert_number(k, lower = 1, upper = predictor$data$n.features)
       assert_data_frame(x.interest, null.ok = TRUE)
       assert_choice(dist.fun, c("gower", "euclidean", "maximum", 
@@ -176,7 +173,7 @@ LocalModel = R6::R6Class("LocalModel",
       }
       private$weight.fun = private$get.weight.fun(dist.fun, kernel.width)
       
-      if (run & !is.null(x.interest)) self$run()
+      if (!is.null(x.interest)) private$run()
     }
   ),
   private = list(
