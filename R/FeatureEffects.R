@@ -98,6 +98,7 @@
 #' eff = FeatureEffects$new(mod)
 #' eff$plot()
 #' 
+#' \dontrun{
 #' # Again, but this time with a partial dependence plot
 #' eff = FeatureEffects$new(mod, method = "pdp")
 #' eff$plot()
@@ -118,7 +119,7 @@
 #' mod = Predictor$new(rf, data = iris, type = "prob")
 #' 
 #' FeatureEffects$new(mod)$plot(ncol = 2)
-#' 
+#' }
 #' }
 NULL
 
