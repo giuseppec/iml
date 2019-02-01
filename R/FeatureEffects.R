@@ -1,6 +1,6 @@
 #' Effect of all features on predictions
 #' 
-#' \code{FeatureEffects} computes effects of multiple features on the prediction.
+#' \code{FeatureEffects} computes feature effects for multiple features at once.
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name FeatureEffects
@@ -89,26 +89,23 @@
 #' @export
 #' @examples
 #' # We train a random forest on the Boston dataset:
-#' if (require("randomForest")) {
+#' if (require("rpart")) {
 #' data("Boston", package  = "MASS")
-#' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+#' rf = rpart(medv ~ ., data = Boston)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the accumulated local effects for all features
 #' eff = FeatureEffects$new(mod)
 #' eff$plot()
 #' 
-#' # Again, but this time with a partial dependence plot and ice curves
-#' eff = FeatureEffects$new(mod, method = "pdp+ice", grid.size = 30)
+#' # Again, but this time with a partial dependence plot
+#' eff = FeatureEffects$new(mod, method = "pdp")
 #' eff$plot()
 #' 
 #' # Only a subset of features
-#' eff = FeatureEffects$new(mod, features = c("nox", "crim", "lstat"))
+#' eff = FeatureEffects$new(mod, features = c("nox", "crim"))
 #' eff$plot()
 #' 
-#' # Centering the lines
-#' eff = FeatureEffects$new(mod, method = "ice", center.at = 0)
-#' plot(eff) 
 #' 
 #' # You can access each FeatureEffect individually
 #' 
@@ -116,9 +113,8 @@
 #' eff.nox$plot()
 #' 
 #' 
-#' 
 #' # FeatureEffects also works with multiclass classification
-#' rf = randomForest(Species ~ ., data = iris, ntree=50)
+#' rf = rpart(Species ~ ., data = iris)
 #' mod = Predictor$new(rf, data = iris, type = "prob")
 #' 
 #' FeatureEffects$new(mod)$plot(ncol = 2)
@@ -132,8 +128,6 @@ NULL
 FeatureEffects = R6::R6Class("FeatureEffects", 
   inherit = InterpretationMethod,
   public = list(
-    ice = NULL,
-    aggregation = NULL,
     grid.size = NULL, 
     method  = NULL,
     # The named list of FeatureEffect
