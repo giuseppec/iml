@@ -28,6 +28,7 @@
 #' \item{kernel.width: }{(`numeric(1)`)\cr The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
 #' \item{k: }{(`numeric(1)`)\cr
 #' The (maximum) number of features to be used for the surrogate model.}
+#' }
 #' 
 #' @section Details: 
 #' A weighted glm is fitted with the machine learning model prediction as target. 
