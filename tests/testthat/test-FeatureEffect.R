@@ -43,6 +43,10 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   expect_equal(pdp.obj$predict(10), as.numeric(NA))
   expect_equal(pdp.obj$feature.name, "a")
   
+  pdp.obj$set.feature("c")
+  # make sure the merging in $predict does not shuffle results
+  expect_equal(pdp.obj$predict(X), pdp.obj$results$.y.hat[pdp.obj$results$c[X$c]])
+  
   pdp.obj$set.feature("d")
   expect_numeric(pdp.obj$predict("A"), len = 1)
   expect_numeric(pdp.obj$predict(c("A","B")), len = 2, any.missing = FALSE)
