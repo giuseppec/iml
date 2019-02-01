@@ -130,12 +130,12 @@ Shapley = R6::R6Class("Shapley",
       y.hat.diff = y.hat.with.k - y.hat.without.k
       cnames = colnames(y.hat.diff)
       y.hat.diff = cbind(data.table(feature = rep(colnames(private$dataDesign), times = self$sample.size)), 
-        y.hat.diff)
+                                    y.hat.diff)
       y.hat.diff = melt(y.hat.diff, variable.name = "class", value.name = "value", measure.vars = cnames)
       y.hat.diff = y.hat.diff[, list("phi" = mean(value), "phi.var" = var(value)), by = c("feature", "class")]
       if (!private$multiClass) y.hat.diff$class = NULL
       x.original = unlist(lapply(self$x.interest[1,], as.character))
-      y.hat.diff$feature.value = sprintf('%s=%s', colnames(self$x.interest), x.original)
+      y.hat.diff$feature.value = rep(sprintf('%s=%s', colnames(self$x.interest), x.original), times = length(cnames))
       y.hat.diff
     },
     intervene = function() {
