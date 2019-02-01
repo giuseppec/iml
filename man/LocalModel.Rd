@@ -21,6 +21,21 @@ print(lime)
 }
 }
 
+\section{Arguments}{
+
+
+For LocalModel$new():
+\describe{
+\item{predictor: }{(Predictor)\cr 
+The object (created with Predictor$new()) holding the machine learning model and the data.}
+\item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
+\item{dist.fun: }{(`character(1)`)\cr The name of the distance function for computing proximities (weights in the linear model). Defaults to "gower". Otherwise will be forwarded to [stats::dist].}
+\item{kernel.width: }{(`numeric(1)`)\cr The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
+\item{k: }{(`numeric(1)`)\cr
+The (maximum) number of features to be used for the surrogate model.}
+}
+}
+
 \section{Details}{
  
 A weighted glm is fitted with the machine learning model prediction as target. 
