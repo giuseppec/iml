@@ -215,6 +215,7 @@ Interaction = R6::R6Class("Interaction",
 #' \link{Interaction}
 #' @examples
 #' # We train a tree on the Boston dataset:
+#' \dontrun{
 #' if (require("rpart")) {
 #' data("Boston", package  = "MASS")
 #' rf = rpart(medv ~ ., data = Boston)
@@ -225,6 +226,7 @@ Interaction = R6::R6Class("Interaction",
 #' 
 #' # Plot the results directly
 #' plot(ia)
+#' }
 #' }
 plot.Interaction = function(x, sort = TRUE) {
   x$plot(sort = sort)

@@ -19,6 +19,7 @@ plot.Interaction() plots the results of an Interaction object.
 }
 \examples{
 # We train a tree on the Boston dataset:
+\dontrun{
 if (require("rpart")) {
 data("Boston", package  = "MASS")
 rf = rpart(medv ~ ., data = Boston)
@@ -29,6 +30,7 @@ ia = Interaction$new(mod)
 
 # Plot the results directly
 plot(ia)
+}
 }
 }
 \seealso{
