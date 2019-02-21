@@ -63,7 +63,7 @@ Data  = R6::R6Class("Data",
         self$y = data.frame(.y = y)
         self$y.names = colnames(self$y)
       } 
-      self$X = data.table(X[,setdiff(colnames(X), self$y.names)])
+      self$X = data.table(X[,setdiff(colnames(X), self$y.names), drop = FALSE])
       self$prob = prob
       self$feature.types = get.feature.type(unlist(lapply(self$X, class)))
       self$feature.names = colnames(self$X)

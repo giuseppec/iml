@@ -38,3 +38,11 @@ test_that("y as character works", {
   expect_equal(ds$feature.names, setdiff(colnames(iris), "Species"))
   expect_equal(unname(ds$feature.types), rep("numerical", times = 4))
 })
+
+
+
+test_that("doesn't drop colnames when only one feature", {
+  dat = data.frame(y = 1:10, x = factor(c(1,2,1,2,1,2,1,2,1,2)))
+  dt = Data$new(X = dat["x"])
+  expect_equal(dt$feature.names, "x")
+})
