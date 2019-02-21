@@ -195,10 +195,11 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
 #' @param feature.name The column name of the feature for which to compute ALE
 calculate.ale.cat = function(dat, run.prediction, feature.name){
   x = dat[,feature.name, with = FALSE][[1]]
-  levels.original = levels(x)
+  levels.original = levels(droplevels(x))
+  nlev = nlevels(droplevels(x))
   # if ordered, than already use that
   if(inherits(x, "ordered")){
-    level_order = 1:nlevels(x)
+    level_order = 1:nlev
   } else {
     # reorders according to the distance of the levels in the other features
     level_order = order_levels(dat, feature.name)
@@ -210,7 +211,7 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   X.lower = X.upper = dat
   
   # We only want to increase/decrease the ones that are not already the minimum or maximum level
-  row.ind.increase = (1:nrow(dat))[x.ordered < nlevels(x)]  
+  row.ind.increase = (1:nrow(dat))[x.ordered < nlev]  
   row.ind.decrease = (1:nrow(dat))[x.ordered > 1]  
   
   

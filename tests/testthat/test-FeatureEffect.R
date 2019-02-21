@@ -455,3 +455,22 @@ test_that("method='ale' in case of single category as well", {
   pred.reduced = Predictor$new(data = dat.reduced, predict.fun = f)
   expect_error(FeatureEffect$new(pred.reduced, feature = 4, method = "ale"), "feature has only one unique value")
 })
+
+test_that("FeatureEffect handles empty level", {
+  set.seed(123)
+  dat = data.frame(y = 1:10, x = factor(c(1,2,1,2,1,2,1,2,1,2), levels = c(1,2,3)), xx = rnorm(10))
+  mod = lm(y ~ x, data = dat)
+  pred = Predictor$new(mod, data = dat)
+  fe = FeatureEffect$new(pred, "x")
+  dat2 = data.frame(y = 1:10, x = factor(c(1,2,1,2,1,2,1,2,1,2)), xx = rnorm(10))
+  mod2 = lm(y ~ x, data = dat2)
+  pred2 = Predictor$new(mod2, data = dat2)
+  fe2 = FeatureEffect$new(pred, "x")
+  expect_equal(fe, fe2)
+  
+  
+  fe = FeatureEffect$new(pred, "x", method = "pdp+ice")
+  fe2 = FeatureEffect$new(pred, "x", method = "pdp+ice")
+  expect_equal(fe, fe2)
+})
+
