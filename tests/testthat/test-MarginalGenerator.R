@@ -109,3 +109,4 @@ test_that("MarginalGenerator$batch()", {
 })
 
 
+

@@ -61,9 +61,11 @@ test_that("extracts data automatically for caret::train", {
   expect_equal(data.frame(predictor.caret2$data$X), iris[,-which(names(iris) == "Species")])
 })
 
-test_that("errors when trying to extrat data from for mlr::WrappedModel", {
+test_that("errors when trying to extract data from for mlr::WrappedModel", {
   expect_error(Predictor$new(mod.mlr, type = "prob"))
 })
+
+
 
 
 
@@ -146,3 +148,8 @@ test_that("Giving y", {
 
 
 
+test_that("Predictor errors with only one feature", {
+  dat = data.frame(y = 1:10, x = factor(c(1,2,1,2,1,2,1,2,1,2), levels = c(1,2,3)))
+  mod = lm(y ~ x, data = dat)
+  expect_error(Predictor$new(mod, data = dat))
+})

@@ -64,6 +64,7 @@ Data  = R6::R6Class("Data",
         self$y.names = colnames(self$y)
       } 
       self$X = data.table(X[,setdiff(colnames(X), self$y.names), drop = FALSE])
+      if(ncol(self$X) == 1) stop("Only 1 feature was provided. The iml package is only useful and works for multiple features.")
       self$prob = prob
       self$feature.types = get.feature.type(unlist(lapply(self$X, class)))
       self$feature.names = colnames(self$X)
