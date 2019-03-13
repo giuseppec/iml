@@ -84,6 +84,16 @@ create_predict_fun.default = function(model, task, predict.fun = NULL, type = NU
   }
 }
 
+create_predict_fun.keras.engine.training.Model = function(model, task, predict.fun = NULL, type = NULL){
+  if (is.null(predict.fun)) {
+      predict.fun = function(object, newdata) predict(object, newdata)
+  }
+  function(newdata) {
+    pred = do.call(predict.fun, list(model, newdata = as.matrix(newdata)))
+    data.frame(pred)
+  }
+}
+
 
 factor_to_dataframe = function(fac) {
   check_vector(fac)
