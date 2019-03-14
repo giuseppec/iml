@@ -1,3 +1,7 @@
+#0.9.1 (In Progress) 
+* Adds  support for keras
+
+
 # iml 0.9.0
 * Removes the `run` parameter from all interpretation methods.
 * Adds class `FeatureEffects` which wraps `FeatureEffect` and allows to compute feature effects for all features of a model with one call.
