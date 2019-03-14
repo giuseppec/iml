@@ -5,7 +5,7 @@ r_github_packages:
 before_install:
   - sudo apt-get update
   - sudo apt-get install libmagic-dev
-before-script:
+before_script:
  - Rscript -e "keras::install_keras()"
 after_success:
   - Rscript -e 'covr::codecov()'
