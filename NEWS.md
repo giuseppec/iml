@@ -1,6 +1,6 @@
 # 0.9.1 (In Progress) 
 * Adds  support for keras
-
+* Fixes problem with FeatureImp that caused unused features to get non-zero importances
 
 # iml 0.9.0
 * Removes the `run` parameter from all interpretation methods.
