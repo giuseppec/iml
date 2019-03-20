@@ -191,20 +191,20 @@ FeatureImp = R6::R6Class("FeatureImp",
       
       estimate_feature_imp = function(feature, data.sample, y, n.repetitions, y.names, pred, loss) {
         cnames = setdiff(colnames(data.sample), y.names)
-        
-        mg = iml:::MarginalGenerator$new(data.sample, data.sample, 
-          features = feature, n.sample.dist = n.repetitions, y = y, cartesian = FALSE, id.dist = TRUE)
         qResults = data.table::data.table()
         y.vec = data.table::data.table()
+     	for(repi in 1:n.repetitions) {
+	  mg = iml:::MarginalGenerator$new(data.sample, data.sample, 
+          features = feature, n.sample.dist = 1, y = y, cartesian = FALSE, id.dist = TRUE)
         while(!mg$finished) {
           data.design = mg$next.batch(n, y = TRUE)
           y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
           qResults = rbind(qResults, pred(data.design[,cnames, with = FALSE]))
         }
-        
+	}
         # AGGREGATE measurements
         results = data.table::data.table(feature = feature, actual = y.vec[[1]], predicted = qResults[[1]], 
-          num_rep = rep(1:n.repetitions, each = nrow(data.sample)))
+        num_rep = rep(1:n.repetitions, each = nrow(data.sample)))
         results = results[, list("permutation_error" = loss(actual, predicted)), by = list(feature, num_rep)]
         results
       }
@@ -221,7 +221,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
         estimate_feature_imp(feature, data.sample = data.sample, y = y,
           n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss)
-      if (self$compare == "ratio") {
+      
+if (self$compare == "ratio") {
         result[, importance_raw := permutation_error / self$original.error]
       } else {
         result[, importance_raw := permutation_error - self$original.error]

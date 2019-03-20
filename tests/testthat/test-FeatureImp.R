@@ -1,22 +1,20 @@
 context("FeatureImp()")
 
-#set.seed(42)
+set.seed(42)
 
-expectedColnames = c("feature", "importance.05", "importance", "importance.95", "permutation.error")
+expected_colnames = c("feature", "importance.05", "importance",
+		      "importance.95", "permutation.error")
 
 test_that("FeatureImp works for single output", {
-  
   var.imp = FeatureImp$new(predictor1, loss = "mse")
   dat = var.imp$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), expectedColnames)
-  expect_equal(nrow(dat), ncol(X))  
+  expect_equal(colnames(dat), expected_colnames)
+  expect_equal(nrow(dat), ncol(X))
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
   p
-  
-  
   p = plot(var.imp, sort = FALSE)
   expect_s3_class(p, c("gg", "ggplot"))
   p
@@ -27,12 +25,11 @@ test_that("FeatureImp works for single output", {
 })
 
 test_that("FeatureImp works for single output with single repetition", {
-  
   var.imp = FeatureImp$new(predictor1, loss = "mse", n.repetitions = 1)
   dat = var.imp$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(colnames(dat), expected_colnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -40,12 +37,11 @@ test_that("FeatureImp works for single output with single repetition", {
 })
 
 test_that("FeatureImp with difference", {
-  
   var.imp = FeatureImp$new(predictor1, loss = "mse", compare = "difference")
   dat = var.imp$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(colnames(dat), expected_colnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -64,7 +60,7 @@ test_that("FeatureImp with 0 model error", {
   dat = var.imp$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(colnames(dat), expected_colnames)
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
   p
@@ -77,7 +73,7 @@ test_that("FeatureImp works for single output and function as loss", {
   expect_class(dat, "data.frame")
   # Making sure the result is sorted by decreasing importance
   expect_equal(dat$importance, dat[order(dat$importance, decreasing = TRUE),]$importance)
-  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(colnames(dat), expected_colnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -89,7 +85,7 @@ test_that("FeatureImp works for multiple output",{
   var.imp = FeatureImp$new(predictor2, loss = "ce")
   dat = var.imp$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), expectedColnames)
+  expect_equal(colnames(dat), expected_colnames)
   expect_equal(nrow(dat), ncol(X))  
   p = plot(var.imp)
   expect_s3_class(p, c("gg", "ggplot"))
@@ -123,3 +119,19 @@ test_that("Model receives data.frame without additional columns", {
   expect_r6(imp)
 })
 
+
+set.seed(12)
+X = data.frame(x1 = 1:10, x2 = 1:10, x3 = 1:10)
+y = X[,1] + X[,2] + rnorm(10, 0, 0.1)
+
+
+pred.fun = function(newdata){
+	newdata[,1] + newdata[,2]
+}
+
+pred = Predictor$new(data = X, predict.fun = pred.fun, y = y)
+
+test_that("Feature Importance 0", {
+ fimp = FeatureImp$new(pred, loss = "mae", n.repetitions = 3)
+ expect_equal(fimp$results$importance[3], 1) 
+})
