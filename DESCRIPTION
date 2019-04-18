@@ -30,7 +30,11 @@ Imports: R6,
          yaImpute,
          prediction,
          Formula,
-         gridExtra
+         gridExtra, 
+	 ParamHelpers, 
+	 mosmafs, 
+	 ecr, 
+	 StatMatch
 Suggests: randomForest,
           gower, 
           testthat, 
