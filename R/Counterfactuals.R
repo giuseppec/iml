@@ -179,22 +179,22 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$stag = stag
       
       # Define parameterset
-      private$ps = ParamHelpers::makeParamSet(
+      private$param.set= ParamHelpers::makeParamSet(
         params = makeParamlist(self$input.data))
       
       # Extract info from input.data
       private$feature.names = names(self$input.data)
-      private$range = ParamHelpers::getUpper(private$ps) - 
-        ParamHelpers::getLower(private$ps)
-      private$range[ParamHelpers::getParamIds(private$ps)
-        [ParamHelpers::getParamTypes(private$ps) == "discrete"]]  = NA
+      private$range = ParamHelpers::getUpper(private$param.set) - 
+        ParamHelpers::getLower(private$param.set)
+      private$range[ParamHelpers::getParamIds(private$param.set)
+        [ParamHelpers::getParamTypes(private$param.set) == "discrete"]]  = NA
       private$range = private$range[names(self$input.data)]
       
       private$sdev = apply(Filter(is.numeric, self$input.data), 2, sd)
-      sdev.l = sdev.to.namedlist(private$sdev, private$ps)
+      sdev.l = sdev.to.namedlist(private$sdev, private$param.set)
       
-      # Define operators based on parameterset private$ps
-      private$mutator = mosmafs::combine.operators(private$ps,
+      # Define operators based on parameterset private$param.set
+      private$mutator = mosmafs::combine.operators(private$param.set,
         numeric = ecr::setup(custom.mutGauss, p = 1, sdev = sdev.l$numeric),
         integer = ecr::setup(custom.mutGaussInt, p = 1, sdev = sdev.l$integer),
         discrete = ecr::setup(mosmafs::mutRandomChoice, p = 1),
@@ -203,7 +203,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
           max.changed = self$max.changed),
         .binary.discrete.as.logical = TRUE)
       
-      private$recombinator = mosmafs::combine.operators(private$ps,
+      private$recombinator = mosmafs::combine.operators(private$param.set,
         numeric = ecr::setup(ecr::recSBX, p = 1),
         integer = ecr::setup(mosmafs::recIntSBX, p = 1),
         discrete = ecr::setup(mosmafs::recPCrossover, p = 1),
@@ -245,11 +245,11 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       mean.obj = c("gen", "dist.target.mean", 
         "dist.x.interest.mean", "nr.changed.mean")
       eval = c("gen", "fitness.domHV", "fitness.delta", 
-        "fitness.spacing", "population.div")
+        "fitness.spacing")
       nameList = list(min.obj, mean.obj, eval)
       if (range) {
         log = mlr::normalizeFeatures(self$results$log, method = "range", 
-          cols = names(cf$results$log)[-1])
+          cols = names(cf$results$log)[!names(cf$results$log) %in% c("gen", "state")])
       } else {
         log = self$results$log
       }
@@ -269,7 +269,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     x.interest.orig = NULL,
     range = NULL,
     sdev = NULL,
-    ps = NULL,
+    param.set= NULL,
     mutator = NULL, 
     recombinator = NULL, 
     parent.selector = NULL,
@@ -302,11 +302,11 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     },
     search = function() {
       
-      # Initialize population based on x.interest, ps and sdev
+      # Initialize population based on x.interest, param.setand sdev
       lower = self$x.interest[names(private$sdev)] - private$sdev
       upper = self$x.interest[names(private$sdev)] + private$sdev
-      lower.ps = pmax(ParamHelpers::getLower(private$ps), lower)
-      upper.ps = pmin(ParamHelpers::getUpper(private$ps), upper) 
+      lower.ps = pmax(ParamHelpers::getLower(private$param.set), lower)
+      upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper) 
       ps.initialize = ParamHelpers::makeParamSet(params = makeParamlist(self$input.data, 
         lower = lower.ps, 
         upper = upper.ps))
@@ -314,18 +314,66 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       initial.pop = ParamHelpers::sampleValues(ps.initialize, self$mu, 
         discrete.names = TRUE)
       
+      #%%%%%%%%%%%%%%%%%%%%
+      initial.pop = lapply(initial.pop, function(x) {
+        x = transform.to.orig(x, self$x.interest, delete.use.orig = FALSE, 
+          fixed.features = self$fixed.features)
+      })
+    
+      fn = smoof::makeMultiObjectiveFunction(
+        has.simple.signature = FALSE, par.set = private$param.set, n.objectives = 3, 
+        noisy = TRUE, ref.point = self$ref.point,
+        fn = function(x, fidelity = NULL) {
+        fitness.fun(x, x.interest = self$x.interest, target = self$target, 
+          predictor = self$predictor,
+          range = private$range, param.set = private$param.set)
+      })
+     
+      overall.mutator = makeMutator(function(ind) {
+        reset.ind(private$mutator(ind), self$x.interest)
+      }, supported = "custom")
+      
+      overall.recombinator <- makeRecombinator(function(inds, ...) {
+        inds <- private$recombinator(inds)
+        do.call(wrapChildren, lapply(inds, function(x) reset.ind(x, self$x.interest)))
+      }, n.parents = 2, n.children = 2)
+      
+      n.objectives = smoof::getNumberOfObjectives(fn) 
+      
+      log.stats = list(fitness = lapply(
+        seq_len(n.objectives), 
+        function(idx) {
+        list(min = function(x) min(x[idx, ]), mean = function(x) mean(x[idx, ]))
+      }))
+      
+      names(log.stats$fitness) <- sprintf("obj.%s", seq_len(n.objectives))
+      log.stats$fitness <- unlist(log.stats$fitness, recursive = FALSE)
+      log.stats$fitness <- c(log.stats$fitness,
+        list(domHV = function(x) ecr::computeHV(x,
+          ref.point = self$ref.point), 
+          delta = function(x) ecr:::emoaIndDelta(x[c(1,2),]), 
+          spacing = function(x) ecr:::emoaIndSP(x, "euclidean")))
+      
+      # Compute counterfactuals
+      results = mosmafs::slickEcr(fn, self$mu, population = initial.pop, 
+        mutator = overall.mutator, 
+        recombinator = overall.recombinator, generations = self$nr.iterations, 
+        parent.selector = private$parent.selector, p.recomb = self$p.rec, 
+        p.mut = self$p.mut, log.stats = log.stats)
+      
+      #%%%%%%%%%%%%%%%%%%%%
       # Compute counterfactuals 
-      set.seed(self$seed)
-      results = generateCounterfactuals(x.interest = self$x.interest,
-        target = self$target, predictor = self$predictor, param.set = private$ps,
-        fixed.features = self$fixed.features, 
-        mu = self$mu, lambda = self$mu, p.recomb = self$p.rec, p.mut = self$p.mut,
-        range.features = private$range, initial.solutions = initial.pop,
-        survival.selector = private$survival.selector,
-        parent.selector = private$parent.selector,
-        mutator = private$mutator, recombinator = private$recombinator,
-        number.iterations = self$nr.iterations, ref.point = self$ref.point, 
-        stag = self$stag)
+      # set.seed(self$seed)
+      # results = generateCounterfactuals(x.interest = self$x.interest,
+      #   target = self$target, predictor = self$predictor, param.set = private$param.set,
+      #   fixed.features = self$fixed.features, 
+      #   mu = self$mu, lambda = self$mu, p.recomb = self$p.rec, p.mut = self$p.mut,
+      #   range.features = private$range, initial.solutions = initial.pop,
+      #   survival.selector = private$survival.selector,
+      #   parent.selector = private$parent.selector,
+      #   mutator = private$mutator, recombinator = private$recombinator,
+      #   number.iterations = self$nr.iterations, ref.point = self$ref.point, 
+      #   stag = self$stag)
       print("run finished")
       return(results)
     },
@@ -336,7 +384,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       names(pareto.front) = c("dist.target", "dist.x.interest", "nr.changed")
       
       pareto.set.l = lapply(private$ecrresults$pareto.set, function(x)
-        mosmafs::valuesFromNames(private$ps, x))
+        mosmafs::valuesFromNames(private$param.set, x))
       pareto.set = list.to.df(pareto.set.l)
       
       if (subset.results) {
@@ -347,26 +395,27 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       } else {
         idx = 1:nrow(pareto.set)
       }
-      pareto.set = pareto.set %>% slice(idx)
-      pareto.front = pareto.front %>% slice(idx) 
+      pareto.set = pareto.set[idx, ]
+      pareto.front = pareto.front[idx, ]
 
       pareto.set.diff = getDiff(pareto.set, self$x.interest)
       pred = private$run.prediction(pareto.set)
       
-      pareto.set.pf = cbind(pareto.set, pred, pareto.front) %>% 
-        arrange(dist.target)
-      pareto.set.diff.pf = cbind(pareto.set.diff, pred, pareto.front) %>% 
-        arrange(dist.target)
+      pareto.set.pf = cbind(pareto.set, pred, pareto.front)
+      pareto.set.pf = pareto.set.pf[order(pareto.set.pf$dist.target),]
+      rownames(pareto.set) = 1:nrow(pareto.set)
+      pareto.set.diff.pf = cbind(pareto.set.diff, pred, pareto.front) 
+      pareto.set.diff.pf = pareto.set.diff.pf[order(pareto.set.diff.pf$dist.target),]
+      rownames(pareto.front) = 1:nrow(pareto.front)
       
         
       results = list()
       results$counterfactuals = pareto.set.pf
       results$counterfactuals.diff = pareto.set.diff.pf
-      results$log = ecr::getStatistics(private$ecrresults$log)
-      names(results$log) = c("gen", "dist.target.min", "dist.target.mean", 
+      results$log = mosmafs::getStatistics(private$ecrresults$log)
+      names(results$log)[2:7] = c("dist.target.min", "dist.target.mean", 
         "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
-        "nr.changed.mean", "fitness.domHV", "fitness.delta", 
-        "fitness.spacing", "population.div")
+        "nr.changed.mean")
       
       print("aggregate finished")
       return(results)

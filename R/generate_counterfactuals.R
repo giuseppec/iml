@@ -1,3 +1,8 @@
+# slickEcr = mosmafs::slickEcr
+# initEcr = mosmafs::initEcr
+# continueEcr = mosmafs::continueEcr
+
+
 generateCounterfactuals = function(x.interest, target, predictor, param.set,
   fixed.features = NULL, mu, lambda, p.recomb, p.mut, initial.solutions, 
   range.features, survival.selector, parent.selector, mutator, recombinator, 
@@ -175,7 +180,7 @@ replaceMuPlusLambda = function (control, population, offspring, fitness,
   fitness = ecr:::makeFitnessMatrix(fitness, control)
   return(list(population = merged.pop[surv.idx], fitness = fitness))
 }
-
+environment(replaceMuPlusLambda) = asNamespace("mosmafs")
 
 stopOnStag = function (stag) {
   assertInt(stag)
@@ -198,5 +203,6 @@ stopOnStag = function (stag) {
       stag))
 }
 
+#assignInNamespace("replaceMuPlusLambda", replaceMuPlusLambda, environment = "ecr")
 
 
