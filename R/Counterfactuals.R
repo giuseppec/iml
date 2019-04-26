@@ -123,6 +123,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     seed = NULL,
     stag = NULL,
     results.subset = NULL,
+    nr.solutions = NULL,
     ref.point = NULL,
     explain = function(x.interest, target, epsilon = NULL, 
       fixed.features = NULL, max.changed = NULL) {
@@ -148,7 +149,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
       mu = 50, nr.iterations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, 
-      p.rec.gen = 0.7, subset.results = FALSE, stag = .Machine$integer.max,
+      p.rec.gen = 0.7, subset.results = FALSE, nr.solutions = NULL,
+      stag = .Machine$integer.max,
       seed = NULL) {
       
       # can be missing
@@ -160,6 +162,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_integerish(max.changed, null.ok = TRUE, len = 1)
       checkmate::assert_number(seed, null.ok = TRUE)
       checkmate::assert_integerish(stag, null.ok = TRUE)
+      checkmate::assert_integerish(nr.solutions, null.ok = TRUE)
       
       # should be here
       checkmate::assert_integerish(mu, lower = 1)
@@ -170,6 +173,9 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_number(p.rec.gen, lower = 0, upper = 1)
       checkmate::assert_logical(subset.results)
       
+      if (subset.results && is.null(nr.solutions)) {
+        stopf('argument "nr.solutions" is missing, with no default')
+      }
       # assign
       super$initialize(predictor = predictor)
       x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
@@ -188,6 +194,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$p.rec.gen = p.rec.gen
       self$seed = seed
       self$subset.results = subset.results
+      self$nr.solutions = nr.solutions
       self$stag = stag
       
       # Define parameterset
@@ -260,7 +267,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       })
     }, 
     calculateHV = function() {
-      return(private$log$fitness.domHV[self$nr.iterations])
+      return(self$results$log$fitness.domHV[self$nr.iterations])
     }
   ), 
   private = list(
@@ -319,7 +326,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       #%%%%%%%%%%%%%%%%%%%%
       initial.pop = lapply(initial.pop, function(x) {
         x = transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
-          fixed.features = self$fixed.features)
+          fixed.features = self$fixed.features, max.changed = self$max.changed)
       })
       
       # Create fitness function with package smoof
@@ -334,35 +341,34 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       n.objectives = smoof::getNumberOfObjectives(fn) 
       
       # Define operators based on parameterset private$param.set
+      # Warnings can be ignored
       sdev.l = sdev.to.namedlist(private$sdev, private$param.set)
-      mutator = mosmafs::combine.operators(private$param.set,
+      mutator = suppressWarnings(mosmafs::combine.operators(private$param.set,
         numeric = ecr::setup(custom.mutGauss, p = 1, sdev = sdev.l$numeric),
         integer = ecr::setup(custom.mutGaussInt, p = 1, sdev = sdev.l$integer),
         discrete = ecr::setup(mosmafs::mutRandomChoice, p = 1),
         logical = ecr::setup(ecr::mutBitflip, p = 1),
-        use.orig = ecr::setup(mutBitflip.use.orig, p = self$p.mut.gen,
-          max.changed = self$max.changed),
-        .binary.discrete.as.logical = TRUE)
+        use.orig = ecr::setup(ecr::mutBitflip, p = self$p.mut.gen),
+        .binary.discrete.as.logical = TRUE))
       
-      recombinator = mosmafs::combine.operators(private$param.set,
+      recombinator = suppressWarnings(mosmafs::combine.operators(private$param.set,
         numeric = ecr::setup(ecr::recSBX, p = 1),
         integer = ecr::setup(mosmafs::recIntSBX, p = 1),
         discrete = ecr::setup(mosmafs::recPCrossover, p = 1),
         logical = ecr::setup(mosmafs::recPCrossover, p = 1),
-        use.orig = ecr::setup(recPCrossover.use.orig, p = self$p.rec.gen,
-          max.changed = self$max.changed),
-        .binary.discrete.as.logical = TRUE)
+        use.orig = ecr::setup(mosmafs::recPCrossover, p = self$p.rec.gen),
+        .binary.discrete.as.logical = TRUE))
       
       overall.mutator = makeMutator(function(ind) {
         transform.to.orig(mutator(ind), x.interest, delete.use.orig = FALSE, 
-          fixed.features = self$fixed.features)
+          fixed.features = self$fixed.features, max.changed = self$max.changed)
       }, supported = "custom")
       
       overall.recombinator <- makeRecombinator(function(inds, ...) {
         inds <- recombinator(inds)
         do.call(wrapChildren, lapply(inds, function(x) { 
           transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
-            fixed.features = self$fixed.features) 
+            fixed.features = self$fixed.features, max.changed = self$max.changed) 
         }))
       }, n.parents = 2, n.children = 2)
       
@@ -439,7 +445,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       if (subset.results) {
         idx = unique(c(which.min(pareto.front$dist.target), 
           which.min(pareto.front$dist.x.interest), 
-          getDiverseSolutions(pareto.front, pareto.set, private$range)))
+          getDiverseSolutions(pareto.front, pareto.set, private$range, 
+            self$nr.solutions)))
         message("only a subset of solutions is extracted based on diversity measure")
       } else {
         idx = 1:nrow(pareto.set)
@@ -452,17 +459,17 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       pareto.set.pf = cbind(pareto.set, pred, pareto.front)
       pareto.set.pf = pareto.set.pf[order(pareto.set.pf$dist.target),]
-      rownames(pareto.set) = 1:nrow(pareto.set)
+      rownames(pareto.set.pf) = NULL
       pareto.set.diff.pf = cbind(pareto.set.diff, pred, pareto.front) 
       pareto.set.diff.pf = pareto.set.diff.pf[order(pareto.set.diff.pf$dist.target),]
-      rownames(pareto.front) = 1:nrow(pareto.front)
+      rownames(pareto.set.diff.pf) = NULL
       
       
       results = list()
-      results$counterfactuals = pareto.set.pf
-      results$counterfactuals.diff = pareto.set.diff.pf
-      results$log = mosmafs::getStatistics(private$ecrresults$log)
-      names(results$log)[2:7] = c("dist.target.min", "dist.target.mean", 
+      results$counterfactuals = roundDF(pareto.set.pf, 3)
+      results$counterfactuals.diff = roundDF(pareto.set.diff.pf, 3)
+      log = mosmafs::getStatistics(private$ecrresults$log)
+      names(log)[2:7] = c("dist.target.min", "dist.target.mean", 
         "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
         "nr.changed.mean")
       pop = mosmafs::getPopulations(private$ecrresults$log)
@@ -479,7 +486,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
           mean.dist = mean(single.dist)
           pop.div = sum(abs(single.dist - mean.dist)/length(pop_gen))
         }))
-      results$log$population.div = div
+      log$population.div = div
+      results$log = roundDF(log, 3)
       cat("aggregate finished\n")
       return(results)
     }

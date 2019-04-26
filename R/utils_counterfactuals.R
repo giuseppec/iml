@@ -105,7 +105,7 @@ getDiff = function(pareto.set, x.interest, digits = NULL) {
 # Transform features of solution candidates to value of x.interest 
 # where use.orig is set to TRUE
 transform.to.orig = function(x, x.interest, delete.use.orig = FALSE, 
-  fixed.features = NULL) {
+  fixed.features = NULL, max.changed = NULL) {
   types = lapply(x[names(x)!="use.orig"], class)
   
   if (!is.null(fixed.features)) {
@@ -114,6 +114,14 @@ transform.to.orig = function(x, x.interest, delete.use.orig = FALSE,
   }
   
   use.orig <- x$use.orig 
+  if (!is.null(max.changed)) {
+    n.changed = sum(!use.orig)
+    if (n.changed > max.changed) {
+      n = n.changed - max.changed 
+      mut.idx = sample(which(!use.orig), n)
+      use.orig[mut.idx] = TRUE
+    }
+  }
   x$use.orig <- NULL 
   x[use.orig] <- x.interest[use.orig]
   types.after.trans = lapply(x, class)
@@ -156,40 +164,78 @@ remove.zero.cols <- function(df, columns) {
   return(df)
 }
 
-
-
-getDiverseSolutions = function(fitness, pareto.set, range) {
-  checkmate::assert_data_frame(fitness, any.missing = FALSE, nrows = nrow(pareto.set))
-  checkmate::assertDataFrame(pareto.set, any.missing = FALSE, nrows = nrow(fitness))
-  
-  if (!all(rownames(pareto.set) == rownames(fitness))) {
-    stop("rownames of pareto set and rownames of fitness matrix needs to be identical")
-  }
-  
-  n = nrow(fitness)
-  
-  # get the order of the points when sorted according to the i-th objective
-  # 1 is the candidate with the smallest objective function value
-  ord = order(fitness[,1], fitness[,3])
-  
-  gow.dist = StatMatch::gower.dist(pareto.set, rngs = range)
-  gow.dist[gow.dist == 0] = NA
-  
-  obs.div = 1:nrow(pareto.set)
-  similar.obs = c()
-  
-  for (j in 2:n) {
-    id = order(gow.dist[ord[j],])[1:(j-1-length(similar.obs))]
-    
-    if (any(id %in% ord[1:(j-1)])) {
-      gow.dist[ord[j],] = NA
-      gow.dist[,ord[j]] = NA
-      similar.obs = c(similar.obs, ord[j])
-    }
-  }
-  return(obs.div[-similar.obs])
+roundDF <- function(df, digits) {
+  nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
+  df[,nums] <- round(df[,nums], digits = digits)
+  return(df)
 }
 
+# getDiverseSolutions = function(fitness, pareto.set, range) {
+#   checkmate::assert_data_frame(fitness, any.missing = FALSE, nrows = nrow(pareto.set))
+#   checkmate::assertDataFrame(pareto.set, any.missing = FALSE, nrows = nrow(fitness))
+#   
+#   if (!all(rownames(pareto.set) == rownames(fitness))) {
+#     stop("rownames of pareto set and rownames of fitness matrix needs to be identical")
+#   }
+#   
+#   n = nrow(fitness)
+#   
+#   # get the order of the points when sorted according to the i-th objective
+#   # 1 is the candidate with the smallest objective function value
+#   ord = order(fitness[,1], fitness[,3])
+#   
+#   gow.dist = StatMatch::gower.dist(pareto.set, rngs = range)
+#   gow.dist[gow.dist == 0] = NA
+#   
+#   obs.div = 1:nrow(pareto.set)
+#   similar.obs = c()
+#   
+#   for (j in 2:n) {
+#     id = order(gow.dist[ord[j],])[1:(j-1-length(similar.obs))]
+#     
+#     if (any(id %in% ord[1:(j-1)])) {
+#       gow.dist[ord[j],] = NA
+#       gow.dist[,ord[j]] = NA
+#       similar.obs = c(similar.obs, ord[j])
+#     }
+#   }
+#   return(obs.div[-similar.obs])
+# }
+
+
+getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
+  
+  n = nrow(pareto.set)
+  g.dist = StatMatch::gower.dist(pareto.set, rngs = range)
+  
+  dds = numeric(n)
+  for (i in seq_len(ncol(fitness)-1)) {
+    
+    # get the order of the points when sorted according to the i-th objective
+    ord = order(fitness[,i])
+    
+    # set the extreme values to Inf
+    dds[ord[1]] = Inf
+    dds[ord[n]] = Inf
+    
+    #t = candidates[ord]
+    # update the remaining crowding numbers
+    if (n > 2L) {
+      for (j in 2:(n - 1L)) {
+        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])
+        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+        
+        dds[ord[j]] = dds[ord[j]] +
+          g.dist[ord[j], ord[j-1]] +
+          g.dist[ord[j], ord[j+1]]
+        
+      }
+    }
+  }
+  
+  idx = order(dds, decreasing = TRUE)[1:nr.solutions]
+  return(idx)
+}
 
 
 #' Calculate Spacing 

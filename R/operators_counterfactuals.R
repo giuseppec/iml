@@ -33,57 +33,7 @@
 custom.mutGaussInt = mosmafs::intifyMutator(custom.mutGauss)
 
 
-#' Restrict number of changed features 
-#' If number changed features of offspring > max.changed
-#' randomly choose one gen to be set to original value
-#' 
-recPCrossover.use.orig <- ecr::makeRecombinator(function(ind, p = 0.1, 
-  max.changed = NULL, ...) {
-  
-  crossovers = runif(length(ind[[1]])) < p
-  tmp = ind[[1]][crossovers]
-  ind[[1]][crossovers] = ind[[2]][crossovers]
-  ind[[2]][crossovers] = tmp
-  
-  if(!is.null(max.changed)) {
-    for(i in c(1,2)) {
-      n.changed = sum(ind[[i]] == 0)
-      if (n.changed > max.changed) {
-        n = n.changed - max.changed 
-        mut.idx = sample(which(ind[[i]] == 0), n)
-        ind[[i]][mut.idx] = 1
-      }
-    }
-  }
-  ecr::wrapChildren(ind[[1]], ind[[2]])
-}, n.parents = 2, n.children = 2)
 
-
-#' 
-#' 
-mutBitflip.use.orig = ecr::makeMutator(
-  mutator = function(ind, p = 0.1, max.changed = NULL) {
-    
-    checkmate::assert_number(p, lower = 0, upper = 1)
-    n = length(ind)
-    mut.idx = runif(n) < p
-    ind[mut.idx] = 1 - ind[mut.idx]
-    
-    if(!is.null(max.changed)) {
-      n.changed = sum(ind == 0)
-      if (n.changed > max.changed) {
-        n = n.changed - max.changed 
-        mut.idx = sample(which(ind == 0), n)
-        ind[mut.idx] = 1
-      }
-    }
-    return(ind)
-  },
-  supported = "binary")
-
-
-
-#'  
 selNondom = ecr::makeSelector(
   selector = function(fitness, n.select, population, 
     epsilon = .Machine$double.xmax, 
@@ -219,5 +169,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
   cds = rank(ods) + rank(dds)
   return(cds)
 }
+
+
 
 

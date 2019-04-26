@@ -34,7 +34,8 @@ Imports: R6,
 	 ParamHelpers, 
 	 mosmafs, 
 	 ecr, 
-	 StatMatch
+	 StatMatch, 
+	 ggrepel
 Suggests: randomForest,
           gower, 
           testthat, 
