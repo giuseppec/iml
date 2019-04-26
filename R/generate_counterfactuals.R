@@ -95,7 +95,7 @@ generateCounterfactuals = function(x.interest, target, predictor, param.set,
       attr(offspring[[i]], "fitness") = fitness.offspring[, i]
     }
     
-    sel = replaceMuPlusLambda(control, population, offspring, 
+    sel = selectDiverse(control, population, offspring, 
       fitness, fitness.offspring)
 
     fitness = sel$fitness
@@ -159,7 +159,7 @@ evaluateFitness = function (control, inds, target, x.interest, range,
 
 
 
-replaceMuPlusLambda = function (control, population, offspring, fitness, 
+selectDiverse = function (control, population, offspring, fitness, 
   fitness.offspring) {
   assertClass(control, "ecr_control")
   assertClass(control$selectForSurvival, "ecr_selector")
@@ -174,8 +174,7 @@ replaceMuPlusLambda = function (control, population, offspring, fitness,
   merged.fit = cbind(fitness, fitness.offspring)
   
   fitness = ecr:::transformFitness(merged.fit, control$task, control$selectForSurvival)
-  surv.idx = control$selectForSurvival(fitness, n.select = n.select, merged.pop)  # merged.pop before n.select not possible
-  
+  surv.idx = control$selectForSurvival(fitness, n.select = n.select, merged.pop) 
   fitness = merged.fit[, surv.idx, drop = FALSE]
   fitness = ecr:::makeFitnessMatrix(fitness, control)
   return(list(population = merged.pop[surv.idx], fitness = fitness))

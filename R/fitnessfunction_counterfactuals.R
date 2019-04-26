@@ -13,7 +13,10 @@ fitness.fun = function(x, x.interest, target, predictor, range, param.set) {
   # use.orig not needed
   # transform to data.frame
   x$use.orig = NULL
+  #x = transform.to.orig(x, x.interest, delete.use.orig = TRUE)
   x = as.data.frame(x, stringsAsFactors = FALSE)
+  x.factor = x
+  x[,sapply(x, is.factor)] = as.character(x[,sapply(x, is.factor)])
   
   if(!all.equal(names(x), names(x.interest))) {
     stop("original x and candidate have different features, check ordering")
@@ -22,14 +25,6 @@ fitness.fun = function(x, x.interest, target, predictor, range, param.set) {
     FUN = function(x1, x2) {class(x1) == class(x2)}))
   if (!equal.type) {
     stop("original x and candidate need same feature types")
-  }
- 
-  # In case of discrete variables, transform characters to factors 
-  if ("discrete" %in% ParamHelpers::getParamTypes(param.set)) {
-    x.factor = valuesFromNames(param.set, x) 
-  }
-  else {
-    x.factor = x
   }
   
   # Fitness values

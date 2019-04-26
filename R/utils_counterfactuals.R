@@ -209,17 +209,17 @@ spacing = function(solutions, metric = "euclidean", ranges = NULL) {
 }
 
 
-#' apply use.orig on features 
-reset.ind <- function(ind, x.interest) {
-  use.orig <- ind$use.orig
-  ind$use.orig <- NULL
-  for (feat.idx in seq_along(ind)) {
-    if (use.orig[feat.idx]) {
-      ind[[feat.idx]] <- x.interest[[feat.idx]]
-    }
-  }
-  ind$use.orig <- use.orig
-  return(ind)
-}
+#' #' apply use.orig on features 
+#' reset.ind <- function(ind, x.interest) {
+#'   use.orig <- ind$use.orig
+#'   ind$use.orig <- NULL
+#'   for (feat.idx in seq_along(ind)) {
+#'     if (use.orig[feat.idx]) {
+#'       ind[[feat.idx]] <- x.interest[[feat.idx]]
+#'     }
+#'   }
+#'   ind$use.orig <- use.orig
+#'   return(ind)
+#' }
 
 

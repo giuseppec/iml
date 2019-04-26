@@ -36,6 +36,7 @@
 #' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
 #' \item{p.mut.gen:}{numeric(1)\cr Probability to apply mutation to a gene of selected child}
 #' \item{p.rec.gen:}{numeric(1)\cr Probability to apply recombination to the same genes of two parents}
+#' \item{subset.results}
 #' }
 #' 
 #' @section Details:
@@ -109,7 +110,6 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     x.interest = NULL,
     y.hat.interest = NULL,
     target = NULL, 
-    input.data = NULL, 
     epsilon = NULL,
     fixed.features   = NULL,
     max.changed  = NULL,
@@ -126,45 +126,57 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     ref.point = NULL,
     explain = function(x.interest, target, epsilon = NULL, 
       fixed.features = NULL, max.changed = NULL) {
-      private$flush()
+      checkmate::assert_numeric(target, min.len = 1, 
+        max.len = 2, any.missing = FALSE)
+      self$target = target
       private$set.x.interest(x.interest)
-      private$set.target(target)
+      private$flush()
+      if (!is.null(epsilon)) {
+        checkmate::assert_number(epsilon)
+        self$epsilon = epsilon
+      }
+      if (!is.null(fixed.features)) {
+        checkmate::assert_character(fixed.features)
+        self$fixed.features = fixed.features
+      }
+      if (!is.null(max.changed)) {
+        checkmate::assert_integerish(max.changed, len = 1)
+        self$max.changed = max.changed
+      }
       private$run()
     },
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
       mu = 50, nr.iterations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, 
-      p.rec.gen = 0.7, seed = 1000, subset.results = FALSE, 
-      stag = .Machine$integer.max) {
-      
-      super$initialize(predictor = predictor)
+      p.rec.gen = 0.7, subset.results = FALSE, stag = .Machine$integer.max,
+      seed = NULL) {
       
       # can be missing
       checkmate::assert_data_frame(x.interest, null.ok = TRUE)
       checkmate::assert_numeric(target, null.ok = TRUE, min.len = 1, 
         max.len = 2, any.missing = FALSE)
-      checkmate::assert_numeric(epsilon, null.ok = TRUE, len = 1, 
-        all.missing = FALSE)
+      checkmate::assert_number(epsilon, null.ok = TRUE)
       checkmate::assert_character(fixed.features, null.ok = TRUE)
       checkmate::assert_integerish(max.changed, null.ok = TRUE, len = 1)
+      checkmate::assert_number(seed, null.ok = TRUE)
+      checkmate::assert_integerish(stag, null.ok = TRUE)
       
       # should be here
-      checkmate::assert_numeric(mu, lower = 1, finite = TRUE, 
-        all.missing = FALSE, len = 1)
-      checkmate::assert_numeric(nr.iterations, lower = 1, finite = TRUE, 
-        all.missing = FALSE, len = 1)
-      checkmate::assert_numeric(p.mut, lower = 0, upper = 1, 
-        all.missing = FALSE, len = 1)
-      checkmate::assert_numeric(p.rec, lower = 0, upper = 1, 
-        all.missing = FALSE, len = 1)
-      checkmate::assert_numeric(p.mut.gen, lower = 0, upper = 1, 
-        all.missing = FALSE, len = 1)
-      checkmate::assert_numeric(p.rec.gen, lower = 0, upper = 1, 
-        all.missing = FALSE, len = 1)
-      checkmate::assert_numeric(seed, all.missing = FALSE, len = 1)
+      checkmate::assert_integerish(mu, lower = 1)
+      checkmate::assert_integerish(nr.iterations, lower = 1)
+      checkmate::assert_number(p.mut, lower = 0, upper = 1)
+      checkmate::assert_number(p.rec, lower = 0, upper = 1)
+      checkmate::assert_number(p.mut.gen, lower = 0, upper = 1)
+      checkmate::assert_number(p.rec.gen, lower = 0, upper = 1)
+      checkmate::assert_logical(subset.results)
       
       # assign
-      self$input.data = as.data.frame(self$predictor$data$get.x())
+      super$initialize(predictor = predictor)
+      x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
+      if (!is.null(x.interest)) {
+        private$set.x.interest(x.interest)
+      }
+      self$target = target
       self$epsilon = epsilon
       self$max.changed = max.changed
       self$fixed.features = fixed.features
@@ -180,55 +192,33 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
-        params = makeParamlist(self$input.data))
+        params = makeParamlist(predictor$data$get.x()))
       
       # Extract info from input.data
-      private$feature.names = names(self$input.data)
       private$range = ParamHelpers::getUpper(private$param.set) - 
         ParamHelpers::getLower(private$param.set)
       private$range[ParamHelpers::getParamIds(private$param.set)
         [ParamHelpers::getParamTypes(private$param.set) == "discrete"]]  = NA
-      private$range = private$range[names(self$input.data)]
-      
-      private$sdev = apply(Filter(is.numeric, self$input.data), 2, sd)
-      sdev.l = sdev.to.namedlist(private$sdev, private$param.set)
-      
-      # Define operators based on parameterset private$param.set
-      private$mutator = mosmafs::combine.operators(private$param.set,
-        numeric = ecr::setup(custom.mutGauss, p = 1, sdev = sdev.l$numeric),
-        integer = ecr::setup(custom.mutGaussInt, p = 1, sdev = sdev.l$integer),
-        discrete = ecr::setup(mosmafs::mutRandomChoice, p = 1),
-        logical = ecr::setup(ecr::mutBitflip, p = 1),
-        use.orig = ecr::setup(mutBitflip.use.orig, p = self$p.mut.gen,
-          max.changed = self$max.changed),
-        .binary.discrete.as.logical = TRUE)
-      
-      private$recombinator = mosmafs::combine.operators(private$param.set,
-        numeric = ecr::setup(ecr::recSBX, p = 1),
-        integer = ecr::setup(mosmafs::recIntSBX, p = 1),
-        discrete = ecr::setup(mosmafs::recPCrossover, p = 1),
-        logical = ecr::setup(mosmafs::recPCrossover, p = 1),
-        use.orig = ecr::setup(recPCrossover.use.orig, p = self$p.rec.gen,
-          max.changed = self$max.changed),
-        .binary.discrete.as.logical = TRUE)
-      
-      private$parent.selector = ecr::selSimple
-      
-      private$survival.selector = ecr::setup(selNondom, epsilon = self$epsilon, 
-        consider.diverse.solutions = TRUE, 
-        extract.duplicates = TRUE)
-      
-      x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
-      if (!is.null(x.interest)) {
-        private$set.x.interest(x.interest)
-        private$set.target(target)
-      }
+      private$range = private$range[predictor$data$feature.names]
+      private$sdev = apply(Filter(is.numeric, predictor$data$get.x()), 2, sd)
       if (!is.null(x.interest) & !is.null(target)) private$run()
-      print("initialize finished")
+      cat("initialize finished\n")
     }, 
-    plotPF = function() {
+    plotPF = function(labels = FALSE) {
       result = self$results$counterfactuals
+      diffs = self$results$counterfactuals.diff
+      diffs = diffs[, !(names(diffs) %in% c("dist.target", "dist.x.interest", "nr.changed", "pred"))]
       pf = result[, c("dist.target", "dist.x.interest", "nr.changed")]
+      
+      if (labels) {
+        pf$label = ""
+        for(i in 1:nrow(diffs)) {
+          names = names(diffs[i,])[diffs[i,] != 0]
+          r = remove.zero.cols(df = diffs[i,], names(self$x.interest))
+          r = paste(paste(names(r), round(r, 3)), collapse = " & ")
+          pf[i, "label"] = r
+        }
+      }
       p = ggplot(data = pf, aes(x=dist.target, y=dist.x.interest, 
         color = as.factor(nr.changed))) +
         geom_point() +
@@ -236,6 +226,14 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         ylab("dist x.interest") +
         #ggtitle(title)+
         guides(color=guide_legend(title="nr changed"))
+      
+      if (labels) {
+        p = p + geom_label_repel(aes(label = label),
+          box.padding   = 0.35, 
+          point.padding = 0.4, 
+          show.legend = FALSE)
+      }
+      
       print(p)
     },
     plotStatistics = function(range = FALSE) {
@@ -245,7 +243,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       mean.obj = c("gen", "dist.target.mean", 
         "dist.x.interest.mean", "nr.changed.mean")
       eval = c("gen", "fitness.domHV", "fitness.delta", 
-        "fitness.spacing")
+        "fitness.spacing", "population.div")
       nameList = list(min.obj, mean.obj, eval)
       if (range) {
         log = mlr::normalizeFeatures(self$results$log, method = "range", 
@@ -259,92 +257,128 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         print(
           ggplot(df, aes(gen, value)) + geom_line(aes(colour = legend)) + 
             ylab("normalized value"))
-    })
+      })
     }, 
     calculateHV = function() {
       return(private$log$fitness.domHV[self$nr.iterations])
     }
   ), 
   private = list(
-    x.interest.orig = NULL,
+    feature.names = NULL,
     range = NULL,
     sdev = NULL,
     param.set= NULL,
-    mutator = NULL, 
-    recombinator = NULL, 
-    parent.selector = NULL,
-    survival.selector = NULL,
     ecrresults = NULL,
     log = NULL,
     set.x.interest = function(x.interest) {
       assert_data_frame(x.interest, any.missing = FALSE, all.missing = FALSE, 
-        min.rows = 1, max.rows = 1, null.ok = FALSE)
-      if(any(!(colnames(self$input.data) %in% colnames(x.interest)))) {
+        nrows = 1, null.ok = FALSE)
+      if(any(!(self$predictor$data$feature.names %in% colnames(x.interest)))) {
         stop("colnames of x.interest must be identical to training data")
       }
-      x.interest = x.interest[setdiff(colnames(x.interest), self$input.data)]
-      private$x.interest.orig = x.interest
+      x.interest = x.interest[setdiff(colnames(x.interest), self$predictor$data$y.names)]
       self$y.hat.interest = self$predictor$predict(x.interest)[1,]
-      i <- sapply(x.interest, is.factor)
-      x.interest[i] <- lapply(x.interest[i], as.character)
       self$x.interest = x.interest
     }, 
-    set.target = function(target) {
-      checkmate::assert_numeric(target, null.ok = FALSE, min.len = 1, 
-        max.len = 2, any.missing = FALSE)
-      self$target = target
+    flush = function() {
+      private$ecrresults = NULL
+      self$results = NULL
+      private$finished = FALSE
     },
     run = function(force = FALSE) {
-      self$ref.point = c(max(abs(self$y.hat.interest - self$target)), 1,
-        ncol(self$x.interest))
-      private$ecrresults = private$search()
-      self$results = private$aggregate()
+      if (force) private$flush()
+      if (!private$finished) {
+        private$ecrresults = private$search()
+        self$results = private$aggregate()
+        private$finished = TRUE
+      }
     },
     search = function() {
+      
+      # Define reference point for hypervolumn compuation
+      self$ref.point = c(max(abs(self$y.hat.interest - self$target)), 1,
+        ncol(self$x.interest))
       
       # Initialize population based on x.interest, param.setand sdev
       lower = self$x.interest[names(private$sdev)] - private$sdev
       upper = self$x.interest[names(private$sdev)] + private$sdev
       lower.ps = pmax(ParamHelpers::getLower(private$param.set), lower)
       upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper) 
-      ps.initialize = ParamHelpers::makeParamSet(params = makeParamlist(self$input.data, 
+      ps.initialize = ParamHelpers::makeParamSet(params = makeParamlist(
+        self$predictor$data$get.x(), 
         lower = lower.ps, 
-        upper = upper.ps))
+        upper = upper.ps)
+      )
       set.seed(self$seed)
       initial.pop = ParamHelpers::sampleValues(ps.initialize, self$mu, 
         discrete.names = TRUE)
       
+      i = sapply(self$x.interest, is.factor)
+      x.interest[i] = lapply(self$x.interest[i], as.character)
+      
       #%%%%%%%%%%%%%%%%%%%%
       initial.pop = lapply(initial.pop, function(x) {
-        x = transform.to.orig(x, self$x.interest, delete.use.orig = FALSE, 
+        x = transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
           fixed.features = self$fixed.features)
       })
-    
+      
+      # Create fitness function with package smoof
       fn = smoof::makeMultiObjectiveFunction(
         has.simple.signature = FALSE, par.set = private$param.set, n.objectives = 3, 
         noisy = TRUE, ref.point = self$ref.point,
         fn = function(x, fidelity = NULL) {
-        fitness.fun(x, x.interest = self$x.interest, target = self$target, 
-          predictor = self$predictor,
-          range = private$range, param.set = private$param.set)
-      })
-     
+          fitness.fun(x, x.interest = x.interest, target = self$target, 
+            predictor = self$predictor,
+            range = private$range, param.set = private$param.set)
+        })
+      n.objectives = smoof::getNumberOfObjectives(fn) 
+      
+      # Define operators based on parameterset private$param.set
+      sdev.l = sdev.to.namedlist(private$sdev, private$param.set)
+      mutator = mosmafs::combine.operators(private$param.set,
+        numeric = ecr::setup(custom.mutGauss, p = 1, sdev = sdev.l$numeric),
+        integer = ecr::setup(custom.mutGaussInt, p = 1, sdev = sdev.l$integer),
+        discrete = ecr::setup(mosmafs::mutRandomChoice, p = 1),
+        logical = ecr::setup(ecr::mutBitflip, p = 1),
+        use.orig = ecr::setup(mutBitflip.use.orig, p = self$p.mut.gen,
+          max.changed = self$max.changed),
+        .binary.discrete.as.logical = TRUE)
+      
+      recombinator = mosmafs::combine.operators(private$param.set,
+        numeric = ecr::setup(ecr::recSBX, p = 1),
+        integer = ecr::setup(mosmafs::recIntSBX, p = 1),
+        discrete = ecr::setup(mosmafs::recPCrossover, p = 1),
+        logical = ecr::setup(mosmafs::recPCrossover, p = 1),
+        use.orig = ecr::setup(recPCrossover.use.orig, p = self$p.rec.gen,
+          max.changed = self$max.changed),
+        .binary.discrete.as.logical = TRUE)
+      
       overall.mutator = makeMutator(function(ind) {
-        reset.ind(private$mutator(ind), self$x.interest)
+        transform.to.orig(mutator(ind), x.interest, delete.use.orig = FALSE, 
+          fixed.features = self$fixed.features)
       }, supported = "custom")
       
       overall.recombinator <- makeRecombinator(function(inds, ...) {
-        inds <- private$recombinator(inds)
-        do.call(wrapChildren, lapply(inds, function(x) reset.ind(x, self$x.interest)))
+        inds <- recombinator(inds)
+        do.call(wrapChildren, lapply(inds, function(x) { 
+          transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
+            fixed.features = self$fixed.features) 
+        }))
       }, n.parents = 2, n.children = 2)
       
-      n.objectives = smoof::getNumberOfObjectives(fn) 
+      parent.selector = ecr::selSimple
       
+      survival.selector = ecr::setup(selNondom, 
+        epsilon = self$epsilon, 
+        consider.diverse.solutions = TRUE, 
+        extract.duplicates = TRUE)
+      
+      # Extract algorithm information with a log object
       log.stats = list(fitness = lapply(
         seq_len(n.objectives), 
         function(idx) {
-        list(min = function(x) min(x[idx, ]), mean = function(x) mean(x[idx, ]))
-      }))
+          list(min = function(x) min(x[idx, ]), mean = function(x) mean(x[idx, ]))
+        }))
       
       names(log.stats$fitness) <- sprintf("obj.%s", seq_len(n.objectives))
       log.stats$fitness <- unlist(log.stats$fitness, recursive = FALSE)
@@ -355,26 +389,41 @@ Counterfactuals = R6::R6Class("Counterfactuals",
           spacing = function(x) ecr:::emoaIndSP(x, "euclidean")))
       
       # Compute counterfactuals
-      results = mosmafs::slickEcr(fn, self$mu, population = initial.pop, 
-        mutator = overall.mutator, 
-        recombinator = overall.recombinator, generations = self$nr.iterations, 
-        parent.selector = private$parent.selector, p.recomb = self$p.rec, 
+      set.seed(self$seed)
+      results = mosmafs::slickEcr(fn, lambda = self$mu, population = initial.pop,
+        mutator = overall.mutator,
+        recombinator = overall.recombinator, generations = self$nr.iterations,
+        parent.selector = parent.selector,
+        survival.strategy = selectDiverse,
+        survival.selector = survival.selector,
+        p.recomb = self$p.rec,
         p.mut = self$p.mut, log.stats = log.stats)
+
+      # results = mosmafs::slickEcr(fn, self$mu, population = initial.pop, 
+      #   mutator = private$mutator, 
+      #   recombinator = private$recombinator, generations = self$nr.iterations, 
+      #   parent.selector = private$parent.selector, p.recomb = self$p.rec, 
+      #   p.mut = self$p.mut, log.stats = log.stats)
+      # 
+      # results$pareto.set = lapply(results$pareto.set, function(x) {
+      #   transform.to.orig(x, self$x.interest,delete.use.orig = FALSE,
+      #     fixed.features = TRUE)
+      # })
       
       #%%%%%%%%%%%%%%%%%%%%
       # Compute counterfactuals 
       # set.seed(self$seed)
       # results = generateCounterfactuals(x.interest = self$x.interest,
       #   target = self$target, predictor = self$predictor, param.set = private$param.set,
-      #   fixed.features = self$fixed.features, 
+      #   fixed.features = self$fixed.features,
       #   mu = self$mu, lambda = self$mu, p.recomb = self$p.rec, p.mut = self$p.mut,
       #   range.features = private$range, initial.solutions = initial.pop,
-      #   survival.selector = private$survival.selector,
-      #   parent.selector = private$parent.selector,
-      #   mutator = private$mutator, recombinator = private$recombinator,
-      #   number.iterations = self$nr.iterations, ref.point = self$ref.point, 
+      #   survival.selector = survival.selector,
+      #   parent.selector = parent.selector,
+      #   mutator = mutator, recombinator = recombinator,
+      #   number.iterations = self$nr.iterations, ref.point = self$ref.point,
       #   stag = self$stag)
-      print("run finished")
+      cat("run finished\n")
       return(results)
     },
     
@@ -391,13 +440,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         idx = unique(c(which.min(pareto.front$dist.target), 
           which.min(pareto.front$dist.x.interest), 
           getDiverseSolutions(pareto.front, pareto.set, private$range)))
-        print("only a subset of solutions is extracted based on diversity measure")
+        message("only a subset of solutions is extracted based on diversity measure")
       } else {
         idx = 1:nrow(pareto.set)
       }
       pareto.set = pareto.set[idx, ]
       pareto.front = pareto.front[idx, ]
-
+      
       pareto.set.diff = getDiff(pareto.set, self$x.interest)
       pred = private$run.prediction(pareto.set)
       
@@ -408,7 +457,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pareto.set.diff.pf = pareto.set.diff.pf[order(pareto.set.diff.pf$dist.target),]
       rownames(pareto.front) = 1:nrow(pareto.front)
       
-        
+      
       results = list()
       results$counterfactuals = pareto.set.pf
       results$counterfactuals.diff = pareto.set.diff.pf
@@ -416,11 +465,24 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       names(results$log)[2:7] = c("dist.target.min", "dist.target.mean", 
         "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
         "nr.changed.mean")
-      
-      print("aggregate finished")
+      pop = mosmafs::getPopulations(private$ecrresults$log)
+      div = unlist(lapply(pop, 
+        FUN = function(x) {
+          pop_gen = x$population
+          pop_gen = lapply(pop_gen, function(k) {
+            k$use.orig = NULL
+            return(k)
+          })
+          dis = StatMatch::gower.dist(data.x = list.to.df(pop_gen), 
+            rngs = private$range)
+          single.dist = dis[lower.tri(dis)]
+          mean.dist = mean(single.dist)
+          pop.div = sum(abs(single.dist - mean.dist)/length(pop_gen))
+        }))
+      results$log$population.div = div
+      cat("aggregate finished\n")
       return(results)
     }
-    
   )
 )
 
@@ -449,8 +511,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' plot(Counterfactuals)
 #' }
 #' }
-plot.Counterfactuals = function(object) {
-  object$plotPF()
+plot.Counterfactuals = function(object, labels = FALSE) {
+  object$plotPF(labels)
 }
 
 plotStatistics = function(object, range = FALSE) {
