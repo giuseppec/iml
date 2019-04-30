@@ -106,7 +106,7 @@ selNondom = ecr::makeSelector(
         cds = ecr:::computeCrowdingDistanceR(fitness[1:2, idxs.first.nonfit])
       }
       if (consider.diverse.solutions) {
-        cds = computeCrowdingDistanceR(as.matrix(fitness[1:2, idxs.first.nonfit]), 
+        cds = computeCrowdingDistanceR(as.matrix(fitness[, idxs.first.nonfit]), 
           population[idxs.first.nonfit]) 
       }
       idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
@@ -119,57 +119,244 @@ selNondom = ecr::makeSelector(
   supported.objectives = "multi-objective")
 
 
+### Version 1
+# computeCrowdingDistanceR = function(fitness, candidates) {
+#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+#   assertList(candidates)
+# 
+#   n = ncol(fitness)
+#   dim = nrow(fitness)
+#   ods = numeric(n)
+#   dds = numeric(n)
+#   cds = numeric(n)
+#   dat = lapply(candidates, function(x) {
+#     x$use.orig = NULL
+#     return(x)})
+#   dat = listToDf(candidates)
+# 
+#   numeric.ind = sapply(dat, is.numeric)
+#   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
+#   range[colnames(dat)[!numeric.ind]]  = NA
+#   range = range[names(dat)]
+# 
+#   g.dist = StatMatch::gower.dist(dat, rngs = range)
+# 
+#   for (i in c(1,2,3)) {
+# 
+#     # get the order of the points when sorted according to the i-th objective
+#     if (i %in% c(1, 2)) {
+#       ord = order(fitness[i, ])
+#     }
+#     else if (i == 3) {
+#       ord = order(fitness[i, ], fitness[i-1, ])
+#       # min.obj2 = which.min(fitness[2,])
+#       # ord = c(min.obj2, ord[!ord %in% min.obj2])
+#       # max.obj2 = which.max(fitness[2,])
+#       # ord = c(ord[!ord %in% max.obj2], max.obj2)
+#     }
+# 
+#     # set the extreme values to Inf
+#     ods[ord[1]] = Inf
+#     ods[ord[n]] = Inf
+#     dds[ord[1]] = Inf
+#     dds[ord[n]] = Inf
+# 
+#     #t = candidates[ord]
+#     # update the remaining crowding numbers
+#     if (n > 2L) {
+#       for (j in 2:(n - 1L)) {
+#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])
+#         ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+# 
+#         dds[ord[j]] = dds[ord[j]] +
+#           g.dist[ord[j], ord[j-1]] +
+#           g.dist[ord[j], ord[j+1]]
+# 
+#       }
+#     }
+#   }
+# 
+#   cds = rank(ods) + rank(dds)
+#   return(cds)
+# }
+
+
+### Version 2
+# computeCrowdingDistanceR = function(fitness, candidates) {
+#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+#   assertList(candidates)
+# 
+#   n = ncol(fitness)
+#   max = apply(fitness, 1, max)
+#   min = apply(fitness, 1, min)
+#   dim = nrow(fitness)
+#   ods = numeric(n)
+#   dds = numeric(n)
+#   cds = numeric(n)
+#   dat = lapply(candidates, function(x) {
+#     x$use.orig = NULL
+#     return(x)})
+#   dat = listToDf(candidates)
+# 
+#   numeric.ind = sapply(dat, is.numeric)
+#   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
+#   range[colnames(dat)[!numeric.ind]]  = NA
+#   range = range[names(dat)]
+# 
+#   g.dist = StatMatch::gower.dist(dat, rngs = range)
+# 
+#   for (i in c(1,2)) {
+# 
+#     # get the order of the points when sorted according to the i-th objective
+#     if (i == 1) {
+#       ord = order(fitness[i, ])
+#     }
+#     else if (i == 2) {
+#       ord = order(fitness[3, ], fitness[2, ])
+#       min.obj2 = which.min(fitness[2,])
+#       ord = c(min.obj2, ord[!ord %in% min.obj2])
+#       max.obj2 = which.max(fitness[2,])
+#       ord = c(ord[!ord %in% max.obj2], max.obj2)
+#     }
+# 
+#     # set the extreme values to Inf
+#     ods[ord[1]] = Inf
+#     ods[ord[n]] = Inf
+#     dds[ord[1]] = Inf
+#     dds[ord[n]] = Inf
+# 
+#     #t = candidates[ord]
+#     # update the remaining crowding numbers
+#     if (n > 2L) {
+#       for (j in 2:(n - 1L)) {
+#         ods[ord[j]] = ods[ord[j]] + 
+#           ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i] - min[i]))
+#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+#         dds[ord[j]] = dds[ord[j]] +
+#           g.dist[ord[j], ord[j-1]] +
+#           g.dist[ord[j], ord[j+1]]
+#       }
+#     }
+#   }
+# 
+#   cds = rank(ods) + rank(dds)
+#   return(cds)
+# }
+
+
+
+
+# computeCrowdingDistanceR = function(fitness, candidates) {
+#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+#   assertList(candidates)
+# 
+#   n = ncol(fitness)
+#   max = apply(fitness, 1, max)
+#   min = apply(fitness, 1, min)
+#   dim = nrow(fitness)
+#   ods = numeric(n)
+#   dds = numeric(n)
+#   cds = numeric(n)
+#   dat = lapply(candidates, function(x) {
+#     x$use.orig = NULL
+#     return(x)})
+#   dat = listToDf(candidates)
+# 
+#   numeric.ind = sapply(dat, is.numeric)
+#   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
+#   range[colnames(dat)[!numeric.ind]]  = NA
+#   range = range[names(dat)]
+# 
+#   g.dist = StatMatch::gower.dist(dat, rngs = range)
+# 
+#   for (i in c(1,2)) {
+#     ord = order(fitness[3, ], fitness[i, ])
+#     # set the extreme values to Inf
+#     ods[ord[1]] = Inf
+#     ods[ord[n]] = Inf
+#     dds[ord[1]] = Inf
+#     dds[ord[n]] = Inf
+# 
+#     #t = candidates[ord]
+#     # update the remaining crowding numbers
+#     if (n > 2L) {
+#       for (j in 2:(n - 1L)) {
+#         ods[ord[j]] = ods[ord[j]] +
+#           ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i] - min[i]))
+#         # ods[ord[j]] = ods[ord[j]] +
+#         #   ((fitness[i, ord[j + 1L]] - fitness[i, ord[j]])/(max[i] - min[i]))
+#         dds[ord[j]] = dds[ord[j]] +
+#           g.dist[ord[j], ord[j-1]] +
+#           g.dist[ord[j], ord[j+1]]
+#       }
+#     }
+#   }
+# 
+#   cds = rank(ods) + rank(dds)
+#   return(cds)
+# }
+
+#### ORIGINAL
 computeCrowdingDistanceR = function(fitness, candidates) {
   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
   assertList(candidates)
-  
+
   n = ncol(fitness)
+  max = apply(fitness, 1, max)
+  min = apply(fitness, 1, min)
   dim = nrow(fitness)
   ods = numeric(n)
   dds = numeric(n)
   cds = numeric(n)
   dat = lapply(candidates, function(x) {
-    x$use.orig = NULL 
+    x$use.orig = NULL
     return(x)})
-  dat = list.to.df(candidates)
-  
+  dat = listToDf(candidates)
+
   numeric.ind = sapply(dat, is.numeric)
   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
-  range[colnames(dat)[!numeric.ind]]  = NA 
+  range[colnames(dat)[!numeric.ind]]  = NA
   range = range[names(dat)]
-  
+
   g.dist = StatMatch::gower.dist(dat, rngs = range)
-  
-  for (i in (seq.int(dim))) {
-    
+
+  for (i in c(1,2)) {
+
     # get the order of the points when sorted according to the i-th objective
+    #if (i == 1) {
     ord = order(fitness[i, ])
-    
+    #}
+    # else if (i == 2) {
+    #   ord = order(fitness[3, ], fitness[2, ])
+    #   min.obj2 = which.min(fitness[2,])
+    #   ord = c(min.obj2, ord[!ord %in% min.obj2])
+    #   max.obj2 = which.max(fitness[2,])
+    #   ord = c(ord[!ord %in% max.obj2], max.obj2)
+    # }
+
     # set the extreme values to Inf
     ods[ord[1]] = Inf
     ods[ord[n]] = Inf
     dds[ord[1]] = Inf
     dds[ord[n]] = Inf
-    
+
     #t = candidates[ord]
     # update the remaining crowding numbers
     if (n > 2L) {
       for (j in 2:(n - 1L)) {
-        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])
-        ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
-        
+        ods[ord[j]] = ods[ord[j]] +
+          ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i]-min[i]))
+        #ods[ord[j]] = ods[ord[j]] +
+        #((fitness[i, ord[j + 1L]] - fitness[i, ord[j]])/(max[i]-min[i]))
+
         dds[ord[j]] = dds[ord[j]] +
           g.dist[ord[j], ord[j-1]] +
           g.dist[ord[j], ord[j+1]]
-        
+
       }
     }
   }
-  
+
   cds = rank(ods) + rank(dds)
   return(cds)
 }
-
-
-
-

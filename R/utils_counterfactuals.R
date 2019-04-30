@@ -39,7 +39,7 @@ makeParamlist <- function(input.data, lower = NULL, upper = NULL, integers = NUL
     }
     
     else { 
-      ParamHelpers::makeDiscreteParam(colnam, values = fctvals(unique(col))) 
+      ParamHelpers::makeDiscreteParam(colnam, values = charToFactor(unique(col))) 
     } 
   })
   l[[length(l)+1]] = ParamHelpers::makeLogicalVectorParam("use.orig", len = ncol)
@@ -53,7 +53,7 @@ makeParamlist <- function(input.data, lower = NULL, upper = NULL, integers = NUL
 #' \item{sdev: }{(numeric)\cr Vector of standard deviations}
 #' ....}
 
-sdev.to.namedlist = function(sdev, param.set) {
+sdevToList = function(sdev, param.set) {
   paramtypes <- gsub("vector$", "", ParamHelpers::getParamTypes(param.set))
   param.ids <- ParamHelpers::getParamIds(param.set)
   needed_type = c("numeric", "integer")
@@ -65,7 +65,7 @@ sdev.to.namedlist = function(sdev, param.set) {
 
 
 
-list.to.df = function(x) {
+listToDf = function(x) {
   x = lapply(x, function(e) {
     e$use.orig = NULL 
     return(e)
@@ -104,7 +104,7 @@ getDiff = function(pareto.set, x.interest, digits = NULL) {
 
 # Transform features of solution candidates to value of x.interest 
 # where use.orig is set to TRUE
-transform.to.orig = function(x, x.interest, delete.use.orig = FALSE, 
+transformToOrig = function(x, x.interest, delete.use.orig = FALSE, 
   fixed.features = NULL, max.changed = NULL) {
   types = lapply(x[names(x)!="use.orig"], class)
   
@@ -135,34 +135,12 @@ transform.to.orig = function(x, x.interest, delete.use.orig = FALSE,
 }
 
 # Transmit levels of factor variable to parameter set
-fctvals <- function(lvls){
-  sapply(as.character(lvls), function(x)
-    factor(x, levels=lvls),
+charToFactor<- function(levels){
+  sapply(as.character(levels), function(x)
+    factor(x, levels=levels),
     simplify = FALSE)
 }
 
-
-# Remove columns with 0 entries 
-remove.zero.cols <- function(df, columns) {
-  rem.vec <- NULL
-  for(i in 1:ncol(df)){
-    if (names(df[i]) %in% columns) {
-      sum.col = sum(abs(df[,i]))
-      if(sum.col == 0) {
-        rem.vec[i] <- names(df)[i]
-      }
-    }
-  }
-  if (!is.null(rem.vec)) {
-    features.to.remove <- rem.vec[!is.na(rem.vec)]
-    rem.ind <- which(names(df) %in% features.to.remove)
-    df.new = c()
-    df.new = df[,-rem.ind]
-    names(df.new) = names(df)[!names(df) %in% features.to.remove]
-    return(df.new)
-  }
-  return(df)
-}
 
 roundDF <- function(df, digits) {
   nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
@@ -238,34 +216,5 @@ getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
 }
 
 
-#' Calculate Spacing 
-spacing = function(solutions, metric = "euclidean", ranges = NULL) {
-  checkmate::assert_choice(metric, choices = c("euclidean", "manhattan", "gower"))
-  if (metric == "euclidean"| metric == "manhattan") {
-    dist = as.matrix(stats::dist(solutions, method = metric, 
-      diag = FALSE, upper = TRUE))
-  }
-  else {
-    assertVector(ranges, all.missing = FALSE)
-    dist = StatMatch::gower.dist(solutions, rngs = ranges)
-  }
-  dist[dist == 0] = NA
-  min = apply(dist, MARGIN = 1, function(x) min(x, na.rm = TRUE))
-  return(sd(min))
-}
-
-
-#' #' apply use.orig on features 
-#' reset.ind <- function(ind, x.interest) {
-#'   use.orig <- ind$use.orig
-#'   ind$use.orig <- NULL
-#'   for (feat.idx in seq_along(ind)) {
-#'     if (use.orig[feat.idx]) {
-#'       ind[[feat.idx]] <- x.interest[[feat.idx]]
-#'     }
-#'   }
-#'   ind$use.orig <- use.orig
-#'   return(ind)
-#' }
 
 

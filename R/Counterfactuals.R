@@ -221,8 +221,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         pf$label = ""
         for(i in 1:nrow(diffs)) {
           names = names(diffs[i,])[diffs[i,] != 0]
-          r = remove.zero.cols(df = diffs[i,], names(self$x.interest))
-          r = paste(paste(names(r), round(r, 3)), collapse = " & ")
+          r = diffs[i, names]
+          r = paste(paste(names, round(r, 3)), collapse = " & ")
           pf[i, "label"] = r
         }
       }
@@ -235,10 +235,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         guides(color=guide_legend(title="nr changed"))
       
       if (labels) {
-        p = p + geom_label_repel(aes(label = label),
+        p = p + ggrepel::geom_label_repel(aes(label = label),
           box.padding   = 0.35, 
           point.padding = 0.4, 
-          show.legend = FALSE)
+          show.legend = FALSE) 
       }
       
       print(p)
@@ -263,7 +263,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         df = melt(log[,nam] , id.vars = 'gen', variable.name = 'legend')
         print(
           ggplot(df, aes(gen, value)) + geom_line(aes(colour = legend)) + 
-            ylab("normalized value"))
+            ylab("value"))
       })
     }, 
     calculateHV = function() {
@@ -276,6 +276,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     sdev = NULL,
     param.set= NULL,
     ecrresults = NULL,
+    results.orig = NULL,
     log = NULL,
     set.x.interest = function(x.interest) {
       assert_data_frame(x.interest, any.missing = FALSE, all.missing = FALSE, 
@@ -325,7 +326,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       #%%%%%%%%%%%%%%%%%%%%
       initial.pop = lapply(initial.pop, function(x) {
-        x = transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
+        x = transformToOrig(x, x.interest, delete.use.orig = FALSE, 
           fixed.features = self$fixed.features, max.changed = self$max.changed)
       })
       
@@ -341,17 +342,19 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       n.objectives = smoof::getNumberOfObjectives(fn) 
       
       # Define operators based on parameterset private$param.set
-      # Warnings can be ignored
-      sdev.l = sdev.to.namedlist(private$sdev, private$param.set)
-      mutator = suppressWarnings(mosmafs::combine.operators(private$param.set,
-        numeric = ecr::setup(custom.mutGauss, p = 1, sdev = sdev.l$numeric),
-        integer = ecr::setup(custom.mutGaussInt, p = 1, sdev = sdev.l$integer),
+      # Messages can be ignored
+      sdev.l = sdevToList(private$sdev, private$param.set)
+      mutator = suppressMessages(mosmafs::combine.operators(private$param.set,
+        numeric = ecr::setup(mosmafs::mutGaussScaled, p = 1, sdev = sdev.l$numeric),
+        integer = ecr::setup(mosmafs::mutGaussIntScaled, p = 1, sdev = sdev.l$numeric),
+        #numeric = ecr::setup(custom.mutGauss, p = 1, sdev = sdev.l$numeric),
+        #integer = ecr::setup(custom.mutGaussInt, p = 1, sdev = sdev.l$integer),
         discrete = ecr::setup(mosmafs::mutRandomChoice, p = 1),
         logical = ecr::setup(ecr::mutBitflip, p = 1),
         use.orig = ecr::setup(ecr::mutBitflip, p = self$p.mut.gen),
         .binary.discrete.as.logical = TRUE))
       
-      recombinator = suppressWarnings(mosmafs::combine.operators(private$param.set,
+      recombinator = suppressMessages(mosmafs::combine.operators(private$param.set,
         numeric = ecr::setup(ecr::recSBX, p = 1),
         integer = ecr::setup(mosmafs::recIntSBX, p = 1),
         discrete = ecr::setup(mosmafs::recPCrossover, p = 1),
@@ -359,15 +362,15 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         use.orig = ecr::setup(mosmafs::recPCrossover, p = self$p.rec.gen),
         .binary.discrete.as.logical = TRUE))
       
-      overall.mutator = makeMutator(function(ind) {
-        transform.to.orig(mutator(ind), x.interest, delete.use.orig = FALSE, 
+      overall.mutator = ecr::makeMutator(function(ind) {
+        transformToOrig(mutator(ind), x.interest, delete.use.orig = FALSE, 
           fixed.features = self$fixed.features, max.changed = self$max.changed)
       }, supported = "custom")
       
-      overall.recombinator <- makeRecombinator(function(inds, ...) {
+      overall.recombinator <- ecr::makeRecombinator(function(inds, ...) {
         inds <- recombinator(inds)
         do.call(wrapChildren, lapply(inds, function(x) { 
-          transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
+          transformToOrig(x, x.interest, delete.use.orig = FALSE, 
             fixed.features = self$fixed.features, max.changed = self$max.changed) 
         }))
       }, n.parents = 2, n.children = 2)
@@ -412,7 +415,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       #   p.mut = self$p.mut, log.stats = log.stats)
       # 
       # results$pareto.set = lapply(results$pareto.set, function(x) {
-      #   transform.to.orig(x, self$x.interest,delete.use.orig = FALSE,
+      #   transformToOrig(x, self$x.interest,delete.use.orig = FALSE,
       #     fixed.features = TRUE)
       # })
       
@@ -440,7 +443,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       pareto.set.l = lapply(private$ecrresults$pareto.set, function(x)
         mosmafs::valuesFromNames(private$param.set, x))
-      pareto.set = list.to.df(pareto.set.l)
+      pareto.set = listToDf(pareto.set.l)
       
       if (subset.results) {
         idx = unique(c(which.min(pareto.front$dist.target), 
@@ -464,10 +467,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pareto.set.diff.pf = pareto.set.diff.pf[order(pareto.set.diff.pf$dist.target),]
       rownames(pareto.set.diff.pf) = NULL
       
-      
-      results = list()
-      results$counterfactuals = roundDF(pareto.set.pf, 3)
-      results$counterfactuals.diff = roundDF(pareto.set.diff.pf, 3)
+    
       log = mosmafs::getStatistics(private$ecrresults$log)
       names(log)[2:7] = c("dist.target.min", "dist.target.mean", 
         "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
@@ -480,14 +480,25 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             k$use.orig = NULL
             return(k)
           })
-          dis = StatMatch::gower.dist(data.x = list.to.df(pop_gen), 
+          dis = StatMatch::gower.dist(data.x = listToDf(pop_gen), 
             rngs = private$range)
           single.dist = dis[lower.tri(dis)]
           mean.dist = mean(single.dist)
           pop.div = sum(abs(single.dist - mean.dist)/length(pop_gen))
         }))
       log$population.div = div
-      results$log = roundDF(log, 3)
+      
+      # private$results.orig$counterfactuals = pareto.set.pf.pf
+      # private$results.orig$counterfactuals.diff = pareto.set.diff.pf
+      # private$results.orig$log = log
+      
+      results = list()
+      results$counterfactuals = pareto.set.pf
+      results$counterfactuals.diff = pareto.set.diff.pf
+      results$log = log
+      # results$counterfactuals = roundDF(pareto.set.pf, 3)
+      # results$counterfactuals.diff = roundDF(pareto.set.diff.pf, 3)
+      # results$log = roundDF(log, 3)
       cat("aggregate finished\n")
       return(results)
     }
@@ -523,7 +534,7 @@ plot.Counterfactuals = function(object, labels = FALSE) {
   object$plotPF(labels)
 }
 
-plotStatistics = function(object, range = FALSE) {
+plotStatistics.Counterfactuals = function(object, range = FALSE) {
   object$plotStatistics(range)
 }
 

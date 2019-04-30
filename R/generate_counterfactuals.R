@@ -68,7 +68,7 @@ generateCounterfactuals = function(x.interest, target, predictor, param.set,
   
   population = initial.solutions
   population = lapply(population, function(x) {
-    x = transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
+    x = transformToOrig(x, x.interest, delete.use.orig = FALSE, 
       fixed.features = fixed.features)
   })
   # TEST:
@@ -86,7 +86,7 @@ generateCounterfactuals = function(x.interest, target, predictor, param.set,
     offspring = ecr:::generateOffspring(control, population, fitness, 
       lambda = lambda, p.recomb = p.recomb, p.mut = p.mut)
     offspring = lapply(offspring, function(x) {
-      x = transform.to.orig(x, x.interest, delete.use.orig = FALSE, 
+      x = transformToOrig(x, x.interest, delete.use.orig = FALSE, 
         fixed.features = fixed.features)
     })
     fitness.offspring = evaluateFitness(control, offspring, target,
@@ -103,7 +103,7 @@ generateCounterfactuals = function(x.interest, target, predictor, param.set,
     ##browser(expr = {2 %in% ranks & iteration > 30})
     
     population = sel$population
-    dis = StatMatch::gower.dist(data.x = list.to.df(population), 
+    dis = StatMatch::gower.dist(data.x = listToDf(population), 
       rngs = range.features)
     single.dist = dis[lower.tri(dis)]
     mean.dist = mean(single.dist)
@@ -179,7 +179,6 @@ selectDiverse = function (control, population, offspring, fitness,
   fitness = ecr:::makeFitnessMatrix(fitness, control)
   return(list(population = merged.pop[surv.idx], fitness = fitness))
 }
-environment(replaceMuPlusLambda) = asNamespace("mosmafs")
 
 stopOnStag = function (stag) {
   assertInt(stag)

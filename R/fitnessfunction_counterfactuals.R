@@ -13,7 +13,7 @@ fitness.fun = function(x, x.interest, target, predictor, range, param.set) {
   # use.orig not needed
   # transform to data.frame
   x$use.orig = NULL
-  #x = transform.to.orig(x, x.interest, delete.use.orig = TRUE)
+  #x = transformToOrig(x, x.interest, delete.use.orig = TRUE)
   x = as.data.frame(x, stringsAsFactors = FALSE)
   x.factor = x
   x[,sapply(x, is.factor)] = as.character(x[,sapply(x, is.factor)])
