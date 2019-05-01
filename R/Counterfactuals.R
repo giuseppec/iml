@@ -435,7 +435,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       cat("run finished\n")
       return(results)
     },
-    
+    continueSearch = function(iterations) {
+      private$ecrresults = continueEcr(ecr.object = private$ecrresults, generations = iterations)
+      self$results = private$aggregate()    
+    },
     aggregate = function(subset.results = self$subset.results) {
       
       pareto.front = private$ecrresults$pareto.front

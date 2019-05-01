@@ -245,7 +245,7 @@ selNondom = ecr::makeSelector(
 
 
 
-
+# 
 # computeCrowdingDistanceR = function(fitness, candidates) {
 #   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
 #   assertList(candidates)
@@ -271,13 +271,17 @@ selNondom = ecr::makeSelector(
 # 
 #   for (i in c(1,2)) {
 #     ord = order(fitness[3, ], fitness[i, ])
-#     # set the extreme values to Inf
-#     ods[ord[1]] = Inf
-#     ods[ord[n]] = Inf
-#     dds[ord[1]] = Inf
-#     dds[ord[n]] = Inf
+#     min.changed = c(TRUE, diff(fitness[3, ord]) > 0) 
+#     max.changed = rev(c(TRUE, diff(rev(fitness[3, ord])) < 0))
+#     ind.inf = min.changed|max.changed
+#     # set the extreme values to Inf for each nr.features.changed (objective 3)
+#     ods[ind.inf] = Inf
+#     dds[ind.inf] = Inf
+#     #ods[ord[1]] = Inf
+#     #ods[ord[n]] = Inf
+#     #dds[ord[1]] = Inf
+#     #dds[ord[n]] = Inf
 # 
-#     #t = candidates[ord]
 #     # update the remaining crowding numbers
 #     if (n > 2L) {
 #       for (j in 2:(n - 1L)) {
