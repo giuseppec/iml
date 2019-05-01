@@ -148,6 +148,53 @@ roundDF <- function(df, digits) {
   return(df)
 }
 
+
+
+# new version separated by each front
+# 
+getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
+  
+  n = nrow(pareto.set)
+  max = apply(fitness, 2, max)
+  min = apply(fitness, 2, min)
+  g.dist = StatMatch::gower.dist(pareto.set, rngs = range)
+  
+  dds = numeric(n)
+  ods = numeric(n)
+  
+  for (i in seq_len(ncol(fitness)-1)) {
+    
+    # get the order of the points when sorted according to the i-th objective
+    ord = order(fitness[,3], fitness[,i])
+    min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
+    max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
+    ind.inf = min.changed|max.changed
+    # set the extreme values to Inf for each nr.features.changed (objective 3)
+    dds[ind.inf] = Inf
+    ods[ind.inf] = Inf
+    
+    #t = candidates[ord]
+    # update the remaining crowding numbers
+    if (n > 2L) {
+      for (j in 2:(n - 1L)) {
+        ods[ord[j]] = ods[ord[j]] + 
+          ((fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
+        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+        
+        dds[ord[j]] = dds[ord[j]] +
+          g.dist[ord[j], ord[j-1]] +
+          g.dist[ord[j], ord[j+1]]
+        
+      }
+    }
+  }
+  cds = rank(ods) + rank(dds)
+  idx = order(cds, decreasing = TRUE)[1:nr.solutions]
+  return(idx)
+}
+
+
+### Oldest Version: Sort for y1
 # getDiverseSolutions = function(fitness, pareto.set, range) {
 #   checkmate::assert_data_frame(fitness, any.missing = FALSE, nrows = nrow(pareto.set))
 #   checkmate::assertDataFrame(pareto.set, any.missing = FALSE, nrows = nrow(fitness))
@@ -181,6 +228,8 @@ roundDF <- function(df, digits) {
 # }
 
 
+
+# Old Version 
 # getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
 # 
 #   n = nrow(pareto.set)
@@ -217,46 +266,5 @@ roundDF <- function(df, digits) {
 # 
 
 
-# new version separated by each front
-# 
-getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
 
-  n = nrow(pareto.set)
-  max = apply(fitness, 2, max)
-  min = apply(fitness, 2, min)
-  g.dist = StatMatch::gower.dist(pareto.set, rngs = range)
-
-  dds = numeric(n)
-  ods = numeric(n)
-
-  for (i in seq_len(ncol(fitness)-1)) {
-
-    # get the order of the points when sorted according to the i-th objective
-    ord = order(fitness[,3], fitness[,i])
-    min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
-    max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
-    ind.inf = min.changed|max.changed
-    # set the extreme values to Inf for each nr.features.changed (objective 3)
-    dds[ind.inf] = Inf
-    ods[ind.inf] = Inf
-
-    #t = candidates[ord]
-    # update the remaining crowding numbers
-    if (n > 2L) {
-      for (j in 2:(n - 1L)) {
-        ods[ord[j]] = ods[ord[j]] + 
-          ((fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
-        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
-
-        dds[ord[j]] = dds[ord[j]] +
-          g.dist[ord[j], ord[j-1]] +
-          g.dist[ord[j], ord[j+1]]
-
-      }
-    }
-  }
-  cds = rank(ods) + rank(dds)
-  idx = order(cds, decreasing = TRUE)[1:nr.solutions]
-  return(idx)
-}
 

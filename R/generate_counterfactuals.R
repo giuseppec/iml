@@ -1,128 +1,3 @@
-# slickEcr = mosmafs::slickEcr
-# initEcr = mosmafs::initEcr
-# continueEcr = mosmafs::continueEcr
-
-
-generateCounterfactuals = function(x.interest, target, predictor, param.set,
-  fixed.features = NULL, mu, lambda, p.recomb, p.mut, initial.solutions, 
-  range.features, survival.selector, parent.selector, mutator, recombinator, 
-  number.iterations, stag = .Machine$integer.max, ref.point) {
-  
-  n.objectives = 3 
-  log.pop = FALSE
-  
-  checkmate::assert_data_frame(x.interest, any.missing = FALSE)
-  checkmate::assert_numeric(target, any.missing = FALSE, min.len = 1, 
-    max.len = 2)
-  checkmate::assert_class(predictor, c("Predictor", "R6"))
-  checkmate::assert(all(names(x.interest) %in% names(predictor$data$get.x())))
-  checkmate::assert_number(mu, lower = 1, finite = TRUE)
-  checkmate::assert_number(lambda, lower = 1, finite = TRUE)
-  checkmate::assert(mu == lambda)
-  mu = asInt(mu, lower = 1L)
-  lambda.lower = 1L
-  lambda = asInt(lambda, lower = lambda.lower)
-  checkmate::assert_number(p.recomb, lower = 0, upper = 1)
-  checkmate::assert_number(p.mut, lower = 0, upper = 1)
-  checkmate::assert_list(initial.solutions, len = mu)
-  checkmate::assert_numeric(range.features, finite = TRUE, null.ok = TRUE)
-  checkmate::assert_number(number.iterations, finite = TRUE)
-  checkmate::assert_character(fixed.features, null.ok = TRUE, min.len = 1)
-  
-  
-  terminators = list(ecr::stopOnIters(number.iterations), 
-    stopOnStag(stag))
-  
-  control = ecr::initECRControl(fitness.fun = function(){}, n.objectives = n.objectives, 
-    minimize = TRUE)
-  control$type = "custom"
-  control = ecr::registerECROperator(control, "mutate", 
-    BBmisc::coalesce(mutator, 
-      ecr:::getDefaultEvolutionaryOperators(representation, "mutator", 
-      n.objectives, control)))
-  control = ecr::registerECROperator(control, "recombine", 
-    BBmisc::coalesce(recombinator, 
-    ecr:::getDefaultEvolutionaryOperators(representation, "recombinator", 
-      n.objectives, control)))
-  control = ecr::registerECROperator(control = control, slot = "selectForSurvival", 
-    fun = BBmisc::coalesce(survival.selector, getDefaultEvolutionaryOperators("custom", 
-      "survival.selector", n.objectives, control)))
-  control = ecr::registerECROperator(control, "selectForMating", 
-    BBmisc::coalesce(parent.selector, getDefaultEvolutionaryOperators("custom", 
-      "parent.selector", n.objectives, control)))
-  
-  log.stats = list(fitness = lapply(seq_len(n.objectives), function(idx) {
-    list(min = function(x) min(x[idx, ]), mean = function(x) mean(x[idx, ]))
-  }))
-  names(log.stats$fitness) <- sprintf("obj.%s", seq_len(n.objectives))
-  log.stats$fitness <- unlist(log.stats$fitness, recursive = FALSE)
-  log.stats$fitness <- c(log.stats$fitness,
-    list(domHV = function(x) ecr::computeHV(x,
-      ref.point = ref.point), 
-      delta = function(x) ecr:::emoaIndDelta(x[c(1,2),]), 
-      spacing = function(x) ecr:::emoaIndSP(x, "euclidean")))
-  
-  
-  log = ecr::initLogger(control, log.stats = log.stats, log.pop = log.pop,
-    log.extras = c(population.div = "numeric"), init.size = 1000)
-  
-  population = initial.solutions
-  population = lapply(population, function(x) {
-    x = transformToOrig(x, x.interest, delete.use.orig = FALSE, 
-      fixed.features = fixed.features)
-  })
-  # TEST:
-  # if (!all(lapply(population, function(x){class(x)}) == class(x.interest))) {
-  #   stop("population and x_orig different feature types")
-  # }
-
-  fitness = evaluateFitness(control, population, target, x.interest,
-    range.features, param.set = param.set, predictor)
-  for (i in seq_along(population)) {
-    attr(population[[i]], "fitness") = fitness[, i]
-  }
-
-  repeat {
-    offspring = ecr:::generateOffspring(control, population, fitness, 
-      lambda = lambda, p.recomb = p.recomb, p.mut = p.mut)
-    offspring = lapply(offspring, function(x) {
-      x = transformToOrig(x, x.interest, delete.use.orig = FALSE, 
-        fixed.features = fixed.features)
-    })
-    fitness.offspring = evaluateFitness(control, offspring, target,
-      x.interest, range.features, param.set, predictor)
-    for (i in seq_along(offspring)) {
-      attr(offspring[[i]], "fitness") = fitness.offspring[, i]
-    }
-    
-    sel = selectDiverse(control, population, offspring, 
-      fitness, fitness.offspring)
-
-    fitness = sel$fitness
-    ##ranks = doNondominatedSorting(fitness)$ranks
-    ##browser(expr = {2 %in% ranks & iteration > 30})
-    
-    population = sel$population
-    dis = StatMatch::gower.dist(data.x = listToDf(population), 
-      rngs = range.features)
-    single.dist = dis[lower.tri(dis)]
-    mean.dist = mean(single.dist)
-    pop.div = sum(abs(single.dist - mean.dist)/length(population))
-    
-    ecr::updateLogger(log, population, fitness, n.evals = length(population), 
-      extras = list(population.div = pop.div))
-    stop.object = ecr:::doTerminate(log, terminators)
-    
-    if (length(stop.object) > 0L) { 
-      print(stop.object$message)
-      break
-    }
-  }
-  return(ecr:::makeECRResult(control, log, population, fitness, stop.object))
-}
-
-
-
 evaluateFitness = function (control, inds, target, x.interest, range,
   param.set, predictor){
   assertList(inds)
@@ -180,27 +55,338 @@ selectDiverse = function (control, population, offspring, fitness,
   return(list(population = merged.pop[surv.idx], fitness = fitness))
 }
 
-stopOnStag = function (stag) {
-  assertInt(stag)
-  stag.access = "gen"
-  stag.name = "generations"
-  condition.fun = function(log) {
-    current.gen = log$env$n.gens
-    if (current.gen < stag) {
-      return(FALSE)
-    }
-    obj.colnames = grep("(fitness.obj.[123].min)|(fitness.domHV)", 
-      colnames(log$env$stats), value = TRUE)
-    stags = apply(log$env$stats[obj.colnames], 2, function(col) {
-      length(unique(col[(current.gen - stag) : current.gen])) == 1
+
+
+
+
+selNondom = ecr::makeSelector(
+  selector = function(fitness, n.select, population, 
+    epsilon = .Machine$double.xmax, 
+    extract.duplicates = TRUE,
+    consider.diverse.solutions = TRUE) {
+    
+    infeasible.idx = which(fitness[1,] > epsilon)
+    order.infeasible = order(fitness[1, infeasible.idx])
+    if (extract.duplicates) {
+      unique.idx = which(!duplicated(t(fitness)))
+    } else {
+      unique.idx = integer(0)
+    } 
+    
+    mean.f = rowMeans(fitness)
+    sd.f = apply(fitness,1,sd)
+    sd.f[sd.f==0] = 1 
+    # if any sd 0 --> transform to 1, this is what sklearn does as well.
+    # https://github.com/scikit-learn/scikit-learn/blob/7389dbac82d362f296dc2746f10e43ffa1615660/sklearn/preprocessing/data.py#L70
+    
+    fitness = apply(fitness, 2, function(x) {
+      (x-mean.f)/sd.f
     })
-    return(all(stags))
+    
+    nondom.layers = ecr::doNondominatedSorting(fitness)
+    
+    # storage for indizes of selected individuals
+    new.pop.idxs = integer()
+    
+    # get maximum rank, i.e., the number of domination layers
+    max.rank = max(nondom.layers$ranks)
+    
+    # change domination layer of infeasible solutions
+    i = 0
+    for (inf.id in infeasible.idx[order.infeasible]) {
+      nondom.layers$ranks[inf.id] = max.rank + i
+      i = i + 1
+    }
+    max.rank = max(nondom.layers$ranks)
+    
+    # get the indizes of points for each domination layer
+    idxs.by.rank = lapply(seq(max.rank), function(r) which(nondom.layers$ranks == r))
+    
+    if (extract.duplicates & (length(unique.idx) > n.select)) {
+      idxs.by.rank = lapply(idxs.by.rank, function(x) {
+        x = x[x %in% unique.idx]
+      })
+    }
+    
+    # get the number of points in each domination layer ...
+    front.len = sapply(idxs.by.rank, length)
+    
+    # ... cumulate the number of points of the domination layers ...
+    cum.front.len = cumsum(front.len)
+    
+    # ... and determine the first domination layer, which does not fit as a whole
+    front.first.nonfit = BBmisc::which.first(cum.front.len > n.select)
+    
+    if (front.first.nonfit > 1L) {
+      # in this case at least one nondominated front can be added
+      new.pop.idxs = unlist(idxs.by.rank[1:(front.first.nonfit - 1L)])
+    }
+    
+    # how many points to select by second criterion, i.e., crowding distance?
+    n.diff = n.select - length(new.pop.idxs)
+    
+    if (n.diff > 0L) {
+      idxs.first.nonfit = idxs.by.rank[[front.first.nonfit]]
+      if (!consider.diverse.solutions) {
+        cds = ecr:::computeCrowdingDistanceR(fitness[1:2, idxs.first.nonfit])
+      }
+      if (consider.diverse.solutions) {
+        cds = computeCrowdingDistanceR(as.matrix(fitness[, idxs.first.nonfit]), 
+          population[idxs.first.nonfit]) 
+      }
+      idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
+      new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
+    }
+    
+    # merge the stuff and return
+    return(new.pop.idxs)
+  },
+  supported.objectives = "multi-objective")
+
+
+#### ORIGINAL
+computeCrowdingDistanceR = function(fitness, candidates) {
+  assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+  assertList(candidates)
+  
+  n = ncol(fitness)
+  max = apply(fitness, 1, max)
+  min = apply(fitness, 1, min)
+  dim = nrow(fitness)
+  ods = numeric(n)
+  dds = numeric(n)
+  cds = numeric(n)
+  dat = lapply(candidates, function(x) {
+    x$use.orig = NULL
+    return(x)})
+  dat = listToDf(candidates)
+  
+  numeric.ind = sapply(dat, is.numeric)
+  range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
+  range[colnames(dat)[!numeric.ind]]  = NA
+  range = range[names(dat)]
+  
+  g.dist = StatMatch::gower.dist(dat, rngs = range)
+  
+  for (i in c(1,2)) {
+    
+    # get the order of the points when sorted according to the i-th objective
+    #if (i == 1) {
+    ord = order(fitness[i, ])
+    #}
+    # else if (i == 2) {
+    #   ord = order(fitness[3, ], fitness[2, ])
+    #   min.obj2 = which.min(fitness[2,])
+    #   ord = c(min.obj2, ord[!ord %in% min.obj2])
+    #   max.obj2 = which.max(fitness[2,])
+    #   ord = c(ord[!ord %in% max.obj2], max.obj2)
+    # }
+    
+    # set the extreme values to Inf
+    ods[ord[1]] = Inf
+    ods[ord[n]] = Inf
+    dds[ord[1]] = Inf
+    dds[ord[n]] = Inf
+    
+    #t = candidates[ord]
+    # update the remaining crowding numbers
+    if (n > 2L) {
+      for (j in 2:(n - 1L)) {
+        ods[ord[j]] = ods[ord[j]] +
+          ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i]-min[i]))
+        #ods[ord[j]] = ods[ord[j]] +
+        #((fitness[i, ord[j + 1L]] - fitness[i, ord[j]])/(max[i]-min[i]))
+        
+        dds[ord[j]] = dds[ord[j]] +
+          g.dist[ord[j], ord[j-1]] +
+          g.dist[ord[j], ord[j+1]]
+        
+      }
+    }
   }
-  ecr::makeTerminator(condition.fun, name = "StagLimit", 
-    message = sprintf("Minimum objective values and HV did not change for %s iterations", 
-      stag))
+  
+  cds = rank(ods) + rank(dds)
+  return(cds)
 }
 
-#assignInNamespace("replaceMuPlusLambda", replaceMuPlusLambda, environment = "ecr")
+### Version 1
+# computeCrowdingDistanceR = function(fitness, candidates) {
+#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+#   assertList(candidates)
+# 
+#   n = ncol(fitness)
+#   dim = nrow(fitness)
+#   ods = numeric(n)
+#   dds = numeric(n)
+#   cds = numeric(n)
+#   dat = lapply(candidates, function(x) {
+#     x$use.orig = NULL
+#     return(x)})
+#   dat = listToDf(candidates)
+# 
+#   numeric.ind = sapply(dat, is.numeric)
+#   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
+#   range[colnames(dat)[!numeric.ind]]  = NA
+#   range = range[names(dat)]
+# 
+#   g.dist = StatMatch::gower.dist(dat, rngs = range)
+# 
+#   for (i in c(1,2,3)) {
+# 
+#     # get the order of the points when sorted according to the i-th objective
+#     if (i %in% c(1, 2)) {
+#       ord = order(fitness[i, ])
+#     }
+#     else if (i == 3) {
+#       ord = order(fitness[i, ], fitness[i-1, ])
+#       # min.obj2 = which.min(fitness[2,])
+#       # ord = c(min.obj2, ord[!ord %in% min.obj2])
+#       # max.obj2 = which.max(fitness[2,])
+#       # ord = c(ord[!ord %in% max.obj2], max.obj2)
+#     }
+# 
+#     # set the extreme values to Inf
+#     ods[ord[1]] = Inf
+#     ods[ord[n]] = Inf
+#     dds[ord[1]] = Inf
+#     dds[ord[n]] = Inf
+# 
+#     #t = candidates[ord]
+#     # update the remaining crowding numbers
+#     if (n > 2L) {
+#       for (j in 2:(n - 1L)) {
+#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])
+#         ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+# 
+#         dds[ord[j]] = dds[ord[j]] +
+#           g.dist[ord[j], ord[j-1]] +
+#           g.dist[ord[j], ord[j+1]]
+# 
+#       }
+#     }
+#   }
+# 
+#   cds = rank(ods) + rank(dds)
+#   return(cds)
+# }
 
+
+### Version 2
+# computeCrowdingDistanceR = function(fitness, candidates) {
+#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+#   assertList(candidates)
+# 
+#   n = ncol(fitness)
+#   max = apply(fitness, 1, max)
+#   min = apply(fitness, 1, min)
+#   dim = nrow(fitness)
+#   ods = numeric(n)
+#   dds = numeric(n)
+#   cds = numeric(n)
+#   dat = lapply(candidates, function(x) {
+#     x$use.orig = NULL
+#     return(x)})
+#   dat = listToDf(candidates)
+# 
+#   numeric.ind = sapply(dat, is.numeric)
+#   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
+#   range[colnames(dat)[!numeric.ind]]  = NA
+#   range = range[names(dat)]
+# 
+#   g.dist = StatMatch::gower.dist(dat, rngs = range)
+# 
+#   for (i in c(1,2)) {
+# 
+#     # get the order of the points when sorted according to the i-th objective
+#     if (i == 1) {
+#       ord = order(fitness[i, ])
+#     }
+#     else if (i == 2) {
+#       ord = order(fitness[3, ], fitness[2, ])
+#       min.obj2 = which.min(fitness[2,])
+#       ord = c(min.obj2, ord[!ord %in% min.obj2])
+#       max.obj2 = which.max(fitness[2,])
+#       ord = c(ord[!ord %in% max.obj2], max.obj2)
+#     }
+# 
+#     # set the extreme values to Inf
+#     ods[ord[1]] = Inf
+#     ods[ord[n]] = Inf
+#     dds[ord[1]] = Inf
+#     dds[ord[n]] = Inf
+# 
+#     #t = candidates[ord]
+#     # update the remaining crowding numbers
+#     if (n > 2L) {
+#       for (j in 2:(n - 1L)) {
+#         ods[ord[j]] = ods[ord[j]] + 
+#           ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i] - min[i]))
+#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+#         dds[ord[j]] = dds[ord[j]] +
+#           g.dist[ord[j], ord[j-1]] +
+#           g.dist[ord[j], ord[j+1]]
+#       }
+#     }
+#   }
+# 
+#   cds = rank(ods) + rank(dds)
+#   return(cds)
+# }
+
+
+
+# 
+# computeCrowdingDistanceR = function(fitness, candidates) {
+#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+#   assertList(candidates)
+# 
+#   n = ncol(fitness)
+#   max = apply(fitness, 1, max)
+#   min = apply(fitness, 1, min)
+#   dim = nrow(fitness)
+#   ods = numeric(n)
+#   dds = numeric(n)
+#   cds = numeric(n)
+#   dat = lapply(candidates, function(x) {
+#     x$use.orig = NULL
+#     return(x)})
+#   dat = listToDf(candidates)
+# 
+#   numeric.ind = sapply(dat, is.numeric)
+#   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
+#   range[colnames(dat)[!numeric.ind]]  = NA
+#   range = range[names(dat)]
+# 
+#   g.dist = StatMatch::gower.dist(dat, rngs = range)
+# 
+#   for (i in c(1,2)) {
+#     ord = order(fitness[3, ], fitness[i, ])
+#     min.changed = c(TRUE, diff(fitness[3, ord]) > 0) 
+#     max.changed = rev(c(TRUE, diff(rev(fitness[3, ord])) < 0))
+#     ind.inf = min.changed|max.changed
+#     # set the extreme values to Inf for each nr.features.changed (objective 3)
+#     ods[ind.inf] = Inf
+#     dds[ind.inf] = Inf
+#     #ods[ord[1]] = Inf
+#     #ods[ord[n]] = Inf
+#     #dds[ord[1]] = Inf
+#     #dds[ord[n]] = Inf
+# 
+#     # update the remaining crowding numbers
+#     if (n > 2L) {
+#       for (j in 2:(n - 1L)) {
+#         ods[ord[j]] = ods[ord[j]] +
+#           ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i] - min[i]))
+#         # ods[ord[j]] = ods[ord[j]] +
+#         #   ((fitness[i, ord[j + 1L]] - fitness[i, ord[j]])/(max[i] - min[i]))
+#         dds[ord[j]] = dds[ord[j]] +
+#           g.dist[ord[j], ord[j-1]] +
+#           g.dist[ord[j], ord[j+1]]
+#       }
+#     }
+#   }
+# 
+#   cds = rank(ods) + rank(dds)
+#   return(cds)
+# }
 
