@@ -1,4 +1,4 @@
-#' Counterfactuals Explanations
+#' Counterfactual Explanations
 #' 
 #' \code{Counterfactuals} Description
 #' Counterfactuals are calculated with a modified version of NSGA-II, 
@@ -40,14 +40,17 @@
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
 #' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene}
 #' \item{subset.results:}{logical(1)\cr Indicator if results should be subset according to 
-#' crowding distance. 
+#' crowding distance.}
 #' \item{nr.solutions:}{integer(1)\cr Number of individuals that are selected in 
 #' subsetting process. Ignored if subset.results = FALSE}
 #' }
 #' 
 #' @section Details:
-#' For more details on the method see https://christophm.github.io/interpretable-ml-book/counterfactual.html
-#' For more details on the algorithm NSGA-II see https://ieeexplore.ieee.org/document/996017
+#' For more details on the method see:  
+#' https://christophm.github.io/interpretable-ml-book/counterfactual.html\cr
+#' \cr
+#' For more details on the algorithm NSGA-II see: 
+#' https://ieeexplore.ieee.org/document/996017
 #' 
 #' @section Fields:
 #' \describe{
@@ -71,7 +74,7 @@
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
 #' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene}
 #' \item{subset.results:}{logical(1)\cr Indicator if results should be subset according to 
-#' crowding distance. 
+#' crowding distance.}
 #' \item{nr.solutions:}{integer(1)\cr Number of individuals that are selected in 
 #' subsetting process. Ignored if subset.results = FALSE}
 #' }
@@ -88,12 +91,14 @@
 #' }
 #'
 #' @references 
-#' Bossek, J. (2017). ecr 2.0: A modular framework for evolutionary computation in r,
+#' \describe{
+#' \item{Bossek, J. (2017). ecr 2.0: A modular framework for evolutionary computation in r,
 #' Proceedings of the Genetic and Evolutionary Computation Conference Companion,
-#' GECCO '17, pp. 1187-1193.\cr
-#' Deb, K., Pratap, A., Agarwal, S. and Meyarivan, T. (2002). A fast and elitist multiobjective
+#' GECCO '17, pp. 1187-1193.}
+#' \item{Deb, K., Pratap, A., Agarwal, S. and Meyarivan, T. (2002). A fast and elitist multiobjective
 #' genetic algorithm: Nsga-ii, IEEE Transactions on Evolutionary Computation
-#' 6(2): 182-197. \cr
+#' 6(2): 182-197.}
+#' } 
 #' 
 #' @seealso 
 #' \link{Counterfactuals}
@@ -137,7 +142,6 @@
 #' plot(counterfactuals) 
 #' }
 NULL
-
 #'@export
 Counterfactuals = R6::R6Class("Counterfactuals", 
   inherit = InterpretationMethod,
@@ -396,10 +400,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       names(pareto.front) = c("dist.target", "dist.x.interest", "nr.changed")
 
       if (subset.results) {
-        idx = unique(c(which.min(pareto.front$dist.target), 
-          which.min(pareto.front$dist.x.interest), 
-          getDiverseSolutions(pareto.front, private$dataDesign, private$range, 
-            self$nr.solutions)))
+        idx = getDiverseSolutions(pareto.front, private$dataDesign, private$range, 
+            self$nr.solutions)
         message("only a subset of solutions is extracted based on diversity measure")
       } else {
         idx = 1:nrow(private$dataDesign)
@@ -408,7 +410,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pareto.front = pareto.front[idx, ]
       
       pareto.set.diff = getDiff(pareto.set, self$x.interest)
-      pred = private$qResults
+      pred = private$qResults[idx,1]
       
       pareto.set.pf = cbind(pareto.set, pred, pareto.front)
       pareto.set.pf = pareto.set.pf[order(pareto.set.pf$dist.target),]
@@ -490,8 +492,6 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' Plot Counterfactuals
 #' 
 #' plot.Counterfactuals() plots the Pareto front, the found Counterfactuals.
-#' plotStatistics.Counterfactuals() plots log information and statistics 
-#' of the NSGA-II search process.
 #' 
 #' @param object  A Counterfactuals R6 object
 #' @param labels (logical(1)) Should the labels about the differences 
@@ -520,18 +520,11 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' # The results can be plotted
 #' plot(cf)
 #' plot(cf, labels = TRUE)
-#' plotStatistics(cf)
-#' plotStatistics(cf, range = TRUE)
+#' }
 #' }
 plot.Counterfactuals = function(object, labels = FALSE) {
   object$plot(labels = labels)
 }
 
-
-#' @export
-#' @rdname plot.Counterfactuals
-plotStatistics.Counterfactuals = function(object, range = FALSE) {
-  object$plotStatistics(range = range)
-}
 
 
