@@ -168,7 +168,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
   
   g.dist = StatMatch::gower.dist(dat, rngs = range)
   
-  for (i in c(1,2)) {
+  for (i in c(1,2,3)) {
     
     # get the order of the points when sorted according to the i-th objective
     #if (i == 1) {
@@ -335,7 +335,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
 
 
 
-# 
+# # Version 3
 # computeCrowdingDistanceR = function(fitness, candidates) {
 #   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
 #   assertList(candidates)
@@ -361,7 +361,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
 # 
 #   for (i in c(1,2)) {
 #     ord = order(fitness[3, ], fitness[i, ])
-#     min.changed = c(TRUE, diff(fitness[3, ord]) > 0) 
+#     min.changed = c(TRUE, diff(fitness[3, ord]) > 0)
 #     max.changed = rev(c(TRUE, diff(rev(fitness[3, ord])) < 0))
 #     ind.inf = min.changed|max.changed
 #     # set the extreme values to Inf for each nr.features.changed (objective 3)
@@ -389,4 +389,4 @@ computeCrowdingDistanceR = function(fitness, candidates) {
 #   cds = rank(ods) + rank(dds)
 #   return(cds)
 # }
-
+# 

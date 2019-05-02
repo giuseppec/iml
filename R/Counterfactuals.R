@@ -245,6 +245,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             ylab("value"))
       })
     },
+    continueSearch = function(generations) {
+      private$ecrresults = continueEcr(ecr.object = private$ecrresults, generations = generations)
+      self$results = private$aggregate()    
+    },
     calculateHV = function() {
       return(self$results$log$fitness.domHV[self$nr.generations])
     }
@@ -256,7 +260,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     sdev = NULL,
     param.set= NULL,
     ecrresults = NULL,
-    results.orig = NULL,
+    labels = NULL,
     log = NULL,
     set.x.interest = function(x.interest) {
       assert_data_frame(x.interest, any.missing = FALSE, all.missing = FALSE, 
@@ -386,10 +390,6 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       cat("run finished\n")
       return(results)
     },
-    continueSearch = function(generations) {
-      private$ecrresults = continueEcr(ecr.object = private$ecrresults, generations = generations)
-      self$results = private$aggregate()    
-    },
     aggregate = function(subset.results = self$subset.results) {
       
       pareto.front = private$ecrresults$pareto.front
@@ -441,10 +441,20 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       # private$results.orig$counterfactuals = pareto.set.pf.pf
       # private$results.orig$counterfactuals.diff = pareto.set.diff.pf
       # private$results.orig$log = log
-      
+      diffs = pareto.set.diff.pf
+      diffs = diffs[, !(names(diffs) %in% c("dist.target", 
+        "dist.x.interest", "nr.changed", "pred"))]
+      labels = c()
+      for(i in 1:nrow(diffs)) {
+        names = names(diffs[i,])[diffs[i,] != 0]
+        lab = diffs[i, names]
+        lab = paste(paste(names, round(lab, 3)), collapse = " & ")
+        labels = c(labels, lab)
+      }
+      private$labels = labels
       results = list()
-      results$counterfactuals = pareto.set.pf
-      results$counterfactuals.diff = pareto.set.diff.pf
+      results$counterfactuals = roundDF(pareto.set.pf, 3)
+      results$counterfactuals.diff = roundDF(pareto.set.diff.pf, 3)
       results$log = log
       # results$counterfactuals = roundDF(pareto.set.pf, 3)
       # results$counterfactuals.diff = roundDF(pareto.set.diff.pf, 3)
@@ -454,19 +464,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     },
     generatePlot = function(labels = FALSE) {
       result = self$results$counterfactuals
-      diffs = self$results$counterfactuals.diff
-      diffs = diffs[, !(names(diffs) %in% c("dist.target", "dist.x.interest", "nr.changed", "pred"))]
       pf = result[, c("dist.target", "dist.x.interest", "nr.changed")]
       
-      if (labels) {
-        pf$label = ""
-        for(i in 1:nrow(diffs)) {
-          names = names(diffs[i,])[diffs[i,] != 0]
-          r = diffs[i, names]
-          r = paste(paste(names, round(r, 3)), collapse = " & ")
-          pf[i, "label"] = r
-        }
-      }
       p = ggplot(data = pf, aes(x=dist.target, y=dist.x.interest, 
         color = as.factor(nr.changed))) +
         geom_point() +
@@ -476,7 +475,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         guides(color=guide_legend(title="nr changed"))
       
       if (labels) {
-        p = p + ggrepel::geom_label_repel(aes(label = label),
+        p = p + ggrepel::geom_label_repel(aes(label = private$labels),
           box.padding   = 0.35, 
           point.padding = 0.4, 
           show.legend = FALSE) 
