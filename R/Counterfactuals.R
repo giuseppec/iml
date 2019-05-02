@@ -103,32 +103,38 @@
 #' 
 #' @examples 
 #' if (require("randomForest")) {
-# data("Boston", package  = "MASS")
-# Boston = Boston
-# set.seed(1000)
-# rf =  randomForest(medv ~ ., data = Boston)
-# X = Boston[-which(names(Boston) == "medv")]
-# mod = Predictor$new(rf, data = X)
-# 
-# # Then we calculate Counterfactuals for the first instance
-# x.interest = X[1,]
-# mod$predict(x.interest)
-# target = 30
-# cf = Counterfactuals$new(mod, x.interest = x.interest, target = target, 
-#   mu = 50, nr.generations = 100)
-
-# # The results can be accessed and plotted
-# cf$results$counterfactuals
-# cf$results$counterfactuals.diff
-# plot(cf)
-# cf$results$log
-# plotStatistics(cf)
-# 
-# # It is also possible to specify a search space epsilon, the maximum 
-# # distance from the target as a constraint for the search
-# cf = Counterfactuals$new(mod, x.interest = x.interest, target = target, 
-#   mu = 50, nr.generations = 100, epsilon = 1)
-# 
+#' # First we fit a machine learning model on the Boston housing data
+#' data("Boston", package  = "MASS")
+#' rf =  randomForest(medv ~ ., data = Boston)
+#' X = Boston[-which(names(Boston) == "medv")]
+#' mod = Predictor$new(rf, data = X)
+#'
+#' # Then we explain the first instance of the dataset with the Shapley method:
+#'x.interest = X[1,]
+#'target = 30
+#'counterfactual = Counterfactuals$new(mod, x.interest = x.interest, target = target, 
+#'  nr.generations = 100)
+#'counterfactual
+#'
+#' # Look at the results in a table
+#' counterfactual$results
+#' # Or as a plot
+#' plot(counterfactual)
+#' plot(counterfactual, labels = TRUE)
+#'
+#' # Explain another instance
+#' counterfactual$explain(X[2,], target = target)
+#' plot(counterfactual)
+#' ## Not run: 
+#' # Counterfactuals() can only focus on one class, not multiple classes at a time
+#' rf = randomForest(Species ~ ., data = iris)
+#' X = iris[-which(names(iris) == "Species")]
+#' mod = Predictor$new(rf, data = X, type = "prob", class = "setosa")
+#'
+#' # Then we explain the first instance of the dataset with the counterfactuals() method:
+#' counterfactuals = Counterfactuals$new(mod, x.interest = X[1,], target = 0)
+#' counterfactuals$results
+#' plot(counterfactuals) 
 #' }
 NULL
 
@@ -304,6 +310,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             predictor = self$predictor,
             range = private$range, param.set = private$param.set)
         })
+      
       n.objectives = smoof::getNumberOfObjectives(fn) 
       
       # Define operators based on parameterset private$param.set
@@ -317,7 +324,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         discrete = ecr::setup(mosmafs::mutRandomChoice, p = 1),
         logical = ecr::setup(ecr::mutBitflip, p = 1),
         use.orig = ecr::setup(ecr::mutBitflip, p = self$p.mut.gen),
-        .binary.discrete.as.logical = FALSE))
+        .binary.discrete.as.logical = TRUE))
       
       recombinator = suppressMessages(mosmafs::combine.operators(private$param.set,
         numeric = ecr::setup(ecr::recSBX, p = 1),
@@ -325,7 +332,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         discrete = ecr::setup(mosmafs::recPCrossover, p = 1),
         logical = ecr::setup(mosmafs::recPCrossover, p = 1),
         use.orig = ecr::setup(mosmafs::recPCrossover, p = self$p.rec.gen),
-        .binary.discrete.as.logical = FALSE))
+        .binary.discrete.as.logical = TRUE))
       
       overall.mutator = ecr::makeMutator(function(ind) {
         transformToOrig(mutator(ind), x.interest, delete.use.orig = FALSE, 
@@ -375,7 +382,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       private$ecrresults = ecrresults
       pareto.set.l = lapply(private$ecrresults$pareto.set, function(x)
         mosmafs::valuesFromNames(private$param.set, x))
-      results = listToDf(ecrresults$pareto.set)
+      results = listToDf(pareto.set.l)
       cat("run finished\n")
       return(results)
     },
