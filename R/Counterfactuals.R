@@ -10,14 +10,13 @@
 #' \preformatted{
 #' counterfactual = Counterfactuals$new(predictor, x.interest = NULL, target = NULL, 
 #' epsilon = NULL, fixed.features = NULL, max.changed = NULL, mu = 50, 
-#' nr.generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, p.rec.gen = 0.7,
-#' subset.results = FALSE, n.solutions = NULL)
+#' nr.generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, p.rec.gen = 0.7)
 #' 
 #' plot(counterfactual)
 #' counterfactual$results
 #' print(counterfactual)
 #' counterfactual$explain(x.interest, target)
-#' counterfactuals$continueSearch(nr.generations)
+#' counterfactuals$continue_search(nr.generations)
 #' }
 #' 
 #' @section Arguments: 
@@ -39,10 +38,6 @@
 #' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
 #' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene}
-#' \item{subset.results:}{logical(1)\cr Indicator if results should be subset according to 
-#' crowding distance.}
-#' \item{nr.solutions:}{integer(1)\cr Number of individuals that are selected in 
-#' subsetting process. Ignored if subset.results = FALSE}
 #' }
 #' 
 #' @section Details:
@@ -73,10 +68,6 @@
 #' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
 #' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene}
-#' \item{subset.results:}{logical(1)\cr Indicator if results should be subset according to 
-#' crowding distance.}
-#' \item{nr.solutions:}{integer(1)\cr Number of individuals that are selected in 
-#' subsetting process. Ignored if subset.results = FALSE}
 #' }
 #' 
 #' @section Methods:
@@ -158,21 +149,25 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     p.rec  = NULL,
     p.mut.gen  = NULL,
     p.rec.gen  = NULL,
-    subset.results = NULL,
-    nr.solutions = NULL,
+    log = NULL,
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
       mu = 50, nr.generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, 
-      p.rec.gen = 0.7, subset.results = FALSE, nr.solutions = NULL) {
+      p.rec.gen = 0.7) {
+      
+      super$initialize(predictor = predictor)
+      fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
       
       # can be missing
       checkmate::assert_data_frame(x.interest, null.ok = TRUE)
       checkmate::assert_numeric(target, null.ok = TRUE, min.len = 1, 
         max.len = 2, any.missing = FALSE)
       checkmate::assert_number(epsilon, null.ok = TRUE)
-      checkmate::assert_character(fixed.features, null.ok = TRUE)
       checkmate::assert_integerish(max.changed, null.ok = TRUE, len = 1)
-      checkmate::assert_integerish(nr.solutions, null.ok = TRUE)
+      if (!is.null(fixed.features) & class(fixed.features) == "numeric") {
+        fixed.features = self$predictor$data$feature.names[fixed.features]
+      }
+      checkmate::assert_character(fixed.features, null.ok = TRUE)
       
       # should be here
       checkmate::assert_integerish(mu, lower = 1)
@@ -181,16 +176,11 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_number(p.rec, lower = 0, upper = 1)
       checkmate::assert_number(p.mut.gen, lower = 0, upper = 1)
       checkmate::assert_number(p.rec.gen, lower = 0, upper = 1)
-      checkmate::assert_logical(subset.results)
       
-      if (subset.results && is.null(nr.solutions)) {
-        stopf('argument "nr.solutions" is missing, with no default')
-      }
       # assign
-      super$initialize(predictor = predictor)
       x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
       if (!is.null(x.interest)) {
-        private$set.x.interest(x.interest)
+        private$set_x_interest(x.interest)
       }
       self$target = target
       self$epsilon = epsilon
@@ -202,12 +192,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$p.rec = p.rec 
       self$p.mut.gen = p.mut.gen
       self$p.rec.gen = p.rec.gen
-      self$subset.results = subset.results
-      self$nr.solutions = nr.solutions
       
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
-        params = makeParamlist(predictor$data$get.x()))
+        params = make_paramlist(predictor$data$get.x()))
       
       # Extract info from input.data
       private$range = ParamHelpers::getUpper(private$param.set) - 
@@ -223,11 +211,28 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_numeric(target, min.len = 1, 
         max.len = 2, any.missing = FALSE)
       self$target = target
-      private$set.x.interest(x.interest)
+      private$set_x_interest(x.interest)
       private$flush()
       private$run()
     },
-    plotStatistics = function(range = FALSE) {
+    subset_results = function(nr.solutions) {
+      if (nr.solutions > nrow(self$results$counterfactuals)) {
+        warning("nr.solutions > number of elements in results, was set to 
+          number of solutions in results")
+        nr.solutions = nrow(self$results$counterfactuals)
+      }
+      assert_integerish(nr.solutions, lower = 1)
+      idx = getDiverseSolutions(self$results$counterfactuals[, private$obj.names],
+        self$results$counterfactuals[, self$predictor$data$feature.names], 
+        private$range, nr.solutions)
+      results.subset = self$results
+      results.subset$counterfactuals = results.subset$counterfactuals[idx, ]
+      rownames(results.subset$counterfactuals) = NULL
+      results.subset$counterfactuals.diff = results.subset$counterfactuals.diff[idx,]
+      rownames(results.subset$counterfactuals.diff) = NULL
+      return(results.subset)
+    },
+    plot_statistics= function(range = FALSE) {
       min.obj = c("gen", "dist.target.min", 
         "dist.x.interest.min", "nr.changed.min")     
       mean.obj = c("gen", "dist.target.mean", 
@@ -236,10 +241,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         "fitness.spacing", "population.div")
       nameList = list(min.obj, mean.obj, eval)
       if (range) {
-        log = mlr::normalizeFeatures(self$results$log, method = "range", 
+        log = mlr::normalizeFeatures(self$log, method = "range", 
           cols = names(cf$results$log)[!names(cf$results$log) %in% c("gen", "state")])
       } else {
-        log = self$results$log
+        log = self$log
       }
       p = lapply(nameList, function(nam) {
         Sys.sleep(0.5)
@@ -249,24 +254,23 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             ylab("value"))
       })
     },
-    continueSearch = function(generations) {
+    continue_search = function(generations) {
       private$ecrresults = continueEcr(ecr.object = private$ecrresults, generations = generations)
       self$results = private$aggregate()    
     },
-    calculateHV = function() {
-      return(self$results$log$fitness.domHV[self$nr.generations])
+    calculate_hv = function() {
+      return(self$log$fitness.domHV[self$nr.generations])
     }
   ), 
   private = list(
-    feature.names = NULL,
+    featurenames = NULL,
     range = NULL,
     ref.point = NULL,
     sdev = NULL,
     param.set= NULL,
     ecrresults = NULL,
-    labels = NULL,
-    log = NULL,
-    set.x.interest = function(x.interest) {
+    obj.names = c("dist.target", "dist.x.interest", "nr.changed"),
+    set_x_interest = function(x.interest) {
       assert_data_frame(x.interest, any.missing = FALSE, all.missing = FALSE, 
         nrows = 1, null.ok = FALSE)
       if(any(!(self$predictor$data$feature.names %in% colnames(x.interest)))) {
@@ -292,7 +296,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       upper = self$x.interest[names(private$sdev)] + private$sdev
       lower.ps = pmax(ParamHelpers::getLower(private$param.set), lower)
       upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper) 
-      ps.initialize = ParamHelpers::makeParamSet(params = makeParamlist(
+      ps.initialize = ParamHelpers::makeParamSet(params = make_paramlist(
         self$predictor$data$get.x(), 
         lower = lower.ps, 
         upper = upper.ps)
@@ -305,7 +309,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       #%%%%%%%%%%%%%%%%%%%%
       initial.pop = lapply(initial.pop, function(x) {
-        x = transformToOrig(x, x.interest, delete.use.orig = FALSE, 
+        x = transform_to_orig(x, x.interest, delete.use.orig = FALSE, 
           fixed.features = self$fixed.features, max.changed = self$max.changed)
       })
       
@@ -314,16 +318,17 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         has.simple.signature = FALSE, par.set = private$param.set, n.objectives = 3, 
         noisy = TRUE, ref.point = private$ref.point,
         fn = function(x, fidelity = NULL) {
-          fitness.fun(x, x.interest = x.interest, target = self$target, 
+          fitness_fun(x, x.interest = self$x.interest, target = self$target, 
             predictor = self$predictor,
             range = private$range, param.set = private$param.set)
         })
       
+      fn = setMosmafsVectorized(fn)
       n.objectives = smoof::getNumberOfObjectives(fn) 
       
       # Define operators based on parameterset private$param.set
       # Messages can be ignored
-      sdev.l = sdevToList(private$sdev, private$param.set)
+      sdev.l = sdev_to_list(private$sdev, private$param.set)
       mutator = suppressMessages(mosmafs::combine.operators(private$param.set,
         numeric = ecr::setup(mosmafs::mutGaussScaled, p = 1, sdev = sdev.l$numeric),
         integer = ecr::setup(mosmafs::mutGaussIntScaled, p = 1, sdev = sdev.l$integer),
@@ -343,21 +348,21 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         .binary.discrete.as.logical = TRUE))
       
       overall.mutator = ecr::makeMutator(function(ind) {
-        transformToOrig(mutator(ind), x.interest, delete.use.orig = FALSE, 
+        transform_to_orig(mutator(ind), x.interest, delete.use.orig = FALSE, 
           fixed.features = self$fixed.features, max.changed = self$max.changed)
       }, supported = "custom")
       
       overall.recombinator <- ecr::makeRecombinator(function(inds, ...) {
         inds <- recombinator(inds)
         do.call(wrapChildren, lapply(inds, function(x) { 
-          transformToOrig(x, x.interest, delete.use.orig = FALSE, 
+          transform_to_orig(x, x.interest, delete.use.orig = FALSE, 
             fixed.features = self$fixed.features, max.changed = self$max.changed) 
         }))
       }, n.parents = 2, n.children = 2)
       
       parent.selector = ecr::selSimple
       
-      survival.selector = ecr::setup(selNondom, 
+      survival.selector = ecr::setup(select_nondom, 
         epsilon = self$epsilon, 
         consider.diverse.solutions = TRUE, 
         extract.duplicates = TRUE)
@@ -382,35 +387,29 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         mutator = overall.mutator,
         recombinator = overall.recombinator, generations = self$nr.generations,
         parent.selector = parent.selector,
-        survival.strategy = selectDiverse,
+        survival.strategy = select_diverse,
         survival.selector = survival.selector,
         p.recomb = self$p.rec,
         p.mut = self$p.mut, log.stats = log.stats)
       
       private$ecrresults = ecrresults
-      pareto.set.l = lapply(private$ecrresults$pareto.set, function(x)
-        mosmafs::valuesFromNames(private$param.set, x))
-      results = listToDf(pareto.set.l)
+      # pareto.set.l = lapply(private$ecrresults$pareto.set, function(x)
+      #   mosmafs::valuesFromNames(private$param.set, x))
+      results = mosmafs::listToDf(ecrresults$pareto.set, private$param.set)
+      results[, grepl("use.orig", names(results))] = NULL
       cat("run finished\n")
       return(results)
     },
-    aggregate = function(subset.results = self$subset.results) {
+    aggregate = function() {
       
+      # Fill results list
       pareto.front = private$ecrresults$pareto.front
-      names(pareto.front) = c("dist.target", "dist.x.interest", "nr.changed")
-
-      if (subset.results) {
-        idx = getDiverseSolutions(pareto.front, private$dataDesign, private$range, 
-            self$nr.solutions)
-        message("only a subset of solutions is extracted based on diversity measure")
-      } else {
-        idx = 1:nrow(private$dataDesign)
-      }
-      pareto.set = private$dataDesign[idx, ]
-      pareto.front = pareto.front[idx, ]
+      names(pareto.front) = private$obj.names
       
-      pareto.set.diff = getDiff(pareto.set, self$x.interest)
-      pred = private$qResults[idx,1]
+      pareto.set = private$dataDesign
+      
+      pareto.set.diff = get_diff(pareto.set, self$x.interest)
+      pred = private$qResults
       
       pareto.set.pf = cbind(pareto.set, pred, pareto.front)
       pareto.set.pf = pareto.set.pf[order(pareto.set.pf$dist.target),]
@@ -419,11 +418,11 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pareto.set.diff.pf = pareto.set.diff.pf[order(pareto.set.diff.pf$dist.target),]
       rownames(pareto.set.diff.pf) = NULL
       
-      
-      log = mosmafs::getStatistics(private$ecrresults$log)
-      names(log)[2:7] = c("dist.target.min", "dist.target.mean", 
-        "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
-        "nr.changed.mean")
+      results = list()
+      results$counterfactuals = pareto.set.pf
+      results$counterfactuals.diff = pareto.set.diff.pf
+
+      # Add diversity to log data frame
       pop = mosmafs::getPopulations(private$ecrresults$log)
       div = unlist(lapply(pop, 
         FUN = function(x) {
@@ -432,41 +431,31 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             k$use.orig = NULL
             return(k)
           })
-          dis = StatMatch::gower.dist(data.x = listToDf(pop_gen), 
+          dis = StatMatch::gower.dist(data.x = list_to_df(pop_gen), 
             rngs = private$range)
           single.dist = dis[lower.tri(dis)]
           mean.dist = mean(single.dist)
           pop.div = sum(abs(single.dist - mean.dist)/length(pop_gen))
         }))
+      log = mosmafs::getStatistics(private$ecrresults$log)
       log$population.div = div
-      
-      # private$results.orig$counterfactuals = pareto.set.pf.pf
-      # private$results.orig$counterfactuals.diff = pareto.set.diff.pf
-      # private$results.orig$log = log
-      diffs = pareto.set.diff.pf
-      diffs = diffs[, !(names(diffs) %in% c("dist.target", 
-        "dist.x.interest", "nr.changed", "pred"))]
-      labels = c()
-      for(i in 1:nrow(diffs)) {
-        names = names(diffs[i,])[diffs[i,] != 0]
-        lab = diffs[i, names]
-        lab = paste(paste(names, round(lab, 3)), collapse = " & ")
-        labels = c(labels, lab)
-      }
-      private$labels = labels
-      results = list()
-      results$counterfactuals = roundDF(pareto.set.pf, 3)
-      results$counterfactuals.diff = roundDF(pareto.set.diff.pf, 3)
-      results$log = log
-      # results$counterfactuals = roundDF(pareto.set.pf, 3)
-      # results$counterfactuals.diff = roundDF(pareto.set.diff.pf, 3)
-      # results$log = roundDF(log, 3)
+      names(log)[2:7] = c("dist.target.min", "dist.target.mean", 
+        "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
+        "nr.changed.mean")
+      self$log = log
+
       cat("aggregate finished\n")
       return(results)
     },
-    generatePlot = function(labels = FALSE) {
-      result = self$results$counterfactuals
-      pf = result[, c("dist.target", "dist.x.interest", "nr.changed")]
+    generatePlot = function(labels = FALSE, decimal.points = 3, nr.solutions = NULL) {
+      assert_logical(labels)
+      assert_integerish(decimal.points, null.ok = !labels)
+      assert_integerish(nr.solutions, null.ok = TRUE)
+      results_diff = self$results$counterfactuals.diff
+      if (!is.null(nr.solutions)) {
+        results_diff = self$subset_results(nr.solutions)$counterfactuals.diff
+      }
+      pf = results_diff[, private$obj.names]
       
       p = ggplot(data = pf, aes(x=dist.target, y=dist.x.interest, 
         color = as.factor(nr.changed))) +
@@ -477,16 +466,33 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         guides(color=guide_legend(title="nr changed"))
       
       if (labels) {
-        p = p + ggrepel::geom_label_repel(aes(label = private$labels),
+        diffs = results_diff[, !(names(results_diff) %in% c("dist.target", 
+          "dist.x.interest", "nr.changed", "pred"))]
+        labels = c()
+        for(i in 1:nrow(diffs)) {
+          names = names(diffs[i,])[diffs[i,] != 0]
+          lab = as.data.frame(diffs[i, names])
+          lab = paste(paste(names, round_df(lab, decimal.points)), collapse = " & ")
+          labels = c(labels, lab)
+        }
+        p = p + ggrepel::geom_label_repel(aes(label = labels),
           box.padding   = 0.35, 
           point.padding = 0.4, 
           show.legend = FALSE) 
       }
-      
-      print(p)
+      p
+    },
+    sanitize_feature = function(fixed.features, feature.names) {
+      if (is.numeric(fixed.features)) {
+        assert_numeric(fixed.features, lower = 1, upper = length(feature.names), 
+          null.ok = TRUE)
+        fixed.features = feature.names[fixed.features]
+      }
+      assert_character(fixed.features, null.ok = TRUE, unique = TRUE)
+      stopifnot(all(fixed.features %in% feature.names))
+      fixed.features
     }
-  )
-)
+))
 
 
 #' Plot Counterfactuals
@@ -496,7 +502,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' @param object  A Counterfactuals R6 object
 #' @param labels (logical(1)) Should the labels about the differences 
 #' from x.interest be assigned as labels to the points?
-#' @param range (logical(1)) Should the values be normalized to range [0, 1]?
+#' @param decimal.points (integer(1))
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Counterfactuals}
@@ -522,8 +528,9 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' plot(cf, labels = TRUE)
 #' }
 #' }
-plot.Counterfactuals = function(object, labels = FALSE) {
-  object$plot(labels = labels)
+#' @export
+plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.solutions = NULL) {
+  object$plot(labels = labels, decimal.points = decimal.points, nr.solutions = nr.solutions)
 }
 
 

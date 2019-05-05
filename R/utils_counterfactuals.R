@@ -8,7 +8,7 @@
 #' \item{input.data: }{(data.frame)\cr Training data}
 #' ....}
 #' 
-makeParamlist <- function(input.data, lower = NULL, upper = NULL, integers = NULL) {
+make_paramlist <- function(input.data, lower = NULL, upper = NULL, integers = NULL) {
   
   checkmate::assert_data_frame(input.data)
   checkmate::assert_numeric(lower, null.ok = TRUE, any.missing = FALSE)
@@ -39,7 +39,7 @@ makeParamlist <- function(input.data, lower = NULL, upper = NULL, integers = NUL
     }
     
     else { 
-      ParamHelpers::makeDiscreteParam(colnam, values = charToFactor(unique(col))) 
+      ParamHelpers::makeDiscreteParam(colnam, values = char_to_factor(unique(col))) 
     } 
   })
   l[[length(l)+1]] = ParamHelpers::makeLogicalVectorParam("use.orig", len = ncol)
@@ -53,7 +53,7 @@ makeParamlist <- function(input.data, lower = NULL, upper = NULL, integers = NUL
 #' \item{sdev: }{(numeric)\cr Vector of standard deviations}
 #' ....}
 
-sdevToList = function(sdev, param.set) {
+sdev_to_list = function(sdev, param.set) {
   paramtypes <- gsub("vector$", "", ParamHelpers::getParamTypes(param.set))
   param.ids <- ParamHelpers::getParamIds(param.set)
   needed_type = c("numeric", "integer")
@@ -65,7 +65,7 @@ sdevToList = function(sdev, param.set) {
 
 
 
-listToDf = function(x) {
+list_to_df = function(x) {
   x = lapply(x, function(e) {
     e$use.orig = NULL 
     return(e)
@@ -77,7 +77,7 @@ listToDf = function(x) {
 }
 
 
-getDiff = function(pareto.set, x.interest, digits = NULL) {
+get_diff = function(pareto.set, x.interest, digits = NULL) {
   assertDataFrame(pareto.set, ncol = ncol(x.interest))
   assertDataFrame(x.interest, nrow = 1)
   
@@ -104,7 +104,7 @@ getDiff = function(pareto.set, x.interest, digits = NULL) {
 
 # Transform features of solution candidates to value of x.interest 
 # where use.orig is set to TRUE
-transformToOrig = function(x, x.interest, delete.use.orig = FALSE, 
+transform_to_orig = function(x, x.interest, delete.use.orig = FALSE, 
   fixed.features = NULL, max.changed = NULL) {
   types = lapply(x[names(x)!="use.orig"], class)
   
@@ -135,14 +135,14 @@ transformToOrig = function(x, x.interest, delete.use.orig = FALSE,
 }
 
 # Transmit levels of factor variable to parameter set
-charToFactor<- function(levels){
+char_to_factor<- function(levels){
   sapply(as.character(levels), function(x)
     factor(x, levels=levels),
     simplify = FALSE)
 }
 
 
-roundDF <- function(df, digits) {
+round_df <- function(df, digits) {
   nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
   df[,nums] <- round(df[,nums], digits = digits)
   return(df)
@@ -152,7 +152,7 @@ roundDF <- function(df, digits) {
 
 # new version separated by each front
 # 
-getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
+get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
   
   n = nrow(pareto.set)
   max = apply(fitness, 2, max)
@@ -195,7 +195,7 @@ getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
 
 
 ### Oldest Version: Sort for y1
-# getDiverseSolutions = function(fitness, pareto.set, range) {
+# get_diverse_solutions = function(fitness, pareto.set, range) {
 #   checkmate::assert_data_frame(fitness, any.missing = FALSE, nrows = nrow(pareto.set))
 #   checkmate::assertDataFrame(pareto.set, any.missing = FALSE, nrows = nrow(fitness))
 #   
@@ -230,7 +230,7 @@ getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
 
 
 # Old Version 
-# getDiverseSolutions = function(fitness, pareto.set, range, nr.solutions) {
+# get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
 # 
 #   n = nrow(pareto.set)
 #   g.dist = StatMatch::gower.dist(pareto.set, rngs = range)

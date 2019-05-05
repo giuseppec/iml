@@ -1,40 +1,40 @@
-evaluateFitness = function (control, inds, target, x.interest, range,
-  param.set, predictor){
-  assertList(inds)
-  assertClass(control, "ecr_control")
+# evaluateFitness = function (control, inds, target, x.interest, range,
+#   param.set, predictor){
+#   assertList(inds)
+#   assertClass(control, "ecr_control")
+# 
+#   inds.trans = lapply(inds, function(x) {
+#     x$use.orig  = NULL
+#     as.data.frame(x, stringsAsFactors = FALSE)
+#   })
+#   inds.char = do.call(rbind, inds.trans)
+#   
+#   if ("discrete" %in% ParamHelpers::getParamTypes(param.set)) {
+#     inds.factor = lapply(inds.trans, function(x) mosmafs::valuesFromNames(param.set, x))
+#     inds.factor = do.call(rbind, inds.factor)
+#   }
+#   else {
+#     inds.factor = inds.char
+#   }
+#   
+#   # Objective Functions
+#   pred = predictor$predict(newdata = inds.factor)[[1]]
+#   q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]), 
+#     0, abs(pred - target))
+#   q2 = StatMatch::gower.dist(data.x = x.interest, data.y = inds.char, rngs = range)[1,]
+#   q3 = rowSums(inds.char != x.interest[rep(row.names(x.interest), nrow(inds.char)),])
+#   
+#   fitness = mapply(function(a,b,c) {
+#     c(a,b,c)
+#   }, q1, q2, q3)
+#   
+#   fitness = ecr:::makeFitnessMatrix(fitness, control)
+#   return(fitness)
+# }
 
-  inds.trans = lapply(inds, function(x) {
-    x$use.orig  = NULL
-    as.data.frame(x, stringsAsFactors = FALSE)
-  })
-  inds.char = do.call(rbind, inds.trans)
-  
-  if ("discrete" %in% ParamHelpers::getParamTypes(param.set)) {
-    inds.factor = lapply(inds.trans, function(x) mosmafs::valuesFromNames(param.set, x))
-    inds.factor = do.call(rbind, inds.factor)
-  }
-  else {
-    inds.factor = inds.char
-  }
-  
-  # Objective Functions
-  pred = predictor$predict(newdata = inds.factor)[[1]]
-  q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]), 
-    0, abs(pred - target))
-  q2 = StatMatch::gower.dist(data.x = x.interest, data.y = inds.char, rngs = range)[1,]
-  q3 = rowSums(inds.char != x.interest[rep(row.names(x.interest), nrow(inds.char)),])
-  
-  fitness = mapply(function(a,b,c) {
-    c(a,b,c)
-  }, q1, q2, q3)
-  
-  fitness = ecr:::makeFitnessMatrix(fitness, control)
-  return(fitness)
-}
 
 
-
-selectDiverse = function (control, population, offspring, fitness, 
+select_diverse = function (control, population, offspring, fitness, 
   fitness.offspring) {
   assertClass(control, "ecr_control")
   assertClass(control$selectForSurvival, "ecr_selector")
@@ -59,7 +59,7 @@ selectDiverse = function (control, population, offspring, fitness,
 
 
 
-selNondom = ecr::makeSelector(
+select_nondom = ecr::makeSelector(
   selector = function(fitness, n.select, population, 
     epsilon = .Machine$double.xmax, 
     extract.duplicates = TRUE,
@@ -127,13 +127,8 @@ selNondom = ecr::makeSelector(
     
     if (n.diff > 0L) {
       idxs.first.nonfit = idxs.by.rank[[front.first.nonfit]]
-      if (!consider.diverse.solutions) {
-        cds = ecr:::computeCrowdingDistanceR(fitness[1:2, idxs.first.nonfit])
-      }
-      if (consider.diverse.solutions) {
-        cds = computeCrowdingDistanceR(as.matrix(fitness[, idxs.first.nonfit]), 
-          population[idxs.first.nonfit]) 
-      }
+      cds = computeCrowdingDistanceR(as.matrix(fitness[, idxs.first.nonfit]), 
+        population[idxs.first.nonfit]) 
       idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
       new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
     }
@@ -159,7 +154,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
   dat = lapply(candidates, function(x) {
     x$use.orig = NULL
     return(x)})
-  dat = listToDf(candidates)
+  dat = list_to_df(candidates)
   
   numeric.ind = sapply(dat, is.numeric)
   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
@@ -222,7 +217,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
 #   dat = lapply(candidates, function(x) {
 #     x$use.orig = NULL
 #     return(x)})
-#   dat = listToDf(candidates)
+#   dat = list_to_df(candidates)
 # 
 #   numeric.ind = sapply(dat, is.numeric)
 #   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
@@ -286,7 +281,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
 #   dat = lapply(candidates, function(x) {
 #     x$use.orig = NULL
 #     return(x)})
-#   dat = listToDf(candidates)
+#   dat = list_to_df(candidates)
 # 
 #   numeric.ind = sapply(dat, is.numeric)
 #   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
@@ -350,7 +345,7 @@ computeCrowdingDistanceR = function(fitness, candidates) {
 #   dat = lapply(candidates, function(x) {
 #     x$use.orig = NULL
 #     return(x)})
-#   dat = listToDf(candidates)
+#   dat = list_to_df(candidates)
 # 
 #   numeric.ind = sapply(dat, is.numeric)
 #   range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))

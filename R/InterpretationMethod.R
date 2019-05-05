@@ -73,8 +73,8 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
         private$qResults = private$run.prediction(private$dataDesign)
         # AGGREGATE measurements
         results = private$aggregate()
-        self$results = tryCatch(data.frame(results), 
-          error = function(e) results)
+        if (!class(results) == "list") self$results = data.frame(results)
+        else self$results = results
         private$finished = TRUE
       }
     },
