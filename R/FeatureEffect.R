@@ -4,26 +4,34 @@
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Partial
-#' 
-#' @seealso 
-#' \link{FeatureEffect} 
+#'
+#' @seealso
+#' \link{FeatureEffect}
 NULL
 
 #' @export
-Partial = R6::R6Class("Partial", 
+Partial = R6::R6Class("Partial",
   inherit = FeatureEffect,
   public = list(
-    initialize = function(predictor, feature, aggregation = "pdp",ice = TRUE, center.at = NULL, grid.size = 20) {
+    initialize = function(predictor,
+                          feature,
+                          aggregation = "pdp",
+                          ice = TRUE,
+                          center.at = NULL,
+                          grid.size = 20) {
       assert_choice(aggregation, c("ale", "pdp", "none"))
       assert_logical(ice)
-      if(length(feature) == 2) ice = FALSE
-      .Deprecated("FeatureEffect", "iml", "The FeatureEffect class replaces the Partial class. Partial will be removed in future versions.")
-      if(aggregation == "none") method = "ice"
-      if((aggregation == "pdp") & ice) method = "pdp+ice"
-      if((aggregation == "pdp") & !ice) method = "pdp"
-      if(aggregation == "ale") method = "ale"
-      super$initialize(predictor=predictor, feature=feature, method = method, center.at = center.at, 
-        grid.size = grid.size)
+      if (length(feature) == 2) ice = FALSE
+      .Deprecated("FeatureEffect", "iml", "The FeatureEffect class replaces
+          the Partial class. Partial will be removed in future
+          versions.")
+      if (aggregation == "none") method = "ice"
+      if ( (aggregation == "pdp") & ice) method = "pdp+ice"
+      if ( (aggregation == "pdp") & !ice) method = "pdp"
+      if (aggregation == "ale") method = "ale"
+      super$initialize(predictor = predictor, feature = feature,
+               method = method, center.at = center.at,
+               grid.size = grid.size)
     }))
 
 
@@ -209,39 +217,44 @@ NULL
 
 #' @export
 
-FeatureEffect = R6::R6Class("FeatureEffect", 
+FeatureEffect = R6::R6Class("FeatureEffect",
   inherit = InterpretationMethod,
   public = list(
     ice = NULL,
     aggregation = NULL,
-    grid.size = NULL, 
+    grid.size = NULL,
     feature.name = NULL,
-    n.features = NULL, 
+    n.features = NULL,
     feature.type = NULL,
     method  = NULL,
-    initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20) {
-      feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
-      assert_numeric(feature_index, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
+    initialize = function(predictor, feature, method = "ale", center.at = NULL,
+              grid.size = 20) {
+      feature_index = private$sanitize.feature(feature,
+                           predictor$data$feature.names)
+      assert_numeric(feature_index, lower = 1,
+             upper = predictor$data$n.features, min.len = 1,
+             max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_number(center.at, null.ok = TRUE)
       assert_choice(method, c("ale", "pdp", "ice", "pdp+ice"))
       self$method = method
-      if (length(feature_index) == 2) { 
+      if (length(feature_index) == 2) {
         assert_false(feature_index[1] == feature_index[2])
         center.at = NULL
-        if(method %in% c("ice", "pdp+ice")) {
+        if (method %in% c("ice", "pdp+ice")) {
           stop("ICE is not implemented for two features.")
-        } 
+        }
       }
       private$anchor.value = center.at
       super$initialize(predictor)
       private$set_feature_from_index(feature_index)
-      if(length(feature_index) == 1 & length(unique(self$predictor$data$get.x()[[feature_index]])) == 1) 
+      if (length(feature_index) == 1 &
+      length(unique(self$predictor$data$get.x()[[feature_index]])) == 1)
         stop("feature has only one unique value")
       private$set.grid.size(grid.size)
       private$grid.size.original = grid.size
       private$run(self$predictor$batch.size)
-    }, 
+    },
     set.feature = function(feature) {
       feature = private$sanitize.feature(feature, self$predictor$data$feature.names)
       private$flush()

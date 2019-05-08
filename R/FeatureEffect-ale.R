@@ -43,7 +43,7 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
     by = ".class"]
   # centering the ALEs
   deltas.accumulated = merge(deltas.accumulated, fJ0, all.x = TRUE, by = ".class")
-  fJ = deltas.accumulated[, list(.ale = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"), 
+  fJ = deltas.accumulated[, list(.ale = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"),
     by = ".class"]
   grid.dt$.id = 1:nrow(grid.dt)
   fJ = merge(fJ, grid.dt, by = ".id")
