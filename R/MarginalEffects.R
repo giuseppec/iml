@@ -146,6 +146,7 @@ MarginalEffects = R6::R6Class("MarginalEffects",
     step.size = NULL,
     feature.name = NULL,
     feature.type = NULL,
+    n.features = NULL,
     method  = NULL,
     initialize = function(predictor, feature, step.size, method = "forward", grid.size = 4, h = 0.001) {
       feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
@@ -153,7 +154,6 @@ MarginalEffects = R6::R6Class("MarginalEffects",
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_numeric(step.size, len = length(feature))
       assert_numeric(h, len = 1)
-      assert_number(center.at, null.ok = TRUE)
       assert_choice(method, c("forward", "derivative", "derivative2"))
       self$method = method
       super$initialize(predictor)
@@ -164,26 +164,53 @@ MarginalEffects = R6::R6Class("MarginalEffects",
   ),
   private = list(
     intervene = function(){
-    },
-    aggregate = function(){
-    },
-    run = function(n) {
       private$dataSample = private$getData()
       if(self$method == "forward") {
+        sample2 = private$dataSample
+        sample2[, self$feature.name] = 
+		sample2[, self$feature.name, with = FALSE] + self$step.size
+        private$dataSample = rbind(private$dataSample, sample2)
+      } else if (self$method == "derivative"){
         # TODO
-	# Create second dataset with added step sizes
-	# send to predict function 
-      } else if (self$method = "derivative"){
-        # TODO
-      } else if (self$method = "derivative2"){
+	stop("not yet implemented")
+      } else if (self$method == "derivative2"){
 	# TODO
+	stop("not yet implemented")
       }
+    },
+    aggregate = function(){
+      # Difference between prediction and forward prediction
+      original_index = 1:nrow(private$dataSample)
+      findex = setdiff(1:nrow(private$dataDesign), original_index)
+      predictions = self$qResults[original_index,]
+      fpredictions = self$qResults[findex,]
+      self$results = fpredictions - predictions
+      self$results = cbind(self$results, 
+			   private$dataDesign[original_index, self$feature.name, with = FALSE],
+			   private$dataDesign[findex, self$feature.name, with = FALSE])
     },
     printParameters = function() {
       cat("features:", paste(sprintf("%s[%s]", 
         self$feature.name, self$feature.type), collapse = ", "))
       cat("\nstep sizes:", paste(self$step.size, collapse = "x"))
     },
+    sanitize.feature = function(feature, feature.names) {
+      if (is.character(feature)) {
+        feature.char = feature
+        stopifnot(all(feature %in% feature.names))
+        feature = which(feature.char[1] == feature.names)
+        if (length(feature.char) == 2) {
+          feature = c(feature, which(feature.char[2] == feature.names))
+        }
+      }
+      feature
+    },
+    set_feature_from_index = function(feature.index) {
+      self$n.features = length(feature.index)
+      self$feature.type = private$sampler$feature.types[feature.index]
+      self$feature.name = private$sampler$feature.names[feature.index]
+    },
+
     generatePlot = function(mse = FALSE) {
       # TODO: Plot distribution of MarginalEffects
     } 
@@ -213,7 +240,7 @@ MarginalEffects = R6::R6Class("MarginalEffects",
 #' # Plot the results directly
 #' plot(eff)
 #' }
-plot.FeatureEffect = function(x, mse = FALSE) {
+plot.MarginalEffects = function(x, mse = FALSE) {
   assert_logical(mse)
   x$plot(mse = mse)
 }
