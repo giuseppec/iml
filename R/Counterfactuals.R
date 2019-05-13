@@ -10,13 +10,13 @@
 #' \preformatted{
 #' counterfactual = Counterfactuals$new(predictor, x.interest = NULL, target = NULL, 
 #' epsilon = NULL, fixed.features = NULL, max.changed = NULL, mu = 50, 
-#' nr.generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, p.rec.gen = 0.7)
+#' generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, p.rec.gen = 0.7)
 #' 
 #' plot(counterfactual)
 #' counterfactual$results
 #' print(counterfactual)
 #' counterfactual$explain(x.interest, target)
-#' counterfactuals$continue_search(nr.generations)
+#' counterfactuals$continue_search(generations)
 #' }
 #' 
 #' @section Arguments: 
@@ -27,13 +27,14 @@
 #' \item{x.interest: }{(data.frame)\cr  Single row with the instance to be explained.}
 #' \item{target: }{(numeric(1)|numeric(2))\cr Desired outcome either a single numeric or 
 #' a vector of two numerics, to define a desired interval of outcome.}
-#' \item{epsilon: }{(numeric(1))\cr Maximal accepted absolute distance from target.}
+#' \item{epsilon: }{(numeric(1))\cr Soft constraint. If chosen, candidates, whose
+#' distance between their prediction and target exceeds epsilon, are penalized.}
 #' \item{fixed.features: }{(character)\cr 
 #' Feature names for which no deviation from values of x.interest are allowed.} 
 #' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.}
 #' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
 #' number of nearly generated individuals in each generation.}
-#' \item{nr.generations: }{(integer(1))\cr Number of generations.}
+#' \item{generations: }{(integer(1))\cr Number of generations.}
 #' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child}
 #' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
@@ -63,7 +64,7 @@
 #' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.}
 #' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
 #' number of nearly generated individuals in each generation.}
-#' \item{nr.generations: }{(integer(1))\cr Number of generations.}
+#' \item{generations: }{(integer(1))\cr Number of generations.}
 #' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child}
 #' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
@@ -109,7 +110,7 @@
 #'x.interest = X[1,]
 #'target = 30
 #'counterfactual = Counterfactuals$new(mod, x.interest = x.interest, target = target, 
-#'  nr.generations = 100)
+#'  generations = 100)
 #'counterfactual
 #'
 #' # Look at the results in a table
@@ -144,16 +145,20 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     fixed.features   = NULL,
     max.changed  = NULL,
     mu  = NULL,
-    nr.generations  = NULL,
+    generations  = NULL,
     p.mut  = NULL,
     p.rec  = NULL,
     p.mut.gen  = NULL,
+    p.mut.use.orig = NULL, 
     p.rec.gen  = NULL,
+    p.rec.use.orig = NULL,
+    use.ice.curve.var = NULL,
     log = NULL,
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
-      mu = 50, nr.generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, 
-      p.rec.gen = 0.7) {
+      mu = 50, generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.7,
+      p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
+      use.ice.curve.var = FALSE) {
       
       super$initialize(predictor = predictor)
       fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
@@ -171,7 +176,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       # should be here
       checkmate::assert_integerish(mu, lower = 1)
-      checkmate::assert_integerish(nr.generations, lower = 1)
+      assert(
+        checkInt(generations, lower = 0),
+        checkList(generations, types = "function")
+      )
       checkmate::assert_number(p.mut, lower = 0, upper = 1)
       checkmate::assert_number(p.rec, lower = 0, upper = 1)
       checkmate::assert_number(p.mut.gen, lower = 0, upper = 1)
@@ -187,11 +195,14 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$max.changed = max.changed
       self$fixed.features = fixed.features
       self$mu = mu
-      self$nr.generations = nr.generations
+      self$generations = generations
       self$p.mut = p.mut
       self$p.rec = p.rec 
       self$p.mut.gen = p.mut.gen
+      self$p.mut.use.orig = p.mut.use.orig
       self$p.rec.gen = p.rec.gen
+      self$p.rec.use.orig = p.rec.use.orig
+      self$use.ice.curve.var = use.ice.curve.var
       
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
@@ -204,7 +215,9 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         [ParamHelpers::getParamTypes(private$param.set) == "discrete"]]  = NA
       private$range = private$range[predictor$data$feature.names]
       private$sdev = apply(Filter(is.numeric, predictor$data$get.x()), 2, sd)
-      if (!is.null(x.interest) & !is.null(target)) private$run()
+      if (!is.null(x.interest) & !is.null(target)) {
+        private$run()
+      }
       cat("initialize finished\n")
     }, 
     explain = function(x.interest, target) {
@@ -217,12 +230,12 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     },
     subset_results = function(nr.solutions) {
       if (nr.solutions > nrow(self$results$counterfactuals)) {
-        warning("nr.solutions > number of elements in results, was set to 
-          number of solutions in results")
+        warning("nr.solutions > number of non-dominated solutions, was set to 
+          number of non-dominated solutions")
         nr.solutions = nrow(self$results$counterfactuals)
       }
       assert_integerish(nr.solutions, lower = 1)
-      idx = getDiverseSolutions(self$results$counterfactuals[, private$obj.names],
+      idx = get_diverse_solutions(self$results$counterfactuals[, private$obj.names],
         self$results$counterfactuals[, self$predictor$data$feature.names], 
         private$range, nr.solutions)
       results.subset = self$results
@@ -232,34 +245,55 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       rownames(results.subset$counterfactuals.diff) = NULL
       return(results.subset)
     },
-    plot_statistics= function(range = FALSE) {
-      min.obj = c("gen", "dist.target.min", 
+    plot_statistics = function(range = FALSE) {
+      min.obj = c("generation", "dist.target.min", 
         "dist.x.interest.min", "nr.changed.min")     
-      mean.obj = c("gen", "dist.target.mean", 
+      mean.obj = c("generation", "dist.target.mean", 
         "dist.x.interest.mean", "nr.changed.mean")
-      eval = c("gen", "fitness.domHV", "fitness.delta", 
+      eval = c("generation", "fitness.domHV", "fitness.delta", 
         "fitness.spacing", "population.div")
       nameList = list(min.obj, mean.obj, eval)
       if (range) {
         log = mlr::normalizeFeatures(self$log, method = "range", 
-          cols = names(cf$results$log)[!names(cf$results$log) %in% c("gen", "state")])
+          cols = names(cf$results$log)[!names(cf$results$log) %in% c("generation", "state")])
       } else {
         log = self$log
       }
       p = lapply(nameList, function(nam) {
-        Sys.sleep(0.5)
-        df = melt(log[,nam] , id.vars = 'gen', variable.name = 'legend')
-        print(
-          ggplot(df, aes(gen, value)) + geom_line(aes(colour = legend)) + 
-            ylab("value"))
+        df = melt(log[,nam] , id.vars = "generation", variable.name = "legend")
+        singlep = ggplot(df, aes(generation, value)) + geom_line(aes(colour = legend)) + 
+            ylab("value")
+        return(singlep)
       })
+      p
+    },
+    plot_search = function() {
+      pf.over.gen = lapply(seq_len(nrow(self$log)), 
+        FUN = function(i) {
+          pf.gen = as.data.frame(t(private$ecrresults$log$env$pop[[i]]$fitness))
+          names(pf.gen) = paste("y", 1:3, sep = "")
+          pf.gen$generation = i-1
+          pf.gen
+        })
+      
+      pf.over.gen.df = do.call(rbind, pf.over.gen)
+      
+      pfPlot = ggplot(data = pf.over.gen.df, aes(x=y1, y=y2, alpha = generation)) +
+        geom_point(col = "blue")+
+        xlab(private$obj.names[1]) +
+        ylab(private$obj.names[2])
+      
+      pfPlot
     },
     continue_search = function(generations) {
       private$ecrresults = continueEcr(ecr.object = private$ecrresults, generations = generations)
       self$results = private$aggregate()    
     },
     calculate_hv = function() {
-      return(self$log$fitness.domHV[self$nr.generations])
+      return(tail(self$log$fitness.domHV, 1))
+    }, 
+    calculate_diversity = function() {
+      return(tail(self$log$population.div, 1))
     }
   ), 
   private = list(
@@ -303,11 +337,22 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       )
       initial.pop = ParamHelpers::sampleValues(ps.initialize, self$mu, 
         discrete.names = TRUE)
+      if (self$use.ice.curve.var) {
+        ice.var = get_ICE_var(self$x.interest, self$predictor, private$param.set)
+        prob.use.orig = 1 - mlr::normalizeFeatures(as.data.frame(ice.var), 
+          method = "range", range = c(0.01, 0.99))
+        # distribution = function() vapply(t(prob.use.orig), FUN.VALUE = numeric(1), 
+        #   function(x) sample(c(0, length(initial.pop[[1]]$use.orig)), 1, prob = c(1-x, x)))
+        ilen = length(initial.pop[[1]]$use.orig)
+        distribution = function() rbinom(n = ilen, size = ilen, 
+          prob = t(prob.use.orig))
+        initial.pop = initSelector(initial.pop, vector.name = "use.orig", 
+          distribution = distribution)
+      }
       
       i = sapply(self$x.interest, is.factor)
       x.interest[i] = lapply(self$x.interest[i], as.character)
-      
-      #%%%%%%%%%%%%%%%%%%%%
+
       initial.pop = lapply(initial.pop, function(x) {
         x = transform_to_orig(x, x.interest, delete.use.orig = FALSE, 
           fixed.features = self$fixed.features, max.changed = self$max.changed)
@@ -330,21 +375,21 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       # Messages can be ignored
       sdev.l = sdev_to_list(private$sdev, private$param.set)
       mutator = suppressMessages(mosmafs::combine.operators(private$param.set,
-        numeric = ecr::setup(mosmafs::mutGaussScaled, p = 1, sdev = sdev.l$numeric),
-        integer = ecr::setup(mosmafs::mutGaussIntScaled, p = 1, sdev = sdev.l$integer),
-        #numeric = ecr::setup(custom.mutGauss, p = 1, sdev = sdev.l$numeric),
-        #integer = ecr::setup(custom.mutGaussInt, p = 1, sdev = sdev.l$integer),
-        discrete = ecr::setup(mosmafs::mutRandomChoice, p = 1),
-        logical = ecr::setup(ecr::mutBitflip, p = 1),
-        use.orig = ecr::setup(ecr::mutBitflip, p = self$p.mut.gen),
+        numeric = ecr::setup(mosmafs::mutGaussScaled, p = self$p.mut.gen, sdev = sdev.l$numeric),
+        integer = ecr::setup(mosmafs::mutGaussIntScaled, p = self$p.mut.gen, sdev = sdev.l$integer),
+        #numeric = ecr::setup(custom.mutGauss, p = self$p.mut.gen, sdev = sdev.l$numeric),
+        #integer = ecr::setup(custom.mutGaussInt, p = self$p.mut.gen, sdev = sdev.l$integer),
+        discrete = ecr::setup(mosmafs::mutRandomChoice, p = self$p.mut.gen),
+        logical = ecr::setup(ecr::mutBitflip, p = self$p.mut.gen),
+        use.orig = ecr::setup(ecr::mutBitflip, p = self$p.mut.use.orig),
         .binary.discrete.as.logical = TRUE))
       
       recombinator = suppressMessages(mosmafs::combine.operators(private$param.set,
-        numeric = ecr::setup(ecr::recSBX, p = 1),
-        integer = ecr::setup(mosmafs::recIntSBX, p = 1),
-        discrete = ecr::setup(mosmafs::recPCrossover, p = 1),
-        logical = ecr::setup(mosmafs::recPCrossover, p = 1),
-        use.orig = ecr::setup(mosmafs::recPCrossover, p = self$p.rec.gen),
+        numeric = ecr::setup(ecr::recSBX, p = self$p.rec.gen),
+        integer = ecr::setup(mosmafs::recIntSBX, p = self$p.rec.gen),
+        discrete = ecr::setup(mosmafs::recPCrossover, p = self$p.rec.gen),
+        logical = ecr::setup(mosmafs::recPCrossover, p = self$p.rec.gen),
+        use.orig = ecr::setup(mosmafs::recPCrossover, p = self$p.rec.use.orig),
         .binary.discrete.as.logical = TRUE))
       
       overall.mutator = ecr::makeMutator(function(ind) {
@@ -363,8 +408,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       parent.selector = ecr::selSimple
       
       survival.selector = ecr::setup(select_nondom, 
-        epsilon = self$epsilon, 
-        consider.diverse.solutions = TRUE, 
+        epsilon = self$epsilon,  
         extract.duplicates = TRUE)
       
       # Extract algorithm information with a log object
@@ -385,7 +429,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       # Compute counterfactuals
       ecrresults = mosmafs::slickEcr(fn, lambda = self$mu, population = initial.pop,
         mutator = overall.mutator,
-        recombinator = overall.recombinator, generations = self$nr.generations,
+        recombinator = overall.recombinator, generations = self$generations,
         parent.selector = parent.selector,
         survival.strategy = select_diverse,
         survival.selector = survival.selector,
@@ -439,9 +483,12 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         }))
       log = mosmafs::getStatistics(private$ecrresults$log)
       log$population.div = div
-      names(log)[2:7] = c("dist.target.min", "dist.target.mean", 
+      nam = c("generation", "dist.target.min", "dist.target.mean", 
         "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
         "nr.changed.mean")
+      names(log)[1:7] = nam
+      log = log[c("generation", "state", nam[2:7], "fitness.domHV", "fitness.delta", "fitness.spacing", 
+        "population.div")]
       self$log = log
 
       cat("aggregate finished\n")
@@ -521,7 +568,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' mod$predict(x.interest)
 #' target = 30
 #' cf = Counterfactuals$new(mod, x.interest = x.interest, target = target, 
-#'   mu = 50, nr.generations = 100)
+#'   mu = 50, generations = 100)
 #'
 #' # The results can be plotted
 #' plot(cf)

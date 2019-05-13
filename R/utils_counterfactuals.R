@@ -148,10 +148,48 @@ round_df <- function(df, digits) {
   return(df)
 }
 
-
+# Calculate ice curve variance over all features
+get_ICE_var = function(x.interest, mod, param.set) {
+  min.max = as.data.frame(rbind(getLower(param.set), 
+    getUpper(param.set)))
+  val = getValues(param.set)
+  val$use.orig = NULL
+  val.l = lapply(val, function(x) unlist(x, use.names = FALSE))
+  
+  values = c(as.list(min.max), val.l)
+  
+  sd.eff = sapply(names(x.interest), function(x){
+    get_ice_curve(x.interest, x, mod, values = values[[x]])
+  })
+  
+  return(sd.eff)
+  
+}
+# Ice curve variance per feature
+get_ice_curve = function(instance, feature, predictor, values, 
+  grid.size = 20) {
+  
+  # make grid of one feature
+  grid = iml:::get.grid.1D(feature = values, grid.size = grid.size, 
+    type = "equidist")
+  grid = as.data.frame(grid)
+  colnames(grid) = feature
+  
+  instance = instance[, !names(instance) %in% feature]
+  instance.df = instance[rep(row.names(instance), grid.size), ]
+  
+  grid.df = cbind.data.frame(instance.df, grid)
+  
+  # predict outcomes
+  #pred = predict(predictor, newdata = grid.df)$data$response
+  pred = predictor$predict(newdata = grid.df)[[1]]
+  
+  # calculate sd 
+  return(sd(pred))
+  
+}
 
 # new version separated by each front
-# 
 get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
   
   n = nrow(pareto.set)
