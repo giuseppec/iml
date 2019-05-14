@@ -39,7 +39,7 @@ make_paramlist <- function(input.data, lower = NULL, upper = NULL, integers = NU
     }
     
     else { 
-      ParamHelpers::makeDiscreteParam(colnam, values = char_to_factor(unique(col))) 
+      ParamHelpers::makeDiscreteParam(colnam, values = levels(col)) 
     } 
   })
   l[[length(l)+1]] = ParamHelpers::makeLogicalVectorParam("use.orig", len = ncol)
@@ -172,6 +172,7 @@ get_ice_curve = function(instance, feature, predictor, values,
   # make grid of one feature
   grid = iml:::get.grid.1D(feature = values, grid.size = grid.size, 
     type = "equidist")
+  grid.size = length(grid)
   grid = as.data.frame(grid)
   colnames(grid) = feature
   
@@ -216,7 +217,7 @@ get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
     if (n > 2L) {
       for (j in 2:(n - 1L)) {
         ods[ord[j]] = ods[ord[j]] + 
-          ((fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
+          (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
         
         dds[ord[j]] = dds[ord[j]] +

@@ -6,7 +6,7 @@ Boston$chas = as.factor(Boston$chas)
 
 set.seed(1000)
 rf =  randomForest(medv ~ ., data = Boston)
-X = Boston[-which(names(Boston) == "medv")]
+X = Boston[,-which(names(Boston) == "medv")]
 mod = Predictor$new(rf, data = X)
 
 # Explain first instance 
@@ -113,9 +113,29 @@ test_that("no good solution can be found by one feature", {
 })
 
 
-# test_that("if solution already known, solution is found", {
-#   target = 23
-#   best = x.interes
-#   best$crim = 7.269167
-#   mod$predict(best)
-# })
+test_that("if solution already known, solution is found", {
+  test.df = Boston[, c("medv", "rm")]
+  n = nrow(test.df)
+  test.df$random1 = runif(n, 0, 1) 
+  test.df$random2 = factor(sample(c("a", "b", "c"), n, replace = TRUE))
+  test.df$random3 = rnorm(n, 10, 1)
+  lm =  lm(medv ~ ., data = test.df)
+  test.df = test.df[,-1]
+  x.interest = test.df[1,]
+  mod = Predictor$new(lm, data = test.df)
+  
+  # get.rm = function(x, y) {
+  #   return((y - lm$coefficient*x
+  
+  best = x.interest
+  best$rm = 5.97644
+  mod$predict(best)
+  
+  
+  set.seed(100)
+  cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, target = 20, 
+    generations = 10, use.ice.curve.var = TRUE)
+  cf.rm = cf.lm$results$counterfactuals$rm[cf.lm$results$counterfactuals$nr.changed == 1]
+  assert_true(any(abs(cf.rm - best$rm) < 0.005))
+  
+})

@@ -351,6 +351,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       }
       
       i = sapply(self$x.interest, is.factor)
+      x.interest = self$x.interest
       x.interest[i] = lapply(self$x.interest[i], as.character)
 
       initial.pop = lapply(initial.pop, function(x) {
@@ -368,7 +369,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             range = private$range, param.set = private$param.set)
         })
       
-      fn = setMosmafsVectorized(fn)
+      fn = mosmafs::setMosmafsVectorized(fn)
       n.objectives = smoof::getNumberOfObjectives(fn) 
       
       # Define operators based on parameterset private$param.set
@@ -399,7 +400,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       overall.recombinator <- ecr::makeRecombinator(function(inds, ...) {
         inds <- recombinator(inds)
-        do.call(wrapChildren, lapply(inds, function(x) { 
+        do.call(ecr::wrapChildren, lapply(inds, function(x) { 
           transform_to_orig(x, x.interest, delete.use.orig = FALSE, 
             fixed.features = self$fixed.features, max.changed = self$max.changed) 
         }))
