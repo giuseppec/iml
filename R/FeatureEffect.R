@@ -270,7 +270,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       private$anchor.value = center.at
       private$flush()
       private$run(self$predictor$batch.size)
-    },    # Partial prediction function, which only looks at feature use in FeatureEffect
+    },
+    # Partial prediction function, which only looks at feature use in FeatureEffect
     # Returns value of ALE / PD curve at particular feature value
     predict = function(x){
       if(self$n.features == 2) stop("Only implemented for single feature")

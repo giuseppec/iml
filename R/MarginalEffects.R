@@ -148,6 +148,7 @@ MarginalEffects = R6::R6Class("MarginalEffects",
     feature.type = NULL,
     n.features = NULL,
     method  = NULL,
+    ame = NULL,
     initialize = function(predictor, feature, step.size, method = "forward", grid.size = 4, h = 0.001) {
       feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
       assert_numeric(feature_index, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
@@ -156,20 +157,21 @@ MarginalEffects = R6::R6Class("MarginalEffects",
       assert_numeric(h, len = 1)
       assert_choice(method, c("forward", "derivative", "derivative2"))
       self$method = method
+      self$step.size = step.size
       super$initialize(predictor)
       private$set_feature_from_index(feature_index)
       self$grid.size = grid.size
       private$run(self$predictor$batch.size)
-    } 
+    }
   ),
   private = list(
     intervene = function(){
       private$dataSample = private$getData()
-      if(self$method == "forward") {
+      if ( self$method == "forward") {
         sample2 = private$dataSample
-        sample2[, self$feature.name] = 
-		sample2[, self$feature.name, with = FALSE] + self$step.size
-        private$dataSample = rbind(private$dataSample, sample2)
+        sample2[, self$feature.name] =
+		sample2[, self$feature.name, with=FALSE] + self$step.size
+        private$dataDesign = rbind(private$dataSample, sample2)
       } else if (self$method == "derivative"){
         # TODO
 	stop("not yet implemented")
@@ -182,15 +184,17 @@ MarginalEffects = R6::R6Class("MarginalEffects",
       # Difference between prediction and forward prediction
       original_index = 1:nrow(private$dataSample)
       findex = setdiff(1:nrow(private$dataDesign), original_index)
-      predictions = self$qResults[original_index,]
-      fpredictions = self$qResults[findex,]
-      self$results = fpredictions - predictions
-      self$results = cbind(self$results, 
-			   private$dataDesign[original_index, self$feature.name, with = FALSE],
-			   private$dataDesign[findex, self$feature.name, with = FALSE])
+      predictions = private$qResults[original_index, ]
+      fpredictions = private$qResults[findex, ]
+      results = fpredictions - predictions
+      self$ame = mean(results)
+      fs = private$dataDesign[original_index, self$feature.name, with = FALSE]
+      results = cbind(fs, results)
+      colnames(results) = c(self$feature.name, ".meffect")
+      results
     },
     printParameters = function() {
-      cat("features:", paste(sprintf("%s[%s]", 
+      cat("features:", paste(sprintf("%s[%s]",
         self$feature.name, self$feature.type), collapse = ", "))
       cat("\nstep sizes:", paste(self$step.size, collapse = "x"))
     },
@@ -211,9 +215,9 @@ MarginalEffects = R6::R6Class("MarginalEffects",
       self$feature.name = private$sampler$feature.names[feature.index]
     },
 
-    generatePlot = function(mse = FALSE) {
-      # TODO: Plot distribution of MarginalEffects
-    } 
+    generatePlot = function() {
+      ggplot(self$results) + geom_density(aes(x = .meffect))
+    }
   )
 )
 
@@ -223,7 +227,6 @@ MarginalEffects = R6::R6Class("MarginalEffects",
 #' plot.MarginalEffects() plots the results of a MarginalEffects object.
 #' 
 #' @param x A MarginalEffects R6 object
-#' @param mse Plot the MSE distribution as well? 
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{MarginalEffect}
@@ -240,7 +243,6 @@ MarginalEffects = R6::R6Class("MarginalEffects",
 #' # Plot the results directly
 #' plot(eff)
 #' }
-plot.MarginalEffects = function(x, mse = FALSE) {
-  assert_logical(mse)
-  x$plot(mse = mse)
+plot.MarginalEffects = function(x) {
+  x$plot()
 }
