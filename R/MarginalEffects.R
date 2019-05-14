@@ -139,7 +139,7 @@ NULL
 
 #' @export
 
-MarginalEffects = R6::R6Class("MarginalEffects", 
+MarginalEffects = R6::R6Class("MarginalEffects",
   inherit = InterpretationMethod,
   public = list(
     grid.size = NULL,
@@ -149,9 +149,16 @@ MarginalEffects = R6::R6Class("MarginalEffects",
     n.features = NULL,
     method  = NULL,
     ame = NULL,
-    initialize = function(predictor, feature, step.size, method = "forward", grid.size = 4, h = 0.001) {
-      feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
-      assert_numeric(feature_index, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
+    initialize = function(predictor,
+			  feature,
+			  step.size,
+			  method = "forward",
+			  grid.size = 4,
+			  h = 0.001) {
+      feature_index = private$sanitize.feature(feature,
+					       predictor$data$feature.names)
+      assert_numeric(feature_index, lower = 1,
+		     upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_numeric(step.size, len = length(feature))
       assert_numeric(h, len = 1)
@@ -169,9 +176,10 @@ MarginalEffects = R6::R6Class("MarginalEffects",
       private$dataSample = private$getData()
       if ( self$method == "forward") {
         sample2 = private$dataSample
-        sample2[, self$feature.name] =
-		sample2[, self$feature.name, with=FALSE] + self$step.size
-        private$dataDesign = rbind(private$dataSample, sample2)
+        steps = matrix(rep(self$step.size, each = nrow(sample2)),
+			   ncol = length(self$step.size))
+        sample2[, self$feature.name] = sample2[, self$feature.name, with = FALSE] + steps
+	private$dataDesign = rbind(private$dataSample, sample2)
       } else if (self$method == "derivative"){
         # TODO
 	stop("not yet implemented")
@@ -187,10 +195,22 @@ MarginalEffects = R6::R6Class("MarginalEffects",
       predictions = private$qResults[original_index, ]
       fpredictions = private$qResults[findex, ]
       results = fpredictions - predictions
-      self$ame = mean(results)
       fs = private$dataDesign[original_index, self$feature.name, with = FALSE]
       results = cbind(fs, results)
-      colnames(results) = c(self$feature.name, ".meffect")
+      if ( private$multiClass) {
+        results =  melt(results, variable.name = ".class",
+                        value.name = ".meffect",
+                        measure.vars = colnames(predictions))
+        ame = lapply(unique(results$.class),
+                     function(x){
+                       mean(results[results$.class == x, ".meffect"][[1]])
+                     })
+        self$ame = unlist(ame)
+      } else {
+        colnames(results) = c(self$feature.name, ".meffect")
+        self$ame = mean(results$.meffect)
+      }
+      names(self$ame) = colnames(private$qResults)
       results
     },
     printParameters = function() {
