@@ -5,10 +5,9 @@ test.df = data.frame(num = runif(10, 0, 1),
   char = sample(discval, size = 10, replace = TRUE), 
   fact = factor(sample(discval, size = 10, replace = TRUE), levels = c(discval)), 
   int = sample(1:20, size = 10), stringsAsFactors = FALSE)
-
+ps = ParamHelpers::makeParamSet(params = make_paramlist(test.df))
 
 test_that("make_paramlist", {
-  ps = ParamHelpers::makeParamSet(params = make_paramlist(test.df))
   expect_true(all(c("num", "char", "fact", "int", "use.orig") %in% getParamIds(ps)))
   invisible(lapply(getValues(ps)[[1]], function(x) expect_class(x, "character")))
   invisible(lapply(getValues(ps)[[2]], function(x) expect_class(x, "factor")))
@@ -101,4 +100,59 @@ test_that("round_df", {
   expect_class(rdf$fact, "factor")
   expect_class(rdf$char, "character")
 })
+
+test_that("transform_to_orig", {
+  x.interest = test.df[1, ]
+  x = list(num = x.interest$num + 0.05, char = "b", 
+    fact = factor("c", levels = discval), int = 2L, 
+    use.orig = c(TRUE, TRUE, FALSE, FALSE))
+  x.trans = transform_to_orig(x = x, x.interest = x.interest)
+  expect_identical(x.trans$num, x.interest$num)
+  expect_identical(x.trans$char, x.interest$char)
+  expect_true(x.trans$fact != x.interest$fact)
+  expect_true(x.trans$int != x.interest$int)
+  
+  x$use.orig = c(FALSE, FALSE, TRUE, TRUE)
+  x.trans = transform_to_orig(x = x, x.interest = x.interest, delete.use.orig = TRUE)
+  expect_identical(x.trans$fact, x.interest$fact)
+  expect_identical(x.trans$int, x.interest$int)
+  expect_true(x.trans$num != x.interest$num)
+  expect_true(x.trans$char != x.interest$char)
+  expect_null(x.trans$use.orig)
+  
+  x$use.orig = rep(FALSE, 4)
+  expect_true(sum(transform_to_orig(x = x, 
+      x.interest = x.interest, max.changed = 1)$use.orig) == 3)
+  x.trans = transform_to_orig(x = x, x.interest = x.interest, 
+    fixed.features = "num")
+  expect_true(x.trans$use.orig[1])
+  expect_identical(x.trans$num, x.interest$num)
+  x.trans = transform_to_orig(x = x, x.interest = x.interest, 
+    fixed.features = c("num", "fact"))
+  expect_true(all(x.trans$use.orig[c(1, 3)]))
+  expect_identical(x.trans$fact, x.interest$fact)
+  expect_identical(x.trans$num, x.interest$num)  
+})
+
+test_that("get_ICE_var", {
+  data("Boston", package = "MASS")
+  test.df = Boston[, c("medv", "rm")]
+  n = nrow(test.df)
+  set.seed(1234)
+  test.df$random1 = runif(n, 0, 1) 
+  test.df$random2 = factor(sample(c("a", "b", "c"), n, replace = TRUE))
+  test.df$random3 = rnorm(n, 10, 1)
+  lm =  lm(medv ~ ., data = test.df)
+  test.df = test.df[,-1]
+  x.interest = test.df[1,]
+  mod = Predictor$new(lm, data = test.df)
+  param.set = ParamHelpers::makeParamSet(params = make_paramlist(test.df))
+  
+  sdev = get_ICE_var(x.interest, mod, param.set)
+  expect_true(which.max(sdev) == 1)
+  expect_true(all(sdev[-1] <= 1))
+  expect_true(sdev[1] > 14)
+})
+
+
 

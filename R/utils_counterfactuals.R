@@ -95,6 +95,13 @@ get_diff = function(x, x.interest) {
 # where use.orig is set to TRUE
 transform_to_orig = function(x, x.interest, delete.use.orig = FALSE, 
   fixed.features = NULL, max.changed = NULL) {
+  checkmate::assert_list(x, len = ncol(x.interest) + 1)
+  checkmate::assert_data_frame(x.interest, any.missing = FALSE, nrows = 1)
+  checkmate::assert(
+    check_character(fixed.features, null.ok = TRUE),
+    check_true(fixed.features %in% names(x))
+  )
+  checkmate::assert_integerish(max.changed, null.ok = TRUE)
   types = lapply(x[names(x)!="use.orig"], class)
   
   if (!is.null(fixed.features)) {
