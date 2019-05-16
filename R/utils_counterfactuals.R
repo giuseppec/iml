@@ -15,16 +15,13 @@ make_paramlist <- function(input.data, lower = NULL, upper = NULL, integers = NU
   checkmate::assert_numeric(upper, null.ok = TRUE, any.missing = FALSE)
   checkmate::assert_character(integers, null.ok = TRUE, any.missing = FALSE)
   
+  assert_true(all(names(lower) %in% names(input.data)))
+  assert_true(all(names(upper) %in% names(input.data)))
+  
   ncol = ncol(input.data)
   
   l = lapply(colnames(input.data), function(colnam) { 
-    if (colnam %in% integers) {
-      checkmate::assert_numeric(input.data[[colnam]])
-      col <- as.integer(input.data[[colnam]])
-    }
-    else {
-      col <- input.data[[colnam]]
-    }
+    col <- input.data[[colnam]]
     l = ifelse(colnam %in% names(lower), 
       lower[[colnam]], tryCatch(min(col), error = function(err) NA))
     u = ifelse(colnam %in% names(upper), 
@@ -39,7 +36,12 @@ make_paramlist <- function(input.data, lower = NULL, upper = NULL, integers = NU
     }
     
     else { 
-      ParamHelpers::makeDiscreteParam(colnam, values = levels(col)) 
+      if (is.character(col)) {
+        values = unique(col)
+      } else {
+        values = char_to_factor(levels(col))
+      }
+      ParamHelpers::makeDiscreteParam(colnam, values = values) 
     } 
   })
   l[[length(l)+1]] = ParamHelpers::makeLogicalVectorParam("use.orig", len = ncol)
@@ -54,8 +56,11 @@ make_paramlist <- function(input.data, lower = NULL, upper = NULL, integers = NU
 #' ....}
 
 sdev_to_list = function(sdev, param.set) {
-  paramtypes <- gsub("vector$", "", ParamHelpers::getParamTypes(param.set))
+  checkmate::assert_numeric(sdev, any.missing = FALSE)
+  checkmate::assert_class(param.set, "ParamSet")
+  checkmate::assert_true(all(names(sdev) %in% ParamHelpers::getParamIds(param.set)))
   param.ids <- ParamHelpers::getParamIds(param.set)
+  paramtypes <- gsub("vector$", "", ParamHelpers::getParamTypes(param.set))
   needed_type = c("numeric", "integer")
   typegroups <- sapply(needed_type, function(type) {
     sdev[param.ids[paramtypes == type]]
@@ -64,40 +69,24 @@ sdev_to_list = function(sdev, param.set) {
 }
 
 
-
-list_to_df = function(x) {
-  x = lapply(x, function(e) {
-    e$use.orig = NULL 
-    return(e)
-  })
-  
-  df = lapply(x, function(e) {as.data.frame(e, stringsAsFactors = FALSE)})
-  df = do.call(rbind, df)
-  return(df)
-}
-
-
-get_diff = function(pareto.set, x.interest, digits = NULL) {
-  assertDataFrame(pareto.set, ncol = ncol(x.interest))
+get_diff = function(x, x.interest) {
+  assertDataFrame(x, ncol = ncol(x.interest))
   assertDataFrame(x.interest, nrow = 1)
   
-  diff = data.frame(matrix(data = NA, nrow = nrow(pareto.set), ncol = length(x.interest)))
+  diff = data.frame(matrix(data = NA, nrow = nrow(x), ncol = length(x.interest)))
   names(diff) = names(x.interest)
   
-  x.interest = x.interest[rep(row.names(x.interest), nrow(pareto.set)), ]
+  x.interest = x.interest[rep(row.names(x.interest), nrow(x)), ]
   
-  for (i in 1:ncol(pareto.set)) {
-    if (class(pareto.set[,i]) == "character"|
-        class(pareto.set[,i]) == "factor") {
-      p.val = as.character(pareto.set[,i])
+  for (i in 1:ncol(x)) {
+    if (class(x[,i]) == "character"|
+        class(x[,i]) == "factor") {
+      p.val = as.character(x[,i])
       x.val = as.character(x.interest[,i])
       diff[,i] = ifelse(p.val != x.val, p.val, "0")
     } else {
-      diff[,i] = pareto.set[,i] - x.interest[,i]
+      diff[,i] = x[,i] - x.interest[,i]
     }
-  }
-  if (!is.null(digits)) {
-    diff = round(diff, digits)
   }
   return(diff)
 }

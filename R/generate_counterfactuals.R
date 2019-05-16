@@ -45,8 +45,11 @@ select_diverse = function (control, population, offspring, fitness,
   assertMatrix(fitness.offspring, ncols = length(offspring), any.missing = FALSE, 
     min.rows = 1L)
   merged.pop = c(population, offspring)
+  merged.pop.df = mosmafs::listToDf(merged.pop, control$task$par.set)
+  merged.pop.df[, grepl("use.orig", names(merged.pop.df))] = NULL
   merged.fit = cbind(fitness, fitness.offspring)
-  surv.idx = control$selectForSurvival(merged.fit, n.select = length(population), merged.pop) 
+  surv.idx = control$selectForSurvival(merged.fit, n.select = length(population), 
+    merged.pop.df) 
   fitness = merged.fit[, surv.idx, drop = FALSE]
   fitness = BBmisc::addClasses(fitness, "ecr_fitness_matrix")
   fitness = BBmisc::setAttribute(fitness, "minimize", control$task$min)
@@ -147,7 +150,7 @@ select_nondom = ecr::makeSelector(
     if (n.diff > 0L) {
       idxs.first.nonfit = which(ranks == front.first.nonfit)
       cds = computeCrowdingDistanceR(as.matrix(fitness[, idxs.first.nonfit]), 
-        population[idxs.first.nonfit]) 
+        population[idxs.first.nonfit,]) 
       idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
       new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
     }
@@ -234,7 +237,7 @@ select_nondom = ecr::makeSelector(
   if (n.diff > 0L) {
     idxs.first.nonfit = idxs.by.rank[[front.first.nonfit]]
     cds = computeCrowdingDistanceR_ver1(as.matrix(fitness[, idxs.first.nonfit]),
-      population[idxs.first.nonfit])
+      population[idxs.first.nonfit,])
     idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
     new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
   }
@@ -248,7 +251,7 @@ select_nondom = ecr::makeSelector(
 ## Over all objectives 
 computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
-  assertList(candidates)
+  assertDataFrame(candidates, nrows = ncol(fitness))
   
   n = ncol(fitness)
   max = apply(fitness, 1, max)
@@ -257,17 +260,17 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
   ods = numeric(n)
   dds = numeric(n)
   cds = numeric(n)
-  dat = lapply(candidates, function(x) {
-    x$use.orig = NULL
-    return(x)})
-  dat = list_to_df(candidates)
+  # dat = lapply(candidates, function(x) {
+  #   x$use.orig = NULL
+  #   return(x)})
+  # dat = list_to_df(candidates)
+  # 
+  numeric.ind = sapply(candidates, is.numeric)
+  range = apply(candidates[numeric.ind], 2, function(x) max(x) - min(x))
+  range[colnames(candidates)[!numeric.ind]]  = NA
+  range = range[names(candidates)]
   
-  numeric.ind = sapply(dat, is.numeric)
-  range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
-  range[colnames(dat)[!numeric.ind]]  = NA
-  range = range[names(dat)]
-  
-  g.dist = StatMatch::gower.dist(dat, rngs = range)
+  g.dist = StatMatch::gower.dist(candidates, rngs = range)
   
   for (i in c(1,2,3)) {
     

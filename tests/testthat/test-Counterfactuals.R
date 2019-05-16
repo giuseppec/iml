@@ -45,6 +45,13 @@ test_that("Counterfactuals has correct output", {
   diff = cf$results$counterfactuals.diff
   diff_1 = diff[diff$nr.changed == 1, names(X)]
   expect_true(all(rowSums(diff_1 != 0) == 1))
+  
+  # continue search 
+  cf$continue_search(5L)
+  expect_list(cf$results, any.missing = FALSE, len = 2, unique = TRUE)
+  expect_data_frame(cf$log, any.missing = FALSE, nrows = generations + 1L + 5L, 
+    ncols = 12)
+  
 })
 
 test_that("Counterfactuals only one solutions if target equal prediction", {
@@ -89,24 +96,24 @@ test_that("Counterfactuals only solutions if target in infeasible space", {
   expect_true(all(diff(cf$log$dist.target.min) <= 0))
 })
 
-cols.sub = c("crim", "chas", "tax")
-set.seed(10)
-rf =  randomForest(medv ~ ., data = Boston[, c(cols.sub, "medv")])
-mod = Predictor$new(rf, data = X[, cols.sub])
-
-# Explain first instance
-x.interest = X[1, cols.sub]
-pred  = mod$predict(x.interest)[[1]]
-target = 30
-generations = 30
-
-set.seed(100)
-cf = Counterfactuals$new(mod, x.interest = x.interest, target = target,
-  mu = 50, generations = generations, use.ice.curve.var = FALSE,
-  fixed.features = c("chas", "tax"))
 
 
 test_that("no good solution can be found by one feature", {
+  cols.sub = c("crim", "chas", "tax")
+  set.seed(10)
+  rf =  randomForest(medv ~ ., data = Boston[, c(cols.sub, "medv")])
+  mod = Predictor$new(rf, data = X[, cols.sub])
+
+  x.interest = X[1, cols.sub]
+  pred  = mod$predict(x.interest)[[1]]
+  target = 30
+  generations = 30
+  
+  set.seed(100)
+  cf = Counterfactuals$new(mod, x.interest = x.interest, target = target,
+    mu = 50, generations = generations, use.ice.curve.var = FALSE,
+    fixed.features = c("chas", "tax"))
+  
   expect_numeric(cf$results$counterfactuals$pred, upper = 27, 
     any.missing = FALSE)
   expect_true(all(rowSums(cf$results$counterfactuals.diff[, cols.sub] != 0) %in% c(1, 0)))
@@ -131,11 +138,36 @@ test_that("if solution already known, solution is found", {
   best$rm = 5.97644
   mod$predict(best)
   
-  
   set.seed(100)
   cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, target = 20, 
     generations = 10, use.ice.curve.var = TRUE)
   cf.rm = cf.lm$results$counterfactuals$rm[cf.lm$results$counterfactuals$nr.changed == 1]
-  assert_true(any(abs(cf.rm - best$rm) < 0.005))
-  
+  expect_true(any(abs(cf.rm - best$rm) < 0.005))
 })
+
+
+test_that("fixed features works with numbers", {
+  test.df = Boston[, c("lstat", "rm", "medv")]
+  lm =  lm(medv ~ ., data = test.df)
+  mod = Predictor$new(lm, data = test.df)
+  test.df = test.df[, names(test.df) %in% c("lstat", "rm")]
+  x.interest = test.df[5,]
+  
+  cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
+    target = 20, fixed.features = 1, generations = 10)
+  
+  # works although ordering of x.interest columns changed
+  x.interest = x.interest[, c("rm", "lstat")]
+  cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
+    target = 20, fixed.features = 1, generations = 10)
+  expect_true(all(cf.lm$results$counterfactuals.diff$lstat == 0))
+})
+
+
+test_that("wrong feature names of x.interest", {
+  names(x.interest)[1] = "criem"
+  expect_error(cf$explain(x.interest = x.interest, target = 30))
+})
+
+
+

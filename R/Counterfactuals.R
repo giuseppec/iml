@@ -29,8 +29,9 @@
 #' a vector of two numerics, to define a desired interval of outcome.}
 #' \item{epsilon: }{(numeric(1))\cr Soft constraint. If chosen, candidates, whose
 #' distance between their prediction and target exceeds epsilon, are penalized.}
-#' \item{fixed.features: }{(character)\cr 
-#' Feature names for which no deviation from values of x.interest are allowed.} 
+#' \item{fixed.features: }{(character|numeric)\cr 
+#' Feature name or index for which no deviation from values of x.interest are allowed. 
+#' Index refers to ordering of feature names of data used to initialize predictor.} 
 #' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.}
 #' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
 #' number of nearly generated individuals in each generation.}
@@ -156,7 +157,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     log = NULL,
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
-      mu = 50, generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.7,
+      mu = 50, generations = 30, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.7,
       p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
       use.ice.curve.var = FALSE) {
       
@@ -169,12 +170,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         max.len = 2, any.missing = FALSE)
       checkmate::assert_number(epsilon, null.ok = TRUE)
       checkmate::assert_integerish(max.changed, null.ok = TRUE, len = 1)
-      if (!is.null(fixed.features) & class(fixed.features) == "numeric") {
-        fixed.features = self$predictor$data$feature.names[fixed.features]
-      }
-      checkmate::assert_character(fixed.features, null.ok = TRUE)
       
-      # should be here
+      # should exist
       checkmate::assert_integerish(mu, lower = 1)
       assert(
         checkInt(generations, lower = 0),
@@ -255,7 +252,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       nameList = list(min.obj, mean.obj, eval)
       if (range) {
         log = mlr::normalizeFeatures(self$log, method = "range", 
-          cols = names(cf$results$log)[!names(cf$results$log) %in% c("generation", "state")])
+          cols = names(self$log)[!names(self$log) %in% c("generation", "state")])
       } else {
         log = self$log
       }
@@ -287,6 +284,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     },
     continue_search = function(generations) {
       private$ecrresults = continueEcr(ecr.object = private$ecrresults, generations = generations)
+      results = mosmafs::listToDf(private$ecrresults$pareto.set, private$param.set)
+      results[, grepl("use.orig", names(results))] = NULL
+      private$dataDesign = results
+      private$qResults = private$run.prediction(results)
       self$results = private$aggregate()    
     },
     calculate_hv = function() {
@@ -311,6 +312,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         stop("colnames of x.interest must be identical to training data")
       }
       x.interest = x.interest[setdiff(colnames(x.interest), self$predictor$data$y.names)]
+      if (any(colnames(x.interest) != self$predictor$data$feature.names)) {
+        warning("columns of x.interest were reordered according to predictor$data$feature.names")
+        x.interest = x.interest[, self$predictor$data$feature.names]
+      }
       self$y.hat.interest = self$predictor$predict(x.interest)[1,]
       self$x.interest = x.interest
     }, 
@@ -342,7 +347,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         prob.use.orig = 1 - mlr::normalizeFeatures(as.data.frame(ice.var), 
           method = "range", range = c(0.01, 0.99))
         # distribution = function() vapply(t(prob.use.orig), FUN.VALUE = numeric(1), 
-        #   function(x) sample(c(0, length(initial.pop[[1]]$use.orig)), 1, prob = c(1-x, x)))
+        # function(x) sample(c(0, length(initial.pop[[1]]$use.orig)), 1, prob = c(1-x, x)))
         ilen = length(initial.pop[[1]]$use.orig)
         distribution = function() rbinom(n = ilen, size = ilen, 
           prob = t(prob.use.orig))
@@ -471,16 +476,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pop = mosmafs::getPopulations(private$ecrresults$log)
       div = unlist(lapply(pop, 
         FUN = function(x) {
-          pop_gen = x$population
-          pop_gen = lapply(pop_gen, function(k) {
-            k$use.orig = NULL
-            return(k)
-          })
-          dis = StatMatch::gower.dist(data.x = list_to_df(pop_gen), 
+          pop_gen = mosmafs::listToDf(x$population, private$param.set)
+          pop_gen[, grepl("use.orig", names(pop_gen))] = NULL
+          dis = StatMatch::gower.dist(data.x = pop_gen, 
             rngs = private$range)
           single.dist = dis[lower.tri(dis)]
           mean.dist = mean(single.dist)
-          pop.div = sum(abs(single.dist - mean.dist)/length(pop_gen))
+          pop.div = sum(abs(single.dist - mean.dist)/nrow(pop_gen))
         }))
       log = mosmafs::getStatistics(private$ecrresults$log)
       log$population.div = div
@@ -488,7 +490,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
         "nr.changed.mean")
       names(log)[1:7] = nam
-      log = log[c("generation", "state", nam[2:7], "fitness.domHV", "fitness.delta", "fitness.spacing", 
+      log = log[c("generation", "state", nam[2:7], "fitness.domHV", 
+        "fitness.delta", "fitness.spacing", 
         "population.div")]
       self$log = log
 
@@ -532,7 +535,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     },
     sanitize_feature = function(fixed.features, feature.names) {
       if (is.numeric(fixed.features)) {
-        assert_numeric(fixed.features, lower = 1, upper = length(feature.names), 
+        assert_integerish(fixed.features, lower = 1, upper = length(feature.names), 
           null.ok = TRUE)
         fixed.features = feature.names[fixed.features]
       }
