@@ -26,10 +26,9 @@
 #' \item{method: }{(`character(1)`)\cr 
 #' 'forward' for absolute forward step marginal effect, 
 #' 'derivative' for the right sided finite difference, 
-#' 'derivative2' for the symetric finite difference
 #' }
 #' \item{step.size: }{(`numeric(n)`)\cr The size of the forward steps. Only applicable if method='forward'}
-#' \item{h: }{`numeric(n)`)\cr The finite differences step size. Only applicable if method='derivative' or method='derivative2'}
+#' \item{eps: }{`numeric(n)`)\cr The finite differences step size. Only applicable if method='derivative'}
 #' }
 #' 
 #' @section Details:
@@ -41,11 +40,10 @@
 #' \item{method: }{(`character(1)`)\cr
 #' 'forward' for absolute forward step marginal effect, 
 #' 'derivative' for the right sided finite difference, 
-#' 'derivative2' for the symetric finite difference}
 #' \item{feature.name: }{(`character(n)`)\cr The names of the features for which the marginal effects were computed.}
 #' \item{feature.type: }{(`character(n)`)\cr The detected types of the features, either "categorical" or "numerical".}
 #' \item{step.size: }{(`numeric(n)`)\cr The size of the forward steps. Only applicable if method='forward'}
-#' \item{h: }{`numeric(n)`)\cr The finite differences step size. Only applicable if method='derivative' or method='derivative2'}
+#' \item{h: }{`numeric(n)`)\cr The finite differences step size. Only applicable if method='derivative'}
 #' \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
 #' \item{results: }{(data.frame)\cr data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
 #' \item{ame: }{`numeric(1)`\cr The average marginal effects.}}
@@ -149,22 +147,30 @@ MarginalEffects = R6::R6Class("MarginalEffects",
     n.features = NULL,
     method  = NULL,
     ame = NULL,
+    eps = NULL,
     initialize = function(predictor,
 			  feature,
-			  step.size,
+			  step.size = NULL,
 			  method = "forward",
 			  grid.size = 4,
-			  h = 0.001) {
+			  eps = 1e-07) {
       feature_index = private$sanitize.feature(feature,
 					       predictor$data$feature.names)
       assert_numeric(feature_index, lower = 1,
 		     upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
-      assert_numeric(step.size, len = length(feature))
-      assert_numeric(h, len = 1)
-      assert_choice(method, c("forward", "derivative", "derivative2"))
+      assert_numeric(step.size, len = length(feature), null.ok = TRUE)
+      assert_numeric(eps, len = 1)
+      assert_choice(method, c("forward", "derivative"))
+      if (method == "forward" & is.null(step.size)) {
+         stop("Please set step.size")
+      }
+      if (method == "derivative" & length(feature) > 1) {
+        stop("Only single features are allowed for derivative")
+      }
       self$method = method
       self$step.size = step.size
+      self$eps = eps
       super$initialize(predictor)
       private$set_feature_from_index(feature_index)
       self$grid.size = grid.size
@@ -174,30 +180,41 @@ MarginalEffects = R6::R6Class("MarginalEffects",
   private = list(
     intervene = function(){
       private$dataSample = private$getData()
-      if ( self$method == "forward") {
+      if (self$method == "forward") {
         sample2 = private$dataSample
         steps = matrix(rep(self$step.size, each = nrow(sample2)),
 			   ncol = length(self$step.size))
         sample2[, self$feature.name] = sample2[, self$feature.name, with = FALSE] + steps
 	private$dataDesign = rbind(private$dataSample, sample2)
       } else if (self$method == "derivative"){
-        # TODO
-	stop("not yet implemented")
-      } else if (self$method == "derivative2"){
-	# TODO
-	stop("not yet implemented")
+	# Code from marginals package:
+        setstep <- function(x) {
+           x + (max(abs(x), 1, na.rm = TRUE) * sqrt(self$eps)) - x
+        }
+        sample1 = sample2 = private$dataSample
+	feat = self$feature.name
+        sample1[[feat]] = sample1[[feat]] - setstep(sample1[[feat]])
+	sample2[[feat]] = sample2[[feat]] + setstep(sample2[[feat]])
+	private$dataDesign = rbind(sample1, sample2)
       }
     },
     aggregate = function(){
       # Difference between prediction and forward prediction
-      original_index = 1:nrow(private$dataSample)
-      findex = setdiff(1:nrow(private$dataDesign), original_index)
-      predictions = private$qResults[original_index, ]
+      oindex = 1:nrow(private$dataSample)
+      findex = setdiff(1:nrow(private$dataDesign), oindex)
+      predictions = private$qResults[oindex, ]
       fpredictions = private$qResults[findex, ]
       results = fpredictions - predictions
-      fs = private$dataDesign[original_index, self$feature.name, with = FALSE]
+      # Analogue to margins package
+      if (self$method == "derivative") {
+        feat = self$feature.name
+        results = (fpredictions - predictions) /
+	        (private$dataDesign[findex, ][[feat]] -
+	         private$dataDesign[oindex, ][[feat]])
+      }
+      fs = private$dataSample[, self$feature.name, with = FALSE]
       results = cbind(fs, results)
-      if ( private$multiClass) {
+      if (private$multiClass) {
         results =  melt(results, variable.name = ".class",
                         value.name = ".meffect",
                         measure.vars = colnames(predictions))
