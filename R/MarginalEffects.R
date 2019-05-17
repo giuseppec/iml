@@ -70,66 +70,25 @@
 #' mod = Predictor$new(rf, data = Boston)
 #' 
 #' # Compute the accumulated local effects for the first feature
-#' eff = FeatureEffect$new(mod, feature = "rm",grid.size = 30)
+#' eff = MarginalEffects$new(mod, feature = "rm", step.size = 1)
 #' eff$plot()
-#' 
-#' # Again, but this time with a partial dependence plot and ice curves
-#' eff = FeatureEffect$new(mod, feature = "rm", method = "pdp+ice", grid.size = 30)
-#' plot(eff)
-#' 
-#' # Since the result is a ggplot object, you can extend it: 
-#' if (require("ggplot2")) {
-#'  plot(eff) + 
-#'  # Adds a title
-#'  ggtitle("Partial dependence") + 
-#'  # Adds original predictions
-#'  geom_point(data = Boston, aes(y = mod$predict(Boston)[[1]], x = rm), 
-#'  color =  "pink", size = 0.5)
-#' }
-#' 
-#' # If you want to do your own thing, just extract the data: 
-#' eff.dat = eff$results
-#' head(eff.dat)
-#' 
-#' # You can also use the object to "predict" the marginal values.
-#' eff$predict(Boston[1:3,])
-#' # Instead of the entire data.frame, you can also use feature values:
-#' eff$predict(c(5,6,7))
-#' 
-#' # You can reuse the pdp object for other features: 
-#' eff$set.feature("lstat")
-#' plot(eff)
+#' eff$ame
 #'
-#' # Only plotting the aggregated partial dependence:  
-#' eff = FeatureEffect$new(mod, feature = "crim", method = "pdp")
-#' eff$plot() 
-#'
-#' # Only plotting the individual conditional expectation:  
-#' eff = FeatureEffect$new(mod, feature = "crim", method = "ice")
-#' eff$plot() 
-#'   
-#' # Accumulated local effects and partial dependence plots support up to two features: 
-#' eff = FeatureEffect$new(mod, feature = c("crim", "lstat"))  
+#' # Again, but this time with derivative method 
+#' eff = MarginalEffects$new(mod, feature = "rm", method = "derivative")
 #' plot(eff)
-#' 
-#' 
-#' # FeatureEffect plots also works with multiclass classification
-#' rf = randomForest(Species ~ ., data = iris, ntree=50)
-#' mod = Predictor$new(rf, data = iris, type = "prob")
-#' 
-#' # For some models we have to specify additional arguments for the predict function
-#' plot(FeatureEffect$new(mod, feature = "Petal.Width"))
+#' eff$ame
 #'
-#' # FeatureEffect plots support up to two features: 
-#' eff = FeatureEffect$new(mod, feature = c("Sepal.Length", "Petal.Length"))
+#' # MarginalEffects for multiple  features: 
+#' eff = MarginalEffects$new(mod, feature = c("lstat", "rm"), step.size = c(1, 0.5))
 #' eff$plot()   
 #' 
-#' # show where the actual data lies
-#' eff$plot(show.data = TRUE)   
-#' 
-#' # For multiclass classification models, you can choose to only show one class:
-#' mod = Predictor$new(rf, data = iris, type = "prob", class = 1)
-#' plot(FeatureEffect$new(mod, feature = "Sepal.Length"))
+#' # Multiclass classification
+#' rf = randomForest(Species ~ ., data = iris, ntree=50)
+#' mod = Predictor$new(rf, data = iris, type = "prob")
+#' eff = MarginalEffects$new(mod, feature = "Petal.Width", step.size = 1)
+#' eff$plot()
+#' eff$ame
 #' }
 NULL
 
@@ -266,7 +225,7 @@ MarginalEffects = R6::R6Class("MarginalEffects",
 #' @param x A MarginalEffects R6 object
 #' @return ggplot2 plot object
 #' @seealso 
-#' \link{MarginalEffect}
+#' \link{MarginalEffects}
 #' @examples
 #' # We train a random forest on the Boston dataset:
 #' if (require("randomForest")) {
@@ -274,8 +233,8 @@ MarginalEffects = R6::R6Class("MarginalEffects",
 #' rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod = Predictor$new(rf, data = Boston)
 #' 
-#' # Compute the ALE for the first feature
-#' eff = MarginalEffect$new(mod, feature = "crim", step.size = 1)
+#' # Compute the marginal effects for the first feature
+#' eff = MarginalEffects$new(mod, feature = "crim", step.size = 1)
 #' 
 #' # Plot the results directly
 #' plot(eff)

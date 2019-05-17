@@ -22,13 +22,13 @@ data("Boston", package  = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
 mod = Predictor$new(rf, data = Boston)
 
-# Compute the ALE for the first feature
-eff = MarginalEffect$new(mod, feature = "crim", step.size = 1)
+# Compute the marginal effects for the first feature
+eff = MarginalEffects$new(mod, feature = "crim", step.size = 1)
 
 # Plot the results directly
 plot(eff)
 }
 }
 \seealso{
-\link{MarginalEffect}
+\link{MarginalEffects}
 }
