@@ -31,10 +31,9 @@ The object (created with Predictor$new()) holding the machine learning model and
 \item{method: }{(`character(1)`)\cr 
 'forward' for absolute forward step marginal effect, 
 'derivative' for the right sided finite difference, 
-'derivative2' for the symetric finite difference
 }
 \item{step.size: }{(`numeric(n)`)\cr The size of the forward steps. Only applicable if method='forward'}
-\item{h: }{`numeric(n)`)\cr The finite differences step size. Only applicable if method='derivative' or method='derivative2'}
+\item{eps: }{`numeric(n)`)\cr The finite differences step size. Only applicable if method='derivative'}
 }
 }
 
@@ -42,23 +41,6 @@ The object (created with Predictor$new()) holding the machine learning model and
 
 
 TODO
-}
-
-\section{Fields}{
-
-\describe{
-\item{method: }{(`character(1)`)\cr
-'forward' for absolute forward step marginal effect, 
-'derivative' for the right sided finite difference, 
-'derivative2' for the symetric finite difference}
-\item{feature.name: }{(`character(n)`)\cr The names of the features for which the marginal effects were computed.}
-\item{feature.type: }{(`character(n)`)\cr The detected types of the features, either "categorical" or "numerical".}
-\item{step.size: }{(`numeric(n)`)\cr The size of the forward steps. Only applicable if method='forward'}
-\item{h: }{`numeric(n)`)\cr The finite differences step size. Only applicable if method='derivative' or method='derivative2'}
-\item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{results: }{(data.frame)\cr data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-\item{ame: }{`numeric(1)`\cr The average marginal effects.}}
-}
 }
 
 \section{Methods}{
