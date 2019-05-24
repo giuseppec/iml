@@ -141,7 +141,10 @@ char_to_factor= function(levels){
 
 spacing = function(solutions, metric = "euclidean", ranges = NULL) {
   assert_choice(metric, choices = c("euclidean", "manhattan", "gower"))
-  #assert_data_frame(pf, any.missing = FALSE)
+  checkmate::assert(
+    check_data_frame(solutions, any.missing = FALSE), 
+    check_matrix(solutions, any.missing = FALSE)
+    )
   if (metric == "euclidean"| metric == "manhattan") {
     dist = as.matrix(stats::dist(solutions, method = metric, 
       diag = FALSE, upper = TRUE))
@@ -152,7 +155,7 @@ spacing = function(solutions, metric = "euclidean", ranges = NULL) {
   }
   dist[dist == 0] = NA
   min = apply(dist, MARGIN = 1, function(x) min(x, na.rm = TRUE))
-  return(sd(min))
+  return(sqrt(sum((min - mean(min))^2)/(nrow(solutions)- 1)))
 }
 
 
@@ -229,12 +232,12 @@ get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
     max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
     ind.inf = min.changed|max.changed
     # set the extreme values to Inf for each nr.features.changed (objective 3)
-    dds[ind.inf] = Inf
-    ods[ind.inf] = Inf
+    dds[ord[ind.inf]] = Inf
+    ods[ord[ind.inf]] = Inf
     
     #t = candidates[ord]
     # update the remaining crowding numbers
-    if (n > 2L) {
+    if (n > 2L && !(n )) {
       for (j in 2:(n - 1L)) {
         
         if (max[i] - min[i] != 0) {

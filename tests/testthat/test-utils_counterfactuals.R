@@ -167,9 +167,9 @@ test_that("get_ICE_var", {
 
 test_that("get diverse solutions", {
   fitness = data.frame(
-    o1 = c(1.5, 2.5, 3, 4.5, 5.5, 6),
-    o2 = c(8.5, 7, 6, 5, 3.5, 2),
-    o3 = c(1, 1, 1, 1, 2, 2))
+    o1 = c(1.5, 2.5, 3, 5.5, 4.5, 6),
+    o2 = c(8.5, 7, 6, 3.5, 5, 2),
+    o3 = c(1, 1, 1, 2, 1, 2))
   df = data.frame(one = c(1.5), two = c("a"), three = c(1L))
   df = df[rep(seq_len(nrow(df)), each=6),]
   rownames(df) = NULL
@@ -199,6 +199,14 @@ test_that("get diverse solutions", {
   
   expect_true(all(get_diverse_solutions(fitness, df, nr.solution = 3) %in%
     c(1, 5, 3)))
+  
+})
+
+
+test_that("spacing", {
+  m.test = matrix(c(1, 1, 3, 4, 1, 1, 2, 2, 3, 10), 
+    nrow = 5, ncol = 2)
+  expect_identical(round(spacing(m.test, "manhattan"), 6), 2.949576)
   
 })
 

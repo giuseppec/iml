@@ -227,14 +227,14 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     },
     subset_results = function(nr.solutions) {
       if (nr.solutions > nrow(self$results$counterfactuals)) {
-        warning("nr.solutions > number of non-dominated solutions, was set to 
-          number of non-dominated solutions")
+        warning("nr.solutions out of range, was set to 
+          number of solutions in self$results")
         nr.solutions = nrow(self$results$counterfactuals)
       }
       assert_integerish(nr.solutions, lower = 1)
       idx = get_diverse_solutions(self$results$counterfactuals[, private$obj.names],
         self$results$counterfactuals[, self$predictor$data$feature.names], 
-        private$range, nr.solutions)
+        nr.solutions)
       results.subset = self$results
       results.subset$counterfactuals = results.subset$counterfactuals[idx, ]
       rownames(results.subset$counterfactuals) = NULL
@@ -427,13 +427,14 @@ Counterfactuals = R6::R6Class("Counterfactuals",
           list(min = function(x) min(x[idx, ]), mean = function(x) mean(x[idx, ]))
         }))
       
-      names(log.stats$fitness) <- sprintf("obj.%s", seq_len(n.objectives))
-      log.stats$fitness <- unlist(log.stats$fitness, recursive = FALSE)
-      log.stats$fitness <- c(log.stats$fitness,
+      names(log.stats$fitness) = sprintf("obj.%s", seq_len(n.objectives))
+      log.stats$fitness = unlist(log.stats$fitness, recursive = FALSE)
+      max.hv = ecr::computeHV(matrix(c(0, 0, 0)), private$ref.point)
+      log.stats$fitness = c(log.stats$fitness,
         list(domHV = function(x) ecr::computeHV(x,
-          ref.point = private$ref.point), 
+          ref.point = private$ref.point)/max.hv, 
           #delta = function(x) ecr:::emoaIndDelta(x[c(1,2),]), 
-          spacing = function(x) spacing(x, "euclidean")))
+          spacing = function(x) spacing(t(x), "manhattan")))
       
       # Compute counterfactuals
       ecrresults = mosmafs::slickEcr(fn, lambda = self$mu, population = initial.pop,

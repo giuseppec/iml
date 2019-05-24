@@ -20,7 +20,7 @@ fitness_fun = function(x, x.interest, target, predictor, range = NULL) {
   equal.type = all(mapply(x, x.interest,
     FUN = function(x1, x2) {class(x1) == class(x2)}))
   if (!equal.type) {
-    stop("original x and candidate need same feature types")
+    stop("x.interest and x need same feature types")
   }
   
   # Objective Functions
@@ -125,44 +125,23 @@ select_nondom = ecr::makeSelector(
     if (front.first.nonfit > 1) {
       new.pop.idxs = (1:length(ranks))[ranks < front.first.nonfit]
     }
-    
-    
-    ########
-    # # get the indizes of points for each domination layer
-    # idxs.by.rank = lapply(seq(max.rank), function(r) which(nondom.layers$ranks == r))
-    # 
-    # if (extract.duplicates & (length(unique.idx) > n.select)) {
-    #   idxs.by.rank = lapply(idxs.by.rank, function(x) {
-    #     x = x[x %in% unique.idx]
-    #   })
-    # }
-    # 
-    # # get the number of points in each domination layer ...
-    # front.len = sapply(idxs.by.rank, length)
-    # 
-    # # ... cumulate the number of points of the domination layers ...
-    # cum.front.len = cumsum(front.len)
-    # 
-    # # ... and determine the first domination layer, which does not fit as a whole
-    # front.first.nonfit = BBmisc::which.first(cum.front.len > n.select)
-    # 
-    # if (front.first.nonfit > 1L) {
-    #   # in this case at least one nondominated front can be added
-    #   new.pop.idxs = unlist(idxs.by.rank[1:(front.first.nonfit - 1L)])
-    # }
-    ############
     # how many points to select by second criterion, i.e., crowding distance?
     n.diff = n.select - length(new.pop.idxs)
     
     if (n.diff > 0L) {
       idxs.first.nonfit = which(ranks == front.first.nonfit)
-      cds = computeCrowdingDistanceR(as.matrix(fitness[, idxs.first.nonfit]), 
+      cds = computeCrowdingDistanceR_ver1(as.matrix(fitness[, idxs.first.nonfit]), 
         population[idxs.first.nonfit,]) 
       idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
       new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
     }
     
-    # merge the stuff and return
+    # new.pop.idxs.orig = select_nondomfirst(fitness, n.select, population)
+    # # merge the stuff and return
+    # if (!all(new.pop.idxs == new.pop.idxs.orig)) {
+    #   browser()
+    # }
+
     return(new.pop.idxs)
   },
   supported.objectives = "multi-objective")
@@ -171,7 +150,7 @@ select_nondom = ecr::makeSelector(
 
 
 #### BEFORE
-select_nondom = ecr::makeSelector(
+select_nondomfirst = ecr::makeSelector(
   selector = function(fitness, n.select, population,
   epsilon = .Machine$double.xmax,
   extract.duplicates = TRUE,
@@ -235,7 +214,7 @@ select_nondom = ecr::makeSelector(
 
   if (front.first.nonfit > 1L) {
     # in this case at least one nondominated front can be added
-    new.pop.idxs = unlist(idxs.by.rank[1:(front.first.nonfit - 1L)])
+    new.pop.idxs = sort(unlist(idxs.by.rank[1:(front.first.nonfit - 1L)]))
   }
 
   # how many points to select by second criterion, i.e., crowding distance?
@@ -272,12 +251,8 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
   #   return(x)})
   # dat = list_to_df(candidates)
   # 
-  numeric.ind = sapply(candidates, is.numeric)
-  range = apply(candidates[numeric.ind], 2, function(x) max(x) - min(x))
-  range[colnames(candidates)[!numeric.ind]]  = NA
-  range = range[names(candidates)]
   
-  g.dist = StatMatch::gower.dist(candidates, rngs = range)
+  g.dist = StatMatch::gower.dist(candidates)
   
   for (i in c(1,2,3)) {
     
@@ -340,41 +315,39 @@ computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
     return(x)})
   dat = list_to_df(candidates)
 
-  numeric.ind = sapply(dat, is.numeric)
-  range = apply(dat[numeric.ind], 2, function(x) max(x) - min(x))
-  range[colnames(dat)[!numeric.ind]]  = NA
-  range = range[names(dat)]
+  g.dist = StatMatch::gower.dist(dat)
 
-  g.dist = StatMatch::gower.dist(dat, rngs = range)
-
-  for (i in c(1,2)) {
-    ord = order(fitness[3, ], fitness[i, ])
-    min.changed = c(TRUE, diff(fitness[3, ord]) > 0)
-    max.changed = rev(c(TRUE, diff(rev(fitness[3, ord])) < 0))
+  for (i in seq_len(ncol(fitness)-1)) {
+    
+    # get the order of the points when sorted according to the i-th objective
+    ord = order(fitness[,3], fitness[,i])
+    min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
+    max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
     ind.inf = min.changed|max.changed
     # set the extreme values to Inf for each nr.features.changed (objective 3)
-    ods[ind.inf] = Inf
-    dds[ind.inf] = Inf
-    #ods[ord[1]] = Inf
-    #ods[ord[n]] = Inf
-    #dds[ord[1]] = Inf
-    #dds[ord[n]] = Inf
-
+    dds[ord[ind.inf]] = Inf
+    ods[ord[ind.inf]] = Inf
+    
+    #t = candidates[ord]
     # update the remaining crowding numbers
-    if (n > 2L) {
+    if (n > 2L && !(n )) {
       for (j in 2:(n - 1L)) {
-        ods[ord[j]] = ods[ord[j]] +
-          ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i] - min[i]))
-        # ods[ord[j]] = ods[ord[j]] +
-        #   ((fitness[i, ord[j + 1L]] - fitness[i, ord[j]])/(max[i] - min[i]))
+        
+        if (max[i] - min[i] != 0) {
+          ods[ord[j]] = ods[ord[j]] + 
+            (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
+        }
+        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+        
         dds[ord[j]] = dds[ord[j]] +
           g.dist[ord[j], ord[j-1]] +
           g.dist[ord[j], ord[j+1]]
+        
       }
     }
   }
-
   cds = rank(ods) + rank(dds)
+  cds = jitter(cds, factor = 1)
   return(cds)
 }
 

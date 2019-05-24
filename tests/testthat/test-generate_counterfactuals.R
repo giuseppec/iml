@@ -22,6 +22,9 @@ test_that("fitness function", {
   expect_error(fitness_fun(x, x.interest, target, test_pred), 
     "x and y have different levels")
   x.interest$one = factor(x.interest$one, levels = classes)
+  x$one = as.character(x$one)
+  expect_error(fitness_fun(x, x.interest, target, test_pred), 
+    "x.interest and x need same feature types")
   x$one = factor(x$one, levels = classes)
   
   expect_error(fitness_fun(x[,1:2], x.interest, target, test_pred), 
@@ -68,10 +71,31 @@ test_that("fitness function", {
   expect_identical(fitness_fun(x, x.interest, target = 23, test_pred), 
     fit.val5)
   
+  # infinity 
+  expect_identical(fitness_fun(x, x.interest, target = c(-Inf, 23), test_pred), 
+    fit.val5)
+  fit.val6 = fitness_fun(x, x.interest, target = c(23, Inf), test_pred)
+  expect_identical(fit.val6[2:3, ], fit.val5[2:3,])
+  expect_identical(fit.val6[1, ], 0)
+  
   # range 
   expect_error(fitness_fun(x, x.interest, target = c(24, 35), test_pred, 
     range = c("two" = 10, "one" = NA, "three" = 1)), 
     "range for gower distance needs same order and feature names as
       'x.interest'")
+})
+
+
+
+test_that("select_nondom", {
+  fitness = matrix(c(0.5, 0.9, 0.7, 0.9, 0.7, 0.3, 0,
+                     0.7, 0.3, 0.5, 0.7, 0.5, 1, 0,
+                     4, 3, 2, 7, 2, 5, 0), nrow = 3, ncol = 7, byrow = TRUE)
   
+  population = data.frame("a" = 1, "b" = 2, "c" = "a")
+  population = population[rep(seq_len(nrow(population)), each=6),]
+  
+  expect_equal(select_nondom(fitness, n.select = 3, population), c(7, 2, 3))
+  expect_equal(select_nondom(fitness, 1, population), 7)
+
 })
