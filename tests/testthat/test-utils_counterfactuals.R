@@ -132,6 +132,16 @@ test_that("transform_to_orig", {
   expect_true(all(x.trans$use.orig[c(1, 3)]))
   expect_identical(x.trans$fact, x.interest$fact)
   expect_identical(x.trans$num, x.interest$num)  
+  
+  x = list(num = x.interest$num + 0.05, char = factor("b", levels = discval), 
+    fact = "c", int = 2L, 
+    use.orig = c(TRUE, TRUE, FALSE, FALSE))
+  expect_error(transform_to_orig(x = x, x.interest = x.interest), 
+    "type shift")
+  
+  
+  
+  
 })
 
 test_that("get_ICE_var", {
@@ -155,4 +165,40 @@ test_that("get_ICE_var", {
 })
 
 
+test_that("get diverse solutions", {
+  fitness = data.frame(
+    o1 = c(1.5, 2.5, 3, 4.5, 5.5, 6),
+    o2 = c(8.5, 7, 6, 5, 3.5, 2),
+    o3 = c(1, 1, 1, 1, 2, 2))
+  df = data.frame(one = c(1.5), two = c("a"), three = c(1L))
+  df = df[rep(seq_len(nrow(df)), each=6),]
+  rownames(df) = NULL
+  
+  set.seed(1234)
+  test = vapply(1:10, FUN.VALUE = numeric(3), 
+    function(x) get_diverse_solutions(fitness = fitness, 
+      pareto.set = df, nr.solutions = 3))
+  expect_true(all(test %in% c(1, 4, 5, 6)))
+  expect_true(length(unique(test[1,])) > 1)
+  expect_error(get_diverse_solutions(fitness = matrix(fitness), 
+    pareto.set = df, nr.solutions = 3), 
+    "'fitness' failed: Must be of type 'data.frame', not 'list'")
+  expect_error(get_diverse_solutions(fitness = fitness, 
+    pareto.set = df[-1,], nr.solutions = 3), 
+    "'fitness' failed: Must have exactly 5 rows, but has 6 rows")
+  
+  fitness = data.frame(
+    o1 = rep(1, 5), 
+    o2 = rep(2, 5), 
+    o3 = rep(1, 5))
+  
+  df = data.frame(
+    a = rep(1, 5), 
+    b = c(1, 1, 5, 1, 1), 
+    c = rep(1, 5))
+  
+  expect_true(all(get_diverse_solutions(fitness, df, nr.solution = 3) %in%
+    c(1, 5, 3)))
+  
+})
 

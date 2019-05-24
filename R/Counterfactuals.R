@@ -247,7 +247,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         "dist.x.interest.min", "nr.changed.min")     
       mean.obj = c("generation", "dist.target.mean", 
         "dist.x.interest.mean", "nr.changed.mean")
-      eval = c("generation", "fitness.domHV", "fitness.delta", 
+      eval = c("generation", "fitness.domHV", 
+        #"fitness.delta", 
         "fitness.spacing", "population.div")
       nameList = list(min.obj, mean.obj, eval)
       if (range) {
@@ -327,9 +328,12 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     intervene = function() {
       
       # Define reference point for hypervolumn compuation
-      private$ref.point = c(max(abs(self$y.hat.interest - self$target)), 1,
-        ncol(self$x.interest))
-      
+      private$ref.point = c(min(max(abs(self$y.hat.interest - self$target))), 
+        1, ncol(self$x.interest))
+      if (is.infinite(private$ref.point[1])) {
+        pred = self$predictor$predict(self$predictor$data$get.x())
+        private$ref.point[1] = diff(c(min(pred), max(pred)))
+      }
       # Initialize population based on x.interest, param.setand sdev
       lower = self$x.interest[names(private$sdev)] - private$sdev
       upper = self$x.interest[names(private$sdev)] + private$sdev
@@ -370,8 +374,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         noisy = TRUE, ref.point = private$ref.point,
         fn = function(x, fidelity = NULL) {
           fitness_fun(x, x.interest = self$x.interest, target = self$target, 
-            predictor = self$predictor,
-            range = private$range, param.set = private$param.set)
+            predictor = self$predictor, range = private$range)
         })
       
       fn = mosmafs::setMosmafsVectorized(fn)
@@ -429,8 +432,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       log.stats$fitness <- c(log.stats$fitness,
         list(domHV = function(x) ecr::computeHV(x,
           ref.point = private$ref.point), 
-          delta = function(x) ecr:::emoaIndDelta(x[c(1,2),]), 
-          spacing = function(x) ecr:::emoaIndSP(x, "euclidean")))
+          #delta = function(x) ecr:::emoaIndDelta(x[c(1,2),]), 
+          spacing = function(x) spacing(x, "euclidean")))
       
       # Compute counterfactuals
       ecrresults = mosmafs::slickEcr(fn, lambda = self$mu, population = initial.pop,
@@ -491,7 +494,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         "nr.changed.mean")
       names(log)[1:7] = nam
       log = log[c("generation", "state", nam[2:7], "fitness.domHV", 
-        "fitness.delta", "fitness.spacing", 
+        #"fitness.delta", 
+        "fitness.spacing", 
         "population.div")]
       self$log = log
 

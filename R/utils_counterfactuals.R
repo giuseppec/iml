@@ -8,7 +8,7 @@
 #' \item{input.data: }{(data.frame)\cr Training data}
 #' ....}
 #' 
-make_paramlist <- function(input.data, lower = NULL, upper = NULL, integers = NULL) {
+make_paramlist = function(input.data, lower = NULL, upper = NULL, integers = NULL) {
   
   checkmate::assert_data_frame(input.data)
   checkmate::assert_numeric(lower, null.ok = TRUE, any.missing = FALSE)
@@ -21,7 +21,7 @@ make_paramlist <- function(input.data, lower = NULL, upper = NULL, integers = NU
   ncol = ncol(input.data)
   
   l = lapply(colnames(input.data), function(colnam) { 
-    col <- input.data[[colnam]]
+    col = input.data[[colnam]]
     l = ifelse(colnam %in% names(lower), 
       lower[[colnam]], tryCatch(min(col), error = function(err) NA))
     u = ifelse(colnam %in% names(upper), 
@@ -59,10 +59,10 @@ sdev_to_list = function(sdev, param.set) {
   checkmate::assert_numeric(sdev, any.missing = FALSE)
   checkmate::assert_class(param.set, "ParamSet")
   checkmate::assert_true(all(names(sdev) %in% ParamHelpers::getParamIds(param.set)))
-  param.ids <- ParamHelpers::getParamIds(param.set)
-  paramtypes <- gsub("vector$", "", ParamHelpers::getParamTypes(param.set))
+  param.ids = ParamHelpers::getParamIds(param.set)
+  paramtypes = gsub("vector$", "", ParamHelpers::getParamTypes(param.set))
   needed_type = c("numeric", "integer")
-  typegroups <- sapply(needed_type, function(type) {
+  typegroups = sapply(needed_type, function(type) {
     sdev[param.ids[paramtypes == type]]
   }, simplify = FALSE)
   return(typegroups)
@@ -91,6 +91,7 @@ get_diff = function(x, x.interest) {
   return(diff)
 }
 
+
 # Transform features of solution candidates to value of x.interest 
 # where use.orig is set to TRUE
 transform_to_orig = function(x, x.interest, delete.use.orig = FALSE, 
@@ -109,7 +110,7 @@ transform_to_orig = function(x, x.interest, delete.use.orig = FALSE,
     x$use.orig[pos] = TRUE
   }
   
-  use.orig <- x$use.orig 
+  use.orig = x$use.orig 
   if (!is.null(max.changed)) {
     n.changed = sum(!use.orig)
     if (n.changed > max.changed) {
@@ -118,8 +119,8 @@ transform_to_orig = function(x, x.interest, delete.use.orig = FALSE,
       use.orig[mut.idx] = TRUE
     }
   }
-  x$use.orig <- NULL 
-  x[use.orig] <- x.interest[use.orig]
+  x$use.orig = NULL 
+  x[use.orig] = x.interest[use.orig]
   types.after.trans = lapply(x, class)
   if(length(setdiff(types, types.after.trans)) > 0) {
     stop("setting values to x.interest values introduced a type shift")
@@ -131,16 +132,35 @@ transform_to_orig = function(x, x.interest, delete.use.orig = FALSE,
 }
 
 # Transmit levels of factor variable to parameter set
-char_to_factor<- function(levels){
+char_to_factor= function(levels){
   sapply(as.character(levels), function(x)
     factor(x, levels=levels),
     simplify = FALSE)
 }
 
 
-round_df <- function(df, digits) {
-  nums <- vapply(df, is.numeric, FUN.VALUE = logical(1))
-  df[,nums] <- round(df[,nums], digits = digits)
+spacing = function(solutions, metric = "euclidean", ranges = NULL) {
+  assert_choice(metric, choices = c("euclidean", "manhattan", "gower"))
+  #assert_data_frame(pf, any.missing = FALSE)
+  if (metric == "euclidean"| metric == "manhattan") {
+    dist = as.matrix(stats::dist(solutions, method = metric, 
+      diag = FALSE, upper = TRUE))
+  }
+  else {
+    assertVector(ranges, all.missing = FALSE)
+    dist = gower.dist(solutions, rngs = ranges)
+  }
+  dist[dist == 0] = NA
+  min = apply(dist, MARGIN = 1, function(x) min(x, na.rm = TRUE))
+  return(sd(min))
+}
+
+
+
+
+round_df = function(df, digits) {
+  nums = vapply(df, is.numeric, FUN.VALUE = logical(1))
+  df[,nums] = round(df[,nums], digits = digits)
   return(df)
 }
 
@@ -187,12 +207,16 @@ get_ice_curve = function(instance, feature, predictor, values,
 }
 
 # new version separated by each front
-get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
+get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
+  
+  assert_data_frame(fitness, any.missing = FALSE, ncols = 3, nrows = nrow(pareto.set))
+  assert_data_frame(pareto.set, any.missing = FALSE)
+  assert_number(nr.solutions)
   
   n = nrow(pareto.set)
   max = apply(fitness, 2, max)
   min = apply(fitness, 2, min)
-  g.dist = StatMatch::gower.dist(pareto.set, rngs = range)
+  g.dist = StatMatch::gower.dist(pareto.set)
   
   dds = numeric(n)
   ods = numeric(n)
@@ -212,8 +236,11 @@ get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
     # update the remaining crowding numbers
     if (n > 2L) {
       for (j in 2:(n - 1L)) {
+        
+        if (max[i] - min[i] != 0) {
         ods[ord[j]] = ods[ord[j]] + 
           (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
+        }
         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
         
         dds[ord[j]] = dds[ord[j]] +
@@ -224,6 +251,7 @@ get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
     }
   }
   cds = rank(ods) + rank(dds)
+  cds = jitter(cds, factor = 1)
   idx = order(cds, decreasing = TRUE)[1:nr.solutions]
   return(idx)
 }

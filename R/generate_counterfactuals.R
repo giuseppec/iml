@@ -1,18 +1,21 @@
-fitness_fun = function(x, x.interest, target, predictor, range, param.set) {
+fitness_fun = function(x, x.interest, target, predictor, range = NULL) {
   assertDataFrame(x)
-  assertDataFrame(x.interest, min.row = 1, max.row = 1, any.missing = FALSE)
+  assertDataFrame(x.interest, nrows = 1, any.missing = FALSE)
   assertNumeric(target, min.len = 1, max.len = 2)
   assertNumeric(range, lower = 0, finite = TRUE, any.missing = TRUE,
-    len = ncol(x.interest))
-  if (!all.equal(names(x.interest), names(range))) {
-    stop("range for gower distance needs same order and features as
-      candidates and original x")
+    len = ncol(x.interest), null.ok = TRUE)
+  if (!(is.null(range)) && !(all(names(x.interest) == names(range)))) {
+    stop("range for gower distance needs same order and feature names as
+      'x.interest'")
   }
   
-  x = x[, -grep("use.orig", x = names(x))]
+  if (any(grepl("use.orig", names(x)))) {
+    x = x[, -grep("use.orig", x = names(x))]
+  }
+  assert_data_frame(x, ncols = ncol(x.interest))
   
-  if(!all.equal(names(x), names(x.interest))) {
-    stop("original x and candidate have different features, check ordering")
+  if(!all(names(x) == names(x.interest))) {
+    stop("x.interest and x need same column ordering and names")
   }
   equal.type = all(mapply(x, x.interest,
     FUN = function(x1, x2) {class(x1) == class(x2)}))
@@ -22,8 +25,12 @@ fitness_fun = function(x, x.interest, target, predictor, range, param.set) {
   
   # Objective Functions
   pred = predictor$predict(newdata = x)[[1]]
-  q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]),
-    0, abs(pred - target))
+  q1 = vapply(pred, numeric(1), FUN =  function(x) min(abs(x - target)))
+  # q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]),
+  #   0, ifelse(length(target) == 2, Inf, abs(pred - target)))
+  # q1[q1 == Inf] = dif[q1 == Inf]
+  q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]), 
+    0, q1)
   q2 = StatMatch::gower.dist(data.x = x.interest, data.y = x, rngs = range)[1,]
   q3 = rowSums(x != x.interest[rep(row.names(x.interest), nrow(x)),])
   

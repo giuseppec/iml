@@ -1,0 +1,77 @@
+context("generate_counterfactuals")
+
+test_that("fitness function", {
+  x.interest = data.frame(one = "c", two = 25, three = 3)
+  x = data.frame(one = "d", two = 20, three = 3)
+  
+  test_predictor = R6Class(classname = "test_predictor", 
+    public = list(
+      predict = function(newdata) {
+    return(1 + x$two * 1 + x$three * 1)
+  }))
+  test_pred = test_predictor$new()
+  
+  classes = c("a", "b", "c", "d")
+  ps = pSS(
+    one:discrete [classes], 
+    two:integer [10, 30],
+    three:numeric [0, 5]
+  )
+  target = 30
+  
+  expect_error(fitness_fun(x, x.interest, target, test_pred), 
+    "x and y have different levels")
+  x.interest$one = factor(x.interest$one, levels = classes)
+  x$one = factor(x$one, levels = classes)
+  
+  expect_error(fitness_fun(x[,1:2], x.interest, target, test_pred), 
+    "'x' failed: Must have exactly 3 cols, but has 2 cols")
+  
+  x.re = x # renamed x column
+  names(x.re)[1] = "eins"
+  expect_error(fitness_fun(x.re, x.interest, target, test_pred), 
+    "x.interest and x need same column ordering and names")
+  
+  fit.val = fitness_fun(x, x.interest, target, test_pred)
+  
+  expect_matrix(fit.val, nrows = 3, ncols = 1, any.missing = FALSE)
+  
+  expect_identical(fit.val[1, 1], abs(test_pred$predict(x) - target))
+  
+  expect_identical(fit.val[3, 1], 2)
+  
+  expect_identical(fit.val[2, 1], (1/1 + 5/5 + 0)/3)
+  
+  fit.val2 = fitness_fun(x, x.interest, target = c(30, 35), test_pred)
+  
+  expect_identical(fit.val2, fit.val)
+  
+  fit.val3 = fitness_fun(x, x.interest, target = c(25, 35), test_pred, 
+    range = c("one" = NA, "two" = 10, "three" = 1))
+  expect_identical(fit.val3[3, ], fit.val3[3,])
+  expect_identical(fit.val3[2, ], (1/1 + 5/10 + 0)/3)
+  expect_identical(fit.val3[1, ], 1)
+  
+  fit.val4 = fitness_fun(x, x.interest, target = c(24, 35), test_pred, 
+    range = c("one" = NA, "two" = 10, "three" = 1))
+  expect_identical(fit.val4[1, ], 0)
+  expect_identical(fit.val3[2:3, ], fit.val4[2:3, ])
+  
+  fit.val5 = fitness_fun(x, x.interest, target = 23, test_pred)
+  expect_identical(fit.val5[1, ], 1)
+  expect_identical(fit.val2[2:3, ], fit.val5[2:3, ])
+  
+  # use.orig is removed? 
+  x$use.orig1 = TRUE
+  x$use.orig2 = FALSE
+  
+  expect_identical(fitness_fun(x, x.interest, target = 23, test_pred), 
+    fit.val5)
+  
+  # range 
+  expect_error(fitness_fun(x, x.interest, target = c(24, 35), test_pred, 
+    range = c("two" = 10, "one" = NA, "three" = 1)), 
+    "range for gower distance needs same order and feature names as
+      'x.interest'")
+  
+})
