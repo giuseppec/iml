@@ -1,7 +1,6 @@
 #' Counterfactual Explanations
 #' 
-#' \code{Counterfactuals} Description
-#' Counterfactuals are calculated with a modified version of NSGA-II, 
+#' \code{Counterfactuals} are calculated with a modified version of NSGA-II, 
 #' available in package mosmafs, which is based on package ecr.
 #' 
 #' @format \code{\link{R6Class}} object.
@@ -9,18 +8,24 @@
 #' @section Usage:
 #' \preformatted{
 #' counterfactual = Counterfactuals$new(predictor, x.interest = NULL, target = NULL, 
-#' epsilon = NULL, fixed.features = NULL, max.changed = NULL, mu = 50, 
-#' generations = 100, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.2, p.rec.gen = 0.7)
+#' epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
+#' mu = 50, generations = 50, p.mut = 0.2, p.rec = 0.9, p.mut.gen = 0.5,
+#' p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
+#' use.ice.curve.var = FALSE)
 #' 
 #' plot(counterfactual)
 #' counterfactual$results
+#' counterfactual$log
 #' print(counterfactual)
 #' counterfactual$explain(x.interest, target)
+#' counterfactual$subset_results(nr.solutions)
 #' counterfactuals$continue_search(generations)
+#' counterfactual$plot_statistics()
+#' counterfactual$calculate_hv()
+#' counterfactual$calculate_diversity()
 #' }
 #' 
 #' @section Arguments: 
-#' For Counterfactuals$new():
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
@@ -28,18 +33,35 @@
 #' \item{target: }{(numeric(1)|numeric(2))\cr Desired outcome either a single numeric or 
 #' a vector of two numerics, to define a desired interval of outcome.}
 #' \item{epsilon: }{(numeric(1))\cr Soft constraint. If chosen, candidates, whose
-#' distance between their prediction and target exceeds epsilon, are penalized.}
+#' distance between their prediction and target exceeds epsilon, are penalized.
+#' Default `NULL`.}
 #' \item{fixed.features: }{(character|numeric)\cr 
 #' Feature name or index for which no deviation from values of x.interest are allowed. 
-#' Index refers to ordering of feature names of data used to initialize predictor.} 
-#' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.}
+#' Index refers to ordering of feature names of data used to initialize predictor.
+#' Default `NULL`.} 
+#' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.
+#' Default `NULL`.}
 #' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
-#' number of nearly generated individuals in each generation.}
-#' \item{generations: }{(integer(1))\cr Number of generations.}
-#' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child}
-#' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
-#' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
-#' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene}
+#' number of nearly generated individuals in each generation.
+#' Default `50`.}
+#' \item{generations: }{(integer(1))\cr Number of generations. 
+#' For `Counterfactual$new()` default is `100`.}
+#' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child. 
+#' Default is `0.2`.}
+#' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child. 
+#' Default is `0.9`.}
+#' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene. 
+#' Default is `0.5`.}
+#' \item{p.mut.use.orig:}{numeric(1)\cr Probability of mutation for each element
+#' of the indicator to use feature values of `x.interest`. Default is `0.2`.} 
+#' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene. 
+#' Default is `0.7`.}
+#' #' \item{p.rec.use.orig:}{numeric(1)\cr Probability of recombination for each 
+#' element of the indicator to use feature values of `x.interest`. 
+#' Default is `0.7`.} 
+#' \item{use.ice.curve.var:}{logical(1)\cr Whether ICE curve variance should be used to 
+#' initialize population. Default is `FALSE`.}
+#' \item{nr.solutions}{integer(1)\cr Number of solutions to be extracted from results.}
 #' }
 #' 
 #' @section Details:
@@ -52,9 +74,12 @@
 #' @section Fields:
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
-#' The object (created with Predictor$new()) holding the machine learning model and the data.}
-#' \item{results: }{(data.frame)\cr data.frame with elements Counterfactuals, 
-#' Counterfactuals computed difference to x.interest and log for evaluation}
+#' Object (created with Predictor$new()) holding the machine learning model and the data.}
+#' \item{results: }{(list)\cr Object holding searching results: \cr
+#' (1) `data.frame` of found counterfactuals \cr
+#' (2) `data.frame` of calculated feature differences compared to x.interest}
+#' \item{log: }{(data.frame) \cr Object holding information on each generation: 
+#' Minimum and mean of objectives, dominated hypervolume, spacing and diversity.}
 #' \item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
 #' \item{y.hat.interest: }{(numeric)\cr Predicted value for instance of interest}
 #' \item{target: }{(numeric(1)|numeric(2))\cr Desired outcome either a single numeric or 
@@ -66,21 +91,32 @@
 #' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
 #' number of nearly generated individuals in each generation.}
 #' \item{generations: }{(integer(1))\cr Number of generations.}
-#' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child}
+#' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child. Default is 0.2}
 #' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
 #' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene}
+#' \item{use.ice.curve.var:}{logical(1)\cr Whether ICE curve variance should be used to 
+#' initialize population.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
-#' \item{\code{explain(x.interest, target)}}{method to set a new data point which to explain.}
-#' \item{\code{plot(labels)}}{method to plot the pareto front with or without labels informing 
+#' \item{\code{explain(x.interest, target)}}{Method to set a new data point which to explain.}
+#' \item{\code{plot()}}{Method to plot the pareto front with or without labels informing 
 #' about which features where changed. See \link{plot.Counterfactuals}}
-#' \item{\code{plotStatistics(range)}}{method to plot log information of results for evaluation of algorithm, 
-#' can be normalized to range [0, 1]. See \link {plotStatistics.Counterfactuals}}
-#' \item{\code{clone()}}{[internal] method to clone the R6 object.}
-#' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+#' \item{\code{plotStatistics()}}{Method to plot information of `Counterfactuals$log` 
+#' for evaluation of algorithm.}
+#' \item{\code{continue_search(generations)}}{Method to continue search 
+#' after run was also already finished. Results are added automatically to 
+#' `Counterfactuals$results`.}
+#' \item{\code{calculate_hv()}}{Extract dominated hypervolume of final Pareto front 
+#' from `Counterfactuals$log`, equal to `fitness.dominatedHV` of last row.}
+#' \item{\code{calculate_diversity()}}{Extract diversity of final Pareto front
+#' from `Counterfactuals$log`, equal to `population.div` of last row.}
+#' \item{\code{clone()}}{[internal] Method to clone the `R6` object.}
+#' \item{\code{initialize()}}{[internal] Method to initialize the R6 object.}
+#' \item{\code{subset_results(nr.solutions)}}{Method to subset 
+#' `Counterfactuals$results` to a given number of solutions.}
 #' }
 #'
 #' @references 
@@ -154,12 +190,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     p.rec.gen  = NULL,
     p.rec.use.orig = NULL,
     use.ice.curve.var = NULL,
+    crow.dist.version = NULL,
     log = NULL,
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
-      mu = 50, generations = 30, p.mut = 0.2, p.rec = 1, p.mut.gen = 0.7,
+      mu = 50, generations = 50, p.mut = 0.2, p.rec = 0.9, p.mut.gen = 0.5,
       p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
-      use.ice.curve.var = FALSE) {
+      use.ice.curve.var = FALSE, crow.dist.version = 1) {
       
       super$initialize(predictor = predictor)
       fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
@@ -181,6 +218,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_number(p.rec, lower = 0, upper = 1)
       checkmate::assert_number(p.mut.gen, lower = 0, upper = 1)
       checkmate::assert_number(p.rec.gen, lower = 0, upper = 1)
+      checkmate::assert_true(crow.dist.version %in% c(1, 2))
       
       # assign
       x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
@@ -200,6 +238,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$p.rec.gen = p.rec.gen
       self$p.rec.use.orig = p.rec.use.orig
       self$use.ice.curve.var = use.ice.curve.var
+      self$crow.dist.version = crow.dist.version
       
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
@@ -242,7 +281,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       rownames(results.subset$counterfactuals.diff) = NULL
       return(results.subset)
     },
-    plot_statistics = function(range = FALSE) {
+    plot_statistics = function() {
       min.obj = c("generation", "dist.target.min", 
         "dist.x.interest.min", "nr.changed.min")     
       mean.obj = c("generation", "dist.target.mean", 
@@ -251,12 +290,12 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         #"fitness.delta", 
         "fitness.spacing", "population.div")
       nameList = list(min.obj, mean.obj, eval)
-      if (range) {
-        log = mlr::normalizeFeatures(self$log, method = "range", 
-          cols = names(self$log)[!names(self$log) %in% c("generation", "state")])
-      } else {
+      # if (range) {
+      #   log = mlr::normalizeFeatures(self$log, method = "range", 
+      #     cols = names(self$log)[!names(self$log) %in% c("generation", "state")])
+      # } else {
         log = self$log
-      }
+      #}
       p = lapply(nameList, function(nam) {
         df = melt(log[,nam] , id.vars = "generation", variable.name = "legend")
         singlep = ggplot(df, aes(generation, value)) + geom_line(aes(colour = legend)) + 
@@ -277,7 +316,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pf.over.gen.df = do.call(rbind, pf.over.gen)
       
       pfPlot = ggplot(data = pf.over.gen.df, aes(x=y1, y=y2, alpha = generation)) +
-        geom_point(col = "blue")+
+        geom_point(col = "black")+
         xlab(private$obj.names[1]) +
         ylab(private$obj.names[2])
       
@@ -418,7 +457,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       survival.selector = ecr::setup(select_nondom, 
         epsilon = self$epsilon,  
-        extract.duplicates = TRUE)
+        extract.duplicates = TRUE, vers = self$crow.dist.version)
       
       # Extract algorithm information with a log object
       log.stats = list(fitness = lapply(
@@ -503,7 +542,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       cat("aggregate finished\n")
       return(results)
     },
-    generatePlot = function(labels = FALSE, decimal.points = 3, nr.solutions = NULL) {
+    generatePlot = function(labels = FALSE, decimal.points = 3, nr.solutions = NULL, 
+      select.nr.changed = NULL) {
       assert_logical(labels)
       assert_integerish(decimal.points, null.ok = !labels)
       assert_integerish(nr.solutions, null.ok = TRUE)
@@ -511,11 +551,15 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       if (!is.null(nr.solutions)) {
         results_diff = self$subset_results(nr.solutions)$counterfactuals.diff
       }
+      if (!is.null(select.nr.changed)) {
+        results_diff = results_diff[results_diff$nr.changed %in% select.nr.changed, ]
+      }
       pf = results_diff[, private$obj.names]
       
       p = ggplot(data = pf, aes(x=dist.target, y=dist.x.interest, 
         color = as.factor(nr.changed))) +
         geom_point() +
+        #scale_colour_gradient2(low = "black", mid = "orange", high = "green") +
         xlab("dist target") +
         ylab("dist x.interest") +
         #ggtitle(title)+
@@ -556,9 +600,11 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' plot.Counterfactuals() plots the Pareto front, the found Counterfactuals.
 #' 
 #' @param object  A Counterfactuals R6 object
-#' @param labels (logical(1)) Should the labels about the differences 
-#' from x.interest be assigned as labels to the points?
-#' @param decimal.points (integer(1))
+#' \item{labels:}{logical(1)\cr Whether labels with difference to feature values of 
+#' x.interest should be plotted. Default is `FALSE`.}
+#' \item{decimal.points:}{integer(1)\cr Number of decimal places used. Default is `3`.}
+#' \item{nr.solutions:}{integer(1)\cr Number of solutions showed. Default `NULL` means, 
+#' all solutions are showed.}
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Counterfactuals}

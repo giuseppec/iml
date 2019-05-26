@@ -67,7 +67,12 @@ select_diverse = function (control, population, offspring, fitness,
 select_nondom = ecr::makeSelector(
   selector = function(fitness, n.select, population, 
     epsilon = .Machine$double.xmax, 
-    extract.duplicates = TRUE) {
+    extract.duplicates = TRUE, vers = 1) {
+    
+    assert_matrix(fitness, ncols = nrow(population))
+    assert_numeric(epsilon, null.ok = TRUE)
+    assert_logical(extract.duplicates)
+    assert_true(vers %in% c(1, 2))
     
     # get indices of infeasible solutions with distance to target 
     # bigger epsilon
@@ -130,8 +135,14 @@ select_nondom = ecr::makeSelector(
     
     if (n.diff > 0L) {
       idxs.first.nonfit = which(ranks == front.first.nonfit)
-      cds = computeCrowdingDistanceR_ver1(as.matrix(fitness[, idxs.first.nonfit]), 
-        population[idxs.first.nonfit,]) 
+      if (vers == 1) {
+        cds = computeCrowdingDistanceR_ver1(as.matrix(fitness[, idxs.first.nonfit]), 
+          population[idxs.first.nonfit,]) 
+      }
+      if (vers == 2) {
+        cds = computeCrowdingDistanceR_ver2(as.matrix(fitness[, idxs.first.nonfit]), 
+          population[idxs.first.nonfit,])
+      }
       idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
       new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
     }
@@ -150,87 +161,87 @@ select_nondom = ecr::makeSelector(
 
 
 #### BEFORE
-select_nondomfirst = ecr::makeSelector(
-  selector = function(fitness, n.select, population,
-  epsilon = .Machine$double.xmax,
-  extract.duplicates = TRUE,
-  consider.diverse.solutions = TRUE) {
-
-  infeasible.idx = which(fitness[1,] > epsilon)
-  order.infeasible = order(fitness[1, infeasible.idx])
-  if (extract.duplicates) {
-    unique.idx = which(!duplicated(t(fitness)))
-  } else {
-    unique.idx = integer(0)
-  }
-  
-  if (length(unique.idx) < n.select) {
-    print("unique elements < n.select")
-  }
-
-  mean.f = rowMeans(fitness)
-  sd.f = apply(fitness,1,sd)
-  sd.f[sd.f==0] = 1
-  # if any sd 0 --> transform to 1, this is what sklearn does as well.
-  # https://github.com/scikit-learn/scikit-learn/blob/7389dbac82d362f296dc2746f10e43ffa1615660/sklearn/preprocessing/data.py#L70
-
-  fitness = apply(fitness, 2, function(x) {
-    (x-mean.f)/sd.f
-  })
-
-  nondom.layers = ecr::doNondominatedSorting(fitness)
-
-  # storage for indizes of selected individuals
-  new.pop.idxs = integer()
-
-  # get maximum rank, i.e., the number of domination layers
-  max.rank = max(nondom.layers$ranks)
-
-  # change domination layer of infeasible solutions
-  i = 0
-  for (inf.id in infeasible.idx[order.infeasible]) {
-    nondom.layers$ranks[inf.id] = max.rank + i
-    i = i + 1
-  }
-  max.rank = max(nondom.layers$ranks)
-
-  # get the indizes of points for each domination layer
-  idxs.by.rank = lapply(seq(max.rank), function(r) which(nondom.layers$ranks == r))
-
-  if (extract.duplicates & (length(unique.idx) > n.select)) {
-    idxs.by.rank = lapply(idxs.by.rank, function(x) {
-      x = x[x %in% unique.idx]
-    })
-  }
-
-  # get the number of points in each domination layer ...
-  front.len = sapply(idxs.by.rank, length)
-
-  # ... cumulate the number of points of the domination layers ...
-  cum.front.len = cumsum(front.len)
-
-  # ... and determine the first domination layer, which does not fit as a whole
-  front.first.nonfit = BBmisc::which.first(cum.front.len > n.select)
-
-  if (front.first.nonfit > 1L) {
-    # in this case at least one nondominated front can be added
-    new.pop.idxs = sort(unlist(idxs.by.rank[1:(front.first.nonfit - 1L)]))
-  }
-
-  # how many points to select by second criterion, i.e., crowding distance?
-  n.diff = n.select - length(new.pop.idxs)
-
-  if (n.diff > 0L) {
-    idxs.first.nonfit = idxs.by.rank[[front.first.nonfit]]
-    cds = computeCrowdingDistanceR_ver1(as.matrix(fitness[, idxs.first.nonfit]),
-      population[idxs.first.nonfit,])
-    idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
-    new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
-  }
-
-  # merge the stuff and return
-  return(new.pop.idxs)
-},  supported.objectives = "multi-objective")
+# select_nondomfirst = ecr::makeSelector(
+#   selector = function(fitness, n.select, population,
+#   epsilon = .Machine$double.xmax,
+#   extract.duplicates = TRUE,
+#   consider.diverse.solutions = TRUE) {
+# 
+#   infeasible.idx = which(fitness[1,] > epsilon)
+#   order.infeasible = order(fitness[1, infeasible.idx])
+#   if (extract.duplicates) {
+#     unique.idx = which(!duplicated(t(fitness)))
+#   } else {
+#     unique.idx = integer(0)
+#   }
+#   
+#   if (length(unique.idx) < n.select) {
+#     print("unique elements < n.select")
+#   }
+# 
+#   mean.f = rowMeans(fitness)
+#   sd.f = apply(fitness,1,sd)
+#   sd.f[sd.f==0] = 1
+#   # if any sd 0 --> transform to 1, this is what sklearn does as well.
+#   # https://github.com/scikit-learn/scikit-learn/blob/7389dbac82d362f296dc2746f10e43ffa1615660/sklearn/preprocessing/data.py#L70
+# 
+#   fitness = apply(fitness, 2, function(x) {
+#     (x-mean.f)/sd.f
+#   })
+# 
+#   nondom.layers = ecr::doNondominatedSorting(fitness)
+# 
+#   # storage for indizes of selected individuals
+#   new.pop.idxs = integer()
+# 
+#   # get maximum rank, i.e., the number of domination layers
+#   max.rank = max(nondom.layers$ranks)
+# 
+#   # change domination layer of infeasible solutions
+#   i = 0
+#   for (inf.id in infeasible.idx[order.infeasible]) {
+#     nondom.layers$ranks[inf.id] = max.rank + i
+#     i = i + 1
+#   }
+#   max.rank = max(nondom.layers$ranks)
+# 
+#   # get the indizes of points for each domination layer
+#   idxs.by.rank = lapply(seq(max.rank), function(r) which(nondom.layers$ranks == r))
+# 
+#   if (extract.duplicates & (length(unique.idx) > n.select)) {
+#     idxs.by.rank = lapply(idxs.by.rank, function(x) {
+#       x = x[x %in% unique.idx]
+#     })
+#   }
+# 
+#   # get the number of points in each domination layer ...
+#   front.len = sapply(idxs.by.rank, length)
+# 
+#   # ... cumulate the number of points of the domination layers ...
+#   cum.front.len = cumsum(front.len)
+# 
+#   # ... and determine the first domination layer, which does not fit as a whole
+#   front.first.nonfit = BBmisc::which.first(cum.front.len > n.select)
+# 
+#   if (front.first.nonfit > 1L) {
+#     # in this case at least one nondominated front can be added
+#     new.pop.idxs = sort(unlist(idxs.by.rank[1:(front.first.nonfit - 1L)]))
+#   }
+# 
+#   # how many points to select by second criterion, i.e., crowding distance?
+#   n.diff = n.select - length(new.pop.idxs)
+# 
+#   if (n.diff > 0L) {
+#     idxs.first.nonfit = idxs.by.rank[[front.first.nonfit]]
+#     cds = computeCrowdingDistanceR_ver1(as.matrix(fitness[, idxs.first.nonfit]),
+#       population[idxs.first.nonfit,])
+#     idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
+#     new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
+#   }
+# 
+#   # merge the stuff and return
+#   return(new.pop.idxs)
+# },  supported.objectives = "multi-objective")
 
 
 ## Version 1
@@ -301,8 +312,8 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
 
 computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
-  assertList(candidates)
-
+  assertDataFrame(candidates, nrows = ncol(fitness))
+  
   n = ncol(fitness)
   max = apply(fitness, 1, max)
   min = apply(fitness, 1, min)
@@ -310,14 +321,15 @@ computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
   ods = numeric(n)
   dds = numeric(n)
   cds = numeric(n)
-  dat = lapply(candidates, function(x) {
-    x$use.orig = NULL
-    return(x)})
-  dat = list_to_df(candidates)
+  # dat = lapply(candidates, function(x) {
+  #   x$use.orig = NULL
+  #   return(x)})
+  # dat = list_to_df(candidates)
+  # 
+  
+  g.dist = StatMatch::gower.dist(candidates)
 
-  g.dist = StatMatch::gower.dist(dat)
-
-  for (i in seq_len(ncol(fitness)-1)) {
+  for (i in c(1, 2)) {
     
     # get the order of the points when sorted according to the i-th objective
     ord = order(fitness[,3], fitness[,i])
