@@ -93,7 +93,7 @@ test_that("select_nondom", {
                      4, 3, 2, 7, 2, 5, 0), nrow = 3, ncol = 7, byrow = TRUE)
   
   population = data.frame("a" = 1, "b" = 2, "c" = "a")
-  population = population[rep(seq_len(nrow(population)), each=6),]
+  population = population[rep(seq_len(nrow(population)), each=7),]
   
   expect_equal(select_nondom(fitness, n.select = 3, population), c(7, 2, 3))
   expect_equal(select_nondom(fitness, 1, population), 7)

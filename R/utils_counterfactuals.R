@@ -11,8 +11,8 @@
 make_paramlist = function(input.data, lower = NULL, upper = NULL, integers = NULL) {
   
   checkmate::assert_data_frame(input.data)
-  checkmate::assert_numeric(lower, null.ok = TRUE, any.missing = FALSE)
-  checkmate::assert_numeric(upper, null.ok = TRUE, any.missing = FALSE)
+  checkmate::assert_numeric(lower, null.ok = TRUE)
+  checkmate::assert_numeric(upper, null.ok = TRUE)
   checkmate::assert_character(integers, null.ok = TRUE, any.missing = FALSE)
   
   assert_true(all(names(lower) %in% names(input.data)))
@@ -23,9 +23,9 @@ make_paramlist = function(input.data, lower = NULL, upper = NULL, integers = NUL
   l = lapply(colnames(input.data), function(colnam) { 
     col = input.data[[colnam]]
     l = ifelse(colnam %in% names(lower), 
-      lower[[colnam]], tryCatch(min(col), error = function(err) NA))
+      lower[[colnam]], tryCatch(min(col, na.rm = TRUE), error = function(err) NA))
     u = ifelse(colnam %in% names(upper), 
-      upper[[colnam]], tryCatch(max(col), error = function(err) NA))
+      upper[[colnam]], tryCatch(max(col, na.rm = TRUE), error = function(err) NA))
     
     if (is.double(col)) {
       ParamHelpers::makeNumericParam(colnam, lower = l, upper = u) 

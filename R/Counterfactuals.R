@@ -567,7 +567,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       if (labels) {
         diffs = results_diff[, !(names(results_diff) %in% c("dist.target", 
-          "dist.x.interest", "nr.changed", "pred"))]
+          "dist.x.interest", "nr.changed", "pred", "X1"))]
         labels = c()
         for(i in 1:nrow(diffs)) {
           names = names(diffs[i,])[diffs[i,] != 0]

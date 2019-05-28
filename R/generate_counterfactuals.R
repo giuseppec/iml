@@ -309,61 +309,61 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
 
 ## Version 2
 ## Seperated by number of features changed 
-
-computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
-  assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
-  assertDataFrame(candidates, nrows = ncol(fitness))
-  
-  n = ncol(fitness)
-  max = apply(fitness, 1, max)
-  min = apply(fitness, 1, min)
-  dim = nrow(fitness)
-  ods = numeric(n)
-  dds = numeric(n)
-  cds = numeric(n)
-  # dat = lapply(candidates, function(x) {
-  #   x$use.orig = NULL
-  #   return(x)})
-  # dat = list_to_df(candidates)
-  # 
-  
-  g.dist = StatMatch::gower.dist(candidates)
-
-  for (i in c(1, 2)) {
-    
-    # get the order of the points when sorted according to the i-th objective
-    ord = order(fitness[,3], fitness[,i])
-    min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
-    max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
-    ind.inf = min.changed|max.changed
-    # set the extreme values to Inf for each nr.features.changed (objective 3)
-    dds[ord[ind.inf]] = Inf
-    ods[ord[ind.inf]] = Inf
-    
-    #t = candidates[ord]
-    # update the remaining crowding numbers
-    if (n > 2L && !(n )) {
-      for (j in 2:(n - 1L)) {
-        
-        if (max[i] - min[i] != 0) {
-          ods[ord[j]] = ods[ord[j]] + 
-            (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
-        }
-        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
-        
-        dds[ord[j]] = dds[ord[j]] +
-          g.dist[ord[j], ord[j-1]] +
-          g.dist[ord[j], ord[j+1]]
-        
-      }
-    }
-  }
-  cds = rank(ods) + rank(dds)
-  cds = jitter(cds, factor = 1)
-  return(cds)
-}
-
-
+# 
+# computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
+#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+#   assertDataFrame(candidates, nrows = ncol(fitness))
+#   
+#   n = ncol(fitness)
+#   max = apply(fitness, 1, max)
+#   min = apply(fitness, 1, min)
+#   dim = nrow(fitness)
+#   ods = numeric(n)
+#   dds = numeric(n)
+#   cds = numeric(n)
+#   # dat = lapply(candidates, function(x) {
+#   #   x$use.orig = NULL
+#   #   return(x)})
+#   # dat = list_to_df(candidates)
+#   # 
+#   
+#   g.dist = StatMatch::gower.dist(candidates)
+# 
+#   for (i in c(1, 2)) {
+#     
+#     # get the order of the points when sorted according to the i-th objective
+#     ord = order(fitness[,3], fitness[,i])
+#     min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
+#     max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
+#     ind.inf = min.changed|max.changed
+#     # set the extreme values to Inf for each nr.features.changed (objective 3)
+#     dds[ord[ind.inf]] = Inf
+#     ods[ord[ind.inf]] = Inf
+#     
+#     #t = candidates[ord]
+#     # update the remaining crowding numbers
+#     if (n > 2L && !(n )) {
+#       for (j in 2:(n - 1L)) {
+#         
+#         if (max[i] - min[i] != 0) {
+#           ods[ord[j]] = ods[ord[j]] + 
+#             (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
+#         }
+#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+#         
+#         dds[ord[j]] = dds[ord[j]] +
+#           g.dist[ord[j], ord[j-1]] +
+#           g.dist[ord[j], ord[j+1]]
+#         
+#       }
+#     }
+#   }
+#   cds = rank(ods) + rank(dds)
+#   cds = jitter(cds, factor = 1)
+#   return(cds)
+# }
+# 
+# 
 
 
 ### Version 1
