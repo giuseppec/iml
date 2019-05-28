@@ -192,7 +192,7 @@ MarginalEffects = R6::R6Class("MarginalEffects",
 	grid_linear_steps = grid_linear_steps *
 		rep(1:self$grid.size, each = nrow(private$dataSample))
 	grid_interpolations = predictions[repe, ] + grid_linear_steps 
-        self$mse = colSums((grid_predictions - grid_interpolations)^2)
+        self$mse = colMeans((grid_predictions - grid_interpolations)^2)
       }
       fs = private$dataSample[, self$feature.name, with = FALSE]
       results = cbind(fs, results)
