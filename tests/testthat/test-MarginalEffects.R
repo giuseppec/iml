@@ -14,7 +14,6 @@ test_that("MarginalEffects general", {
   expect_false("data.table" %in% class(dat))
   expect_equal(colnames(dat), c("a", ".meffect"))
   checkPlot(me)
-
 })
 
 test_that("MarginalEffects for lm", {
@@ -33,7 +32,7 @@ test_that("MarginalEffects for lm", {
   expect_equal(c("pred" = cf), 2 * me$ame)
   expect_equal(cf, 2 * min(me$results$.meffect))
   expect_equal(cf, 2 * max(me$results$.meffect))
-
+  expect_equal(me$mse[[1]], 0)
   # derivative
   me = MarginalEffects$new(pred, feature = "speed", method = "derivative")
   cf = unname(coef(mod)["speed"])
@@ -46,7 +45,7 @@ test_that("MarginalEffects for lm", {
   expect_equal(c("pred" = cf),  me$ame)
   expect_equal(cf, min(me$results$.meffect))
   expect_equal(cf,  max(me$results$.meffect))
-
+  expect_null(me$mse)
 })
 
 test_that("MarginalEffects for multiple features", {
@@ -62,11 +61,18 @@ test_that("MarginalEffects for multiple features", {
   checkPlot(me)
   cf = 1 * unname(coef(mod)["speed"]) + 2 * unname(coef(mod)["x"])
   names(cf) = "pred"
-
+  expect_equal(me$mse, c("pred" = 0))
   expect_error( MarginalEffects$new(pred, feature = c("speed", "x"),
 				    method = "derivative"))
-
+  dat = cars
+  dat$x = rnorm(nrow(cars))
+  mod = lm(dist ~ speed + I(speed^2), data = dat)
+  pred = Predictor$new(mod, dat)
+  me = MarginalEffects$new(pred, feature = c("speed", "x"), step.size = c(1, 2))
+  dat = me$results
+  expect_gt(me$mse, 0)
 })
+
 
 test_that("MarginalEffects for multiclass", {
   me = MarginalEffects$new(predictor2, feature = 1, step.size = 1)
@@ -77,7 +83,7 @@ test_that("MarginalEffects for multiclass", {
   checkPlot(me)
   cf =  1/155
   expect_equal(me$ame, c("pred" = cf, "pred2" =  - cf))
-
+  expect_equal(length(me$mse), 2)
 
   me = MarginalEffects$new(predictor2, feature = 1, method = "derivative")
   dat = me$results
@@ -87,7 +93,6 @@ test_that("MarginalEffects for multiclass", {
   checkPlot(me)
   cf =  1/155
   expect_equal(me$ame, c("pred" = cf, "pred2" =  - cf))
-
 })
 
 test_that("MarginalEffects for multiclass and multiple features", {
@@ -100,4 +105,14 @@ test_that("MarginalEffects for multiclass and multiple features", {
   checkPlot(me)
   cf = 2
   expect_equal(me$ame, c("pred" = cf, "pred2" =  - cf))
+  expect_equal(length(me$mse), 2)
 })
+
+
+
+test_that("MarginalEffects MSE, different grids", {
+   me = MarginalEffects$new(predictor1, feature = 1,
+			   step.size = c(155), grid.size = 0)
+
+})
+

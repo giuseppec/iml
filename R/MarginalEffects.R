@@ -107,11 +107,12 @@ MarginalEffects = R6::R6Class("MarginalEffects",
     method  = NULL,
     ame = NULL,
     eps = NULL,
+    mse = NULL,
     initialize = function(predictor,
 			  feature,
 			  step.size = NULL,
 			  method = "forward",
-			  grid.size = 4,
+			  grid.size = 10,
 			  eps = 1e-07) {
       feature_index = private$sanitize.feature(feature,
 					       predictor$data$feature.names)
@@ -140,11 +141,17 @@ MarginalEffects = R6::R6Class("MarginalEffects",
     intervene = function(){
       private$dataSample = private$getData()
       if (self$method == "forward") {
-        sample2 = private$dataSample
-        steps = matrix(rep(self$step.size, each = nrow(sample2)),
-			   ncol = length(self$step.size))
-        sample2[, self$feature.name] = sample2[, self$feature.name, with = FALSE] + steps
-	private$dataDesign = rbind(private$dataSample, sample2)
+        rows = rep(1:nrow(private$dataSample), times = self$grid.size + 2)
+        sample2 = private$dataSample[rows, ]
+	# first and last grid steps (0 and step size) are used for fME
+	# steps inbetween for MSE computation
+        for (j in seq_along(self$feature.name)) {
+	  steps = seq(from = 0, to = self$step.size[j],
+		       length.out = self$grid.size + 2)
+	  steps = rep(steps, each = nrow(private$dataSample))
+	  sample2[, self$feature.name[j]] =  sample2[, self$feature.name[j], with = FALSE] + steps  
+	}
+	private$dataDesign = sample2
       } else if (self$method == "derivative"){
 	# Code from marginals package:
         setstep <- function(x) {
@@ -160,9 +167,10 @@ MarginalEffects = R6::R6Class("MarginalEffects",
     aggregate = function(){
       # Difference between prediction and forward prediction
       oindex = 1:nrow(private$dataSample)
-      findex = setdiff(1:nrow(private$dataDesign), oindex)
-      predictions = private$qResults[oindex, ]
-      fpredictions = private$qResults[findex, ]
+      # last n rows
+      findex = (nrow(private$dataDesign) - nrow(private$dataSample) + 1):nrow(private$dataDesign)
+      predictions = private$qResults[oindex, , drop = FALSE]
+      fpredictions = private$qResults[findex, , drop = FALSE]
       results = fpredictions - predictions
       # Analogue to margins package
       if (self$method == "derivative") {
@@ -170,6 +178,21 @@ MarginalEffects = R6::R6Class("MarginalEffects",
         results = (fpredictions - predictions) /
 	        (private$dataDesign[findex, ][[feat]] -
 	         private$dataDesign[oindex, ][[feat]])
+      } else if (self$grid.size > 0) {
+	# predictions to be used for MSE computation
+	mindex = setdiff(1:nrow(private$dataDesign), c(oindex, findex))
+        grid_predictions = private$qResults[mindex, ]
+
+	# Interpolation between actual prediction and forward predictions
+        interpolation_steps = ( fpredictions - predictions) /
+		( self$grid.size + 1)
+	interpolation_steps = data.frame(interpolation_steps)
+        repe = rep(1:nrow(private$dataSample), times = self$grid.size)
+	grid_linear_steps = interpolation_steps[repe, , drop = FALSE]
+	grid_linear_steps = grid_linear_steps *
+		rep(1:self$grid.size, each = nrow(private$dataSample))
+	grid_interpolations = predictions[repe, ] + grid_linear_steps 
+        self$mse = colSums((grid_predictions - grid_interpolations)^2)
       }
       fs = private$dataSample[, self$feature.name, with = FALSE]
       results = cbind(fs, results)
