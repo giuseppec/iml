@@ -263,6 +263,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       private$set_x_interest(x.interest)
       private$flush()
       private$run()
+      return(self)
     },
     subset_results = function(nr.solutions) {
       if (nr.solutions > nrow(self$results$counterfactuals)) {
@@ -335,6 +336,15 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     }, 
     calculate_diversity = function() {
       return(tail(self$log$population.div, 1))
+    }, 
+    calculate_freq = function(plot = FALSE) {
+      diff = self$results$counterfactuals.diff
+      diff = diff[!(names(diff) %in% c(private$obj.names, "pred"))]
+      freq = colSums(diff != 0)/nrow(diff)
+      if (plot) {
+        barplot(freq, ylim = c(0, 1))
+      }
+      return(freq)
     }
   ), 
   private = list(
@@ -635,5 +645,40 @@ plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.s
   object$plot(labels = labels, decimal.points = decimal.points, nr.solutions = nr.solutions)
 }
 
+#' @export
+calculate_freq_wrapper = function(counterfactual, target = NULL, obs = NULL, 
+  row.ids = NULL, plot = FALSE) {
+  assert_data_frame(obs, null.ok = TRUE)
+  assert_integerish(row.ids, null.ok = TRUE)
+  assert_numeric(target, min.len = 1, max.len = 2, null.ok = TRUE)
+  if (is.null(counterfactual$target) & is.null(target)) {
+    stop("target not specified")
+  }
+  
+  df = counterfactual$predictor$data$get.x()
+  if (!is.null(obs)) {
+    df = obs
+  }
+  if (!is.null(row.ids)) {
+    df = df[row.ids,]
+  }
+  if(is.null(target)) {
+    target = counterfactual$target 
+  }
+
+  freq = by(df, 1:nrow(df), function(row) {
+    counterfactual = counterfactual$explain(row, target)
+    counterfactual$calculate_freq()
+  })
+  freq = do.call(rbind, freq)
+  
+  average_freq = colMeans(freq)
+  
+  if(plot) {
+    barplot(average_freq, ylim = c(0, 1))
+  }
+  return(average_freq)
+  
+}
 
 
