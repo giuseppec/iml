@@ -353,6 +353,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     ref.point = NULL,
     sdev = NULL,
     param.set= NULL,
+    param.set.init = NULL,
     ecrresults = NULL,
     obj.names = c("dist.target", "dist.x.interest", "nr.changed"),
     set_x_interest = function(x.interest) {
@@ -393,6 +394,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         lower = lower.ps, 
         upper = upper.ps)
       )
+      private$param.set.init = ps.initialize
       initial.pop = ParamHelpers::sampleValues(ps.initialize, self$mu, 
         discrete.names = TRUE)
       if (self$use.ice.curve.var) {
@@ -437,6 +439,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         integer = ecr::setup(mosmafs::mutGaussIntScaled, p = self$p.mut.gen, sdev = sdev.l$integer),
         #numeric = ecr::setup(custom.mutGauss, p = self$p.mut.gen, sdev = sdev.l$numeric),
         #integer = ecr::setup(custom.mutGaussInt, p = self$p.mut.gen, sdev = sdev.l$integer),
+        #race = ecr::setup(mosmafs::mutBitflip, p = self$p.mut.gen),
         discrete = ecr::setup(mosmafs::mutRandomChoice, p = self$p.mut.gen),
         logical = ecr::setup(ecr::mutBitflip, p = self$p.mut.gen),
         use.orig = ecr::setup(ecr::mutBitflip, p = self$p.mut.use.orig),
