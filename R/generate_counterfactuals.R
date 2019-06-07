@@ -58,6 +58,7 @@ select_diverse = function (control, population, offspring, fitness,
   surv.idx = control$selectForSurvival(merged.fit, n.select = length(population), 
     merged.pop.df) 
   fitness = merged.fit[, surv.idx, drop = FALSE]
+  browser(expr = anyNA(fitness))
   fitness = BBmisc::addClasses(fitness, "ecr_fitness_matrix")
   fitness = BBmisc::setAttribute(fitness, "minimize", control$task$min)
   return(list(population = merged.pop[surv.idx], fitness = fitness))
@@ -125,7 +126,8 @@ select_nondom = ecr::makeSelector(
     front.len.cumsum = cumsum(front.len)
     
     # Get first front, that does exceed n.select
-    front.first.nonfit = BBmisc::which.first(front.len.cumsum > n.select)[[1]]
+    front.first.nonfit = as.numeric(names(front.len.cumsum)[
+      BBmisc::which.first(front.len.cumsum > n.select)[[1]]])
     
     if (front.first.nonfit > 1) {
       new.pop.idxs = (1:length(ranks))[ranks < front.first.nonfit]
@@ -302,7 +304,8 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
     }
   }
   
-  cds = rank(ods) + rank(dds)
+  cds = rank(ods, ties.method = "random") + 
+    rank(dds, ties.method = "random")
   return(cds)
 }
 
@@ -310,60 +313,60 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
 ## Version 2
 ## Seperated by number of features changed 
 # 
-# computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
-#   assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
-#   assertDataFrame(candidates, nrows = ncol(fitness))
-#   
-#   n = ncol(fitness)
-#   max = apply(fitness, 1, max)
-#   min = apply(fitness, 1, min)
-#   dim = nrow(fitness)
-#   ods = numeric(n)
-#   dds = numeric(n)
-#   cds = numeric(n)
-#   # dat = lapply(candidates, function(x) {
-#   #   x$use.orig = NULL
-#   #   return(x)})
-#   # dat = list_to_df(candidates)
-#   # 
-#   
-#   g.dist = StatMatch::gower.dist(candidates)
-# 
-#   for (i in c(1, 2)) {
-#     
-#     # get the order of the points when sorted according to the i-th objective
-#     ord = order(fitness[,3], fitness[,i])
-#     min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
-#     max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
-#     ind.inf = min.changed|max.changed
-#     # set the extreme values to Inf for each nr.features.changed (objective 3)
-#     dds[ord[ind.inf]] = Inf
-#     ods[ord[ind.inf]] = Inf
-#     
-#     #t = candidates[ord]
-#     # update the remaining crowding numbers
-#     if (n > 2L && !(n )) {
-#       for (j in 2:(n - 1L)) {
-#         
-#         if (max[i] - min[i] != 0) {
-#           ods[ord[j]] = ods[ord[j]] + 
-#             (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
-#         }
-#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
-#         
-#         dds[ord[j]] = dds[ord[j]] +
-#           g.dist[ord[j], ord[j-1]] +
-#           g.dist[ord[j], ord[j+1]]
-#         
-#       }
-#     }
-#   }
-#   cds = rank(ods) + rank(dds)
-#   cds = jitter(cds, factor = 1)
-#   return(cds)
-# }
-# 
-# 
+computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
+  assertMatrix(fitness, mode = "numeric", any.missing = FALSE, all.missing = FALSE)
+  assertDataFrame(candidates, nrows = ncol(fitness))
+
+  n = ncol(fitness)
+  max = apply(fitness, 1, max)
+  min = apply(fitness, 1, min)
+  dim = nrow(fitness)
+  ods = numeric(n)
+  dds = numeric(n)
+  cds = numeric(n)
+  # dat = lapply(candidates, function(x) {
+  #   x$use.orig = NULL
+  #   return(x)})
+  # dat = list_to_df(candidates)
+  #
+
+  g.dist = StatMatch::gower.dist(candidates)
+
+  for (i in c(1, 2)) {
+
+    # get the order of the points when sorted according to the i-th objective
+    ord = order(fitness[,3], fitness[,i])
+    min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
+    max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
+    ind.inf = min.changed|max.changed
+    # set the extreme values to Inf for each nr.features.changed (objective 3)
+    dds[ord[ind.inf]] = Inf
+    ods[ord[ind.inf]] = Inf
+
+    #t = candidates[ord]
+    # update the remaining crowding numbers
+    if (n > 2L && !(n )) {
+      for (j in 2:(n - 1L)) {
+
+        if (max[i] - min[i] != 0) {
+          ods[ord[j]] = ods[ord[j]] +
+            (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
+        }
+        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
+
+        dds[ord[j]] = dds[ord[j]] +
+          g.dist[ord[j], ord[j-1]] +
+          g.dist[ord[j], ord[j+1]]
+
+      }
+    }
+  }
+  cds = rank(ods) + rank(dds)
+  cds = jitter(cds, factor = 1)
+  return(cds)
+}
+
+
 
 
 ### Version 1
@@ -491,4 +494,118 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
 # }
 
 
+custom_generateOffspring = function (control, inds, fitness, lambda, p.recomb = 0.7, p.mut = 0.1) 
+{
+  if (is.null(control$mutate) & is.null(control$recombinate)) 
+    stopf("generateOffspring: At least a mutator or recombinator needs to be available.")
+  offspring = if (!is.null(control$recombine)) {
+    custom_recombinate(control, inds, fitness, lambda, p.recomb = p.recomb)
+  }
+  else {
+    mating.idx = custom_getMatingPool(control, inds, fitness, lambda = lambda)
+    offspring = inds[as.integer(mating.idx)]
+  }
+  offspring = ecr:::mutate(control, offspring, p.mut = p.mut)
+  return(offspring)
+}
+
+
+custom_getMatingPool = function(control, inds, fitness, lambda = length(inds), slot = "recombine") {
+  assertFunction(control$selectForMating)
+  recombinatorFun = control[[slot]]
+  
+  #FIXME: eventually drop this in order to come up with a simpler interface
+  #FIXME: why all the recombinator checks? If none is passed we cannot recombine!
+  # determine how many elements need to be chosen by parentSelector
+  # if no recombinator exists we select simply lambda elements
+  n.mating = lambda
+  n.parents = 1L
+  if (!is.null(recombinatorFun)) {
+    n.children = ecr:::getNumberOfChildren.ecr_recombinator(recombinatorFun)
+    n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(recombinatorFun)
+    n.mating = ceiling(lambda * n.parents / n.children)
+    if (n.mating == 1L)
+      n.mating = n.parents
+    # if number of offspring is odd and number of mating
+    if (n.mating %% n.parents != 0L)
+      n.mating = n.mating + (n.mating %% n.parents)
+  }
+  # create mating pool. This a a matrix, where each row contains the indizes of
+  # a set of >= 2 parents
+  mating.idx = matrix(custom_selectForMating(control, fitness, n.select = n.mating, inds), 
+    ncol = n.parents)
+  return(mating.idx)
+}
+
+
+custom_selectForMating <- function (control, fitness, n.select, inds) 
+{
+  assertClass(control, "ecr_control")
+  assertClass(control$selectForMating, "ecr_selector")
+  assertMatrix(fitness, min.rows = 1L, any.missing = FALSE, 
+    all.missing = FALSE)
+  n.select = asInt(n.select, lower = 1L)
+  ecr:::checkIfSelectorMatchesObjectives(control$selectForMating, 
+    control, "selectForMating")
+  fitness = ecr:::transformFitness(fitness, control$task, control$selectForMating)
+  control$selectForMating(fitness, inds, n.select = n.select)
+}
+
+
+custom_selTournamentMO <- makeSelector(function(fitness, n.select, 
+  inds,  sorting = "crowding", 
+  ref.point, k = 2, return.unique = FALSE) {
+  assertMatrix(fitness, min.cols = 1, min.rows = 2)
+  assertFlag(return.unique)
+  assertInt(n.select, lower = 1, upper = if (return.unique) ncol(fitness) else Inf)
+  assertInt(k, lower = 1)
+  k <- min(k, ncol(fitness))
+  rank.all <- custom_overallRankMO(fitness, inds, sorting, ref.point)
+  
+  pool <- seq_len(ncol(fitness))
+  replicate(n.select, {
+    if (k >= length(pool)) {
+      competitors <- pool
+    } else {
+      competitors <- sample(pool, k, replace = FALSE)
+    }
+    choice <- competitors[which.min(rank.all[competitors])]
+    if (return.unique) {
+      pool <<- setdiff(pool, choice)
+    }
+    choice
+  })
+}, supported.objectives = "multi-objective")
+
+
+
+custom_overallRankMO <- function(fitness, inds, sorting = "crowding", ref.point) {
+  assertChoice(sorting, c("crowding", "domhv"))
+  if (sorting == "domhv") {
+    assertNumeric(ref.point, finite = TRUE, any.missing = FALSE, len = nrow(fitness))
+  }
+  
+  assertMatrix(fitness, min.cols = 1, min.rows = 2)
+  ranksort0 <- doNondominatedSorting(fitness)$ranks
+  ranksort1 <- vector("numeric", length(ranksort0))
+  for (rnk in unique(ranksort0)) {
+    subfit <- fitness[, ranksort0 == rnk, drop = FALSE]
+    subfit <- subfit + runif(length(subfit), -1, 1) * .Machine$double.eps * 2^9 * subfit
+    subinds <- inds[ranksort0 == rnk]
+    if (sorting == "crowding") {
+      secondary <- computeCrowdingDistanceR_ver1(as.matrix(subfit[1:2,]), subinds)
+    } else {
+      if (ncol(subfit) == 1) {
+        # TODO: don't need this any more when https://github.com/jakobbossek/ecr2/issues/109 is fixed
+        secondary <- prod(ref.point - subfit)
+      } else {
+        secondary <- computeHVContr(subfit, ref.point)
+      }
+    }
+    ranksort1[ranksort0 == rnk] <- secondary
+  }
+  rankresult <- vector("integer", ncol(fitness))
+  rankresult[order(ranksort0, -ranksort1)] <- seq_len(ncol(fitness))
+  rankresult
+}
 

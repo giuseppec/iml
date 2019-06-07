@@ -24,7 +24,6 @@
 #' counterfactual$calculate_hv()
 #' counterfactual$calculate_diversity()
 #' }
-#' 
 #' @section Arguments: 
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
@@ -191,12 +190,14 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     p.rec.use.orig = NULL,
     use.ice.curve.var = NULL,
     crow.dist.version = NULL,
+    binary.tournament = FALSE, 
     log = NULL,
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
       mu = 50, generations = 50, p.mut = 0.2, p.rec = 0.9, p.mut.gen = 0.5,
       p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
-      use.ice.curve.var = FALSE, crow.dist.version = 1) {
+      use.ice.curve.var = FALSE, crow.dist.version = 1, 
+      binary.tournament = FALSE) {
       
       super$initialize(predictor = predictor)
       fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
@@ -239,6 +240,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$p.rec.use.orig = p.rec.use.orig
       self$use.ice.curve.var = use.ice.curve.var
       self$crow.dist.version = crow.dist.version
+      self$binary.tournament = binary.tournament
       
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
@@ -466,7 +468,12 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         }))
       }, n.parents = 2, n.children = 2)
       
-      parent.selector = ecr::selSimple
+      if (self$binary.tournament) {
+          parent.selector = selTournamentMO
+      }
+      else {
+        parent.selector = ecr::selSimple
+      }
       
       survival.selector = ecr::setup(select_nondom, 
         epsilon = self$epsilon,  
@@ -516,6 +523,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       pareto.set.diff = get_diff(pareto.set, self$x.interest)
       pred = private$qResults
+      names(pred) = "pred"
       
       pareto.set.pf = cbind(pareto.set, pred, pareto.front)
       pareto.set.pf = pareto.set.pf[order(pareto.set.pf$dist.target),]
@@ -648,6 +656,30 @@ plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.s
   object$plot(labels = labels, decimal.points = decimal.points, nr.solutions = nr.solutions)
 }
 
+#' @title Calculate frequency of one feature altered
+#' 
+#' @description Identify leverages that alter prediction to desired target
+#'  over multiple datapoints. Leverages are identified by calculating
+#'  the frequency a feature was altered within the set of the 
+#'  final calculated counterfactuals.  
+#'  
+#' @section Arguments: 
+#' \describe{
+#' \item{counterfactual: }{(Counterfactuals)\cr Instance of class 
+#' `Counterfactual` to extract
+#' dataset and target, if not needed, as well as all the parameters}
+#' \item{target: }{(numeric(1)|numeric(2))\cr Desired outcome either a 
+#' single numeric or 
+#' a vector of two numerics, to define a desired interval of outcome.}
+#' \item{obs: }{(data.frame) data.frame to use to identify leverages 
+#' by calculating counterfactuals for them}
+#' \item{row.ids }{(integer) Rows with the specific row.ids are extracted
+#' from the input data defined in the predictor field of the 
+#' `Counterfactuals` class. The subset is used to identify leverages.}
+#' \item{plot: }{(logical(1)) whether to plot the frequency over all 
+#' observations}
+#' }
+#' 
 #' @export
 calculate_freq_wrapper = function(counterfactual, target = NULL, obs = NULL, 
   row.ids = NULL, plot = FALSE) {
@@ -668,7 +700,8 @@ calculate_freq_wrapper = function(counterfactual, target = NULL, obs = NULL,
   if(is.null(target)) {
     target = counterfactual$target 
   }
-
+  
+  df = as.data.frame(df)
   freq = by(df, 1:nrow(df), function(row) {
     counterfactual = counterfactual$explain(row, target)
     counterfactual$calculate_freq()
