@@ -494,118 +494,118 @@ computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
 # }
 
 
-custom_generateOffspring = function (control, inds, fitness, lambda, p.recomb = 0.7, p.mut = 0.1) 
-{
-  if (is.null(control$mutate) & is.null(control$recombinate)) 
-    stopf("generateOffspring: At least a mutator or recombinator needs to be available.")
-  offspring = if (!is.null(control$recombine)) {
-    custom_recombinate(control, inds, fitness, lambda, p.recomb = p.recomb)
-  }
-  else {
-    mating.idx = custom_getMatingPool(control, inds, fitness, lambda = lambda)
-    offspring = inds[as.integer(mating.idx)]
-  }
-  offspring = ecr:::mutate(control, offspring, p.mut = p.mut)
-  return(offspring)
-}
-
-
-custom_getMatingPool = function(control, inds, fitness, lambda = length(inds), slot = "recombine") {
-  assertFunction(control$selectForMating)
-  recombinatorFun = control[[slot]]
-  
-  #FIXME: eventually drop this in order to come up with a simpler interface
-  #FIXME: why all the recombinator checks? If none is passed we cannot recombine!
-  # determine how many elements need to be chosen by parentSelector
-  # if no recombinator exists we select simply lambda elements
-  n.mating = lambda
-  n.parents = 1L
-  if (!is.null(recombinatorFun)) {
-    n.children = ecr:::getNumberOfChildren.ecr_recombinator(recombinatorFun)
-    n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(recombinatorFun)
-    n.mating = ceiling(lambda * n.parents / n.children)
-    if (n.mating == 1L)
-      n.mating = n.parents
-    # if number of offspring is odd and number of mating
-    if (n.mating %% n.parents != 0L)
-      n.mating = n.mating + (n.mating %% n.parents)
-  }
-  # create mating pool. This a a matrix, where each row contains the indizes of
-  # a set of >= 2 parents
-  mating.idx = matrix(custom_selectForMating(control, fitness, n.select = n.mating, inds), 
-    ncol = n.parents)
-  return(mating.idx)
-}
-
-
-custom_selectForMating <- function (control, fitness, n.select, inds) 
-{
-  assertClass(control, "ecr_control")
-  assertClass(control$selectForMating, "ecr_selector")
-  assertMatrix(fitness, min.rows = 1L, any.missing = FALSE, 
-    all.missing = FALSE)
-  n.select = asInt(n.select, lower = 1L)
-  ecr:::checkIfSelectorMatchesObjectives(control$selectForMating, 
-    control, "selectForMating")
-  fitness = ecr:::transformFitness(fitness, control$task, control$selectForMating)
-  control$selectForMating(fitness, inds, n.select = n.select)
-}
-
-
-custom_selTournamentMO <- makeSelector(function(fitness, n.select, 
-  inds,  sorting = "crowding", 
-  ref.point, k = 2, return.unique = FALSE) {
-  assertMatrix(fitness, min.cols = 1, min.rows = 2)
-  assertFlag(return.unique)
-  assertInt(n.select, lower = 1, upper = if (return.unique) ncol(fitness) else Inf)
-  assertInt(k, lower = 1)
-  k <- min(k, ncol(fitness))
-  rank.all <- custom_overallRankMO(fitness, inds, sorting, ref.point)
-  
-  pool <- seq_len(ncol(fitness))
-  replicate(n.select, {
-    if (k >= length(pool)) {
-      competitors <- pool
-    } else {
-      competitors <- sample(pool, k, replace = FALSE)
-    }
-    choice <- competitors[which.min(rank.all[competitors])]
-    if (return.unique) {
-      pool <<- setdiff(pool, choice)
-    }
-    choice
-  })
-}, supported.objectives = "multi-objective")
-
-
-
-custom_overallRankMO <- function(fitness, inds, sorting = "crowding", ref.point) {
-  assertChoice(sorting, c("crowding", "domhv"))
-  if (sorting == "domhv") {
-    assertNumeric(ref.point, finite = TRUE, any.missing = FALSE, len = nrow(fitness))
-  }
-  
-  assertMatrix(fitness, min.cols = 1, min.rows = 2)
-  ranksort0 <- doNondominatedSorting(fitness)$ranks
-  ranksort1 <- vector("numeric", length(ranksort0))
-  for (rnk in unique(ranksort0)) {
-    subfit <- fitness[, ranksort0 == rnk, drop = FALSE]
-    subfit <- subfit + runif(length(subfit), -1, 1) * .Machine$double.eps * 2^9 * subfit
-    subinds <- inds[ranksort0 == rnk]
-    if (sorting == "crowding") {
-      secondary <- computeCrowdingDistanceR_ver1(as.matrix(subfit[1:2,]), subinds)
-    } else {
-      if (ncol(subfit) == 1) {
-        # TODO: don't need this any more when https://github.com/jakobbossek/ecr2/issues/109 is fixed
-        secondary <- prod(ref.point - subfit)
-      } else {
-        secondary <- computeHVContr(subfit, ref.point)
-      }
-    }
-    ranksort1[ranksort0 == rnk] <- secondary
-  }
-  rankresult <- vector("integer", ncol(fitness))
-  rankresult[order(ranksort0, -ranksort1)] <- seq_len(ncol(fitness))
-  rankresult
-}
-
+# custom_generateOffspring = function (control, inds, fitness, lambda, p.recomb = 0.7, p.mut = 0.1) 
+# {
+#   if (is.null(control$mutate) & is.null(control$recombinate)) 
+#     stopf("generateOffspring: At least a mutator or recombinator needs to be available.")
+#   offspring = if (!is.null(control$recombine)) {
+#     custom_recombinate(control, inds, fitness, lambda, p.recomb = p.recomb)
+#   }
+#   else {
+#     mating.idx = custom_getMatingPool(control, inds, fitness, lambda = lambda)
+#     offspring = inds[as.integer(mating.idx)]
+#   }
+#   offspring = ecr:::mutate(control, offspring, p.mut = p.mut)
+#   return(offspring)
+# }
+# 
+# 
+# custom_getMatingPool = function(control, inds, fitness, lambda = length(inds), slot = "recombine") {
+#   assertFunction(control$selectForMating)
+#   recombinatorFun = control[[slot]]
+#   
+#   #FIXME: eventually drop this in order to come up with a simpler interface
+#   #FIXME: why all the recombinator checks? If none is passed we cannot recombine!
+#   # determine how many elements need to be chosen by parentSelector
+#   # if no recombinator exists we select simply lambda elements
+#   n.mating = lambda
+#   n.parents = 1L
+#   if (!is.null(recombinatorFun)) {
+#     n.children = ecr:::getNumberOfChildren.ecr_recombinator(recombinatorFun)
+#     n.parents = ecr:::getNumberOfParentsNeededForMating.ecr_recombinator(recombinatorFun)
+#     n.mating = ceiling(lambda * n.parents / n.children)
+#     if (n.mating == 1L)
+#       n.mating = n.parents
+#     # if number of offspring is odd and number of mating
+#     if (n.mating %% n.parents != 0L)
+#       n.mating = n.mating + (n.mating %% n.parents)
+#   }
+#   # create mating pool. This a a matrix, where each row contains the indizes of
+#   # a set of >= 2 parents
+#   mating.idx = matrix(custom_selectForMating(control, fitness, n.select = n.mating, inds), 
+#     ncol = n.parents)
+#   return(mating.idx)
+# }
+# 
+# 
+# custom_selectForMating <- function (control, fitness, n.select, inds) 
+# {
+#   assertClass(control, "ecr_control")
+#   assertClass(control$selectForMating, "ecr_selector")
+#   assertMatrix(fitness, min.rows = 1L, any.missing = FALSE, 
+#     all.missing = FALSE)
+#   n.select = asInt(n.select, lower = 1L)
+#   ecr:::checkIfSelectorMatchesObjectives(control$selectForMating, 
+#     control, "selectForMating")
+#   fitness = ecr:::transformFitness(fitness, control$task, control$selectForMating)
+#   control$selectForMating(fitness, inds, n.select = n.select)
+# }
+# 
+# 
+# custom_selTournamentMO <- makeSelector(function(fitness, n.select, 
+#   inds,  sorting = "crowding", 
+#   ref.point, k = 2, return.unique = FALSE) {
+#   assertMatrix(fitness, min.cols = 1, min.rows = 2)
+#   assertFlag(return.unique)
+#   assertInt(n.select, lower = 1, upper = if (return.unique) ncol(fitness) else Inf)
+#   assertInt(k, lower = 1)
+#   k <- min(k, ncol(fitness))
+#   rank.all <- custom_overallRankMO(fitness, inds, sorting, ref.point)
+#   
+#   pool <- seq_len(ncol(fitness))
+#   replicate(n.select, {
+#     if (k >= length(pool)) {
+#       competitors <- pool
+#     } else {
+#       competitors <- sample(pool, k, replace = FALSE)
+#     }
+#     choice <- competitors[which.min(rank.all[competitors])]
+#     if (return.unique) {
+#       pool <<- setdiff(pool, choice)
+#     }
+#     choice
+#   })
+# }, supported.objectives = "multi-objective")
+# 
+# 
+# 
+# custom_overallRankMO <- function(fitness, inds, sorting = "crowding", ref.point) {
+#   assertChoice(sorting, c("crowding", "domhv"))
+#   if (sorting == "domhv") {
+#     assertNumeric(ref.point, finite = TRUE, any.missing = FALSE, len = nrow(fitness))
+#   }
+#   
+#   assertMatrix(fitness, min.cols = 1, min.rows = 2)
+#   ranksort0 <- doNondominatedSorting(fitness)$ranks
+#   ranksort1 <- vector("numeric", length(ranksort0))
+#   for (rnk in unique(ranksort0)) {
+#     subfit <- fitness[, ranksort0 == rnk, drop = FALSE]
+#     subfit <- subfit + runif(length(subfit), -1, 1) * .Machine$double.eps * 2^9 * subfit
+#     subinds <- inds[ranksort0 == rnk]
+#     if (sorting == "crowding") {
+#       secondary <- computeCrowdingDistanceR_ver1(as.matrix(subfit[1:2,]), subinds)
+#     } else {
+#       if (ncol(subfit) == 1) {
+#         # TODO: don't need this any more when https://github.com/jakobbossek/ecr2/issues/109 is fixed
+#         secondary <- prod(ref.point - subfit)
+#       } else {
+#         secondary <- computeHVContr(subfit, ref.point)
+#       }
+#     }
+#     ranksort1[ranksort0 == rnk] <- secondary
+#   }
+#   rankresult <- vector("integer", ncol(fitness))
+#   rankresult[order(ranksort0, -ranksort1)] <- seq_len(ncol(fitness))
+#   rankresult
+# }
+# 

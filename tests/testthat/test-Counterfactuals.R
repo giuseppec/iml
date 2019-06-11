@@ -146,28 +146,52 @@ test_that("if solution already known, solution is found", {
 })
 
 
-test_that("fixed features works with numbers", {
-  test.df = Boston[, c("lstat", "rm", "medv")]
-  lm =  lm(medv ~ ., data = test.df)
-  mod = Predictor$new(lm, data = test.df)
-  test.df = test.df[, names(test.df) %in% c("lstat", "rm")]
-  x.interest = test.df[5,]
-  
+test.df = Boston[, c("lstat", "rm", "medv")]
+lm =  lm(medv ~ ., data = test.df)
+mod = Predictor$new(lm, data = test.df)
+test.df = test.df[, names(test.df) %in% c("lstat", "rm")]
+x.interest = test.df[5,]
+
+test_that("fixed features works with numbers and lower and upper specified", {
   cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
     target = 20, fixed.features = 1, generations = 10)
+  expect_true(all(cf.lm$results$counterfactuals.diff$lstat == 0))
   
   # works although ordering of x.interest columns changed
   x.interest = x.interest[, c("rm", "lstat")]
   cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
     target = 20, fixed.features = 1, generations = 10)
   expect_true(all(cf.lm$results$counterfactuals.diff$lstat == 0))
+  
+
 })
 
-
-test_that("wrong feature names of x.interest", {
-  names(x.interest)[1] = "criem"
-  expect_error(cf$explain(x.interest = x.interest, target = 30))
+test_that("works with lower and upper specified", {
+  lower = 5.3
+  upper = 5.5
+  names(lower) = "lstat"
+  names(upper) = "lstat"
+  cf.lm.range = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
+    target = 20, generations = 10, 
+    lower = lower, upper = upper)
+  expect_true(all(cf.lm.range$results$counterfactuals$lstat >= 5.3 & 
+      cf.lm.range$results$counterfactuals$lstat <= 5.5))
+  
+  # x.interest not in range lower to upper
+  lower["lstat"] = 5.4
+  expect_error(Counterfactuals$new(predictor = mod, x.interest = x.interest, 
+    target = 20, generations = 10, 
+    lower = lower, upper = upper), "Feature values of x.interest outside range")
+  
+  # lower > upper 
+  lower["lstat"] = 6
+  expect_error(Counterfactuals$new(predictor = mod, x.interest = x.interest, 
+    target = 20, generations = 10, 
+    lower = lower, upper = upper), 
+    "some component of 'upper' is smaller than the corresponding one in 'lower'")
+  
+  plot(cf.lm.range, nr.changed = 2)
+  freq_1 = cf.lm.range$calculate_freq()
+  freq_2 = calculate_freq_wrapper(cf.lm.range, obs = x.interest)
 })
-
-
 

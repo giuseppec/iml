@@ -85,15 +85,20 @@
 #' a vector of two numerics, to define a desired interval of outcome.}
 #' \item{epsilon: }{(numeric(1))\cr Maximal accepted absolute distance from target.}
 #' \item{fixed.features: }{(character)\cr 
-#' Feature names for which no deviation from values of x.interest are allowed.} 
-#' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.}
+#' Feature names for which no deviation from values of x.interest are allowed.
+#' If NULL, all features are allowed to deviate.} 
+#' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.
+#' If NULL, no limit is set.}
 #' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
 #' number of nearly generated individuals in each generation.}
 #' \item{generations: }{(integer(1))\cr Number of generations.}
 #' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child. Default is 0.2}
-#' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child}
-#' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene}
-#' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene}
+#' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child.}
+#' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene.}
+#' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene.}
+#' \item{lower:}{numeric\cr Vector of minimal values for numeric features. If NULL
+#' lower is extracted from input data specified in field `data` of `predictor`.}
+#' \item{upper:}{numeric\cr Vecotor of maximal values for numeric features.}
 #' \item{use.ice.curve.var:}{logical(1)\cr Whether ICE curve variance should be used to 
 #' initialize population.}
 #' }
@@ -191,13 +196,15 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     use.ice.curve.var = NULL,
     crow.dist.version = NULL,
     binary.tournament = FALSE, 
+    lower = NULL,
+    upper = NULL,
     log = NULL,
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
       mu = 50, generations = 50, p.mut = 0.2, p.rec = 0.9, p.mut.gen = 0.5,
       p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
       use.ice.curve.var = FALSE, crow.dist.version = 1, 
-      binary.tournament = FALSE) {
+      lower = NULL, upper = NULL) {
       
       super$initialize(predictor = predictor)
       fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
@@ -220,12 +227,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_number(p.mut.gen, lower = 0, upper = 1)
       checkmate::assert_number(p.rec.gen, lower = 0, upper = 1)
       checkmate::assert_true(crow.dist.version %in% c(1, 2))
+      checkmate::assert_numeric(lower, null.ok = TRUE, any.missing = FALSE)
+      checkmate::assert_numeric(upper, null.ok = TRUE, any.missing = FALSE)
       
       # assign
-      x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
-      if (!is.null(x.interest)) {
-        private$set_x_interest(x.interest)
-      }
       self$target = target
       self$epsilon = epsilon
       self$max.changed = max.changed
@@ -240,11 +245,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$p.rec.use.orig = p.rec.use.orig
       self$use.ice.curve.var = use.ice.curve.var
       self$crow.dist.version = crow.dist.version
-      self$binary.tournament = binary.tournament
+      self$lower = lower
+      self$upper = upper
       
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
-        params = make_paramlist(predictor$data$get.x()))
+        params = make_paramlist(predictor$data$get.x(), 
+        lower = lower, upper = upper))
       
       # Extract info from input.data
       private$range = ParamHelpers::getUpper(private$param.set) - 
@@ -253,6 +260,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         [ParamHelpers::getParamTypes(private$param.set) == "discrete"]]  = NA
       private$range = private$range[predictor$data$feature.names]
       private$sdev = apply(Filter(is.numeric, predictor$data$get.x()), 2, sd)
+      
+      
+      # Set x.interest     
+      x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
+      if (!is.null(x.interest)) {
+        private$set_x_interest(x.interest)
+      }
       if (!is.null(x.interest) & !is.null(target)) {
         private$run()
       }
@@ -369,6 +383,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         warning("columns of x.interest were reordered according to predictor$data$feature.names")
         x.interest = x.interest[, self$predictor$data$feature.names]
       }
+      x.interest.list = as.list(x.interest)
+      x.interest.list$use.orig = rep(TRUE, ncol(x.interest))
+      if (!isFeasible(private$param.set, x.interest.list)) {
+        stop(paste("Feature values of x.interest outside range of training data",
+          "of predictor or given arguments lower or upper. Please modify arguments",
+          "lower or upper accordingly."))
+      }
       self$y.hat.interest = self$predictor$predict(x.interest)[1,]
       self$x.interest = x.interest
     }, 
@@ -390,7 +411,9 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       lower = self$x.interest[names(private$sdev)] - private$sdev
       upper = self$x.interest[names(private$sdev)] + private$sdev
       lower.ps = pmax(ParamHelpers::getLower(private$param.set), lower)
-      upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper) 
+      upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper)
+      lower.ps[names(self$lower)] = self$lower
+      upper.ps[names(self$upper)] = self$upper
       ps.initialize = ParamHelpers::makeParamSet(params = make_paramlist(
         self$predictor$data$get.x(), 
         lower = lower.ps, 
@@ -564,16 +587,17 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       return(results)
     },
     generatePlot = function(labels = FALSE, decimal.points = 3, nr.solutions = NULL, 
-      select.nr.changed = NULL) {
+      nr.changed = NULL) {
       assert_logical(labels)
       assert_integerish(decimal.points, null.ok = !labels)
-      assert_integerish(nr.solutions, null.ok = TRUE)
+      assert_int(nr.solutions, null.ok = TRUE)
+      assert_integerish(nr.changed, null.ok = TRUE)
       results_diff = self$results$counterfactuals.diff
       if (!is.null(nr.solutions)) {
         results_diff = self$subset_results(nr.solutions)$counterfactuals.diff
       }
-      if (!is.null(select.nr.changed)) {
-        results_diff = results_diff[results_diff$nr.changed %in% select.nr.changed, ]
+      if (!is.null(nr.changed)) {
+        results_diff = results_diff[results_diff$nr.changed %in% nr.changed, ]
       }
       pf = results_diff[, private$obj.names]
       
@@ -617,15 +641,19 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 
 
 #' Plot Counterfactuals
-#' 
-#' plot.Counterfactuals() plots the Pareto front, the found Counterfactuals.
-#' 
-#' @param object  A Counterfactuals R6 object
+#'
+#' \code{plot.Counterfactuals()} plots the Pareto front, the found Counterfactuals.
+#' @format \code{\link{R6Class}} object.
+#' @section Arguments: 
+#' \describe{
 #' \item{labels:}{logical(1)\cr Whether labels with difference to feature values of 
 #' x.interest should be plotted. Default is `FALSE`.}
 #' \item{decimal.points:}{integer(1)\cr Number of decimal places used. Default is `3`.}
 #' \item{nr.solutions:}{integer(1)\cr Number of solutions showed. Default `NULL` means, 
 #' all solutions are showed.}
+#' \item{nr.changed:}{integer}\cr Plot only counterfactuals with certain number of 
+#' features changed.}
+#' }
 #' @return ggplot2 plot object
 #' @seealso 
 #' \link{Counterfactuals}
@@ -644,16 +672,17 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #' mod$predict(x.interest)
 #' target = 30
 #' cf = Counterfactuals$new(mod, x.interest = x.interest, target = target, 
-#'   mu = 50, generations = 100)
+#'   mu = 50, generations = 60)
 #'
 #' # The results can be plotted
 #' plot(cf)
-#' plot(cf, labels = TRUE)
+#' plot(cf, labels = TRUE, nr.solutions = 10)
 #' }
 #' }
 #' @export
-plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.solutions = NULL) {
-  object$plot(labels = labels, decimal.points = decimal.points, nr.solutions = nr.solutions)
+plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.solutions = NULL, nr.changed = NULL) {
+  object$plot(labels = labels, decimal.points = decimal.points, nr.solutions = nr.solutions, 
+    nr.changed = nr.changed)
 }
 
 #' @title Calculate frequency of one feature altered
