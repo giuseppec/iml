@@ -74,6 +74,14 @@ test_that("Counterfactuals only one solutions if target equal prediction", {
     c("gg", "ggplot"))
 })
 
+test_that("colnames of x.interest not identical to training data names", {
+  names(x.interest) = c("crim2", names(x.interest)[2:length(names(x.interest))])
+  expect_error(Counterfactuals$new(mod, x.interest = x.interest, target = target, 
+    mu = 50, generations = generations, use.ice.curve.var = FALSE), 
+    "colnames of x.interest must be identical to training data")
+  
+})
+
 
 
 test_that("Counterfactual solutions if target in infeasible space", {
@@ -146,13 +154,15 @@ test_that("if solution already known, solution is found", {
 })
 
 
-test.df = Boston[, c("lstat", "rm", "medv")]
-lm =  lm(medv ~ ., data = test.df)
-mod = Predictor$new(lm, data = test.df)
-test.df = test.df[, names(test.df) %in% c("lstat", "rm")]
-x.interest = test.df[5,]
-
 test_that("fixed features works with numbers and lower and upper specified", {
+  
+  
+  test.df = Boston[, c("lstat", "rm", "medv")]
+  lm =  lm(medv ~ ., data = test.df)
+  mod = Predictor$new(lm, data = test.df)
+  test.df = test.df[, names(test.df) %in% c("lstat", "rm")]
+  x.interest = test.df[5,]
+  
   cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
     target = 20, fixed.features = 1, generations = 10)
   expect_true(all(cf.lm$results$counterfactuals.diff$lstat == 0))
@@ -162,26 +172,24 @@ test_that("fixed features works with numbers and lower and upper specified", {
   cf.lm = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
     target = 20, fixed.features = 1, generations = 10)
   expect_true(all(cf.lm$results$counterfactuals.diff$lstat == 0))
-  
-
 })
 
 test_that("works with lower and upper specified", {
-  lower = 5.3
-  upper = 5.5
+  lower = 4.9
+  upper = 5.1
   names(lower) = "lstat"
   names(upper) = "lstat"
   cf.lm.range = Counterfactuals$new(predictor = mod, x.interest = x.interest, 
     target = 20, generations = 10, 
     lower = lower, upper = upper)
-  expect_true(all(cf.lm.range$results$counterfactuals$lstat >= 5.3 & 
-      cf.lm.range$results$counterfactuals$lstat <= 5.5))
+  expect_true(all(cf.lm.range$results$counterfactuals$lstat >= 4.9 & 
+      cf.lm.range$results$counterfactuals$lstat <= 5.1))
   
   # x.interest not in range lower to upper
   lower["lstat"] = 5.4
   expect_error(Counterfactuals$new(predictor = mod, x.interest = x.interest, 
     target = 20, generations = 10, 
-    lower = lower, upper = upper), "Feature values of x.interest outside range")
+    lower = lower, upper = upper), "'upper' is smaller than the corresponding one in 'lower'")
   
   # lower > upper 
   lower["lstat"] = 6
@@ -191,7 +199,54 @@ test_that("works with lower and upper specified", {
     "some component of 'upper' is smaller than the corresponding one in 'lower'")
   
   plot(cf.lm.range, nr.changed = 2)
-  freq_1 = cf.lm.range$calculate_freq()
+  freq_1 = cf.lm.range$calculate_freq(plot = TRUE)
+  expect_numeric(freq_1, len = ncol(x.interest), lower = 0, upper = 1)
+  
+  set.seed(1234)
   freq_2 = calculate_freq_wrapper(cf.lm.range, obs = x.interest)
+  expect_numeric(freq_2, len = ncol(x.interest), lower = 0, upper = 1)
+  
+  cf.lm.range$target = NULL
+  expect_error(calculate_freq_wrapper(cf.lm.range, obs = x.interest), 
+    "target not specified")
+  
+  set.seed(1234)
+  freq_3 = calculate_freq_wrapper(cf.lm.range, row.ids = 1, 
+    target = 20, plot = TRUE)
+  
+  expect_equal(freq_2, freq_3)
+  
+  # value of x.interest not in lower/upper
+  lower = 5.3
+  upper = 5.6
+  names(lower) = "lstat"
+  names(upper) = "lstat"
+  expect_error(Counterfactuals$new(predictor = mod, x.interest = x.interest, 
+    target = 20, generations = 10, 
+    lower = lower, upper = upper), "Feature values of x.interest outside range of training data")
+
+  
+})
+
+
+test_that("if target infinite, error", {
+  target = c(Inf, Inf)
+  expect_error(Counterfactuals$new(mod, x.interest = x.interest, target = target, 
+    mu = 50, generations = generations, use.ice.curve.var = FALSE), 
+    "One element of target must be finite")
+  cf = Counterfactuals$new(mod, x.interest = x.interest,  
+    mu = 50, generations = generations, use.ice.curve.var = FALSE)
+  expect_error(cf$explain(x.interest, target = Inf), 
+    "One element of target must be finite")
+  
+})
+
+test_that("refpoint correct if Inf in target", {
+  cf1 = Counterfactuals$new(mod, x.interest = x.interest, target = c(-Inf, 20),
+    mu = 20, generations = 10)
+  expect_equal(cf1$.__enclos_env__$private$ref.point[1], mod$predict(x.interest)[[1]] - 20)
+  cf2 = Counterfactuals$new(mod, x.interest = x.interest, target = c(27, Inf),
+    mu = 20, generations = 10)
+  expect_equal(cf2$.__enclos_env__$private$ref.point[1], 27 - mod$predict(x.interest)[[1]])
 })
 

@@ -194,8 +194,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     p.rec.gen  = NULL,
     p.rec.use.orig = NULL,
     use.ice.curve.var = NULL,
-    crow.dist.version = NULL,
-    binary.tournament = FALSE, 
+    crow.dist.version = NULL, 
     lower = NULL,
     upper = NULL,
     log = NULL,
@@ -213,6 +212,9 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_data_frame(x.interest, null.ok = TRUE)
       checkmate::assert_numeric(target, null.ok = TRUE, min.len = 1, 
         max.len = 2, any.missing = FALSE)
+      if (!is.null(target) && all(sapply(target, is.infinite))) {
+        stop("One element of target must be finite")
+      }
       checkmate::assert_number(epsilon, null.ok = TRUE)
       checkmate::assert_integerish(max.changed, null.ok = TRUE, len = 1)
       
@@ -274,7 +276,11 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     }, 
     explain = function(x.interest, target) {
       checkmate::assert_numeric(target, min.len = 1, 
-        max.len = 2, any.missing = FALSE)
+        max.len = 2, any.missing = FALSE, null.ok = FALSE)
+      if (all(sapply(target, is.infinite))) {
+        stop("One element of target must be finite")
+      }
+      checkmate::assert_true
       self$target = target
       private$set_x_interest(x.interest)
       private$flush()
@@ -305,7 +311,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         "dist.x.interest.mean", "nr.changed.mean")
       eval = c("generation", "fitness.domHV", 
         #"fitness.delta", 
-        "fitness.spacing", "population.div")
+        #"fitness.spacing",
+        "population.div")
       nameList = list(min.obj, mean.obj, eval)
       # if (range) {
       #   log = mlr::normalizeFeatures(self$log, method = "range", 
@@ -385,7 +392,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       }
       x.interest.list = as.list(x.interest)
       x.interest.list$use.orig = rep(TRUE, ncol(x.interest))
-      if (!isFeasible(private$param.set, x.interest.list)) {
+      if (!ParamHelpers::isFeasible(private$param.set, x.interest.list)) {
         stop(paste("Feature values of x.interest outside range of training data",
           "of predictor or given arguments lower or upper. Please modify arguments",
           "lower or upper accordingly."))
@@ -401,7 +408,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     intervene = function() {
       
       # Define reference point for hypervolumn compuation
-      private$ref.point = c(min(max(abs(self$y.hat.interest - self$target))), 
+      private$ref.point = c(min(abs(self$y.hat.interest - self$target)), 
         1, ncol(self$x.interest))
       if (is.infinite(private$ref.point[1])) {
         pred = self$predictor$predict(self$predictor$data$get.x())
@@ -490,13 +497,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             fixed.features = self$fixed.features, max.changed = self$max.changed) 
         }))
       }, n.parents = 2, n.children = 2)
-      
-      if (self$binary.tournament) {
-          parent.selector = selTournamentMO
-      }
-      else {
-        parent.selector = ecr::selSimple
-      }
+
+      parent.selector = ecr::selSimple
       
       survival.selector = ecr::setup(select_nondom, 
         epsilon = self$epsilon,  
@@ -514,9 +516,10 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       max.hv = ecr::computeHV(matrix(c(0, 0, 0)), private$ref.point)
       log.stats$fitness = c(log.stats$fitness,
         list(domHV = function(x) ecr::computeHV(x,
-          ref.point = private$ref.point)/max.hv, 
+          ref.point = private$ref.point)/max.hv
           #delta = function(x) ecr:::emoaIndDelta(x[c(1,2),]), 
-          spacing = function(x) spacing(t(x), "manhattan")))
+          #spacing = function(x) spacing(t(x), "manhattan")
+          ))
       
       # Compute counterfactuals
       ecrresults = mosmafs::slickEcr(fn, lambda = self$mu, population = initial.pop,
@@ -579,7 +582,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       names(log)[1:7] = nam
       log = log[c("generation", "state", nam[2:7], "fitness.domHV", 
         #"fitness.delta", 
-        "fitness.spacing", 
+        #"fitness.spacing", 
         "population.div")]
       self$log = log
 

@@ -88,14 +88,26 @@ test_that("fitness function", {
 
 
 test_that("select_nondom", {
-  fitness = matrix(c(0.5, 0.9, 0.7, 0.9, 0.7, 0.3, 0,
-                     0.7, 0.3, 0.5, 0.7, 0.5, 1, 0,
-                     4, 3, 2, 7, 2, 5, 0), nrow = 3, ncol = 7, byrow = TRUE)
+  fitness = matrix(c(0.5, 0.9, 0.7, 0.9, 0.7, 0.3, 0, 0,
+                     0.7, 0.3, 0.5, 0.7, 0.5, 1, 0, 0,
+                     4, 3, 2, 7, 2, 5, 0, 0), nrow = 3, ncol = 8, byrow = TRUE)
   
   population = data.frame("a" = 1, "b" = 2, "c" = "a")
-  population = population[rep(seq_len(nrow(population)), each=7),]
+  population = population[rep(seq_len(nrow(population)), each=8),]
   
-  expect_equal(select_nondom(fitness, n.select = 3, population), c(7, 2, 3))
+  expect_true(all(select_nondom(fitness, n.select = 4, population) %in% c(7, 2, 3, 6)))
+  expect_true(all(select_nondom(fitness, n.select = 4, population, 
+    extract.duplicates = FALSE) %in% c(7, 8, 2, 3, 6)))
   expect_equal(select_nondom(fitness, 1, population), 7)
+  
+  expect_equal(select_nondom(fitness, n.select = 4, population, epsilon = 0.89), 
+    c(1, 3, 6, 7))
+  
+  fitness = matrix(c(1, 2, 3, 0, 0, 0), nrow = 3, ncol = 2, byrow = TRUE)
+  population = data.frame("a" = 1, "b" = 2, "c" = "a")
+  population = population[rep(seq_len(nrow(population)), each=2),]
+  expect_error(select_nondom(fitness, n.select = 2, population), 
+    "'n.select' must be smaller ")
 
 })
+  

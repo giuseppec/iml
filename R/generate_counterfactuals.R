@@ -70,6 +70,10 @@ select_nondom = ecr::makeSelector(
     epsilon = .Machine$double.xmax, 
     extract.duplicates = TRUE, vers = 1) {
     
+    assert_number(n.select)
+    if (n.select > ncol(fitness)-1) {
+      stop("'n.select' must be smaller than 'ncol(fitness)'")
+    }
     assert_matrix(fitness, ncols = nrow(population))
     assert_numeric(epsilon, null.ok = TRUE)
     assert_logical(extract.duplicates)

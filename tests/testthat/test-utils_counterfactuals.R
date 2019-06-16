@@ -203,10 +203,3 @@ test_that("get diverse solutions", {
 })
 
 
-test_that("spacing", {
-  m.test = matrix(c(1, 1, 3, 4, 1, 1, 2, 2, 3, 10), 
-    nrow = 5, ncol = 2)
-  expect_identical(round(spacing(m.test, "manhattan"), 6), 2.949576)
-  
-})
-

@@ -139,24 +139,7 @@ char_to_factor= function(levels){
 }
 
 
-spacing = function(solutions, metric = "euclidean", ranges = NULL) {
-  assert_choice(metric, choices = c("euclidean", "manhattan", "gower"))
-  checkmate::assert(
-    check_data_frame(solutions, any.missing = FALSE), 
-    check_matrix(solutions, any.missing = FALSE)
-    )
-  if (metric == "euclidean"| metric == "manhattan") {
-    dist = as.matrix(stats::dist(solutions, method = metric, 
-      diag = FALSE, upper = TRUE))
-  }
-  else {
-    assertVector(ranges, all.missing = FALSE)
-    dist = gower.dist(solutions, rngs = ranges)
-  }
-  dist[dist == 0] = NA
-  min = apply(dist, MARGIN = 1, function(x) min(x, na.rm = TRUE))
-  return(sqrt(sum((min - mean(min))^2)/(nrow(solutions)- 1)))
-}
+
 
 
 
@@ -237,7 +220,7 @@ get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
     
     #t = candidates[ord]
     # update the remaining crowding numbers
-    if (n > 2L && !(n )) {
+    if (n > 2L) {
       for (j in 2:(n - 1L)) {
         
         if (max[i] - min[i] != 0) {
@@ -330,6 +313,25 @@ get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
 #   return(idx)
 # }
 # 
+
+# spacing = function(solutions, metric = "euclidean", ranges = NULL) {
+#   assert_choice(metric, choices = c("euclidean", "manhattan", "gower"))
+#   checkmate::assert(
+#     check_data_frame(solutions, any.missing = FALSE), 
+#     check_matrix(solutions, any.missing = FALSE)
+#     )
+#   if (metric == "euclidean"| metric == "manhattan") {
+#     dist = as.matrix(stats::dist(solutions, method = metric, 
+#       diag = FALSE, upper = TRUE))
+#   }
+#   else {
+#     assertVector(ranges, all.missing = FALSE)
+#     dist = gower.dist(solutions, rngs = ranges)
+#   }
+#   dist[dist == 0] = NA
+#   min = apply(dist, MARGIN = 1, function(x) min(x, na.rm = TRUE))
+#   return(sqrt(sum((min - mean(min))^2)/(nrow(solutions)- 1)))
+# }
 
 
 
