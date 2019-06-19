@@ -52,6 +52,8 @@ Suggests: randomForest,
           ALEPlot,
           ranger,
           keras
+Remotes:
+    compstat-lmu/mosmafs@mosmafs-package
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
