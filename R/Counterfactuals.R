@@ -194,6 +194,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     p.rec.gen  = NULL,
     p.rec.use.orig = NULL,
     use.ice.curve.var = NULL,
+    seltournament = NULL, 
     crow.dist.version = NULL, 
     lower = NULL,
     upper = NULL,
@@ -202,8 +203,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
       mu = 50, generations = 50, p.mut = 0.2, p.rec = 0.9, p.mut.gen = 0.5,
       p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
-      use.ice.curve.var = FALSE, crow.dist.version = 1, 
-      lower = NULL, upper = NULL) {
+      use.ice.curve.var = FALSE, seltournament = FALSE,  
+      lower = NULL, upper = NULL, crow.dist.version = 1) {
       
       super$initialize(predictor = predictor)
       fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
@@ -217,6 +218,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       }
       checkmate::assert_number(epsilon, null.ok = TRUE)
       checkmate::assert_integerish(max.changed, null.ok = TRUE, len = 1)
+      checkmate::assert_numeric(lower, null.ok = TRUE, any.missing = FALSE)
+      checkmate::assert_numeric(upper, null.ok = TRUE, any.missing = FALSE)
       
       # should exist
       checkmate::assert_integerish(mu, lower = 1)
@@ -229,8 +232,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_number(p.mut.gen, lower = 0, upper = 1)
       checkmate::assert_number(p.rec.gen, lower = 0, upper = 1)
       checkmate::assert_true(crow.dist.version %in% c(1, 2))
-      checkmate::assert_numeric(lower, null.ok = TRUE, any.missing = FALSE)
-      checkmate::assert_numeric(upper, null.ok = TRUE, any.missing = FALSE)
+      checkmate::assert_logical(seltournament)
       
       # assign
       self$target = target
@@ -247,6 +249,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$p.rec.use.orig = p.rec.use.orig
       self$use.ice.curve.var = use.ice.curve.var
       self$crow.dist.version = crow.dist.version
+      self$seltournament = seltournament
       self$lower = lower
       self$upper = upper
       
@@ -272,7 +275,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       if (!is.null(x.interest) & !is.null(target)) {
         private$run()
       }
-      cat("initialize finished\n")
+      #cat("initialize finished\n")
     }, 
     explain = function(x.interest, target) {
       checkmate::assert_numeric(target, min.len = 1, 
@@ -417,15 +420,18 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       # Initialize population based on x.interest, param.setand sdev
       lower = self$x.interest[names(private$sdev)] - private$sdev
       upper = self$x.interest[names(private$sdev)] + private$sdev
-      lower.ps = pmax(ParamHelpers::getLower(private$param.set), lower)
-      upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper)
-      lower.ps[names(self$lower)] = self$lower
-      upper.ps[names(self$upper)] = self$upper
-      ps.initialize = ParamHelpers::makeParamSet(params = make_paramlist(
-        self$predictor$data$get.x(), 
-        lower = lower.ps, 
-        upper = upper.ps)
-      )
+      if (nrow(lower)>0 && nrow(upper)>0) {
+        lower.ps = pmax(ParamHelpers::getLower(private$param.set), lower)
+        upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper)
+        lower.ps[names(self$lower)] = self$lower
+        upper.ps[names(self$upper)] = self$upper
+        ps.initialize = ParamHelpers::makeParamSet(params = make_paramlist(
+          self$predictor$data$get.x(), 
+          lower = lower.ps, 
+          upper = upper.ps)
+        )} else {
+          ps.initialize = private$param.set
+        }
       private$param.set.init = ps.initialize
       initial.pop = ParamHelpers::sampleValues(ps.initialize, self$mu, 
         discrete.names = TRUE)
@@ -498,8 +504,12 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         }))
       }, n.parents = 2, n.children = 2)
 
-      parent.selector = ecr::selSimple
-      
+      if (self$seltournament) { 
+        parent.selector = mosmafs::selTournamentMO
+      } else {
+        parent.selector = ecr::selSimple
+      }
+
       survival.selector = ecr::setup(select_nondom, 
         epsilon = self$epsilon,  
         extract.duplicates = TRUE, vers = self$crow.dist.version)
@@ -536,11 +546,22 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       #   mosmafs::valuesFromNames(private$param.set, x))
       results = mosmafs::listToDf(ecrresults$pareto.set, private$param.set)
       results[, grepl("use.orig", names(results))] = NULL
-      cat("run finished\n")
+      #cat("run finished\n")
       return(results)
     },
     aggregate = function() {
-      
+      # if (suppress) {
+      #   evals = mosmafs::collectResult(private$ecrresults)$evals
+      #   log = mosmafs::getStatistics(private$ecrresults$log)
+      #   log$evals = evals
+      #   nam = c("generation", "dist.target.min", "dist.target.mean", 
+      #     "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
+      #     "nr.changed.mean")
+      #   names(log)[1:7] = nam
+      #   log = log[c("generation", "state", "evals", nam[2:7], "fitness.domHV")]
+      #   self$log = log
+      #   return(NULL)
+      # }
       # Fill results list
       pareto.front = private$ecrresults$pareto.front
       names(pareto.front) = private$obj.names
@@ -569,7 +590,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
           pop_gen = mosmafs::listToDf(x$population, private$param.set)
           pop_gen[, grepl("use.orig", names(pop_gen))] = NULL
           dis = StatMatch::gower.dist(data.x = pop_gen, 
-            rngs = private$range)
+            rngs = private$range, KR.corr = FALSE)
           single.dist = dis[lower.tri(dis)]
           mean.dist = mean(single.dist)
           pop.div = sum(abs(single.dist - mean.dist)/nrow(pop_gen))
@@ -580,13 +601,16 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
         "nr.changed.mean")
       names(log)[1:7] = nam
-      log = log[c("generation", "state", nam[2:7], "fitness.domHV", 
+      evals = mosmafs::collectResult(private$ecrresults)$evals
+      log$evals = evals
+      
+      log = log[c("generation", "state", "evals", nam[2:7], "fitness.domHV", 
         #"fitness.delta", 
         #"fitness.spacing", 
         "population.div")]
       self$log = log
 
-      cat("aggregate finished\n")
+      #cat("aggregate finished\n")
       return(results)
     },
     generatePlot = function(labels = FALSE, decimal.points = 3, nr.solutions = NULL, 
@@ -647,7 +671,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
 #'
 #' \code{plot.Counterfactuals()} plots the Pareto front, the found Counterfactuals.
 #' @format \code{\link{R6Class}} object.
-#' @section Arguments: 
+#' @section Arguments:
 #' \describe{
 #' \item{labels:}{logical(1)\cr Whether labels with difference to feature values of 
 #' x.interest should be plotted. Default is `FALSE`.}

@@ -31,7 +31,8 @@ fitness_fun = function(x, x.interest, target, predictor, range = NULL) {
   # q1[q1 == Inf] = dif[q1 == Inf]
   q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]), 
     0, q1)
-  q2 = StatMatch::gower.dist(data.x = x.interest, data.y = x, rngs = range)[1,]
+  q2 = StatMatch::gower.dist(data.x = x.interest, data.y = x, rngs = range, 
+    KR.corr = FALSE)[1,]
   q3 = rowSums(x != x.interest[rep(row.names(x.interest), nrow(x)),])
   
   fitness = mapply(function(a,b,c) {
@@ -269,7 +270,7 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
   # dat = list_to_df(candidates)
   # 
   
-  g.dist = StatMatch::gower.dist(candidates)
+  g.dist = StatMatch::gower.dist(candidates, KR.corr = FALSE)
   
   for (i in c(1,2,3)) {
     
@@ -334,7 +335,7 @@ computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
   # dat = list_to_df(candidates)
   #
 
-  g.dist = StatMatch::gower.dist(candidates)
+  g.dist = StatMatch::gower.dist(candidates, KR.corr = FALSE)
 
   for (i in c(1, 2)) {
 

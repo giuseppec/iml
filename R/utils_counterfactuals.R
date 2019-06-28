@@ -202,7 +202,7 @@ get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
   n = nrow(pareto.set)
   max = apply(fitness, 2, max)
   min = apply(fitness, 2, min)
-  g.dist = StatMatch::gower.dist(pareto.set)
+  g.dist = StatMatch::gower.dist(pareto.set, KR.corr = FALSE)
   
   dds = numeric(n)
   ods = numeric(n)
