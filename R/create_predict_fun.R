@@ -27,7 +27,6 @@ create_predict_fun.WrappedModel = function(model, task, predict.fun = NULL, type
 }
 
 create_predict_fun.train = function(model, task, predict.fun = NULL, type = NULL){
-  
   if (task == "classification") {
     function(newdata) {
       if (is.null(type)) {
@@ -93,6 +92,33 @@ create_predict_fun.keras.engine.training.Model = function(model, task, predict.f
     data.frame(pred)
   }
 }
+
+create_predict_fun.H2ORegressionModel = function(model, task, predict.fun = NULL, type = NULL) {
+  function(newdata) {
+    newdata2 = h2o::as.h2o(newdata)
+    as.data.frame(h2o::h2o.predict(model, newdata = newdata2))
+  }
+}
+
+
+create_predict_fun.H2OBinomialModel = function(model, task, predict.fun = NULL, type = NULL) {
+  function(newdata) {
+    # TODO: Include predict.fun and type
+    newdata2 = h2o::as.h2o(newdata)
+    as.data.frame(h2o::h2o.predict(model, newdata = newdata2))[,-1]
+  }
+}
+
+create_predict_fun.H2OMultinomialModel = function(model, task, predict.fun = NULL, type = NULL) {
+  function(newdata) {
+    # TODO: Include predict.fun and type
+    newdata2 = h2o::as.h2o(newdata)
+    # Removes first column with classification
+    # Following columns contain the probabilities
+    as.data.frame(h2o::h2o.predict(model, newdata = newdata2))[,-1]
+  }
+}
+
 
 
 factor_to_dataframe = function(fac) {
