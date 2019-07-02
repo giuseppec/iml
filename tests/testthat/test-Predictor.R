@@ -6,6 +6,7 @@ library("randomForest")
 library("caret")
 library("data.table")
 library("keras")
+library("h2o")
 
 ## mlr
 task = mlr::makeClassifTask(data = iris, target = "Species")
@@ -22,6 +23,35 @@ predictor.S3 = Predictor$new(mod.S3, data = iris, predict.fun = predict.fun)
 mod.caret = caret::train(Species ~ ., data = iris, method = "knn", 
   trControl = caret::trainControl(method = "cv"))
 predictor.caret = Predictor$new(mod.caret, data = iris, type = "prob")
+
+
+# h2o multinomial classification
+h2o.init()
+h2o.no_progress()
+# fit h2o model
+dat =  as.h2o(iris)
+y = "Species"
+x = setdiff(names(iris), y)
+mod.h2o.class = h2o.glm(training_frame = dat, x = x, y = y, family = 'multinomial', solver = 'L_BFGS')
+# create predictor
+predictor.h2o.class = Predictor$new(mod.h2o.class, data = iris)
+
+# Artificially create binary classification task from iris
+iris2 = iris
+iris2$Species = as.factor(iris2$Species == "setosa")
+dat2 = as.h2o(iris2)
+# h2o binomial classification
+mod.h2o.class2 = h2o.glm(training_frame = dat2, x = x, y = y, family = 'binomial', solver = 'L_BFGS')
+# create predictor
+predictor.h2o.class2 = Predictor$new(mod.h2o.class2, data = iris2)
+
+
+# h2o regression
+y = "Sepal.Width"
+x = setdiff(names(iris), y)
+dat = as.h2o(iris)
+mod.h2o.regr = h2o.randomForest(training_frame = dat, x = x, y = y)
+predictor.h2o.regr = Predictor$new(mod.h2o.regr, data = iris)
 
 # keras
 k = backend()
@@ -75,6 +105,20 @@ test_that("extracts y automatically for randomForest", {
   expect_equal(predictor.S3$data$y.names, "Species")
 })
 
+test_that("extracts y automatically for H2OMultinomialModel", {
+  expect_equal(predictor.h2o.class$data$y.names, "Species")
+})
+
+test_that("extracts y automatically for H2OBinomialModel", {
+  expect_equal(predictor.h2o.class2$data$y.names, "Species")
+})
+
+test_that("extracts y automatically for H2ORegressionModel", {
+  expect_equal(predictor.h2o.regr$data$y.names, "Sepal.Width")
+})
+
+
+
 test_that("extracts data automatically for caret::train", {
   predictor.caret2 = Predictor$new(mod.caret, type = "prob")
   expect_equal(data.frame(predictor.caret2$data$X), iris[,-which(names(iris) == "Species")])
@@ -82,6 +126,16 @@ test_that("extracts data automatically for caret::train", {
 
 test_that("errors when trying to extract data from for mlr::WrappedModel", {
   expect_error(Predictor$new(mod.mlr, type = "prob"))
+})
+
+
+test_that("h20 prediction works", {
+  expect_equal(predictor.h2o.class$predict(iris),
+	       as.data.frame(predict(mod.h2o.class, newdata = dat))[-1])
+  expect_equal(predictor.h2o.class2$predict(iris2),
+	       as.data.frame(predict(mod.h2o.class2, newdata = dat2))[-1])
+  expect_equal(predictor.h2o.regr$predict(iris),
+	       as.data.frame(predict(mod.h2o.regr, newdata = dat)))
 })
 
 

@@ -9,6 +9,19 @@ find_y.WrappedModel = function(mod) {
   mod$task.desc$target
 }
 
+find_y.H2OMultinomialModel = function(mod) {
+  mod@parameters$y
+}
+
+find_y.H2OBinomialModel = function(mod) {
+  mod@parameters$y
+}
+
+find_y.H2ORegressionModel = function(mod) {
+  mod@parameters$y
+}
+
+
 find_y.NULL = function(mod) {
   NULL
 }

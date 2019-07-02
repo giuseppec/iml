@@ -46,7 +46,8 @@ Suggests: randomForest,
           doParallel,
           ALEPlot,
           ranger,
-          keras
+          keras,
+          h2o
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
