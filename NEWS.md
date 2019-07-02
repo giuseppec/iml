@@ -1,4 +1,5 @@
 # 0.9.1 (In Progress) 
+* Adds support for h2o
 * Adds  support for keras
 * Fixes problem with FeatureImp that caused unused features to get non-zero importances
 
