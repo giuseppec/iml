@@ -121,7 +121,9 @@ Predictor = R6::R6Class("Predictor",
       }
     },
     initialize = function(model = NULL, data = NULL, predict.fun = NULL, y = NULL, class=NULL, 
-      type = NULL, batch.size = 1000) {
+      type = NULL, batch.size = 1000,
+      conditional = FALSE) {
+      assert_logical(conditional)
       assert_number(batch.size, lower = 1)
       if(is.null(model) & is.null(predict.fun)) { 
         stop("Provide a model, a predict.fun or both!")  
@@ -143,6 +145,8 @@ Predictor = R6::R6Class("Predictor",
       }
       
       self$data = Data$new(data, y = y)
+      private$cond_models = as.list(self$data$n.features)
+      names(private$cond_models) = self$data$feature.names
       self$class = class
       self$model = model
       self$task = inferTaskFromModel(model)
@@ -151,14 +155,11 @@ Predictor = R6::R6Class("Predictor",
     }
   ), 
   private = list(
-    predictionChecked = FALSE
+    predictionChecked = FALSE,
+    cond_models = NULL,
+    fit_conditional = function(feature) {
+      fa = as.formula(sprintf("%s ~ .", feature))
+      private$cond_model[[feature]] = ctree(fa, data = self$data$X)
+    }
   )
 )
-
-
-
-
-
-
-
-
