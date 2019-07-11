@@ -47,7 +47,7 @@ list.rules.party = function (x, i = NULL, ...){
     else {
       if (is.null(index)) 
         index <- 1:length(kid)
-      breaks <- cbind(c(-Inf, breaks_split(split)), c(breaks_split(split), 
+      breaks <- cbind(c(-Inf, partykit::breaks_split(split)), c(breaks_split(split), 
         Inf))
       sbreak <- breaks[index == whichkid, ]
       right <- partykit::right_split(split)
