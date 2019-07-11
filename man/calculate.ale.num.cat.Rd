@@ -18,3 +18,4 @@ calculate.ale.num.cat(dat, run.prediction, feature.name, grid.size)
 \description{
 Compute ALE for 2 features, one numerical, one categorical
 }
+\keyword{internal}

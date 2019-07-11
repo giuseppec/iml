@@ -18,3 +18,4 @@ calculate.ale.num(dat, run.prediction, feature.name, grid.size)
 \description{
 Compute ALE for 1 numerical feature
 }
+\keyword{internal}

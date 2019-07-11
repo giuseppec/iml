@@ -9,6 +9,7 @@
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE
 #' @param grid.size The number of intervals
+#' @keywords internal
 calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   # from number of intervals to number of borders
   n.borders = grid.size + 1
@@ -63,6 +64,7 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column names of the feature for which to compute ALE
 #' @param grid.size The number of cells
+#' @keywords internal
 calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   # Create grid for feature 1
   grid.dt1 = unique(get.grid(dat[,feature.name[1], with = FALSE], grid.size = grid.size[1] + 1, type = "quantile"))
@@ -193,6 +195,7 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
 #' @param dat the data.frame with same columns as training data
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE
+#' @keywords internal
 calculate.ale.cat = function(dat, run.prediction, feature.name){
   x = dat[,feature.name, with = FALSE][[1]]
   levels.original = levels(droplevels(x))
@@ -256,6 +259,7 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the features for which to compute ALE
 #' @param grid.size The number of intervals for the numerical feature
+#' @keywords internal
 calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   
   # Figure out which feature is numeric and which categeorical
@@ -457,6 +461,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
 #' @param grid2 data.frame where each row is the actual value for a given interval index for feature 2
 #' @param x1.ind column number or name of cell.dat for feature 1. If one feature is categorical, has to be x1
 #' @param x2.ind column number or name of cell.dat for feature 2
+#' @keywords internal
 impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   assert_data_table(cell.dat)
   assert_data_table(grid1, null.ok = TRUE)

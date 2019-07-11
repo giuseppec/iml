@@ -16,3 +16,4 @@ calculate.ale.cat(dat, run.prediction, feature.name)
 \description{
 Compute ALE for 1 categorical feature
 }
+\keyword{internal}

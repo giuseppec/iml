@@ -24,3 +24,4 @@ by default assumes first column of cell.dat is x1 and second is x2
 leave grid1 NULL if feature x1 is a factor
 the difference variable has to be named .yhat.diff
 }
+\keyword{internal}
