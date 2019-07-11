@@ -467,7 +467,7 @@ impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   assert_data_table(grid1, null.ok = TRUE)
   assert_data_table(grid2)
 
-  if(!require("yaImpute")) {
+  if(!requireNamespace("yaImpute")) {
      stop("Please install package yaImpute")
   }
 
