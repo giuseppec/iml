@@ -107,7 +107,6 @@
 #' For the tree implementation
 #' \link[partykit]{ctree}
 #' @export
-#' @import partykit
 NULL
 
 #' @export

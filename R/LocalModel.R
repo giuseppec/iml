@@ -85,7 +85,6 @@
 #' 
 #' The package `lime` with the original implementation
 #' @export
-#' @importFrom glmnet glmnet
 #' @importFrom stats dist
 #' @examples 
 #' if (require("randomForest")) {
