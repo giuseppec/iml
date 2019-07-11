@@ -26,7 +26,8 @@ Imports: R6,
          data.table,
          foreach,
          prediction,
-         gridExtra
+         gridExtra,
+         Formula
 Suggests: randomForest,
           gower, 
           glmnet, 
