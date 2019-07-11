@@ -466,6 +466,11 @@ impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   assert_data_table(cell.dat)
   assert_data_table(grid1, null.ok = TRUE)
   assert_data_table(grid2)
+
+  if(!require("yaImpute")) {
+     stop("Please install package yaImpute")
+  }
+
   # Making sure cell.dat contains all possible cells
   stopifnot(nrow(cell.dat) == length(unique(cell.dat[,x1.ind,with=FALSE][[1]])) * length(unique(cell.dat[,x2.ind,with=FALSE][[1]])))
   d.miss.ind = is.na(cell.dat$.yhat.diff)
@@ -487,7 +492,7 @@ impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   }
   # same for the second numerical feature
   range.x2 =  max(grid2[[1]]) - min(grid2[[1]])
-  x2.normalized =   (grid2[cell.dat[[x2.ind]],][[1]] + grid2[cell.dat[[x2.ind]] + 1,][[1]]) / (2 * range.x2)
+  x2.normalized = (grid2[cell.dat[[x2.ind]],][[1]] + grid2[cell.dat[[x2.ind]] + 1,][[1]]) / (2 * range.x2)
   # preparation for yaImpute::ann function
   z.na = cbind(x1.normalized[d.miss.ind], x2.normalized[d.miss.ind])
   z.non.na = cbind(x1.normalized[!d.miss.ind], x2.normalized[!d.miss.ind])

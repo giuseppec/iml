@@ -120,6 +120,9 @@ TreeSurrogate = R6::R6Class("TreeSurrogate",
     maxdepth = NULL,
     r.squared = NULL,
     initialize = function(predictor, maxdepth = 2, tree.args = NULL) {
+      if(!require("partykit")) {
+        stop("Please install the partykit package")
+      }    
       super$initialize(predictor)
       private$tree.args = tree.args
       self$maxdepth = maxdepth
