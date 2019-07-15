@@ -145,8 +145,9 @@ Predictor = R6::R6Class("Predictor",
       }
       
       self$data = Data$new(data, y = y)
-      private$cond_models = as.list(self$data$n.features)
+      private$cond_models = as.list(rep(NA, times = self$data$n.features))
       names(private$cond_models) = self$data$feature.names
+      if(conditional) private$fit_conditionals()
       self$class = class
       self$model = model
       self$task = inferTaskFromModel(model)
@@ -158,8 +159,14 @@ Predictor = R6::R6Class("Predictor",
     predictionChecked = FALSE,
     cond_models = NULL,
     fit_conditional = function(feature) {
+      require("partykit")
       fa = as.formula(sprintf("%s ~ .", feature))
-      private$cond_model[[feature]] = ctree(fa, data = self$data$X)
+      private$cond_models[[feature]] = ctree(fa, data = self$data$X)
+    },
+    fit_conditionals = function(){
+      lapply(self$data$feature.names, function(feat) {
+               private$fit_conditional(feat)
+	  })
     }
   )
 )
