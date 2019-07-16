@@ -8,15 +8,13 @@ ConditionalGenerator = R6Class(
   public = list(
     finished = FALSE,
     n_total = NULL,
-    initialize = function(dist.dat, feature, cmodel, n.sample.dist = 1, y = NULL,  type = "rng") {
+    initialize = function(dist.dat, feature, cmodel, n.sample.dist = 1, y = NULL) {
       assert_data_table(dist.dat)
       assert_true(all(feature %in% colnames(dist.dat)))
       assert_character(feature, len = 1)
       assert_data_frame(y, null.ok = TRUE, nrows = nrow(dist.dat))
       assert_class(cmodel, "party")
-      assert_choice(type, c("rng", "density"))
 
-      private$type = type
       private$cmodel = cmodel
       private$dist.dat = dist.dat
       private$feature = feature
@@ -38,28 +36,24 @@ ConditionalGenerator = R6Class(
         
         data.slice = private$dist.index[batch.index]
         X = data.frame(private$dist.dat[data.slice, ])
-        if (private$type == "density") {
-          predict(private$cmodel, newdata = X, type = "density")
-        } else {
-          partial_j2 = private$dist.dat[data.slice, 
-            private$features.rest, with = FALSE]
+        partial_j2 = private$dist.dat[data.slice, 
+        private$features.rest, with = FALSE]
 
-          qq = predict(private$cmodel,
-		       newdata = X,
-		       type = "quantile", at = private$quants)
+        qq = predict(private$cmodel,
+                     newdata = X,
+	             type = "quantile", at = private$quants)
 
-	  pfuns = apply(qq, 1, function(obs) approxfun(x = private$quants, y = obs))
-          partial_j1 = unlist(lapply(pfuns, function(x) x(runif(1))))
+	pfuns = apply(qq, 1, function(obs) approxfun(x = private$quants, y = obs))
+        partial_j1 = unlist(lapply(pfuns, function(x) x(runif(1))))
          
-          partial_j = cbind(partial_j1, partial_j2)
-          colnames(partial_j)[1] = private$feature
+        partial_j = cbind(partial_j1, partial_j2)
+        colnames(partial_j)[1] = private$feature
         
-          partial_j$.id = data.slice
-          private$counter = private$counter + n
+        partial_j$.id = data.slice
+        private$counter = private$counter + n
         
-          if(y) partial_j = cbind(partial_j, private$y[data.slice,])
-          partial_j
-        }
+        if(y) partial_j = cbind(partial_j, private$y[data.slice,])
+        partial_j
       }
     },
     all = function() {
@@ -76,7 +70,6 @@ ConditionalGenerator = R6Class(
     n.sample.dist = NULL,
     dist.index = NULL,
     y = NULL,
-    type = NULL,
     quants = seq(from = 0, to = 1, length.out = 101)
   )
 )
