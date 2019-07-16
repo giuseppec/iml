@@ -139,11 +139,14 @@ FeatureImp = R6::R6Class("FeatureImp",
     original.error = NULL,
     n.repetitions = NULL,
     compare = NULL,
+    conditional = NULL,
     initialize = function(predictor, loss, compare = "ratio", 
-                          n.repetitions = 5, parallel = FALSE) {
+                          n.repetitions = 5, parallel = FALSE,
+                          conditional = FALSE) {
       assert_choice(compare, c("ratio", "difference"))
       assert_number(n.repetitions)
       assert_logical(parallel)
+      assert_logical(conditional)
       private$parallel = parallel
       self$compare = compare
       if (!inherits(loss, "function")) {
@@ -159,6 +162,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       if (is.null(predictor$data$y)) {
         stop("Please call Predictor$new() with the y target vector.")
       }
+      self$conditional = conditional
       super$initialize(predictor = predictor)
       self$loss = private$set_loss(loss)
       private$getData = private$sampler$get.xy
@@ -189,22 +193,35 @@ FeatureImp = R6::R6Class("FeatureImp",
       private$dataSample = private$getData()
       result = NULL
       
-      estimate_feature_imp = function(feature, data.sample, y, n.repetitions, y.names, pred, loss) {
+      estimate_feature_imp = function(feature, data.sample, y, n.repetitions, y.names, pred, loss, predictor) {
         cnames = setdiff(colnames(data.sample), y.names)
         qResults = data.table::data.table()
         y.vec = data.table::data.table()
-     	for(repi in 1:n.repetitions) {
-	  mg = iml:::MarginalGenerator$new(data.sample, data.sample, 
-          features = feature, n.sample.dist = 1, y = y, cartesian = FALSE, id.dist = TRUE)
-        while(!mg$finished) {
-          data.design = mg$next.batch(n, y = TRUE)
-          y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
-          qResults = rbind(qResults, pred(data.design[,cnames, with = FALSE]))
-        }
-	}
+        cmodel = predictor$get_cond_model(feature)
+        if (self$conditional) {
+          cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y)
+          while (!cg$finished) {
+            data.design = cg$next.batch(n, y = TRUE)
+            y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
+            qResults = rbind(qResults, pred(data.design[,cnames, with = FALSE]))
+          }
+          results = data.table::data.table(feature = feature, actual = y.vec[[1]], predicted = qResults[[1]],
+                                             num_rep = rep(1:n.repetitions, times = nrow(data.sample)))
+        } else {
+     	  for(repi in 1:n.repetitions) {
+	    mg = iml:::MarginalGenerator$new(data.sample, data.sample, 
+                features = feature, n.sample.dist = 1, y = y, cartesian = FALSE, id.dist = TRUE)
+            while(!mg$finished) {
+              data.design = mg$next.batch(n, y = TRUE)
+              y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
+              qResults = rbind(qResults, pred(data.design[,cnames, with = FALSE]))
+            }
+          }
         # AGGREGATE measurements
         results = data.table::data.table(feature = feature, actual = y.vec[[1]], predicted = qResults[[1]], 
-        num_rep = rep(1:n.repetitions, each = nrow(data.sample)))
+          num_rep = rep(1:n.repetitions, each = nrow(data.sample)))
+        }
+
         results = results[, list("permutation_error" = loss(actual, predicted)), by = list(feature, num_rep)]
         results
       }
@@ -215,14 +232,14 @@ FeatureImp = R6::R6Class("FeatureImp",
       y.names = private$sampler$y.names
       pred  = private$run.prediction
       loss = self$loss
-      
+      predictor = self$predictor
+
       `%mypar%` = private$get.parallel.fct(private$parallel)
       result = foreach(feature = private$sampler$feature.names, .combine = rbind, .export = "self", 
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
         estimate_feature_imp(feature, data.sample = data.sample, y = y,
-          n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss)
-      
-if (self$compare == "ratio") {
+          n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss, predictor = predictor)
+      if (self$compare == "ratio") {
         result[, importance_raw := permutation_error / self$original.error]
       } else {
         result[, importance_raw := permutation_error - self$original.error]

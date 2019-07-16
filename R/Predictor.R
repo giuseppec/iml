@@ -153,6 +153,12 @@ Predictor = R6::R6Class("Predictor",
       self$task = inferTaskFromModel(model)
       self$prediction.function = create_predict_fun(model, self$task, predict.fun, type = type)
       self$batch.size = batch.size
+    },
+    get_cond_model = function(feature){
+      if (is.null(private$cond_models[[feature]])) {
+        private$fit_conditional(feature)
+      }
+      private$cond_models[[feature]]
     }
   ), 
   private = list(
