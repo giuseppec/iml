@@ -199,6 +199,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         y.vec = data.table::data.table()
         cmodel = predictor$get_cond_model(feature)
         if (self$conditional) {
+
+          if(feature == "chas") browser()
           cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y)
           while (!cg$finished) {
             data.design = cg$next.batch(n, y = TRUE)
@@ -223,6 +225,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         }
 
         results = results[, list("permutation_error" = loss(actual, predicted)), by = list(feature, num_rep)]
+        print(feature)
+        print(results)
         results
       }
       

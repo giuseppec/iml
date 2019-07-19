@@ -23,6 +23,7 @@ ConditionalGenerator = R6Class(
       private$y = y
       self$n_total = n.sample.dist * nrow(dist.dat)
       private$dist.index = rep(1:nrow(dist.dat), each = n.sample.dist)
+      private$range = c(min(dist.dat[[feature]]), max(dist.dat[[feature]]))
     },
     # Return the next n samples
     next.batch = function(n, y = FALSE) {
@@ -38,14 +39,21 @@ ConditionalGenerator = R6Class(
         X = data.frame(private$dist.dat[data.slice, ])
         partial_j2 = private$dist.dat[data.slice, 
         private$features.rest, with = FALSE]
+        samples = simulate(private$cmodel, newdata = X)
 
+        quants = seq(from = private$range[1], private$range[2], length.out = 50)
         qq = predict(private$cmodel,
                      newdata = X,
-	             type = "quantile", at = private$quants)
+	             type = "distribution",
+                     q = quants)
 
-	pfuns = apply(qq, 1, function(obs) approxfun(x = private$quants, y = obs))
+	pfuns = apply(qq, 2, function(obs) {
+                        approxfun(x = obs, y = quants,
+                                  yleft = private$range[1],
+                                  yright = private$range[2])
+                     })
         partial_j1 = unlist(lapply(pfuns, function(x) x(runif(1))))
-         
+
         partial_j = cbind(partial_j1, partial_j2)
         colnames(partial_j)[1] = private$feature
         
@@ -70,6 +78,7 @@ ConditionalGenerator = R6Class(
     n.sample.dist = NULL,
     dist.index = NULL,
     y = NULL,
+    range = NULL,
     quants = seq(from = 0, to = 1, length.out = 101)
   )
 )

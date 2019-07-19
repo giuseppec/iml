@@ -165,9 +165,19 @@ Predictor = R6::R6Class("Predictor",
     predictionChecked = FALSE,
     cond_models = NULL,
     fit_conditional = function(feature) {
-      require("partykit")
-      fa = as.formula(sprintf("%s ~ .", feature))
-      private$cond_models[[feature]] = ctree(fa, data = self$data$X)
+      require("trtf")
+      y = self$data$X[[feature]]
+      if ((self$data$feature.types[feature] == "numerical") & length(unique(y) > 2)) {
+        yvar = numeric_var(feature, support = c(min(y), max(y)))
+        By  =  Bernstein_basis(yvar, order = 5, ui = "incr")
+        m = ctm(response = By,  todistr = "Normal", data = self$data$X )
+        form = as.formula(sprintf("%s ~ 1 | .", feature))
+        part_cmod = trafotree(m, formula = form,  data = self$data$X)
+      } else {
+        form = as.formula(sprintf("%s ~ .", data = self$data$X))
+        part_cmod = ctree(form, data = self$data$X)
+      }
+      private$cond_models[[feature]] = part_cmod
     },
     fit_conditionals = function(){
       lapply(self$data$feature.names, function(feat) {
