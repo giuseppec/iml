@@ -53,8 +53,7 @@ make_paramlist = function(input.data, lower = NULL, upper = NULL, integers = NUL
 #' @section Arguments: 
 #' \describe{
 #' \item{sdev: }{(numeric)\cr Vector of standard deviations}
-#' ....}
-
+#' \item{param.set:}(ParamS)}
 sdev_to_list = function(sdev, param.set) {
   checkmate::assert_numeric(sdev, any.missing = FALSE)
   checkmate::assert_class(param.set, "ParamSet")
@@ -241,6 +240,17 @@ get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
   idx = order(cds, decreasing = TRUE)[1:nr.solutions]
   return(idx)
 }
+
+# Calculate diversity
+compute_diversity = function(df, range) {
+  dis = StatMatch::gower.dist(data.x = df, 
+    rngs = range, KR.corr = FALSE)
+  single.dist = dis[lower.tri(dis)]
+  mean.dist = mean(single.dist)
+  #pop.div = sum(abs(single.dist - mean.dist))/choose(nrow(df), 2)
+  return(mean.dist)
+}
+
 
 
 ### Oldest Version: Sort for y1

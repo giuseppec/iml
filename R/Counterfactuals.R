@@ -52,7 +52,8 @@
 #' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene. 
 #' Default is `0.5`.}
 #' \item{p.mut.use.orig:}{numeric(1)\cr Probability of mutation for each element
-#' of the indicator to use feature values of `x.interest`. Default is `0.2`.} 
+#' of the indicator to use feature values of `x.interest`. As hamming weight 
+#' bitflip mutation only p between 0 and 0.5 is allowed. Default is `0.2`.} 
 #' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene. 
 #' Default is `0.7`.}
 #' #' \item{p.rec.use.orig:}{numeric(1)\cr Probability of recombination for each 
@@ -196,15 +197,16 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     use.ice.curve.var = NULL,
     seltournament = NULL, 
     crow.dist.version = NULL, 
+    sd.for.init = NULL,
     lower = NULL,
     upper = NULL,
     log = NULL,
     initialize = function(predictor, x.interest = NULL, target = NULL, 
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
-      mu = 50, generations = 50, p.mut = 0.2, p.rec = 0.9, p.mut.gen = 0.5,
-      p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
+      mu = 50, generations = 50, p.rec = 0.9, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
+      p.mut = 0.2, p.mut.gen = 0.5, p.mut.use.orig = 0.2, 
       use.ice.curve.var = FALSE, seltournament = FALSE,  
-      lower = NULL, upper = NULL, crow.dist.version = 1) {
+      lower = NULL, upper = NULL, crow.dist.version = 1, sd.for.init = TRUE) {
       
       super$initialize(predictor = predictor)
       fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
@@ -231,8 +233,12 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       checkmate::assert_number(p.rec, lower = 0, upper = 1)
       checkmate::assert_number(p.mut.gen, lower = 0, upper = 1)
       checkmate::assert_number(p.rec.gen, lower = 0, upper = 1)
-      checkmate::assert_true(crow.dist.version %in% c(1, 2))
+      checkmate::assert_number(p.mut.use.orig, lower = 0, upper = 0.5)
+      checkmate::assert_number(p.rec.use.orig, lower = 0, upper = 1)
+      checkmate::assert_true(crow.dist.version %in% c(1, 2, 3))
+      checkmate::assert_logical(use.ice.curve.var)
       checkmate::assert_logical(seltournament)
+      checkmate::assert_logical(sd.for.init)
       
       # assign
       self$target = target
@@ -252,6 +258,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       self$seltournament = seltournament
       self$lower = lower
       self$upper = upper
+      self$sd.for.init = sd.for.init
       
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
@@ -266,13 +273,9 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       private$range = private$range[predictor$data$feature.names]
       private$sdev = apply(Filter(is.numeric, predictor$data$get.x()), 2, sd)
       
-      
       # Set x.interest     
-      x.interest = x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
-      if (!is.null(x.interest)) {
-        private$set_x_interest(x.interest)
-      }
       if (!is.null(x.interest) & !is.null(target)) {
+        private$set_x_interest(x.interest)
         private$run()
       }
       #cat("initialize finished\n")
@@ -326,7 +329,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       p = lapply(nameList, function(nam) {
         df = melt(log[,nam] , id.vars = "generation", variable.name = "legend")
         singlep = ggplot(df, aes(generation, value)) + geom_line(aes(colour = legend)) + 
-            ylab("value")
+            ylab("value") + 
+          theme_bw()
         return(singlep)
       })
       p
@@ -345,7 +349,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pfPlot = ggplot(data = pf.over.gen.df, aes(x=y1, y=y2, alpha = generation)) +
         geom_point(col = "black")+
         xlab(private$obj.names[1]) +
-        ylab(private$obj.names[2])
+        ylab(private$obj.names[2]) +
+        theme_bw()
       
       pfPlot
     },
@@ -363,12 +368,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     calculate_diversity = function() {
       return(tail(self$log$population.div, 1))
     }, 
-    calculate_freq = function(plot = FALSE) {
+    calculate_frequency = function(plot = FALSE) {
       diff = self$results$counterfactuals.diff
       diff = diff[!(names(diff) %in% c(private$obj.names, "pred"))]
       freq = colSums(diff != 0)/nrow(diff)
+      freq = sort(freq, decreasing = TRUE)
       if (plot) {
-        barplot(freq, ylim = c(0, 1))
+        barplot(freq, ylim = c(0, 1), ylab = "relative frequency")
       }
       return(freq)
     }
@@ -410,17 +416,17 @@ Counterfactuals = R6::R6Class("Counterfactuals",
     },
     intervene = function() {
       
-      # Define reference point for hypervolumn compuation
+      # Define reference point for hypervolumn computation
       private$ref.point = c(min(abs(self$y.hat.interest - self$target)), 
         1, ncol(self$x.interest))
       if (is.infinite(private$ref.point[1])) {
         pred = self$predictor$predict(self$predictor$data$get.x())
         private$ref.point[1] = diff(c(min(pred), max(pred)))
       }
-      # Initialize population based on x.interest, param.setand sdev
+      # Initialize population based on x.interest, param.set and sdev
       lower = self$x.interest[names(private$sdev)] - private$sdev
       upper = self$x.interest[names(private$sdev)] + private$sdev
-      if (nrow(lower)>0 && nrow(upper)>0) {
+      if (self$sd.for.init && nrow(lower)>0 && nrow(upper)>0) {
         lower.ps = pmax(ParamHelpers::getLower(private$param.set), lower)
         upper.ps = pmin(ParamHelpers::getUpper(private$param.set), upper)
         lower.ps[names(self$lower)] = self$lower
@@ -480,7 +486,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         #race = ecr::setup(mosmafs::mutBitflip, p = self$p.mut.gen),
         discrete = ecr::setup(mosmafs::mutRandomChoice, p = self$p.mut.gen),
         logical = ecr::setup(ecr::mutBitflip, p = self$p.mut.gen),
-        use.orig = ecr::setup(ecr::mutBitflip, p = self$p.mut.use.orig),
+        use.orig = ecr::setup(mosmafs::mutBitflipCHW, p = self$p.mut.use.orig),
         .binary.discrete.as.logical = TRUE))
       
       recombinator = suppressMessages(mosmafs::combine.operators(private$param.set,
@@ -520,7 +526,6 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         function(idx) {
           list(min = function(x) min(x[idx, ]), mean = function(x) mean(x[idx, ]))
         }))
-      
       names(log.stats$fitness) = sprintf("obj.%s", seq_len(n.objectives))
       log.stats$fitness = unlist(log.stats$fitness, recursive = FALSE)
       max.hv = ecr::computeHV(matrix(c(0, 0, 0)), private$ref.point)
@@ -589,11 +594,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         FUN = function(x) {
           pop_gen = mosmafs::listToDf(x$population, private$param.set)
           pop_gen[, grepl("use.orig", names(pop_gen))] = NULL
-          dis = StatMatch::gower.dist(data.x = pop_gen, 
-            rngs = private$range, KR.corr = FALSE)
-          single.dist = dis[lower.tri(dis)]
-          mean.dist = mean(single.dist)
-          pop.div = sum(abs(single.dist - mean.dist)/nrow(pop_gen))
+          compute_diversity(pop_gen, private$range)
         }))
       log = mosmafs::getStatistics(private$ecrresults$log)
       log$population.div = div
@@ -635,6 +636,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         xlab("dist target") +
         ylab("dist x.interest") +
         #ggtitle(title)+
+        theme_bw() + 
         guides(color=guide_legend(title="nr changed"))
       
       if (labels) {
@@ -737,7 +739,7 @@ plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.s
 #' }
 #' 
 #' @export
-calculate_freq_wrapper = function(counterfactual, target = NULL, obs = NULL, 
+calculate_frequency_wrapper = function(counterfactual, target = NULL, obs = NULL, 
   row.ids = NULL, plot = FALSE) {
   assert_data_frame(obs, null.ok = TRUE)
   assert_integerish(row.ids, null.ok = TRUE)
@@ -760,14 +762,14 @@ calculate_freq_wrapper = function(counterfactual, target = NULL, obs = NULL,
   df = as.data.frame(df)
   freq = by(df, 1:nrow(df), function(row) {
     counterfactual = counterfactual$explain(row, target)
-    counterfactual$calculate_freq()
+    counterfactual$calculate_frequency()
   })
   freq = do.call(rbind, freq)
   
   average_freq = colMeans(freq)
   
   if(plot) {
-    barplot(average_freq, ylim = c(0, 1))
+    barplot(average_freq, ylim = c(0, 1), ylab = "relative frequency")
   }
   return(average_freq)
   

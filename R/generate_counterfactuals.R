@@ -29,7 +29,7 @@ fitness_fun = function(x, x.interest, target, predictor, range = NULL) {
   # q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]),
   #   0, ifelse(length(target) == 2, Inf, abs(pred - target)))
   # q1[q1 == Inf] = dif[q1 == Inf]
-  q1 = ifelse(length(target) == 2 & (pred > target[1]) & (pred < target[2]), 
+  q1 = ifelse(length(target) == 2 & (pred >= target[1]) & (pred <= target[2]), 
     0, q1)
   q2 = StatMatch::gower.dist(data.x = x.interest, data.y = x, rngs = range, 
     KR.corr = FALSE)[1,]
@@ -78,7 +78,7 @@ select_nondom = ecr::makeSelector(
     assert_matrix(fitness, ncols = nrow(population))
     assert_numeric(epsilon, null.ok = TRUE)
     assert_logical(extract.duplicates)
-    assert_true(vers %in% c(1, 2))
+    assert_true(vers %in% c(1, 2, 3))
     
     # get indices of infeasible solutions with distance to target 
     # bigger epsilon
@@ -149,6 +149,9 @@ select_nondom = ecr::makeSelector(
       if (vers == 2) {
         cds = computeCrowdingDistanceR_ver2(as.matrix(fitness[, idxs.first.nonfit]), 
           population[idxs.first.nonfit,])
+      }
+      if (vers == 3) {
+        cds = ecr::computeCrowdingDistance(as.matrix(fitness[, idxs.first.nonfit]))
       }
       idxs2 = order(cds, decreasing = TRUE)[1:n.diff]
       new.pop.idxs = c(new.pop.idxs, idxs.first.nonfit[idxs2])
@@ -311,6 +314,7 @@ computeCrowdingDistanceR_ver1 = function(fitness, candidates) {
   
   cds = rank(ods, ties.method = "random") + 
     rank(dds, ties.method = "random")
+  cds = jitter(cds, factor = 1)
   return(cds)
 }
 
@@ -340,9 +344,9 @@ computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
   for (i in c(1, 2)) {
 
     # get the order of the points when sorted according to the i-th objective
-    ord = order(fitness[,3], fitness[,i])
-    min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
-    max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
+    ord = order(fitness[3,], fitness[i,])
+    min.changed = c(TRUE, diff(fitness[3, ord]) > 0)
+    max.changed = rev(c(TRUE, diff(rev(fitness[3, ord])) < 0))
     ind.inf = min.changed|max.changed
     # set the extreme values to Inf for each nr.features.changed (objective 3)
     dds[ord[ind.inf]] = Inf
@@ -350,23 +354,22 @@ computeCrowdingDistanceR_ver2 = function(fitness, candidates) {
 
     #t = candidates[ord]
     # update the remaining crowding numbers
-    if (n > 2L && !(n )) {
+    if (n > 2L) {
       for (j in 2:(n - 1L)) {
-
-        if (max[i] - min[i] != 0) {
-          ods[ord[j]] = ods[ord[j]] +
-            (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
-        }
-        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
-
+        ods[ord[j]] = ods[ord[j]] +
+          ((fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])/(max[i]-min[i]))
+        #ods[ord[j]] = ods[ord[j]] +
+        #((fitness[i, ord[j + 1L]] - fitness[i, ord[j]])/(max[i]-min[i]))
+        
         dds[ord[j]] = dds[ord[j]] +
           g.dist[ord[j], ord[j-1]] +
           g.dist[ord[j], ord[j+1]]
-
+        
       }
     }
   }
-  cds = rank(ods) + rank(dds)
+  cds = rank(ods, ties.method = "random") + 
+    rank(dds, ties.method = "random")
   cds = jitter(cds, factor = 1)
   return(cds)
 }
