@@ -329,8 +329,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       p = lapply(nameList, function(nam) {
         df = melt(log[,nam] , id.vars = "generation", variable.name = "legend")
         singlep = ggplot(df, aes(generation, value)) + geom_line(aes(colour = legend)) + 
-            ylab("value") + 
-          theme_bw()
+            ylab("value")
         return(singlep)
       })
       p
@@ -349,8 +348,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       pfPlot = ggplot(data = pf.over.gen.df, aes(x=y1, y=y2, alpha = generation)) +
         geom_point(col = "black")+
         xlab(private$obj.names[1]) +
-        ylab(private$obj.names[2]) +
-        theme_bw()
+        ylab(private$obj.names[2])
       
       pfPlot
     },
@@ -372,7 +370,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       diff = self$results$counterfactuals.diff
       diff = diff[!(names(diff) %in% c(private$obj.names, "pred"))]
       freq = colSums(diff != 0)/nrow(diff)
-      freq = sort(freq, decreasing = TRUE)
+      freq = freq[order(freq, decreasing = TRUE)]
       if (plot) {
         barplot(freq, ylim = c(0, 1), ylab = "relative frequency")
       }
@@ -636,7 +634,6 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         xlab("dist target") +
         ylab("dist x.interest") +
         #ggtitle(title)+
-        theme_bw() + 
         guides(color=guide_legend(title="nr changed"))
       
       if (labels) {

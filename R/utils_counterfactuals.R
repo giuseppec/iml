@@ -9,7 +9,6 @@
 #' ....}
 #' 
 make_paramlist = function(input.data, lower = NULL, upper = NULL, integers = NULL) {
-  
   checkmate::assert_data_frame(input.data)
   checkmate::assert_numeric(lower, null.ok = TRUE)
   checkmate::assert_numeric(upper, null.ok = TRUE)
