@@ -225,8 +225,6 @@ FeatureImp = R6::R6Class("FeatureImp",
         }
 
         results = results[, list("permutation_error" = loss(actual, predicted)), by = list(feature, num_rep)]
-        print(feature)
-        print(results)
         results
       }
       
