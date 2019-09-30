@@ -4,7 +4,8 @@
 \alias{calculate.ale.num.num}
 \title{Compute ALE for 2 numerical features}
 \usage{
-calculate.ale.num.num(dat, run.prediction, feature.name, grid.size)
+calculate.ale.num.num(dat, run.prediction, feature.name, grid.size,
+  grid.type)
 }
 \arguments{
 \item{dat}{the data.frame with same columns as training data}
@@ -14,6 +15,8 @@ calculate.ale.num.num(dat, run.prediction, feature.name, grid.size)
 \item{feature.name}{The column names of the feature for which to compute ALE}
 
 \item{grid.size}{The number of cells}
+
+\item{grid.type}{Either "quantile" or "equidistant"}
 }
 \description{
 Compute ALE for 2 numerical features

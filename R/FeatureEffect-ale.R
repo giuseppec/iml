@@ -1,5 +1,5 @@
 # for suppressing R CMD NOTE:  
-.SD = .ale = .ale0 = .ale1 = .ale2 = .class = .count = .interval = .interval1 = 
+.id = .SD = .ale = .ale0 = .ale1 = .ale2 = .class = .count = .interval = .interval1 = 
   .interval2 = .level = .num = .y.hat = .y.hat.cumsum = .yhat.diff = NULL
 
 
@@ -9,6 +9,7 @@
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE
 #' @param grid.size The number of intervals
+#' @param grid.type Either "quantile" or "equidistant"
 #' @keywords internal
 calculate.ale.num = function(dat, run.prediction, feature.name, grid.size, grid.type){
   # from number of intervals to number of borders
@@ -89,6 +90,7 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size, grid.
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column names of the feature for which to compute ALE
 #' @param grid.size The number of cells
+#' @param grid.type Either "quantile" or "equidistant"
 #' @keywords internal
 calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size, grid.type){
   # Create grid for feature 1
@@ -284,6 +286,7 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the features for which to compute ALE
 #' @param grid.size The number of intervals for the numerical feature
+#' @param grid.type Either "quantile" or "equidistant"
 #' @keywords internal
 calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size, grid.type){
   
@@ -531,6 +534,7 @@ impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
 #' 
 #' Should only occur when type = equidistant was used
 #' @param interval.dat data.frame with column .yhat.diff and interval index and interval position
+#' @param x.col The index of the feature column
 impute_intervals = function(interval.dat, x.col) {
   d.miss.ind = which(is.na(interval.dat$.yhat.diff))
   d.nonmiss.ind = setdiff(1:nrow(interval.dat), d.miss.ind)
