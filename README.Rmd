@@ -12,7 +12,9 @@ output: github_document
 # iml: interpretable machine learning
  `iml ` is an R package that interprets the behaviour and explains predictions of machine learning models.
  It implements model-agnostic interpretability methods - meaning they can be used with any machine learning model.
- 
+
+![](iml.png)
+
  Currently implemented: 
  
  - Feature importance
