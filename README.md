@@ -15,7 +15,7 @@ predictions of machine learning models. It implements model-agnostic
 interpretability methods - meaning they can be used with any machine
 learning model.
 
-Currently implemented:
+![](iml.png) Currently implemented:
 
   - Feature importance
   - Partial dependence plots
