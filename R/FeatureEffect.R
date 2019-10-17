@@ -220,15 +220,19 @@ FeatureEffect = R6::R6Class("FeatureEffect",
     feature.type = NULL,
     method  = NULL,
     conditional = NULL,
-    initialize = function(predictor, feature, method = "ale", center.at = NULL, grid.size = 20, conditional = FALSE) {
+    grid.type = NULL,
+    initialize = function(predictor, feature, method = "ale", center.at = NULL,
+                          grid.size = 20, conditional = FALSE, grid.type = "auto") {
       feature_index = private$sanitize.feature(feature, predictor$data$feature.names)
       assert_numeric(feature_index, lower = 1, upper = predictor$data$n.features, min.len = 1, max.len = 2)
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
       assert_number(center.at, null.ok = TRUE)
       assert_choice(method, c("ale", "pdp", "ice", "pdp+ice"))
       assert_logical(conditional)
+      assert_choice(grid.type, c("auto", "equidistant", "quantile"))
       self$method = method
       self$conditional = conditional
+      self$grid.type = grid.type
       if (length(feature_index) == 2) { 
         assert_false(feature_index[1] == feature_index[2])
         center.at = NULL
@@ -275,8 +279,10 @@ FeatureEffect = R6::R6Class("FeatureEffect",
   private = list(
     run = function(n) {
       if(self$method == "ale") {
+        if(self$grid.type == "auto") self$grid.type = "quantile"
         private$run.ale() 
       } else {
+        if(self$grid.type == "auto") self$grid.type = "equidistant"
         private$run.pdp(self$predictor$batch.size)
       }
       
@@ -312,7 +318,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       if(self$n.features  == 1) {
         if(self$feature.type == "numerical") { # one numerical feature
           results = calculate.ale.num(dat = private$dataSample, run.prediction = private$run.prediction, 
-            feature.name = self$feature.name, grid.size = self$grid.size)
+            feature.name = self$feature.name, grid.size = self$grid.size, grid.type = self$grid.type)
         } else { # one categorical feature
           results = calculate.ale.cat(dat = private$dataSample, run.prediction = private$run.prediction, 
             feature.name = self$feature.name)
@@ -320,12 +326,12 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       } else { # two features
         if(all(self$feature.type == "numerical")){ # two numerical features
           results = calculate.ale.num.num(dat = private$dataSample, run.prediction = private$run.prediction, 
-            feature.name = self$feature.name, grid.size = self$grid.size)
+            feature.name = self$feature.name, grid.size = self$grid.size, grid.type = self$grid.type)
         } else if(all(self$feature.type == "categorical")) { # two categorical features
           stop("ALE for two categorical features is not yet implemented.")
         } else { # mixed numerical and categorical
           results = calculate.ale.num.cat(dat = private$dataSample, run.prediction = private$run.prediction, 
-            feature.name = self$feature.name, grid.size = self$grid.size)
+            feature.name = self$feature.name, grid.size = self$grid.size, grid.type = self$grid.type)
         }
       }
       # only keep .class when multiple outputs
@@ -334,24 +340,24 @@ FeatureEffect = R6::R6Class("FeatureEffect",
     },
     run.pdp = function(n) {
       private$dataSample = private$getData()
-      grid.dt = get.grid(private$getData()[,self$feature.name, with = FALSE], self$grid.size, anchor.value = private$anchor.value)
+      grid.dt = get.grid(private$getData()[,self$feature.name, with = FALSE], self$grid.size, anchor.value = private$anchor.value, type = self$grid.type)
       mg = MarginalGenerator$new(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE, cartesian = TRUE)
       results.ice = data.table()
-      #if (self$conditional) {
-      #  cmodel = self$predictor$get_cond_model(self$feature.name)
-      #  conditionals = predict(cmodel, newdata = private$dataSample, type = "density")
-      #}
+      if (self$conditional) {
+        cmodel = self$predictor$get_cond_model(self$feature.name)
+        conditionals = predict(cmodel, newdata = private$dataSample, type = "density")
+      }
       while(!mg$finished) {
         results.ice.inter = mg$next.batch(n)
         predictions = private$run.prediction(results.ice.inter)
-        #if (self$conditional & length(self$feature.name == 1)) {
-          # res.unique = results.ice.inter[, .SD[1], by = .id.dist] 
-          # res.unique = results.ice.inter[results.ice.inter[, .I[1], by = .id.dist]$V1]
-        #  results.ice.inter = results.ice.inter[, c(self$feature.name,".dens") :=  list(.SD[[1]], conditionals[[.GRP]](.SD[[1]])),
-        #                                        by = .id.dist, .SDcols = self$feature.name]
-        #} else {
-        #  results.ice.inter$.dens = NA
-        #}
+        if (self$conditional & length(self$feature.name == 1)) {
+           res.unique = results.ice.inter[, .SD[1], by = .id.dist] 
+           res.unique = results.ice.inter[results.ice.inter[, .I[1], by = .id.dist]$V1]
+          results.ice.inter = results.ice.inter[, c(self$feature.name,".dens") :=  list(.SD[[1]], conditionals[[.GRP]](.SD[[1]])),
+                                                by = .id.dist, .SDcols = self$feature.name]
+        } else {
+          results.ice.inter$.dens = NA
+        }
         results.ice.inter = results.ice.inter[, c(self$feature.name, ".id.dist"), with = FALSE]
         if (private$multiClass) {
           y.hat.names = colnames(predictions)

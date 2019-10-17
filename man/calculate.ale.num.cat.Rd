@@ -4,7 +4,8 @@
 \alias{calculate.ale.num.cat}
 \title{Compute ALE for 2 features, one numerical, one categorical}
 \usage{
-calculate.ale.num.cat(dat, run.prediction, feature.name, grid.size)
+calculate.ale.num.cat(dat, run.prediction, feature.name, grid.size,
+  grid.type)
 }
 \arguments{
 \item{dat}{the data.frame with same columns as training data}
@@ -14,6 +15,8 @@ calculate.ale.num.cat(dat, run.prediction, feature.name, grid.size)
 \item{feature.name}{The column name of the features for which to compute ALE}
 
 \item{grid.size}{The number of intervals for the numerical feature}
+
+\item{grid.type}{Either "quantile" or "equidistant"}
 }
 \description{
 Compute ALE for 2 features, one numerical, one categorical

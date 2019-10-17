@@ -474,3 +474,12 @@ test_that("FeatureEffect handles empty level", {
   expect_equal(fe, fe2)
 })
 
+
+test_that("ALE 1D imputation works", {
+  dd = data.frame(.yhat.diff = 1:10, x = 1:10)
+  dd[c(1, 4, 5, 6), 1] = NA
+  imputed = impute_intervals(dd, x.col = 2)
+  dd2 = data.frame(.yhat.diff = 1:10, x = 1:10)
+  dd2[c(1,4,5,6), 1] = c(2, 3, 5, 7)
+  expect_equal(imputed, dd2) 
+})
