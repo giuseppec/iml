@@ -14,7 +14,7 @@ output: github_document
  It implements model-agnostic interpretability methods - meaning they can be used with any machine learning model.
 
 ```{r, out.height = 200, echo = FALSE}
-knitr::include_graphics("iml.png")
+knitr::include_graphics("inst/iml.png")
 ```
 
  Currently implemented: 

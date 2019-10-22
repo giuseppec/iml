@@ -15,7 +15,7 @@ predictions of machine learning models. It implements model-agnostic
 interpretability methods - meaning they can be used with any machine
 learning model.
 
-<img src="iml.png" height="200" />
+<img src="inst/iml.png" height="200" />
 
 Currently implemented:
 
