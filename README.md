@@ -15,7 +15,7 @@ predictions of machine learning models. It implements model-agnostic
 interpretability methods - meaning they can be used with any machine
 learning model.
 
-![](iml.png)
+<img src="iml.png" height="200" />
 
 Currently implemented:
 
@@ -70,7 +70,7 @@ effect = FeatureEffects$new(model)
 effect$plot(features = c("lstat", "age", "rm"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 # Contribute
 
