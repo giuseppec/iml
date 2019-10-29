@@ -485,7 +485,7 @@ test_that("ALE 1D imputation works", {
 })
 
 test_that("ALE equidistant works", {
-  dat = data.frame(x = 1:100, x2 = rnorm(100))
+  dat = data.frame(x = rnorm(100, sd = 10), x2 = rnorm(100))
   dat$y = dat$x + dat$x2
   mod = lm(y ~ x + x2, data = dat)
   pred = Predictor$new(mod, data = dat)
