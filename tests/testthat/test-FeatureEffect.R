@@ -483,3 +483,14 @@ test_that("ALE 1D imputation works", {
   dd2[c(1,4,5,6), 1] = c(2, 3, 5, 7)
   expect_equal(imputed, dd2) 
 })
+
+test_that("ALE equidistant works", {
+  dat = data.frame(x = 1:100, x2 = rnorm(100))
+  dat$y = dat$x + dat$x2
+  mod = lm(y ~ x + x2, data = dat)
+  pred = Predictor$new(mod, data = dat)
+  fe = FeatureEffect$new(pred, "x", grid.type = "equidistant") 
+  expect_equal(length(unique(round(diff(fe$results$x), 2))), 1)
+  expect_equal(length(unique(round(diff(fe$results$.ale), 2))), 1)
+})
+
