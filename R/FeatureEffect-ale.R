@@ -32,11 +32,15 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size, grid.
   y.hat.names = setdiff(colnames(deltas), c(colnames(dat), ".interval"))
   deltas = melt(deltas, variable.name = ".class", 
     value.name = ".yhat.diff", measure.vars = y.hat.names)
+  deltas = deltas[order(deltas$.interval),]
+  # average over instances within each interval
+  setkeyv(deltas, c(".class", ".interval"))
+  deltas = deltas[, list(.yhat.diff = mean(.yhat.diff)), by = c(".interval", ".class")]
+
   intervals.missing = nrow(deltas) < (length(unique(deltas$.class)) * (nrow(grid.dt) - 1))
   if (intervals.missing) {
   # add in empty intervals
-    empty.deltas = data.frame(grid.dt[[1]][1:(nrow(grid.dt) - 1)], .interval = 1:(nrow(grid.dt) - 1),.yhat.diff = NA)
-    colnames(empty.deltas)[1] = colnames(deltas)[1]
+    empty.deltas = data.frame(.interval = 1:(nrow(grid.dt) - 1),.yhat.diff = NA)
     empty.deltas.l = lapply(unique(deltas$.class), function(cl) {
       ed = empty.deltas
       ed$.class = cl
@@ -48,12 +52,11 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size, grid.
     deltas.l = lapply(unique(deltas$.class), function(cl) {
     dts = impute_intervals(deltas[deltas$.class == cl,], x.col = 1)
   })
-  deltas = rbindlist(deltas.l)
+    deltas = rbindlist(deltas.l)
+    deltas = deltas[order(deltas$.interval),]
   }
-  deltas = deltas[order(deltas$.interval),]
-  # average over instances within each interval
-  setkeyv(deltas, c(".class", ".interval"))
-  deltas = deltas[, list(.yhat.diff = mean(.yhat.diff)), by = c(".interval", ".class")]
+
+
   # accumulate over the intervals
   deltas.accumulated = deltas[,list(.y.hat.cumsum = cumsum_na(c(0, .yhat.diff)), .id = c(0, .interval)), by = ".class"]
   interval.tab = table(interval.index)
