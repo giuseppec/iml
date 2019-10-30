@@ -494,3 +494,18 @@ test_that("ALE equidistant works", {
   expect_equal(length(unique(round(diff(fe$results$.ale), 2))), 1)
 })
 
+
+test_that("PDP equidistant works", {
+  dat = data.frame(x = rnorm(100, sd = 10), x2 = rnorm(100))
+  dat$y = dat$x + dat$x2
+  mod = lm(y ~ x + x2, data = dat)
+  pred = Predictor$new(mod, data = dat)
+  fe = FeatureEffect$new(pred, "x", method = "pdp", grid.type = "equidistant") 
+  expect_equal(length(unique(round(diff(fe$results$x), 2))), 1)
+  expect_equal(length(unique(round(diff(fe$results$.y.hat), 2))), 1)
+
+  fe = FeatureEffect$new(pred, "x", method = "pdp", grid.type = "quantile", grid.size = 5) 
+  expect_equal(nrow(fe$results), 5)
+  probs = seq(from = 0, to = 1, length.out = 5)
+  expect_equal(fe$results$x, quantile(dat$x, names = FALSE, probs = probs, type = 1))
+})
