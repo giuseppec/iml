@@ -88,6 +88,7 @@ Predictor = R6::R6Class("Predictor",
     data = NULL,
     model = NULL, 
     batch.size = NULL,
+    conditional = FALSE,
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
       # Makes sure it's not a data.table
@@ -145,44 +146,14 @@ Predictor = R6::R6Class("Predictor",
       }
       
       self$data = Data$new(data, y = y)
-      private$cond_models = as.list(rep(NA, times = self$data$n.features))
-      names(private$cond_models) = self$data$feature.names
-      if(conditional) private$fit_conditionals()
+      if(conditional) self$conditional = Conditionals$new(self$data)
       self$class = class
       self$model = model
       self$task = inferTaskFromModel(model)
       self$prediction.function = create_predict_fun(model, self$task, predict.fun, type = type)
       self$batch.size = batch.size
-    },
-    get_cond_model = function(feature){
-      if (is.null(private$cond_models[[feature]])) {
-        private$fit_conditional(feature)
-      }
-      private$cond_models[[feature]]
-    }
-  ), 
+    }), 
   private = list(
-    predictionChecked = FALSE,
-    cond_models = NULL,
-    fit_conditional = function(feature) {
-      require("trtf")
-      y = self$data$X[[feature]]
-      if ((self$data$feature.types[feature] == "numerical") & length(unique(y) > 2)) {
-        yvar = numeric_var(feature, support = c(min(y), max(y)))
-        By  =  Bernstein_basis(yvar, order = 5, ui = "incr")
-        m = ctm(response = By,  todistr = "Normal", data = self$data$X )
-        form = as.formula(sprintf("%s ~ 1 | .", feature))
-        part_cmod = trafotree(m, formula = form,  data = self$data$X)
-      } else {
-        form = as.formula(sprintf("%s ~ .", data = self$data$X))
-        part_cmod = ctree(form, data = self$data$X)
-      }
-      private$cond_models[[feature]] = part_cmod
-    },
-    fit_conditionals = function(){
-      lapply(self$data$feature.names, function(feat) {
-               private$fit_conditional(feat)
-	  })
-    }
+    predictionChecked = FALSE
   )
 )

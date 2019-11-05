@@ -360,12 +360,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       }
       
       if (self$conditional) {
-        cmodel = self$predictor$get_cond_model(self$feature.name)
-        conditionals = predict(cmodel, newdata = private$dataSample, type = "density")
-        densities = unlist(lapply(conditionals, function(condi) {condi(grid.dt[[1]])}))
-        densities = data.table(.dens = densities, .id.dist = rep(1:nrow(private$dataSample), each = self$grid.size), 
-                                 feature = rep(grid.dt[[1]], times = nrow(private$dataSample)))
-        colnames(densities) = c(".dens", ".id.dist", self$feature.name) 
+        densities = self$predictor$conditional$cdens(private$dataSample,
+                                                     feature = self$feature.name, xgrid = grid.dt[[1]])
         results.ice = results.ice[densities, on = c(self$feature.name, ".id.dist")]
       } else {
         results.ice$.dens = 1

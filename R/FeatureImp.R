@@ -193,14 +193,12 @@ FeatureImp = R6::R6Class("FeatureImp",
       private$dataSample = private$getData()
       result = NULL
       
-      estimate_feature_imp = function(feature, data.sample, y, n.repetitions, y.names, pred, loss, predictor) {
+      estimate_feature_imp = function(feature, data.sample, y, n.repetitions, y.names, pred, loss, predictor, cmodels = NULL) {
         cnames = setdiff(colnames(data.sample), y.names)
         qResults = data.table::data.table()
         y.vec = data.table::data.table()
-        cmodel = predictor$get_cond_model(feature)
         if (self$conditional) {
-
-          if(feature == "chas") browser()
+          cmodel = cmodels$models[[feature]]
           cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y)
           while (!cg$finished) {
             data.design = cg$next.batch(n, y = TRUE)
@@ -235,7 +233,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       pred  = private$run.prediction
       loss = self$loss
       predictor = self$predictor
-
+      cmodels = self$predictor$conditional
       `%mypar%` = private$get.parallel.fct(private$parallel)
       result = foreach(feature = private$sampler$feature.names, .combine = rbind, .export = "self", 
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
