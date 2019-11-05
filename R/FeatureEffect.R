@@ -343,21 +343,9 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       grid.dt = get.grid(private$getData()[,self$feature.name, with = FALSE], self$grid.size, anchor.value = private$anchor.value, type = self$grid.type)
       mg = MarginalGenerator$new(grid.dt, private$dataSample, self$feature.name, id.dist = TRUE, cartesian = TRUE)
       results.ice = data.table()
-      if (self$conditional) {
-        cmodel = self$predictor$get_cond_model(self$feature.name)
-        conditionals = predict(cmodel, newdata = private$dataSample, type = "density")
-      }
       while(!mg$finished) {
         results.ice.inter = mg$next.batch(n)
         predictions = private$run.prediction(results.ice.inter)
-        if (self$conditional & length(self$feature.name == 1)) {
-           res.unique = results.ice.inter[, .SD[1], by = .id.dist] 
-           res.unique = results.ice.inter[results.ice.inter[, .I[1], by = .id.dist]$V1]
-          results.ice.inter = results.ice.inter[, c(self$feature.name,".dens") :=  list(.SD[[1]], conditionals[[.GRP]](.SD[[1]])),
-                                                by = .id.dist, .SDcols = self$feature.name]
-        } else {
-          results.ice.inter$.dens = NA
-        }
         results.ice.inter = results.ice.inter[, c(self$feature.name, ".id.dist"), with = FALSE]
         if (private$multiClass) {
           y.hat.names = colnames(predictions)
@@ -371,6 +359,18 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         results.ice = rbind(results.ice, results.ice.inter)
       }
       
+      if (self$conditional) {
+        cmodel = self$predictor$get_cond_model(self$feature.name)
+        conditionals = predict(cmodel, newdata = private$dataSample, type = "density")
+        densities = unlist(lapply(conditionals, function(condi) {condi(grid.dt[[1]])}))
+        densities = data.table(.dens = densities, .id.dist = rep(1:nrow(private$dataSample), each = self$grid.size), 
+                                 feature = rep(grid.dt[[1]], times = nrow(private$dataSample)))
+        colnames(densities) = c(".dens", ".id.dist", self$feature.name) 
+        results.ice = results.ice[densities, on = c(self$feature.name, ".id.dist")]
+      } else {
+        results.ice$.dens = 1
+      }
+
       if (!is.null(private$anchor.value)) {
         anchor.index = which(results.ice[,self$feature.name, with=FALSE] == private$anchor.value)
         X.aggregated.anchor = results.ice[anchor.index, c(".y.hat", ".id.dist", ".class"), with = FALSE]
@@ -384,10 +384,10 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       results = data.table()
       if (self$method %in% c("pdp", "pdp+ice")) {
         if (private$multiClass) {
-          results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
+          results.aggregated = results.ice[, list(.y.hat = weighted.mean(.y.hat, w = .dens)), 
             by = c(self$feature.name, ".class")]
         } else {
-          results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
+          results.aggregated = results.ice[, list(.y.hat = weighted.mean(.y.hat, w = .dens)), 
             by = c(self$feature.name)]
         }
         results.aggregated$.type = "pdp"
@@ -397,23 +397,14 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         results.ice$.class = NULL
       }
       if (self$method %in% c("ice", "pdp+ice")) {
-        if (self$conditional) {
-          cmodel = self$predictor$get_cond_model(self$feature.name)
-          conditionals = predict(cmodel, newdata = private$dataSample, type = "density")
-          densities = unlist(lapply(conditionals, function(condi) condi(grid.dt[[1]])))
-          densities = data.table(.dens = densities, .id.dist = rep(1:nrow(private$dataSample), each = self$grid.size), 
-                                 feature = rep(grid.dt[[1]], times = nrow(private$dataSample)))
-          colnames(densities) = c(".dens", ".id.dist", self$feature.name) 
-          results.ice = results.ice[densities, on = c(self$feature.name, ".id.dist")]
-        }
-
         results.ice$.type = "ice"
         results = rbind(results, results.ice, fill = TRUE)
         results$.id = results$.id.dist
         results$.id.dist = NULL
         # sory by id
         setkeyv(results, ".id")
-        }
+      }
+      if(".dens" %in% colnames(results)) results$.dens = NULL
       self$results = data.frame(results)
     }
     , 
