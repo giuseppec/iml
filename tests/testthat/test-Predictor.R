@@ -237,6 +237,12 @@ test_that("Predictor errors with only one feature", {
   expect_error(Predictor$new(mod, data = dat))
 })
 
+test_that("Predictor errors with data, which includes NAs.", {
+  dat = data.frame(y = 1:10, x = factor(c(NA,NA,1,2,1,2,1,2,1,2), levels = c(1,2,3)))
+  mod = lm(y ~ x, data = dat)
+  expect_error(Predictor$new(mod, data = dat))
+})
+
 # keras
 k = backend()
 k$clear_session()
