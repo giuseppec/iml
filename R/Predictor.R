@@ -130,9 +130,6 @@ Predictor = R6::R6Class("Predictor",
         tryCatch({data = find_data(model)}, 
           error = function(e) stop("Can't extract data from model, please provide via data="))
       }
-      if (sum(is.na(data))) {
-        stop("The Data should not contain NAs!") 
-      }
       if (is.null(y)) {
         y = find_y(model)
         # Extra fix for caret, because it renames the target in the data

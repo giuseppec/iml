@@ -179,7 +179,8 @@ Shapley = R6::R6Class("Shapley",
         res$feature.value = factor(res$feature.value, levels = res$feature.value[order(res$phi)])
       }
       p = ggplot(res) + 
-        geom_col(aes(y = phi, x=feature.value)) + coord_flip()
+        geom_col(aes(y = phi, x=feature.value)) + coord_flip() + 
+        xlab("") 
       if (private$multiClass) {
         p = p + facet_wrap("class")
       } else {
