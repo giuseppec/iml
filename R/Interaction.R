@@ -112,6 +112,10 @@ Interaction = R6::R6Class("Interaction",
       assert_number(grid.size, lower = 2)
       assert_logical(parallel)
       private$parallel = parallel
+      if (sum(predictor$data$feature.names != names(predictor$model$coefficients)[-1]) == 0) {
+        stop("Variables' names from your dataset are not same as the one from your model!
+             You could remove spaces from variables' names and try again.")  
+      }
       if (!is.null(feature) && is.numeric(feature)) {
         private$feature = predictor$data$feature.names[feature]
       } else {
