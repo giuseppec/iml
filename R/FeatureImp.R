@@ -197,7 +197,7 @@ FeatureImp = R6::R6Class("FeatureImp",
         cnames = setdiff(colnames(data.sample), y.names)
         qResults = data.table::data.table()
         y.vec = data.table::data.table()
-        if (self$conditional) {
+        if (!is.null(cmodels)) {
           cmodel = cmodels$models[[feature]]
           cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y)
           while (!cg$finished) {
@@ -233,12 +233,13 @@ FeatureImp = R6::R6Class("FeatureImp",
       pred  = private$run.prediction
       loss = self$loss
       predictor = self$predictor
-      cmodels = self$predictor$conditional
+      if(self$conditional) cmodels = self$predictor$conditional
       `%mypar%` = private$get.parallel.fct(private$parallel)
       result = foreach(feature = private$sampler$feature.names, .combine = rbind, .export = "self", 
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
         estimate_feature_imp(feature, data.sample = data.sample, y = y,
-          n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss, predictor = predictor)
+          n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss,
+	  predictor = predictor, cmodels = cmodels)
       if (self$compare == "ratio") {
         result[, importance_raw := permutation_error / self$original.error]
       } else {

@@ -139,7 +139,7 @@ test_that("Feature Importance 0", {
 })
 
 test_that("Conditional Feature Importance", {
-  predictor1 = Predictor$new(data = X, y = y, predict.fun = f, conditional = TRUE)
+  predictor1 = Predictor$new(data = X, y = y, predict.fun = pred.fun, conditional = TRUE)
   var.imp = FeatureImp$new(predictor1, loss = "mse", conditional = TRUE)
   dat = var.imp$results
   expect_class(dat, "data.frame")
