@@ -2,19 +2,30 @@ context("create_predict_fun")
 
 
 library("mlr")
+library("mlr3")
 library("randomForest")
 library("caret")
-
+library("mlr3learners")
 
 ## mlr
 task = mlr::makeClassifTask(data = iris, target = "Species")
-lrn = mlr::makeLearner("classif.randomForest", predict.type = "prob")
+lrn = mlr::makeLearner("classif.rpart", predict.type = "prob")
 mod.mlr = mlr::train(lrn, task)
 predictor.mlr = create_predict_fun(mod.mlr, "classification")
 
-lrn.response = mlr::makeLearner("classif.randomForest", predict.type = "response")
+lrn.response = mlr::makeLearner("classif.rpart", predict.type = "response")
 mod.mlr.response = mlr::train(lrn.response, task)
 predictor.mlr.response = create_predict_fun(mod.mlr.response, "classification")
+
+# mlr3
+task_iris = TaskClassif$new(id = "iris", backend = iris, target = "Species")
+learner = lrn("classif.rpart", predict_type = "prob")
+learner$train(task_iris)
+predictor.mlr3 = create_predict_fun(learner, "classification")
+
+lrn.response = lrn("classif.rpart", predict_type = "response")
+mod.mlr.response = lrn.response$train(task_iris)
+predictor.mlr3.response = create_predict_fun(mod.mlr.response, "classification")
 
 
 # S3 predict
@@ -41,12 +52,14 @@ test_that("output shape", {
   checkmate::expect_data_frame(predictor.S3(iris.test), ncols = 3)
   checkmate::expect_data_frame(predictor.mlr(iris.test), ncols = 3)
   checkmate::expect_data_frame(predictor.mlr.response(iris.test), ncols = 3)
-})
-
+  checkmate::expect_data_frame(predictor.mlr3(iris.test), ncols = 3)
+  checkmate::expect_data_frame(predictor.mlr.response(iris.test), ncols = 3)
+  })
 
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret(iris.test))
   expect_equivalent(predictor.mlr(iris.test), data.frame(predictor.S3(iris.test)))
+  expect_equivalent(predictor.mlr3(iris.test), data.frame(predictor.S3(iris.test)))
 })
 
 test_that("f works", {
@@ -70,9 +83,15 @@ test_that("output is label", {
 data(Boston, package="MASS")
 ## mlr
 task = mlr::makeRegrTask(data = Boston, target = "medv")
-lrn = mlr::makeLearner("regr.randomForest")
+lrn = mlr::makeLearner("regr.rpart")
 mod.mlr = mlr::train(lrn, task)
 predictor.mlr = create_predict_fun(mod.mlr, task = "regression")
+
+task = TaskRegr$new(id = "Boston", backend = Boston, target = "medv")
+learn = lrn("regr.rpart")
+learn$train(task)
+predictor.mlr3 = create_predict_fun(learn, task = "regression")
+
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
@@ -96,13 +115,14 @@ test_that("output shape", {
   checkmate::expect_data_frame(predictor.caret(boston.test), ncols = 1)
   checkmate::expect_data_frame(predictor.S3(boston.test), ncols = 1)
   checkmate::expect_data_frame(predictor.mlr(boston.test), ncols = 1)
-  
+  checkmate::expect_data_frame(predictor.mlr3(boston.test), ncols = 1)
 })
 
 
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret(boston.test))
   expect_equivalent(predictor.mlr(boston.test), predictor.S3(boston.test))
+  expect_equivalent(predictor.mlr(boston.test), predictor.mlr3(boston.test))
 })
 
 

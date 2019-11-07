@@ -47,7 +47,9 @@ Suggests: randomForest,
           ALEPlot,
           ranger,
           keras,
-          h2o
+          h2o,
+          mlr3,
+          mlr3learners
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1

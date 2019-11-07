@@ -26,6 +26,32 @@ create_predict_fun.WrappedModel = function(model, task, predict.fun = NULL, type
   }
 }
 
+
+create_predict_fun.Learner = function(model, task, predict.fun = NULL, type = NULL){
+  if (!requireNamespace("mlr3")) {
+    "Please install the mlr3 package."
+  }
+  if (task == "classification") {
+    function(newdata){
+      pred = predict(model, newdata = newdata)
+      if (model$learner$predict.type == "response") {
+        pred = mlr::getPredictionResponse(pred)
+        factor_to_dataframe(pred)
+      } else {
+        mlr::getPredictionProbabilities(pred, cl = model$task.desc$class.levels)
+      }
+    }
+  } else if (task == "regression") {      
+    function(newdata){
+      pred = predict(model, newdata = newdata)
+      data.frame(.prediction = mlr::getPredictionResponse(pred))
+    }
+  } else {
+    stop(sprintf("Task type '%s' not supported", task))
+  }
+}
+
+
 create_predict_fun.train = function(model, task, predict.fun = NULL, type = NULL){
   if (task == "classification") {
     function(newdata) {
