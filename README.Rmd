@@ -13,7 +13,14 @@ output: github_document
  `iml ` is an R package that interprets the behaviour and explains predictions of machine learning models.
  It implements model-agnostic interpretability methods - meaning they can be used with any machine learning model.
 
+<<<<<<< HEAD
 ![](iml.png) 
+=======
+```{r, out.height = 200, echo = FALSE}
+knitr::include_graphics("inst/iml.png")
+```
+
+>>>>>>> master
  Currently implemented: 
  
  - Feature importance

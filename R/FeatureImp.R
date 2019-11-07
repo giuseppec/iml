@@ -264,7 +264,7 @@ FeatureImp = R6::R6Class("FeatureImp",
         geom_segment(aes(y = feature, yend = feature, x=importance.05, xend = importance.95), size = 1.5, color = "darkslategrey") +
         geom_point(size = 3)+
         scale_x_continuous(sprintf("Feature Importance (loss: %s)", private$loss_string)) + 
-        scale_y_discrete("Feature")
+        scale_y_discrete("")
     }, 
     set_loss = function(loss) {
       self$loss = loss

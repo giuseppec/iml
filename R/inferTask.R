@@ -27,6 +27,26 @@ inferTaskFromModel.WrappedModel = function(model){
   }
 }
 
+inferTaskFromModel.Learner = function(model){
+  if (!requireNamespace("mlr3")) {
+    stop("Please install the mlr package.")
+  }
+  tsk = model$task_type 
+  if (tsk == "classif") {
+    if (model$predict_type != "prob") {
+      warning("Output seems to be class instead of probabilities. 
+               Automatically transformed to 0 and 1 probabilities.
+               You might want to set predict.type = 'prob' for Learner!")    
+    }
+    return("classification")
+  } else if (tsk == "regr") {
+    return("regression")
+  } else {
+    stop(sprintf("mlr task type <%s> not supported", tsk))
+  }
+}
+
+
 
 inferTaskFromModel.train = function(model) {
   mtype = model$modelType
