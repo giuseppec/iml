@@ -9,6 +9,7 @@ find_y.WrappedModel = function(mod) {
   mod$task.desc$target
 }
 
+
 find_y.H2OMultinomialModel = function(mod) {
   mod@parameters$y
 }

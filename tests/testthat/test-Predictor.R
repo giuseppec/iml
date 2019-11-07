@@ -2,7 +2,7 @@ context("Predictor")
 
 
 library("mlr")
-library("randomForest")
+library("mlr3")
 library("caret")
 library("data.table")
 library("keras")
@@ -10,9 +10,16 @@ library("h2o")
 
 ## mlr
 task = mlr::makeClassifTask(data = iris, target = "Species")
-lrn = mlr::makeLearner("classif.randomForest", predict.type = "prob")
+lrn = mlr::makeLearner("classif.rpart", predict.type = "prob")
 mod.mlr = mlr::train(lrn, task)
 predictor.mlr = Predictor$new(mod.mlr, data = iris)
+
+## mlr3
+task_iris = TaskClassif$new(id = "iris", backend = iris, target = "Species")
+learner_iris = lrn("classif.rpart", predict_type = "prob")
+learner_iris$train(task_iris)
+predictor.mlr3 = Predictor$new(learner_iris, data = iris) 
+
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
@@ -83,7 +90,7 @@ prediction.f = predictor.f$predict(iris.test)
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
   expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
-  
+  expect_equivalent(predictor.mlr3$predict(iris.test), predictor.S3$predict(iris.test))
 })
 
 test_that("f works", {
@@ -128,6 +135,11 @@ test_that("errors when trying to extract data from for mlr::WrappedModel", {
   expect_error(Predictor$new(mod.mlr, type = "prob"))
 })
 
+test_that("errors when trying to extract data from for mlr3::Learner", {
+  expect_error(Predictor$new(learner_iris, type = "prob"))
+})
+
+
 
 test_that("h20 prediction works", {
   expect_equal(predictor.h2o.class$predict(iris),
@@ -158,8 +170,10 @@ test_that("Keras classification can get nice column names through custom predict
 
 
 
-## mlr
+# mlr
 predictor.mlr = Predictor$new(mod.mlr, class = 2, data = iris)
+# mlr3
+predictor.mlr3 = Predictor$new(learner_iris, class = 2, data = iris)
 # S3 predict
 predictor.S3 = Predictor$new(mod.S3, class = 2, predict.fun = predict.fun, data = iris)
 # caret
@@ -170,26 +184,30 @@ prediction.f = predictor.f$predict(iris.test)
 test_that("equivalence",{
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
   expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
+  expect_equivalent(predictor.mlr3$predict(iris.test), predictor.S3$predict(iris.test))
 })
 
-test_that("Missing predict.type gives warning", {
+test_that("Missing predict.type for mlr gives warning", {
   task = mlr::makeClassifTask(data = iris, target = "Species")
   lrn = mlr::makeLearner("classif.randomForest")
   mod.mlr = mlr::train(lrn, task)
   expect_warning(Predictor$new(mod.mlr, data = iris))
 })
 
-
-
-
 # Test numeric predictions
 
 data(Boston, package="MASS")
 ## mlr
 task = mlr::makeRegrTask(data = Boston, target = "medv")
-lrn = mlr::makeLearner("regr.randomForest")
+lrn = mlr::makeLearner("regr.rpart")
 mod.mlr = mlr::train(lrn, task)
 predictor.mlr = Predictor$new(mod.mlr, data = Boston)
+
+# mlr3 
+task = TaskRegr$new(id = "bn", backend = Boston, target = "medv")
+learner = lrn("regr.rpart")
+learner$train(task)
+predictor.mlr3 = Predictor$new(learner, data = Boston) 
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
@@ -212,6 +230,7 @@ prediction.f = predictor.f$predict(boston.test)
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(boston.test))
   expect_equivalent(predictor.mlr$predict(boston.test), predictor.S3$predict(boston.test))
+  expect_equivalent(predictor.mlr3$predict(boston.test), predictor.S3$predict(boston.test))
 })
 
 test_that("f works", {
@@ -221,13 +240,21 @@ test_that("f works", {
 
 
 predictor.mlr = Predictor$new(mod.mlr, class = 2, data = iris, y = iris$Species)
-predictor.mlr2 = Predictor$new(mod.mlr, class = 2, data = iris, y = "Species")
+predictor.mlrb = Predictor$new(mod.mlr, class = 2, data = iris, y = "Species")
+predictor.mlr3 = Predictor$new(learner_iris, class = 2, data = iris, y = iris$Species)
+predictor.mlr3b = Predictor$new(learner_iris, class = 2, data = iris, y = "Species")
 
-
-test_that("Giving y", {
+test_that("Returning y", {
   expect_equal(predictor.mlr$data$y, data.frame(.y = iris$Species))
-  expect_equal(predictor.mlr2$data$y, data.frame(Species = iris$Species))
-  expect_false("Species" %in% colnames(predictor.mlr2$data$X))
+  expect_equal(predictor.mlrb$data$y, data.frame(Species = iris$Species))
+  expect_equal(predictor.mlrb$data$y, data.frame(Species = iris$Species))
+  expect_false("Species" %in% colnames(predictor.mlrb$data$X))
+
+  expect_equal(predictor.mlr3$data$y, data.frame(.y = iris$Species))
+  expect_equal(predictor.mlr3b$data$y, data.frame(Species = iris$Species))
+  expect_equal(predictor.mlr3b$data$y, data.frame(Species = iris$Species))
+  expect_false("Species" %in% colnames(predictor.mlr3b$data$X))
+
 })
 
 

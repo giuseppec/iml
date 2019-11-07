@@ -3,9 +3,7 @@ context("create_predict_fun")
 
 library("mlr")
 library("mlr3")
-library("randomForest")
 library("caret")
-library("mlr3learners")
 
 ## mlr
 task = mlr::makeClassifTask(data = iris, target = "Species")

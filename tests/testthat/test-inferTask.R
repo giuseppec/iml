@@ -1,5 +1,7 @@
 context("inferTask")
 
+library("randomForest")
+
 rf = randomForest(Species ~ ., data = iris, ntree = 1)
 f = function(x) predict(rf, newdata = x)
 
@@ -11,7 +13,13 @@ test_that("classificaton",{
   mod = mlr::train(learner, task)
   expect_warning({tsk = inferTaskFromModel(mod)})
   expect_equal(tsk, "classification")
-  
+ 
+  task = TaskClassif$new(id = "iris", backend = iris, target = "Species")
+  learner = lrn("classif.rpart")
+  mod = learner$train(task)
+  expect_equal(tsk, "classification")
+ 
+
   TrainData <- iris[,1:4]
   TrainClasses <- iris[,5]
   

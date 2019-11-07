@@ -33,18 +33,16 @@ create_predict_fun.Learner = function(model, task, predict.fun = NULL, type = NU
   }
   if (task == "classification") {
     function(newdata){
-      pred = predict(model, newdata = newdata)
-      if (model$learner$predict.type == "response") {
-        pred = mlr::getPredictionResponse(pred)
+      if (model$predict_type == "response") {
+        pred = predict(model, newdata = newdata)
         factor_to_dataframe(pred)
       } else {
-        mlr::getPredictionProbabilities(pred, cl = model$task.desc$class.levels)
+        data.frame(predict(model, newdata = newdata, predict_type = "prob"))
       }
     }
   } else if (task == "regression") {      
     function(newdata){
-      pred = predict(model, newdata = newdata)
-      data.frame(.prediction = mlr::getPredictionResponse(pred))
+      data.frame(predict(model, newdata = newdata))
     }
   } else {
     stop(sprintf("Task type '%s' not supported", task))

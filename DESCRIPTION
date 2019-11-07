@@ -48,8 +48,7 @@ Suggests: randomForest,
           ranger,
           keras,
           h2o,
-          mlr3,
-          mlr3learners
+          mlr3
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
