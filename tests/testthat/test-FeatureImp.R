@@ -123,6 +123,7 @@ set.seed(12)
 X = data.frame(x1 = 1:100)
 X$x2 = X$x1 + rnorm(100)
 X$x3 = rnorm(100)
+X$x4 = sample(c(0,1), size = 100, replace = TRUE)
 y = X[,1] + X[,2] + rnorm(10, 0, 0.1)
 pred.fun = function(newdata){
   newdata[,1] + newdata[,2]
