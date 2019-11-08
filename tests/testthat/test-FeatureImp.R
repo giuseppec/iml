@@ -120,7 +120,9 @@ test_that("Model receives data.frame without additional columns", {
 })
 
 set.seed(12)
-X = data.frame(x1 = 1:10, x2 = 1:10, x3 = 1:10)
+X = data.frame(x1 = 1:100)
+X$x2 = X$x1 + rnorm(100)
+X$x3 = rnorm(100)
 y = X[,1] + X[,2] + rnorm(10, 0, 0.1)
 pred.fun = function(newdata){
   newdata[,1] + newdata[,2]

@@ -20,11 +20,16 @@ Conditionals = R6Class(
       assert_character(feature)
       assert_data_table(X)
       cmodel = self$models[[feature]]
-      if (self$data$feature.types[feature] == "numerical") {
+      if (inherits(cmodel, "trafotree")) {
+        # When model did not split, we can sample marginal
+        if (length(nodeids(cmodel)) == 1) {
+          return(data.frame(feature = sample(X[[feature]], size = size * nrow(X), replace = TRUE)))
+        }
         xrange = c(min(self$data$X[[feature]]), max(self$data$X[[feature]]))
-        quants = seq(from = xrange[1], xrange[2], length.out = 50)
+        # type = 1 so that only actual X values are used
+        quants = quantile(self$data$X[[feature]], probs = seq(from = 0, to = 1, length.out = 50), type = 1)
         qq = predict(cmodel,
-                   newdata = X,
+                   newdata = data.frame(X),
 	           type = "distribution",
                    q = quants)
         pfuns = apply(qq, 2, function(obs) {
@@ -32,12 +37,12 @@ Conditionals = R6Class(
                                   yleft = xrange[1],
                                   yright = xrange[2])
                      })
-         v = sapply(pfuns, function(x) x(runif(size)))
-         if(inherits(v, "matrix")){
-         data.frame(t(v))
-      } else {
-        data.frame(matrix(v))
-      }
+        v = sapply(pfuns, function(x) x(runif(size)))
+        if(inherits(v, "matrix")){
+          data.frame(t(v))
+        } else {
+          data.frame(matrix(v))
+        }
       } else {
         preds = predict(cmodel, newdata = X, type = "prob")
         cls = colnames(preds)

@@ -197,9 +197,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         cnames = setdiff(colnames(data.sample), y.names)
         qResults = data.table::data.table()
         y.vec = data.table::data.table()
-        if (!is.null(cmodels)) {
-          cmodel = cmodels$models[[feature]]
-          cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y)
+        if (self$conditional && !is.null(cmodels)) {
+          cg = iml:::ConditionalGenerator$new(data.sample, cmodels = cmodels, feature = feature, n.sample.dist = n.repetitions, y = y)
           while (!cg$finished) {
             data.design = cg$next.batch(n, y = TRUE)
             y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])

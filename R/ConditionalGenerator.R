@@ -4,18 +4,19 @@
 #            If n.sample.dist is not set, the whole cartesian product between grid.dat and dist.dat is built
 # grid.dat only needs to contain the columns which are fixed. Decide here which grid points should be used.
 # dist.dat needs to contain all columns
+# TODO: Speed up computation by sampling from Conditionals with size > 1
 ConditionalGenerator = R6Class(
   public = list(
     finished = FALSE,
     n_total = NULL,
-    initialize = function(dist.dat, feature, cmodel, n.sample.dist = 1, y = NULL) {
+    initialize = function(dist.dat, feature, cmodels, n.sample.dist = 1, y = NULL) {
       assert_data_table(dist.dat)
       assert_true(all(feature %in% colnames(dist.dat)))
       assert_character(feature, len = 1)
       assert_data_frame(y, null.ok = TRUE, nrows = nrow(dist.dat))
-      assert_class(cmodel, "party")
+      assert_class(cmodels, "R6")
 
-      private$cmodel = cmodel
+      private$cmodels = cmodels
       private$dist.dat = dist.dat
       private$feature = feature
       private$features.rest = setdiff(colnames(dist.dat), feature)
@@ -36,24 +37,10 @@ ConditionalGenerator = R6Class(
         batch.index =  pointer:(pointer + step)
         
         data.slice = private$dist.index[batch.index]
-        X = data.frame(private$dist.dat[data.slice, ])
-        partial_j2 = private$dist.dat[data.slice, 
-        private$features.rest, with = FALSE]
-        samples = simulate(private$cmodel, newdata = X)
-
-        quants = seq(from = private$range[1], private$range[2], length.out = 50)
-        qq = predict(private$cmodel,
-                     newdata = X,
-	             type = "distribution",
-                     q = quants)
-
-	pfuns = apply(qq, 2, function(obs) {
-                        approxfun(x = obs, y = quants,
-                                  yleft = private$range[1],
-                                  yright = private$range[2])
-                     })
-        partial_j1 = unlist(lapply(pfuns, function(x) x(runif(1))))
-
+        X = data.table(private$dist.dat[data.slice, ])
+        # All other features
+        partial_j2 = private$dist.dat[data.slice, private$features.rest, with = FALSE] 
+        partial_j1 = private$cmodels$csample(X, private$feature, size = 1)  
         partial_j = cbind(partial_j1, partial_j2)
         colnames(partial_j)[1] = private$feature
         
@@ -61,7 +48,7 @@ ConditionalGenerator = R6Class(
         private$counter = private$counter + n
         
         if(y) partial_j = cbind(partial_j, private$y[data.slice,])
-        partial_j
+        data.table(partial_j)
       }
     },
     all = function() {
@@ -71,7 +58,7 @@ ConditionalGenerator = R6Class(
   ), 
   private = list(
     counter = 1,
-    cmodel = NULL,
+    cmodels = NULL,
     dist.dat = NULL,
     feature = NULL,
     features.rest = NULL,
