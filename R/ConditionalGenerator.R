@@ -24,7 +24,6 @@ ConditionalGenerator = R6Class(
       private$y = y
       self$n_total = n.sample.dist * nrow(dist.dat)
       private$dist.index = rep(1:nrow(dist.dat), each = n.sample.dist)
-      private$range = c(min(dist.dat[[feature]]), max(dist.dat[[feature]]))
     },
     # Return the next n samples
     next.batch = function(n, y = FALSE) {
@@ -65,7 +64,6 @@ ConditionalGenerator = R6Class(
     n.sample.dist = NULL,
     dist.index = NULL,
     y = NULL,
-    range = NULL,
     quants = seq(from = 0, to = 1, length.out = 101)
   )
 )

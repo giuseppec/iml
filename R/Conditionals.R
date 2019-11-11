@@ -12,7 +12,6 @@ Conditionals = R6Class(
     initialize = function(data) {
       assert_class(data, "Data")
       self$data = data
-      self$features = data$feature.names
       private$fit_conditionals()
     },
     csample = function(X, feature, size){
@@ -21,44 +20,59 @@ Conditionals = R6Class(
       assert_data_table(X)
       cmodel = self$models[[feature]]
       if (inherits(cmodel, "trafotree")) {
-        # When model did not split, we can sample marginal
-        if (length(nodeids(cmodel)) == 1) {
-          return(data.frame(feature = sample(X[[feature]], size = size * nrow(X), replace = TRUE)))
-        }
-        xrange = c(min(self$data$X[[feature]]), max(self$data$X[[feature]]))
-        # type = 1 so that only actual X values are used
-        quants = quantile(self$data$X[[feature]], probs = seq(from = 0, to = 1, length.out = 50), type = 1)
+        probs = seq(from = 0, to = 1, length.out = 50)
+        quants = quantile(self$data$X[[feature]], probs = probs, type = 1)
         qq = predict(cmodel,
-                   newdata = data.frame(X),
+                   newdata = X,
 	           type = "distribution",
                    q = quants)
         pfuns = apply(qq, 2, function(obs) {
-                        approxfun(x = obs, y = quants,
-                                  yleft = xrange[1],
-                                  yright = xrange[2])
-                     })
-        v = sapply(pfuns, function(x) x(runif(size)))
-        if(inherits(v, "matrix")){
-          data.frame(t(v))
-        } else {
-          data.frame(matrix(v))
-        }
-      } else {
+          last0 = rev(which(obs == 0))[1]
+	  if(is.na(last0)) last0 = 1
+          first1 = which(obs == 1)[1]
+	  if (is.na(first1)) first1 = length(qq) 
+          approxfun(x = obs[last0:first1], y = quants[last0:first1],
+		    yleft = 0, yright = 0)
+         })
+         v = sapply(pfuns, function(x) x(runif(size)))
+         if(inherits(v, "matrix")){
+           data.frame(t(v))
+         } else {
+           data.frame(matrix(v))
+         }
+      } else if(self$data$feature.types[feature] == "categorical") {
         preds = predict(cmodel, newdata = X, type = "prob")
         cls = colnames(preds)
         sample_prob = function(p, x){
           if(any(p == 1)) return(rep(x[p==1], times = size))
-          sapply(1:size, function(i) sample(x, prob = p))
+          sample(x, size = size, prob = p, replace = TRUE)
         }
         res = apply(preds, 1, sample_prob, x = cls)
         if(size == 1) {
-          res = data.frame(res)
+          res = data.frame(res = res)
         } else {
           res = data.frame(t(res))
         }
-        res = data.frame(res = res)
         res
-      }
+      } else {
+	preds = predict(cmodel, newdata = X, type = "density")
+        at = unique(X[[feature]])
+	# data.table of probabilities for unique outcomes
+ 	res = sapply(preds, function(preds) preds(at) / sum(preds(at)))
+        res = data.frame(t(res))
+	colnames(res) = as.character(at)
+        sample_prob = function(p, x) {
+          if(any(p == 1)) return(rep(x[p==1], times = size))
+          base::sample(x, size = size, prob = p, replace = TRUE)
+        }
+        res = apply(res, 1, sample_prob, x = at)
+        if(size == 1) {
+          res = data.frame(res = res)
+        } else {
+          res = data.frame(t(res))
+        }
+        res
+      } 
     },
     cdens = function(X, feature, xgrid = NULL){
       cmodel = self$models[[feature]]
@@ -67,15 +81,23 @@ Conditionals = R6Class(
         densities = melt(conditionals)$value
         densities = data.table(.dens = densities, .id.dist = rep(1:nrow(X), each = length(xgrid)), 
                    feature = rep(xgrid, times = nrow(X)))
-      } else {
+      } else if (self$data$feature.types[feature] == "categorical") {
         probs = predict(cmodel, newdata = X, type = "prob")
         probs.m = melt(probs)$value
         densities = data.table(.dens = probs.m, .id.dist = rep(1:nrow(X), each = ncol(probs)),
                    feature = factor(rep(colnames(probs), times = nrow(X)), levels = levels(self$data[[feature]])))
+      } else {
+        pr = predict(cmodel, newdata = X, type = "density")
+        at = unique(X[[feature]])
+ 	res = sapply(pr, function(pr) pr(at) / sum(pr(at)))
+        res = data.table(t(res))
+	colnames(res) = as.character(at)
+	res.m = melt(res, measure.vars = as.character(at))
+	densities = data.table(.dens = res.m$value, .id.dist = rep(1:nrow(X), times = ncol(X)), feature = rep(at, each = nrow(X)))
       }
       colnames(densities) = c(".dens", ".id.dist", feature)
       densities
-    }), 
+  }), 
   private = list(
   fit_conditional = function(feature) {
     require("trtf")

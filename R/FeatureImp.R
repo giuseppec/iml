@@ -182,13 +182,6 @@ FeatureImp = R6::R6Class("FeatureImp",
     # for printing
     loss_string = NULL,
     q = function(pred) probs.to.labels(pred),
-    combine.aggregations = function(agg, dat){
-      if(is.null(agg)) { 
-        return(dat) 
-      } else {
-        
-      }
-    },
     run = function(n){
       private$dataSample = private$getData()
       result = NULL
