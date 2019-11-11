@@ -474,3 +474,38 @@ test_that("FeatureEffect handles empty level", {
   expect_equal(fe, fe2)
 })
 
+
+test_that("ALE 1D imputation works", {
+  dd = data.frame(.yhat.diff = 1:10, x = 1:10)
+  dd[c(1, 4, 5, 6), 1] = NA
+  imputed = impute_intervals(dd, x.col = 2)
+  dd2 = data.frame(.yhat.diff = 1:10, x = 1:10)
+  dd2[c(1,4,5,6), 1] = c(2, 3, 5, 7)
+  expect_equal(imputed, dd2) 
+})
+
+test_that("ALE equidistant works", {
+  dat = data.frame(x = rnorm(100, sd = 10), x2 = rnorm(100))
+  dat$y = dat$x + dat$x2
+  mod = lm(y ~ x + x2, data = dat)
+  pred = Predictor$new(mod, data = dat)
+  fe = FeatureEffect$new(pred, "x", grid.type = "equidistant") 
+  expect_equal(length(unique(round(diff(fe$results$x), 2))), 1)
+  expect_equal(length(unique(round(diff(fe$results$.ale), 2))), 1)
+})
+
+
+test_that("PDP equidistant works", {
+  dat = data.frame(x = rnorm(100, sd = 10), x2 = rnorm(100))
+  dat$y = dat$x + dat$x2
+  mod = lm(y ~ x + x2, data = dat)
+  pred = Predictor$new(mod, data = dat)
+  fe = FeatureEffect$new(pred, "x", method = "pdp", grid.type = "equidistant") 
+  expect_equal(length(unique(round(diff(fe$results$x), 2))), 1)
+  expect_equal(length(unique(round(diff(fe$results$.y.hat), 2))), 1)
+
+  fe = FeatureEffect$new(pred, "x", method = "pdp", grid.type = "quantile", grid.size = 5) 
+  expect_equal(nrow(fe$results), 5)
+  probs = seq(from = 0, to = 1, length.out = 5)
+  expect_equal(fe$results$x, quantile(dat$x, names = FALSE, probs = probs, type = 1))
+})

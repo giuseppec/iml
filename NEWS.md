@@ -1,6 +1,9 @@
 # 0.9.1 (In Progress) 
-* Adds  support for keras
+* Adds support for h2o
+* Adds support for keras
+* Adds support for mlr3
 * Fixes problem with FeatureImp that caused unused features to get non-zero importances
+* Adds option to choose the grid.type, either quantiles or equidistant intervals for FeatureEffect
 
 # iml 0.9.0
 * Removes the `run` parameter from all interpretation methods.

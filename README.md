@@ -15,7 +15,10 @@ predictions of machine learning models. It implements model-agnostic
 interpretability methods - meaning they can be used with any machine
 learning model.
 
-Currently implemented:
+\<\<\<\<\<\<\< HEAD ![](iml.png) =======
+<img src="inst/iml.png" height="200" />
+
+> > > > > > > master Currently implemented:
 
   - Feature importance
   - Partial dependence plots
@@ -68,7 +71,7 @@ effect = FeatureEffects$new(model)
 effect$plot(features = c("lstat", "age", "rm"))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 # Contribute
 

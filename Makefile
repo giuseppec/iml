@@ -15,3 +15,6 @@ readme:
 
 vignette:
 	Rscript --vanilla -e 'devtools::build_vignettes()'
+
+check:
+	Rscript --vanilla -e 'devtools::check(cran = TRUE)'

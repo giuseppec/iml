@@ -88,6 +88,7 @@ Predictor = R6::R6Class("Predictor",
     data = NULL,
     model = NULL, 
     batch.size = NULL,
+    conditional = FALSE,
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
       # Makes sure it's not a data.table
@@ -121,7 +122,9 @@ Predictor = R6::R6Class("Predictor",
       }
     },
     initialize = function(model = NULL, data = NULL, predict.fun = NULL, y = NULL, class=NULL, 
-      type = NULL, batch.size = 1000) {
+      type = NULL, batch.size = 1000,
+      conditional = FALSE) {
+      assert_logical(conditional)
       assert_number(batch.size, lower = 1)
       if(is.null(model) & is.null(predict.fun)) { 
         stop("Provide a model, a predict.fun or both!")  
@@ -143,22 +146,14 @@ Predictor = R6::R6Class("Predictor",
       }
       
       self$data = Data$new(data, y = y)
+      if(conditional) self$conditional = Conditionals$new(self$data)
       self$class = class
       self$model = model
       self$task = inferTaskFromModel(model)
       self$prediction.function = create_predict_fun(model, self$task, predict.fun, type = type)
       self$batch.size = batch.size
-    }
-  ), 
+    }), 
   private = list(
     predictionChecked = FALSE
   )
 )
-
-
-
-
-
-
-
-

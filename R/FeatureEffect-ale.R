@@ -1,5 +1,5 @@
 # for suppressing R CMD NOTE:  
-.SD = .ale = .ale0 = .ale1 = .ale2 = .class = .count = .interval = .interval1 = 
+.id = .SD = .ale = .ale0 = .ale1 = .ale2 = .class = .count = .interval = .interval1 = 
   .interval2 = .level = .num = .y.hat = .y.hat.cumsum = .yhat.diff = NULL
 
 
@@ -9,11 +9,13 @@
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE
 #' @param grid.size The number of intervals
-calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
+#' @param grid.type Either "quantile" or "equidistant"
+#' @keywords internal
+calculate.ale.num = function(dat, run.prediction, feature.name, grid.size, grid.type){
   # from number of intervals to number of borders
   n.borders = grid.size + 1
   # Handling duplicated grid values
-  grid.dt = unique(get.grid(dat[,feature.name, with = FALSE], n.borders, type = "quantile"))
+  grid.dt = unique(get.grid(dat[,feature.name, with = FALSE], n.borders, type = grid.type))
   # Matching data instances to intervals
   interval.index = findInterval(dat[[feature.name]], grid.dt[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
@@ -30,22 +32,50 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   y.hat.names = setdiff(colnames(deltas), c(colnames(dat), ".interval"))
   deltas = melt(deltas, variable.name = ".class", 
     value.name = ".yhat.diff", measure.vars = y.hat.names)
+  deltas = deltas[order(deltas$.interval),]
   # average over instances within each interval
   setkeyv(deltas, c(".class", ".interval"))
   deltas = deltas[, list(.yhat.diff = mean(.yhat.diff)), by = c(".interval", ".class")]
+
+  intervals.missing = nrow(deltas) < (length(unique(deltas$.class)) * (nrow(grid.dt) - 1))
+  if (intervals.missing) {
+  # add in empty intervals
+    empty.deltas = data.frame(.interval = 1:(nrow(grid.dt) - 1),.yhat.diff = NA)
+    empty.deltas.l = lapply(unique(deltas$.class), function(cl) {
+      ed = empty.deltas
+      ed$.class = cl
+      ed
+    })
+    empty.deltas = rbindlist(empty.deltas.l)
+    empty.deltas = empty.deltas[setdiff(1:nrow(empty.deltas), deltas$.interval),]
+    deltas = rbind(deltas, empty.deltas)
+    deltas.l = lapply(unique(deltas$.class), function(cl) {
+    dts = impute_intervals(deltas[deltas$.class == cl,], x.col = 1)
+  })
+    deltas = rbindlist(deltas.l)
+    deltas = deltas[order(deltas$.interval),]
+  }
+
+
   # accumulate over the intervals
-  deltas.accumulated = deltas[,list(.y.hat.cumsum = cumsum_na(c(0, .yhat.diff))), by = ".class"]
-  interval.n.dat = as.numeric(table(interval.index))
+  deltas.accumulated = deltas[,list(.y.hat.cumsum = cumsum_na(c(0, .yhat.diff)), .id = c(0, .interval)), by = ".class"]
+  interval.tab = table(interval.index)
+  interval.dat = data.frame(.interval = as.numeric(names(interval.tab)), n = as.numeric(interval.tab))
+  if (intervals.missing) {
+    interval.zero = data.frame(.interval = empty.deltas$.interval, n = 0)
+    interval.dat = rbind(interval.dat, interval.zero)
+  }
+  interval.dat = interval.dat[order(interval.dat$.interval), ]
   # the mean effect is the weighted mean of the interval mid point effects
   # weighted by the number of points in the interval
   fJ0 =  deltas.accumulated[, list(.ale0 = sum(((.y.hat.cumsum[1:(nrow(.SD) - 1)] + 
-      .y.hat.cumsum[2:nrow(.SD)])/2) * interval.n.dat)/sum(interval.n.dat)), 
+      .y.hat.cumsum[2:nrow(.SD)])/2) * interval.dat$n)/sum(interval.dat$n)), 
     by = ".class"]
   # centering the ALEs
   deltas.accumulated = merge(deltas.accumulated, fJ0, all.x = TRUE, by = ".class")
-  fJ = deltas.accumulated[, list(.ale = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"), 
+  fJ = deltas.accumulated[, list(.ale = .y.hat.cumsum - .ale0, .id, .type = "ale"), 
     by = ".class"]
-  grid.dt$.id = 1:nrow(grid.dt)
+  grid.dt$.id = 1:nrow(grid.dt) - 1 
   fJ = merge(fJ, grid.dt, by = ".id")
   # adding the centering constant to the output
   # fJ0$.type = "ale0"
@@ -63,16 +93,18 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column names of the feature for which to compute ALE
 #' @param grid.size The number of cells
-calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
+#' @param grid.type Either "quantile" or "equidistant"
+#' @keywords internal
+calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size, grid.type){
   # Create grid for feature 1
-  grid.dt1 = unique(get.grid(dat[,feature.name[1], with = FALSE], grid.size = grid.size[1] + 1, type = "quantile"))
+  grid.dt1 = unique(get.grid(dat[,feature.name[1], with = FALSE], grid.size = grid.size[1] + 1, type = grid.type))
   colnames(grid.dt1)= feature.name[1]
   # Matching instances to the grid of feature 1
   interval.index1 = findInterval(dat[[feature.name[1]]], grid.dt1[[1]] , left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
   interval.index1[interval.index1 == 0] = 1
   ## Create grid for feature 2
-  grid.dt2 = unique(get.grid(dat[,feature.name[2], with = FALSE], grid.size  =grid.size[2] + 1, type = "quantile"))
+  grid.dt2 = unique(get.grid(dat[,feature.name[2], with = FALSE], grid.size  =grid.size[2] + 1, type = grid.type))
   colnames(grid.dt2)= feature.name[2]
   # Matching instances to the grid of feature 2
   interval.index2 = findInterval(dat[[feature.name[2]]], grid.dt2[[1]], left.open = TRUE)
@@ -193,6 +225,7 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
 #' @param dat the data.frame with same columns as training data
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE
+#' @keywords internal
 calculate.ale.cat = function(dat, run.prediction, feature.name){
   x = dat[,feature.name, with = FALSE][[1]]
   levels.original = levels(droplevels(x))
@@ -256,7 +289,9 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the features for which to compute ALE
 #' @param grid.size The number of intervals for the numerical feature
-calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
+#' @param grid.type Either "quantile" or "equidistant"
+#' @keywords internal
+calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size, grid.type){
   
   # Figure out which feature is numeric and which categeorical
   x.num.index = ifelse(inherits(dat[,feature.name,with = FALSE][[1]], "numeric"), 1, 2)
@@ -283,7 +318,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   
   ## Create ALE for increasing categorical feature
   grid.dt = unique(get.grid(dat[,feature.name[x.num.index], with = FALSE], 
-    grid.size  = grid.size[x.num.index] + 1, type = "quantile"))
+    grid.size  = grid.size[x.num.index] + 1, type = grid.type))
   colnames(grid.dt)= feature.name[x.num.index]
   interval.index = findInterval(dat[[feature.name[x.num.index]]], grid.dt[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
@@ -457,10 +492,16 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
 #' @param grid2 data.frame where each row is the actual value for a given interval index for feature 2
 #' @param x1.ind column number or name of cell.dat for feature 1. If one feature is categorical, has to be x1
 #' @param x2.ind column number or name of cell.dat for feature 2
+#' @keywords internal
 impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   assert_data_table(cell.dat)
   assert_data_table(grid1, null.ok = TRUE)
   assert_data_table(grid2)
+
+  if(!requireNamespace("yaImpute")) {
+     stop("Please install package yaImpute")
+  }
+
   # Making sure cell.dat contains all possible cells
   stopifnot(nrow(cell.dat) == length(unique(cell.dat[,x1.ind,with=FALSE][[1]])) * length(unique(cell.dat[,x2.ind,with=FALSE][[1]])))
   d.miss.ind = is.na(cell.dat$.yhat.diff)
@@ -482,7 +523,7 @@ impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   }
   # same for the second numerical feature
   range.x2 =  max(grid2[[1]]) - min(grid2[[1]])
-  x2.normalized =   (grid2[cell.dat[[x2.ind]],][[1]] + grid2[cell.dat[[x2.ind]] + 1,][[1]]) / (2 * range.x2)
+  x2.normalized = (grid2[cell.dat[[x2.ind]],][[1]] + grid2[cell.dat[[x2.ind]] + 1,][[1]]) / (2 * range.x2)
   # preparation for yaImpute::ann function
   z.na = cbind(x1.normalized[d.miss.ind], x2.normalized[d.miss.ind])
   z.non.na = cbind(x1.normalized[!d.miss.ind], x2.normalized[!d.miss.ind])
@@ -491,5 +532,30 @@ impute_cells = function(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2){
   cell.dat[d.miss.ind, ".yhat.diff"] = cell.dat[which(!d.miss.ind)[nbrs], .yhat.diff] 
   cell.dat
 }
+
+#' Impute intervals with no data inside
+#' 
+#' Should only occur when type = equidistant was used
+#' @param interval.dat data.frame with column .yhat.diff and interval index and interval position
+#' @param x.col The index of the feature column
+impute_intervals = function(interval.dat, x.col) {
+  d.miss.ind = which(is.na(interval.dat$.yhat.diff))
+  d.nonmiss.ind = setdiff(1:nrow(interval.dat), d.miss.ind)
+  x.nonmiss = interval.dat[d.nonmiss.ind, ][[x.col]]
+  impute.with = lapply(d.miss.ind, function(x) {
+    x.na = interval.dat[x, ][[x.col]]
+    diffs = abs(x.na - x.nonmiss) 
+    closest = which(min(diffs) == diffs)
+    intervals = d.nonmiss.ind[closest]
+    # When two intervals have same prox, take avg
+    mean(interval.dat$.yhat.diff[intervals])
+  })
+  interval.dat[d.miss.ind, ".yhat.diff"] = unlist(impute.with)
+  interval.dat
+}
+
+
+
+
 
 

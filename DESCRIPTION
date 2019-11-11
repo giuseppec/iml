@@ -22,12 +22,9 @@ BugReports: https://github.com/christophM/iml/issues
 Imports: R6,
          checkmate,
          ggplot2,
-         partykit,
-         glmnet, 
          Metrics, 
          data.table,
          foreach,
-         yaImpute,
          prediction,
          Formula,
          gridExtra, 
@@ -36,8 +33,14 @@ Imports: R6,
 	 ecr, 
 	 StatMatch, 
 	 ggrepel
+         gridExtra,
+         Formula
 Suggests: randomForest,
           gower, 
+          glmnet, 
+          partykit,
+          trtf,
+          yaImpute,
           testthat, 
           rpart, 
           MASS,
@@ -54,6 +57,9 @@ Suggests: randomForest,
           keras
 Remotes:
     compstat-lmu/mosmafs@mosmafs-package
+          keras,
+          h2o,
+          mlr3
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1

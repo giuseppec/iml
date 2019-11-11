@@ -2,16 +2,24 @@ context("Predictor")
 
 
 library("mlr")
-library("randomForest")
+library("mlr3")
 library("caret")
 library("data.table")
 library("keras")
+library("h2o")
 
 ## mlr
 task = mlr::makeClassifTask(data = iris, target = "Species")
-lrn = mlr::makeLearner("classif.randomForest", predict.type = "prob")
+lrn = mlr::makeLearner("classif.rpart", predict.type = "prob")
 mod.mlr = mlr::train(lrn, task)
 predictor.mlr = Predictor$new(mod.mlr, data = iris)
+
+## mlr3
+task_iris = TaskClassif$new(id = "iris", backend = iris, target = "Species")
+learner_iris = lrn("classif.rpart", predict_type = "prob")
+learner_iris$train(task_iris)
+predictor.mlr3 = Predictor$new(learner_iris, data = iris) 
+
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
@@ -22,6 +30,35 @@ predictor.S3 = Predictor$new(mod.S3, data = iris, predict.fun = predict.fun)
 mod.caret = caret::train(Species ~ ., data = iris, method = "knn", 
   trControl = caret::trainControl(method = "cv"))
 predictor.caret = Predictor$new(mod.caret, data = iris, type = "prob")
+
+
+# h2o multinomial classification
+h2o.init()
+h2o.no_progress()
+# fit h2o model
+dat =  as.h2o(iris)
+y = "Species"
+x = setdiff(names(iris), y)
+mod.h2o.class = h2o.glm(training_frame = dat, x = x, y = y, family = 'multinomial', solver = 'L_BFGS')
+# create predictor
+predictor.h2o.class = Predictor$new(mod.h2o.class, data = iris)
+
+# Artificially create binary classification task from iris
+iris2 = iris
+iris2$Species = as.factor(iris2$Species == "setosa")
+dat2 = as.h2o(iris2)
+# h2o binomial classification
+mod.h2o.class2 = h2o.glm(training_frame = dat2, x = x, y = y, family = 'binomial', solver = 'L_BFGS')
+# create predictor
+predictor.h2o.class2 = Predictor$new(mod.h2o.class2, data = iris2)
+
+
+# h2o regression
+y = "Sepal.Width"
+x = setdiff(names(iris), y)
+dat = as.h2o(iris)
+mod.h2o.regr = h2o.randomForest(training_frame = dat, x = x, y = y)
+predictor.h2o.regr = Predictor$new(mod.h2o.regr, data = iris)
 
 # keras
 k = backend()
@@ -53,7 +90,7 @@ prediction.f = predictor.f$predict(iris.test)
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
   expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
-  
+  expect_equivalent(predictor.mlr3$predict(iris.test), predictor.S3$predict(iris.test))
 })
 
 test_that("f works", {
@@ -75,6 +112,20 @@ test_that("extracts y automatically for randomForest", {
   expect_equal(predictor.S3$data$y.names, "Species")
 })
 
+test_that("extracts y automatically for H2OMultinomialModel", {
+  expect_equal(predictor.h2o.class$data$y.names, "Species")
+})
+
+test_that("extracts y automatically for H2OBinomialModel", {
+  expect_equal(predictor.h2o.class2$data$y.names, "Species")
+})
+
+test_that("extracts y automatically for H2ORegressionModel", {
+  expect_equal(predictor.h2o.regr$data$y.names, "Sepal.Width")
+})
+
+
+
 test_that("extracts data automatically for caret::train", {
   predictor.caret2 = Predictor$new(mod.caret, type = "prob")
   expect_equal(data.frame(predictor.caret2$data$X), iris[,-which(names(iris) == "Species")])
@@ -82,6 +133,21 @@ test_that("extracts data automatically for caret::train", {
 
 test_that("errors when trying to extract data from for mlr::WrappedModel", {
   expect_error(Predictor$new(mod.mlr, type = "prob"))
+})
+
+test_that("errors when trying to extract data from for mlr3::Learner", {
+  expect_error(Predictor$new(learner_iris, type = "prob"))
+})
+
+
+
+test_that("h20 prediction works", {
+  expect_equal(predictor.h2o.class$predict(iris),
+	       as.data.frame(predict(mod.h2o.class, newdata = dat))[-1])
+  expect_equal(predictor.h2o.class2$predict(iris2),
+	       as.data.frame(predict(mod.h2o.class2, newdata = dat2))[-1])
+  expect_equal(predictor.h2o.regr$predict(iris),
+	       as.data.frame(predict(mod.h2o.regr, newdata = dat)))
 })
 
 
@@ -104,8 +170,10 @@ test_that("Keras classification can get nice column names through custom predict
 
 
 
-## mlr
+# mlr
 predictor.mlr = Predictor$new(mod.mlr, class = 2, data = iris)
+# mlr3
+predictor.mlr3 = Predictor$new(learner_iris, class = 2, data = iris)
 # S3 predict
 predictor.S3 = Predictor$new(mod.S3, class = 2, predict.fun = predict.fun, data = iris)
 # caret
@@ -116,26 +184,30 @@ prediction.f = predictor.f$predict(iris.test)
 test_that("equivalence",{
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
   expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
+  expect_equivalent(predictor.mlr3$predict(iris.test), predictor.S3$predict(iris.test))
 })
 
-test_that("Missing predict.type gives warning", {
+test_that("Missing predict.type for mlr gives warning", {
   task = mlr::makeClassifTask(data = iris, target = "Species")
   lrn = mlr::makeLearner("classif.randomForest")
   mod.mlr = mlr::train(lrn, task)
   expect_warning(Predictor$new(mod.mlr, data = iris))
 })
 
-
-
-
 # Test numeric predictions
 
 data(Boston, package="MASS")
 ## mlr
 task = mlr::makeRegrTask(data = Boston, target = "medv")
-lrn = mlr::makeLearner("regr.randomForest")
+lrn = mlr::makeLearner("regr.rpart")
 mod.mlr = mlr::train(lrn, task)
 predictor.mlr = Predictor$new(mod.mlr, data = Boston)
+
+# mlr3 
+task = TaskRegr$new(id = "bn", backend = Boston, target = "medv")
+learner = lrn("regr.rpart")
+learner$train(task)
+predictor.mlr3 = Predictor$new(learner, data = Boston) 
 
 # S3 predict
 mod.S3 = mod.mlr$learner.model
@@ -158,6 +230,7 @@ prediction.f = predictor.f$predict(boston.test)
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(boston.test))
   expect_equivalent(predictor.mlr$predict(boston.test), predictor.S3$predict(boston.test))
+  expect_equivalent(predictor.mlr3$predict(boston.test), predictor.S3$predict(boston.test))
 })
 
 test_that("f works", {
@@ -167,18 +240,32 @@ test_that("f works", {
 
 
 predictor.mlr = Predictor$new(mod.mlr, class = 2, data = iris, y = iris$Species)
-predictor.mlr2 = Predictor$new(mod.mlr, class = 2, data = iris, y = "Species")
+predictor.mlrb = Predictor$new(mod.mlr, class = 2, data = iris, y = "Species")
+predictor.mlr3 = Predictor$new(learner_iris, class = 2, data = iris, y = iris$Species)
+predictor.mlr3b = Predictor$new(learner_iris, class = 2, data = iris, y = "Species")
 
-
-test_that("Giving y", {
+test_that("Returning y", {
   expect_equal(predictor.mlr$data$y, data.frame(.y = iris$Species))
-  expect_equal(predictor.mlr2$data$y, data.frame(Species = iris$Species))
-  expect_false("Species" %in% colnames(predictor.mlr2$data$X))
+  expect_equal(predictor.mlrb$data$y, data.frame(Species = iris$Species))
+  expect_equal(predictor.mlrb$data$y, data.frame(Species = iris$Species))
+  expect_false("Species" %in% colnames(predictor.mlrb$data$X))
+
+  expect_equal(predictor.mlr3$data$y, data.frame(.y = iris$Species))
+  expect_equal(predictor.mlr3b$data$y, data.frame(Species = iris$Species))
+  expect_equal(predictor.mlr3b$data$y, data.frame(Species = iris$Species))
+  expect_false("Species" %in% colnames(predictor.mlr3b$data$X))
+
 })
 
 
 test_that("Predictor errors with only one feature", {
   dat = data.frame(y = 1:10, x = factor(c(1,2,1,2,1,2,1,2,1,2), levels = c(1,2,3)))
+  mod = lm(y ~ x, data = dat)
+  expect_error(Predictor$new(mod, data = dat))
+})
+
+test_that("Predictor errors with data, which includes NAs.", {
+  dat = data.frame(y = 1:10, x = factor(c(NA,NA,1,2,1,2,1,2,1,2), levels = c(1,2,3)))
   mod = lm(y ~ x, data = dat)
   expect_error(Predictor$new(mod, data = dat))
 })
