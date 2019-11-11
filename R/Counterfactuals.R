@@ -1,141 +1,118 @@
 #' Counterfactual Explanations
 #' 
-#' \code{Counterfactuals} are calculated with a modified version of NSGA-II, 
-#' available in package mosmafs, which is based on package ecr.
+#' \code{Counterfactuals} are calculated with a multi-niching NSGA-II. 
+#' The method is available in the package mosmafs, which is based on the package ecr.
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Counterfactuals
 #' @section Usage:
 #' \preformatted{
-#' counterfactual = Counterfactuals$new(predictor, x.interest = NULL, target = NULL, 
+#' cf = Counterfactuals$new(predictor, x.interest = NULL, target = NULL, 
 #' epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
 #' mu = 50, generations = 50, p.mut = 0.2, p.rec = 0.9, p.mut.gen = 0.5,
 #' p.mut.use.orig = 0.2, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
-#' use.ice.curve.var = FALSE)
+#' use.ice.curve.var = FALSE, lower = NULL, upper = NULL, 
+#' crow.dist.version = 1, sd.for.init = FALSE)
 #' 
-#' plot(counterfactual)
-#' counterfactual$results
-#' counterfactual$log
-#' print(counterfactual)
-#' counterfactual$explain(x.interest, target)
-#' counterfactual$subset_results(nr.solutions)
-#' counterfactuals$continue_search(generations)
-#' counterfactual$plot_statistics()
-#' counterfactual$calculate_hv()
-#' counterfactual$calculate_diversity()
+#' plot(cf)
+#' cf$results
+#' cf$log
+#' print(cf)
+#' cf$explain(x.interest, target)
+#' cf$subset_results(nr.solutions)
+#' cfs$continue_search(generations)
+#' cf$plot_statistics()
+#' cf$calculate_hv()
+#' cf$calculate_diversity()
+#' cf$calculate_freq(plot = FALSE)
 #' }
+#' 
 #' @section Arguments: 
+#' For Counterfactuals$new()
 #' \describe{
 #' \item{predictor: }{(Predictor)\cr 
 #' The object (created with Predictor$new()) holding the machine learning model and the data.}
 #' \item{x.interest: }{(data.frame)\cr  Single row with the instance to be explained.}
 #' \item{target: }{(numeric(1)|numeric(2))\cr Desired outcome either a single numeric or 
-#' a vector of two numerics, to define a desired interval of outcome.}
+#' a vector of two numerics, to define a desired interval as outcome.}
 #' \item{epsilon: }{(numeric(1))\cr Soft constraint. If chosen, candidates, whose
 #' distance between their prediction and target exceeds epsilon, are penalized.
-#' Default `NULL`.}
+#' Default is NULL.}
 #' \item{fixed.features: }{(character|numeric)\cr 
-#' Feature name or index for which no deviation from values of x.interest are allowed. 
+#' Name or index of feature(s), which are not allowed to be changed. 
 #' Index refers to ordering of feature names of data used to initialize predictor.
-#' Default `NULL`.} 
+#' Default is NULL.} 
 #' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.
-#' Default `NULL`.}
-#' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
-#' number of nearly generated individuals in each generation.
-#' Default `50`.}
-#' \item{generations: }{(integer(1))\cr Number of generations. 
-#' For `Counterfactual$new()` default is `100`.}
-#' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child. 
-#' Default is `0.2`.}
-#' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child. 
-#' Default is `0.9`.}
-#' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene. 
-#' Default is `0.5`.}
-#' \item{p.mut.use.orig:}{numeric(1)\cr Probability of mutation for each element
-#' of the indicator to use feature values of `x.interest`. As hamming weight 
-#' bitflip mutation only p between 0 and 0.5 is allowed. Default is `0.2`.} 
-#' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene. 
-#' Default is `0.7`.}
-#' #' \item{p.rec.use.orig:}{numeric(1)\cr Probability of recombination for each 
-#' element of the indicator to use feature values of `x.interest`. 
-#' Default is `0.7`.} 
-#' \item{use.ice.curve.var:}{logical(1)\cr Whether ICE curve variance should be used to 
-#' initialize population. Default is `FALSE`.}
-#' \item{nr.solutions}{integer(1)\cr Number of solutions to be extracted from results.}
-#' }
-#' 
-#' @section Details:
-#' For more details on the method see:  
-#' https://christophm.github.io/interpretable-ml-book/counterfactual.html\cr
-#' \cr
-#' For more details on the algorithm NSGA-II see: 
-#' https://ieeexplore.ieee.org/document/996017
-#' 
-#' @section Fields:
-#' \describe{
-#' \item{predictor: }{(Predictor)\cr 
-#' Object (created with Predictor$new()) holding the machine learning model and the data.}
-#' \item{results: }{(list)\cr Object holding searching results: \cr
-#' (1) `data.frame` of found counterfactuals \cr
-#' (2) `data.frame` of calculated feature differences compared to x.interest}
-#' \item{log: }{(data.frame) \cr Object holding information on each generation: 
-#' Minimum and mean of objectives, dominated hypervolume, spacing and diversity.}
-#' \item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
-#' \item{y.hat.interest: }{(numeric)\cr Predicted value for instance of interest}
-#' \item{target: }{(numeric(1)|numeric(2))\cr Desired outcome either a single numeric or 
-#' a vector of two numerics, to define a desired interval of outcome.}
-#' \item{epsilon: }{(numeric(1))\cr Maximal accepted absolute distance from target.}
-#' \item{fixed.features: }{(character)\cr 
-#' Feature names for which no deviation from values of x.interest are allowed.
-#' If NULL, all features are allowed to deviate.} 
-#' \item{max.changed: }{integer(1)\cr Maximum number of features that can be changed.
-#' If NULL, no limit is set.}
-#' \item{mu: }{(integer(1))\cr Number of individuals in each generation and 
-#' number of nearly generated individuals in each generation.}
-#' \item{generations: }{(integer(1))\cr Number of generations.}
-#' \item{p.mut: }{numeric(1)\cr Probability to apply mutation to a child. Default is 0.2}
-#' \item{p.rec: }{numeric(1)\cr Probability to apply recombination to a child.}
-#' \item{p.mut.gen:}{numeric(1)\cr Probability of mutation for each gene.}
-#' \item{p.rec.gen:}{numeric(1)\cr Probability of recombination for each gene.}
+#' Default is NULL.}
+#' \item{mu: }{(integer(1))\cr Population size.
+#' Default is 50.}
+#' \item{generations: }{(integer(1))\cr Number of generations. Default is 50.}
+#' \item{p.mut: }{numeric(1)\cr Probability a child is chosen to be mutated.
+#' Default is 0.2.}
+#' \item{p.rec: }{numeric(1)\cr Probability a pair of parents is chosen to recombine. 
+#' Default is 0.9.}
+#' \item{p.mut.gen:}{numeric(1)\cr Probability one feature/gene is mutated. 
+#' Default is 0.5.}
+#' \item{p.mut.use.orig:}{numeric(1)\cr Probability an element of the indicator 
+#' to use the feature value of x.interest is mutated. As hamming weight 
+#' bitflip mutation is used, only a probability between 0 and 0.5 is allowed. 
+#' Default is 0.2.}
+#' \item{p.rec.gen:}{numeric(1)\cr Probability one feature/gene is recombined.
+#' Default is 0.7.}
+#' \item{p.rec.use.orig:}{numeric(1)\cr Probability an elment of the indicator
+#' to use the feature values of x.interest is recombined.
+#' Default is 0.7.} 
 #' \item{lower:}{numeric\cr Vector of minimal values for numeric features. If NULL
-#' lower is extracted from input data specified in field `data` of `predictor`.}
-#' \item{upper:}{numeric\cr Vecotor of maximal values for numeric features.}
+#' (default) lower is extracted from input data specified in field 'data' of 'predictor'.}
+#' \item{upper: }{numeric\cr Vector of maximal values for numeric features. 
+#' If NULL (default) upper is extracted from input data specified in field 'data' of 
+#' 'predictor'.}
 #' \item{use.ice.curve.var:}{logical(1)\cr Whether ICE curve variance should be used to 
-#' initialize population.}
+#' initialize population. Default is FALSE.}
+#' \item{seltournament:}{logical(1)\cr Whether to use the binary tournament selector
+#' to select parents. Default TRUE.}
+#' \item{crow.dist.version: }{integer(1)\cr Which crowding distance version should be
+#'  used. The default 1 corresponds to the version of Avila et. al., 2 corresponds 
+#' to a modified version of Avila et. al. originally used for reducing the number
+#' of returned solutions, 3 corresponds to the originally version of Deb et. al.} 
+#' \item{sd.for.init: }{logical(1)\cr Whether to use standard deviation 
+#' extracted from training dataset to sample numeric features for the
+#' initial population. Default is FALSE.}
 #' }
 #' 
 #' @section Methods:
 #' \describe{
 #' \item{\code{explain(x.interest, target)}}{Method to set a new data point which to explain.}
-#' \item{\code{plot()}}{Method to plot the pareto front with or without labels informing 
-#' about which features where changed. See \link{plot.Counterfactuals}}
-#' \item{\code{plotStatistics()}}{Method to plot information of `Counterfactuals$log` 
+#' \item{\code{plot()}}{Method to plot the Pareto front in 2-D. See \link{plot.Counterfactuals.}}
+#' \item{\code{plotStatistics()}}{Method to plot information of Counterfactuals$log 
 #' for evaluation of algorithm.}
 #' \item{\code{continue_search(generations)}}{Method to continue search 
-#' after run was also already finished. Results are added automatically to 
-#' `Counterfactuals$results`.}
-#' \item{\code{calculate_hv()}}{Extract dominated hypervolume of final Pareto front 
-#' from `Counterfactuals$log`, equal to `fitness.dominatedHV` of last row.}
-#' \item{\code{calculate_diversity()}}{Extract diversity of final Pareto front
-#' from `Counterfactuals$log`, equal to `population.div` of last row.}
-#' \item{\code{clone()}}{[internal] Method to clone the `R6` object.}
+#' after run was already finished. Results are automatically updated in 
+#' Counterfactuals$results.}
+#' \item{\code{calculate_hv()}}{Calculate dominated hypervolume of Counterfactual set 
+#' equal to fitness.dominatedHV of last row in Counterfactuals$log, .}
+#' \item{\code{calculate_diversity()}}{Calculate diversity of Counterfactual set
+#' equal to population.div of last row in Counterfactuals$log.}
+#' \item{\code{calculate_frequency()}}{Calculate frequency a feature got changed 
+#' over the returned set of Counterfactuals.}
+#' \item{\code{clone()}}{[internal] Method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] Method to initialize the R6 object.}
-#' \item{\code{subset_results(nr.solutions)}}{Method to subset 
-#' `Counterfactuals$results` to a given number of solutions.}
+#' \item{\code{subset_results(nr.solutions)}}{Returns a subset of Counterfactuals 
+#' as in Counterfactuals$results of the size of nr. solutions.}
 #' }
 #'
 #' @references 
 #' \describe{
 #' \item{Bossek, J. (2017). ecr 2.0: A modular framework for evolutionary computation in r,
 #' Proceedings of the Genetic and Evolutionary Computation Conference Companion,
-#' GECCO '17, pp. 1187-1193.}
+#' GECCO '17, pp. 1187-1193.}{}
 #' \item{Deb, K., Pratap, A., Agarwal, S. and Meyarivan, T. (2002). A fast and elitist multiobjective
 #' genetic algorithm: Nsga-ii, IEEE Transactions on Evolutionary Computation
-#' 6(2): 182-197.}
+#' 6(2): 182-197.}{}
+#' \item{Avila, S. L.,  Kraehenbuehl, L. and Sareni, B. (2006). A multi-niching 
+#' multi-objective genetic algorithm for solving complex multimodal problems, 
+#' OIPE, Sorrento, Italy.}{}
 #' } 
-#' 
-#' @seealso 
-#' \link{Counterfactuals}
 #' 
 #' @seealso 
 #' A different way to explain predictions: \link{LocalModel}, \link{Shapley}
@@ -148,34 +125,39 @@
 #' X = Boston[-which(names(Boston) == "medv")]
 #' mod = Predictor$new(rf, data = X)
 #'
-#' # Then we explain the first instance of the dataset with the Shapley method:
-#'x.interest = X[1,]
-#'target = 30
-#'counterfactual = Counterfactuals$new(mod, x.interest = x.interest, target = target, 
-#'  generations = 100)
-#'counterfactual
+#' # Then we explain the prediction of the first instance with the 
+#' # Counterfactuals method
+#' x.interest = X[1,]
+#' target = 30
+#' counterfactual = Counterfactuals$new(mod, x.interest = x.interest, 
+#' target = target, generations = 10)
+#' counterfactual
 #'
 #' # Look at the results in a table
 #' counterfactual$results
 #' # Or as a plot
 #' plot(counterfactual)
-#' plot(counterfactual, labels = TRUE)
+#' plot(counterfactual, labels = TRUE, nr.solutions = 10)
 #'
 #' # Explain another instance
 #' counterfactual$explain(X[2,], target = target)
 #' plot(counterfactual)
-#' ## Not run: 
-#' # Counterfactuals() can only focus on one class, not multiple classes at a time
+#' 
+#' # Counterfactuals() can only focus on one class, not multiple 
+#' # classes at a time
 #' rf = randomForest(Species ~ ., data = iris)
 #' X = iris[-which(names(iris) == "Species")]
 #' mod = Predictor$new(rf, data = X, type = "prob", class = "setosa")
 #'
-#' # Then we explain the first instance of the dataset with the counterfactuals() method:
-#' counterfactuals = Counterfactuals$new(mod, x.interest = X[1,], target = 0)
+#' # Then we explain the prediciton of the first instance
+#' counterfactuals = Counterfactuals$new(mod, x.interest = X[1,], target = 0, 
+#' generations = 10)
 #' counterfactuals$results
 #' plot(counterfactuals) 
 #' }
 NULL
+
+
 #'@export
 Counterfactuals = R6::R6Class("Counterfactuals", 
   inherit = InterpretationMethod,
@@ -205,8 +187,8 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       epsilon = NULL, fixed.features = NULL, max.changed = NULL, 
       mu = 50, generations = 50, p.rec = 0.9, p.rec.gen = 0.7, p.rec.use.orig = 0.7,
       p.mut = 0.2, p.mut.gen = 0.5, p.mut.use.orig = 0.2, 
-      use.ice.curve.var = FALSE, seltournament = FALSE,  
-      lower = NULL, upper = NULL, crow.dist.version = 1, sd.for.init = TRUE) {
+      use.ice.curve.var = FALSE, seltournament = TRUE,  
+      lower = NULL, upper = NULL, crow.dist.version = 1, sd.for.init = FALSE) {
       
       super$initialize(predictor = predictor)
       fixed.features = private$sanitize_feature(fixed.features, predictor$data$feature.names)
@@ -263,7 +245,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       # Define parameterset
       private$param.set= ParamHelpers::makeParamSet(
         params = make_paramlist(predictor$data$get.x(), 
-        lower = lower, upper = upper))
+          lower = lower, upper = upper))
       
       # Extract info from input.data
       private$range = ParamHelpers::getUpper(private$param.set) - 
@@ -324,12 +306,14 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       #   log = mlr::normalizeFeatures(self$log, method = "range", 
       #     cols = names(self$log)[!names(self$log) %in% c("generation", "state")])
       # } else {
-        log = self$log
+      log = self$log
       #}
       p = lapply(nameList, function(nam) {
-        df = melt(log[,nam] , id.vars = "generation", variable.name = "legend")
-        singlep = ggplot(df, aes(generation, value)) + geom_line(aes(colour = legend)) + 
-            ylab("value")
+        df = reshape2::melt(log[,nam] , id.vars = "generation", variable.name = "legend")
+        singlep = ggplot(df, aes(generation, value)) + 
+          geom_line(aes(colour = legend)) + 
+          theme_bw() +
+          ylab("value")
         return(singlep)
       })
       p
@@ -347,6 +331,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       
       pfPlot = ggplot(data = pf.over.gen.df, aes(x=y1, y=y2, alpha = generation)) +
         geom_point(col = "black")+
+        theme_bw() +
         xlab(private$obj.names[1]) +
         ylab(private$obj.names[2])
       
@@ -443,8 +428,6 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         ice.var = get_ICE_var(self$x.interest, self$predictor, private$param.set)
         prob.use.orig = 1 - mlr::normalizeFeatures(as.data.frame(ice.var), 
           method = "range", range = c(0.01, 0.99))
-        # distribution = function() vapply(t(prob.use.orig), FUN.VALUE = numeric(1), 
-        # function(x) sample(c(0, length(initial.pop[[1]]$use.orig)), 1, prob = c(1-x, x)))
         ilen = length(initial.pop[[1]]$use.orig)
         distribution = function() rbinom(n = ilen, size = ilen, 
           prob = t(prob.use.orig))
@@ -455,7 +438,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       i = sapply(self$x.interest, is.factor)
       x.interest = self$x.interest
       x.interest[i] = lapply(self$x.interest[i], as.character)
-
+      
       initial.pop = lapply(initial.pop, function(x) {
         x = transform_to_orig(x, x.interest, delete.use.orig = FALSE, 
           fixed.features = self$fixed.features, max.changed = self$max.changed)
@@ -507,13 +490,13 @@ Counterfactuals = R6::R6Class("Counterfactuals",
             fixed.features = self$fixed.features, max.changed = self$max.changed) 
         }))
       }, n.parents = 2, n.children = 2)
-
+      
       if (self$seltournament) { 
         parent.selector = mosmafs::selTournamentMO
       } else {
         parent.selector = ecr::selSimple
       }
-
+      
       survival.selector = ecr::setup(select_nondom, 
         epsilon = self$epsilon,  
         extract.duplicates = TRUE, vers = self$crow.dist.version)
@@ -532,7 +515,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
           ref.point = private$ref.point)/max.hv
           #delta = function(x) ecr:::emoaIndDelta(x[c(1,2),]), 
           #spacing = function(x) spacing(t(x), "manhattan")
-          ))
+        ))
       
       # Compute counterfactuals
       ecrresults = mosmafs::slickEcr(fn, lambda = self$mu, population = initial.pop,
@@ -553,19 +536,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       return(results)
     },
     aggregate = function() {
-      # if (suppress) {
-      #   evals = mosmafs::collectResult(private$ecrresults)$evals
-      #   log = mosmafs::getStatistics(private$ecrresults$log)
-      #   log$evals = evals
-      #   nam = c("generation", "dist.target.min", "dist.target.mean", 
-      #     "dist.x.interest.min", "dist.x.interest.mean", "nr.changed.min", 
-      #     "nr.changed.mean")
-      #   names(log)[1:7] = nam
-      #   log = log[c("generation", "state", "evals", nam[2:7], "fitness.domHV")]
-      #   self$log = log
-      #   return(NULL)
-      # }
-      # Fill results list
+      
       pareto.front = private$ecrresults$pareto.front
       names(pareto.front) = private$obj.names
       
@@ -585,7 +556,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       results = list()
       results$counterfactuals = pareto.set.pf
       results$counterfactuals.diff = pareto.set.diff.pf
-
+      
       # Add diversity to log data frame
       pop = mosmafs::getPopulations(private$ecrresults$log)
       div = unlist(lapply(pop, 
@@ -608,7 +579,7 @@ Counterfactuals = R6::R6Class("Counterfactuals",
         #"fitness.spacing", 
         "population.div")]
       self$log = log
-
+      
       #cat("aggregate finished\n")
       return(results)
     },
@@ -630,9 +601,9 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       p = ggplot(data = pf, aes(x=dist.target, y=dist.x.interest, 
         color = as.factor(nr.changed))) +
         geom_point() +
-        #scale_colour_gradient2(low = "black", mid = "orange", high = "green") +
         xlab("dist target") +
         ylab("dist x.interest") +
+        theme_bw() +
         #ggtitle(title)+
         guides(color=guide_legend(title="nr changed"))
       
@@ -663,22 +634,26 @@ Counterfactuals = R6::R6Class("Counterfactuals",
       stopifnot(all(fixed.features %in% feature.names))
       fixed.features
     }
-))
+  ))
 
 
 #' Plot Counterfactuals
 #'
-#' \code{plot.Counterfactuals()} plots the Pareto front, the found Counterfactuals.
+#' \code{plot.Counterfactuals()} plots the Pareto front in 2-D of the found Counterfactuals.
+#' The x-axis displays the distance of the prediction to the desired prediction. 
+#' The y-axis displays the distance of the counterfactual to the original datapoint x.interest. 
+#' The colouring displays how many features were changed.
+#' 
 #' @format \code{\link{R6Class}} object.
 #' @section Arguments:
 #' \describe{
 #' \item{labels:}{logical(1)\cr Whether labels with difference to feature values of 
-#' x.interest should be plotted. Default is `FALSE`.}
-#' \item{decimal.points:}{integer(1)\cr Number of decimal places used. Default is `3`.}
-#' \item{nr.solutions:}{integer(1)\cr Number of solutions showed. Default `NULL` means, 
+#' x.interest should be plotted. Default is FALSE.}
+#' \item{decimal.points:}{integer(1)\cr Number of decimal places used. Default is 3.}
+#' \item{nr.solutions:}{integer(1)\cr Number of solutions showed. Default NULL means, 
 #' all solutions are showed.}
-#' \item{nr.changed:}{integer}\cr Plot only counterfactuals with certain number of 
-#' features changed.}
+#' \item{nr.changed:}{integer(1)\cr Plot only counterfactuals with certain number of 
+#' changed features. Default is NULL.}
 #' }
 #' @return ggplot2 plot object
 #' @seealso 
@@ -711,8 +686,8 @@ plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.s
     nr.changed = nr.changed)
 }
 
-#' @title Calculate frequency of one feature altered
-#' 
+#' @title Calculate frequency of altered features in final solution set 
+#'  
 #' @description Identify leverages that alter prediction to desired target
 #'  over multiple datapoints. Leverages are identified by calculating
 #'  the frequency a feature was altered within the set of the 
@@ -721,17 +696,17 @@ plot.Counterfactuals = function(object, labels = FALSE, decimal.points = 3, nr.s
 #' @section Arguments: 
 #' \describe{
 #' \item{counterfactual: }{(Counterfactuals)\cr Instance of class 
-#' `Counterfactual` to extract
+#' Counterfactual to extract
 #' dataset and target, if not needed, as well as all the parameters}
 #' \item{target: }{(numeric(1)|numeric(2))\cr Desired outcome either a 
 #' single numeric or 
 #' a vector of two numerics, to define a desired interval of outcome.}
-#' \item{obs: }{(data.frame) data.frame to use to identify leverages 
+#' \item{obs: }{(data.frame) Data frame to use to identify leverages 
 #' by calculating counterfactuals for them}
 #' \item{row.ids }{(integer) Rows with the specific row.ids are extracted
 #' from the input data defined in the predictor field of the 
-#' `Counterfactuals` class. The subset is used to identify leverages.}
-#' \item{plot: }{(logical(1)) whether to plot the frequency over all 
+#' Counterfactuals class. The subset is used to identify leverages.}
+#' \item{plot: }{(logical(1)) Whether to plot the frequency over all 
 #' observations}
 #' }
 #' 

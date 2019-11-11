@@ -32,14 +32,17 @@ Imports: R6,
 	 mosmafs, 
 	 ecr, 
 	 StatMatch, 
-	 ggrepel
+	 ggrepel,
          gridExtra,
-         Formula
+         Formula,
+	 trtf,
+         partykit,
+	 variables, 
+	 basefun,
+	 mlt
 Suggests: randomForest,
           gower, 
           glmnet, 
-          partykit,
-          trtf,
           yaImpute,
           testthat, 
           rpart, 
@@ -54,12 +57,11 @@ Suggests: randomForest,
           doParallel,
           ALEPlot,
           ranger,
-          keras
-Remotes:
-    compstat-lmu/mosmafs@mosmafs-package
           keras,
           h2o,
           mlr3
+Remotes:
+    compstat-lmu/mosmafs@mosmafs-package
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1

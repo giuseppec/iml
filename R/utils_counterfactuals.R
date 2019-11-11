@@ -1,18 +1,24 @@
 ###### Utils Counterfactual #####
 
-#' Extract information about each features from input dataset 
-#' to create a parameter list as input for ParamHelpers::makeParamSet
+#' Extract information about each feature from input dataset 
+#' 
+#' Results in a list as input for ParamHelpers::makeParamSet.
 #' 
 #' @section Arguments: 
 #' \describe{
-#' \item{input.data: }{(data.frame)\cr Training data}
-#' ....}
-#' 
-make_paramlist = function(input.data, lower = NULL, upper = NULL, integers = NULL) {
+#' \item{input.data:}{(data.frame)\cr Training data}
+#' \item{lower: }{numeric\cr Vector of minimal values for numeric features. 
+#' If NULL lower is extracted from input data specified in field 'data' of 
+#' 'predictor'.}
+#' \item{upper: }{numeric\cr Vector of maximal values for numeric features.
+#' If NULL upper is extracted from input data specified in field 'data' of 
+#' 'predictor'.}
+#' }
+#' @return (list) 
+make_paramlist = function(input.data, lower = NULL, upper = NULL) {
   checkmate::assert_data_frame(input.data)
   checkmate::assert_numeric(lower, null.ok = TRUE)
   checkmate::assert_numeric(upper, null.ok = TRUE)
-  checkmate::assert_character(integers, null.ok = TRUE, any.missing = FALSE)
   
   assert_true(all(names(lower) %in% names(input.data)))
   assert_true(all(names(upper) %in% names(input.data)))
@@ -48,11 +54,15 @@ make_paramlist = function(input.data, lower = NULL, upper = NULL, integers = NUL
 }
 
 #' Create a list with named vectors of standard deviation 
-#' grouped by the feature type extracted from param.set
+#' 
+#' Will be grouped by the feature type extracted from param.set.
 #' @section Arguments: 
 #' \describe{
-#' \item{sdev: }{(numeric)\cr Vector of standard deviations}
-#' \item{param.set:}(ParamS)}
+#' \item{sdev: }{(numeric)\cr Vector of standard deviations.}
+#' \item{param.set: }{(ParamSet)\cr Paramset to create elements of list, 
+#' one for digit features and one for integer features.}
+#' }
+#' @return (list)
 sdev_to_list = function(sdev, param.set) {
   checkmate::assert_numeric(sdev, any.missing = FALSE)
   checkmate::assert_class(param.set, "ParamSet")
@@ -66,7 +76,16 @@ sdev_to_list = function(sdev, param.set) {
   return(typegroups)
 }
 
-
+#' Get difference between two feature vectors 
+#' 
+#' Difference is 0 if two characters or factors are equal. 
+#' Otherwise the class of x is displayed. 
+#' @section Arguments: 
+#' \describe{
+#' \item{x: }{(data.frame)\cr Data frame with one row.}
+#' \item{x.interest: }{(data.frame)\cr Data frame with one row.}
+#' }
+#' @return (data.frame)
 get_diff = function(x, x.interest) {
   assertDataFrame(x, ncol = ncol(x.interest))
   assertDataFrame(x.interest, nrow = 1)
@@ -89,9 +108,25 @@ get_diff = function(x, x.interest) {
   return(diff)
 }
 
-
-# Transform features of solution candidates to value of x.interest 
-# where use.orig is set to TRUE
+#' Transform features to x.interest 
+#' 
+#' Replace features of x by value of x.interest 
+#' where use.orig is set to TRUE. 
+#' 
+#' @section Arguments: 
+#' \describe{
+#' \item{x: }{(list)\cr List of features, must have list element 
+#' use.origin.}
+#' \item{x.interest: }{(data.frame)\cr Data frame with one row.}
+#' \item{delete.use.orig: }{(logical(1))\cr Whether to 
+#' delete list element use.orig of x.}
+#' \item{fixed.features: }{(character)\cr 
+#' Indicate fixed features by feature name.}
+#' \item{max.changed: }{numeric(1)\cr Number indicating 
+#' how many feature are allowed to maximially differ from the original data point.}
+#' }
+#' 
+#' @return (list)
 transform_to_orig = function(x, x.interest, delete.use.orig = FALSE, 
   fixed.features = NULL, max.changed = NULL) {
   checkmate::assert_list(x, len = ncol(x.interest) + 1)
@@ -129,27 +164,42 @@ transform_to_orig = function(x, x.interest, delete.use.orig = FALSE,
   return(x)
 }
 
-# Transmit levels of factor variable to parameter set
+#' Transmit levels of factor variable to parameter set
+#'
+#' @section Arguments:  
+#' \describe{
+#' \item{levels: }{(character)\cr Character vector of feature class labels.}
+#' }
 char_to_factor= function(levels){
   sapply(as.character(levels), function(x)
     factor(x, levels=levels),
     simplify = FALSE)
 }
 
-
-
-
-
-
-
-round_df = function(df, digits) {
+#' Round numeric elements in data frame 
+#' @section Arguments: 
+#' \describe{
+#' \item{df: }{(data.frame)\cr Data frame in which numeric elments will be rounded.}
+#' \item{digits: }{integer(1)\cr Number of decimal places used. Default is 3.}
+#' }
+#' @return (data.frame) with rounded elements
+round_df = function(df, digits = 3) {
   nums = vapply(df, is.numeric, FUN.VALUE = logical(1))
   df[,nums] = round(df[,nums], digits = digits)
   return(df)
 }
 
-# Calculate ice curve variance over all features
-get_ICE_var = function(x.interest, mod, param.set) {
+#' Calculate ice curve variance over all features
+#' 
+#' @section Arguments: 
+#' \describe{
+#' \item{x.interest: }{(data.frame)\cr Data point, for which ice curves 
+#' should be calculated.}
+#' \item{predictor: }{(Predictor)\cr Object, that holds the prediction model and dataset.}
+#' \item{param.set: }{(ParamSet)\cr Parameter set of features in dataset.}
+#' }
+#' @return (numeric) Vector with standard deviations for each feature.
+get_ICE_var = function(x.interest, predictor, param.set) {
   min.max = as.data.frame(rbind(getLower(param.set), 
     getUpper(param.set)))
   val = getValues(param.set)
@@ -159,13 +209,14 @@ get_ICE_var = function(x.interest, mod, param.set) {
   values = c(as.list(min.max), val.l)
   
   sd.eff = sapply(names(x.interest), function(x){
-    get_ice_curve(x.interest, x, mod, values = values[[x]])
+    get_ice_curve(x.interest, x, predictor, values = values[[x]])
   })
   
   return(sd.eff)
   
 }
-# Ice curve variance per feature
+
+# Calculate ice curve variance per feature
 get_ice_curve = function(instance, feature, predictor, values, 
   grid.size = 20) {
   
@@ -190,7 +241,17 @@ get_ice_curve = function(instance, feature, predictor, values,
   
 }
 
-# new version separated by each front
+#' Algorithm to remove solutions of final set 
+#' 
+#' @section Arguments: 
+#' \describe{
+#' \item{fitness: }{(data.frame)\cr Data frame of fitness values. Each column 
+#' represents one objective.}
+#' \item{pareto.set: }{(data.frame)\cr Corresponding Pareto set to 
+#' fitness.}
+#' \item{nr.solutions: }{(numeric(1))\cr Number of solutions that should
+#' be returned.} 
+#' }
 get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
   
   assert_data_frame(fitness, any.missing = FALSE, ncols = 3, nrows = nrow(pareto.set))
@@ -212,21 +273,19 @@ get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
     min.changed = c(TRUE, diff(fitness[ord, 3]) > 0)
     max.changed = rev(c(TRUE, diff(rev(fitness[ord, 3])) < 0))
     ind.inf = min.changed|max.changed
+    
     # set the extreme values to Inf for each nr.features.changed (objective 3)
     dds[ord[ind.inf]] = Inf
     ods[ord[ind.inf]] = Inf
     
-    #t = candidates[ord]
     # update the remaining crowding numbers
     if (n > 2L) {
       for (j in 2:(n - 1L)) {
         
         if (max[i] - min[i] != 0) {
-        ods[ord[j]] = ods[ord[j]] + 
-          (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
+          ods[ord[j]] = ods[ord[j]] + 
+            (abs(fitness[ord[j + 1L], i] - fitness[ord[j - 1L], i])/(max[i]-min[i]))
         }
-        #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
-        
         dds[ord[j]] = dds[ord[j]] +
           g.dist[ord[j], ord[j-1]] +
           g.dist[ord[j], ord[j+1]]
@@ -240,107 +299,25 @@ get_diverse_solutions = function(fitness, pareto.set, nr.solutions) {
   return(idx)
 }
 
-# Calculate diversity
+
+#' Calculate diversity
+#' 
+#' The diversity is equal to pair-wise mean of Gower distances.
+#' 
+#' @section Arguments: 
+#' \describe{
+#' \item{df: }{(data.frame)\cr Pareto set.}
+#' \item{range: }{(numeric)\cr Vector of ranges for numeric features. 
+#' Must have same ordering as columns in df.}
+#' }
+#' @return (numeric(1))
 compute_diversity = function(df, range) {
   dis = StatMatch::gower.dist(data.x = df, 
     rngs = range, KR.corr = FALSE)
   single.dist = dis[lower.tri(dis)]
   mean.dist = mean(single.dist)
-  #pop.div = sum(abs(single.dist - mean.dist))/choose(nrow(df), 2)
   return(mean.dist)
 }
-
-
-
-### Oldest Version: Sort for y1
-# get_diverse_solutions = function(fitness, pareto.set, range) {
-#   checkmate::assert_data_frame(fitness, any.missing = FALSE, nrows = nrow(pareto.set))
-#   checkmate::assertDataFrame(pareto.set, any.missing = FALSE, nrows = nrow(fitness))
-#   
-#   if (!all(rownames(pareto.set) == rownames(fitness))) {
-#     stop("rownames of pareto set and rownames of fitness matrix needs to be identical")
-#   }
-#   
-#   n = nrow(fitness)
-#   
-#   # get the order of the points when sorted according to the i-th objective
-#   # 1 is the candidate with the smallest objective function value
-#   ord = order(fitness[,1], fitness[,3])
-#   
-#   gow.dist = StatMatch::gower.dist(pareto.set, rngs = range)
-#   gow.dist[gow.dist == 0] = NA
-#   
-#   obs.div = 1:nrow(pareto.set)
-#   similar.obs = c()
-#   
-#   for (j in 2:n) {
-#     id = order(gow.dist[ord[j],])[1:(j-1-length(similar.obs))]
-#     
-#     if (any(id %in% ord[1:(j-1)])) {
-#       gow.dist[ord[j],] = NA
-#       gow.dist[,ord[j]] = NA
-#       similar.obs = c(similar.obs, ord[j])
-#     }
-#   }
-#   return(obs.div[-similar.obs])
-# }
-
-
-
-# Old Version 
-# get_diverse_solutions = function(fitness, pareto.set, range, nr.solutions) {
-# 
-#   n = nrow(pareto.set)
-#   g.dist = StatMatch::gower.dist(pareto.set, rngs = range)
-# 
-#   dds = numeric(n)
-#   for (i in seq_len(ncol(fitness)-1)) {
-# 
-#     # get the order of the points when sorted according to the i-th objective
-#     ord = order(fitness[,3], fitness[,i])
-# 
-#     # set the extreme values to Inf
-#     dds[ord[1]] = Inf
-#     dds[ord[n]] = Inf
-# 
-#     #t = candidates[ord]
-#     # update the remaining crowding numbers
-#     if (n > 2L) {
-#       for (j in 2:(n - 1L)) {
-#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j - 1L]])
-#         #ods[ord[j]] = ods[ord[j]] + (fitness[i, ord[j + 1L]] - fitness[i, ord[j]])
-# 
-#         dds[ord[j]] = dds[ord[j]] +
-#           g.dist[ord[j], ord[j-1]] +
-#           g.dist[ord[j], ord[j+1]]
-# 
-#       }
-#     }
-#   }
-# 
-#   idx = order(dds, decreasing = TRUE)[1:nr.solutions]
-#   return(idx)
-# }
-# 
-
-# spacing = function(solutions, metric = "euclidean", ranges = NULL) {
-#   assert_choice(metric, choices = c("euclidean", "manhattan", "gower"))
-#   checkmate::assert(
-#     check_data_frame(solutions, any.missing = FALSE), 
-#     check_matrix(solutions, any.missing = FALSE)
-#     )
-#   if (metric == "euclidean"| metric == "manhattan") {
-#     dist = as.matrix(stats::dist(solutions, method = metric, 
-#       diag = FALSE, upper = TRUE))
-#   }
-#   else {
-#     assertVector(ranges, all.missing = FALSE)
-#     dist = gower.dist(solutions, rngs = ranges)
-#   }
-#   dist[dist == 0] = NA
-#   min = apply(dist, MARGIN = 1, function(x) min(x, na.rm = TRUE))
-#   return(sqrt(sum((min - mean(min))^2)/(nrow(solutions)- 1)))
-# }
 
 
 
