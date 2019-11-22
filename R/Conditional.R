@@ -8,7 +8,7 @@ Conditional = R6Class(
   public = list(
     feature = NULL,
     data = NULL,
-    models = NULL,
+    model = NULL,
     initialize = function(data, feature) {
       assert_class(data, "Data")
       self$data = data
@@ -20,8 +20,8 @@ Conditional = R6Class(
       assert_character(self$feature)
       assert_data_table(X)
       cmodel = self$models[[self$feature]]
-      data_nodes = self$cnode(self$data$X, self$feature)
-      X_nodes = self$cnode(X, self$feature)
+      data_nodes = self$cnode(self$data$X)
+      X_nodes = self$cnode(X)
       xj_samples = lapply(1:nrow(X), function(i) {
         node = X_nodes[i, "node"]
         data_ids = which(data_nodes$node == node)
@@ -33,7 +33,7 @@ Conditional = R6Class(
       rbindlist(xj_samples)
     },
     cdens = function(X, xgrid = NULL){
-      cmodel = self$models[[self$feature]]
+      cmodel = self$model
       if(inherits(cmodel, "trafotree")) {
         conditionals = predict(cmodel, newdata = X, type = "density", q = xgrid)
         densities = melt(conditionals)$value
@@ -53,11 +53,11 @@ Conditional = R6Class(
 	res.m = melt(res, measure.vars = as.character(at))
 	densities = data.table(.dens = res.m$value, .id.dist = rep(1:nrow(X), times = ncol(X)), feature = rep(at, each = nrow(X)))
       }
-      colnames(densities) = c(".dens", ".id.dist", feature)
+      colnames(densities) = c(".dens", ".id.dist", self$feature)
       densities
   },
   cnode = function(X,  prob = c(0.05, 0.95)) {
-    cmodel = self$models[[self$feature]]
+    cmodel = self$model
     node = predict(cmodel, newdata = X, type = "node")
     node_df = data.frame(node = factor(node), .id = names(node), .path = pathpred(cmodel, X))
     if(inherits(cmodel, "trafotree")) {
@@ -85,13 +85,13 @@ Conditional = R6Class(
       yvar = numeric_var(self$feature, support = c(min(y), max(y)))
       By  =  Bernstein_basis(yvar, order = 5, ui = "incr")
       m = ctm(response = By,  todistr = "Normal", data = self$data$X )
-      form = as.formula(sprintf("%s ~ 1 | .", feature))
+      form = as.formula(sprintf("%s ~ 1 | .", self$feature))
       part_cmod = trafotree(m, formula = form,  data = self$data$X)
     } else {
       form = as.formula(sprintf("%s ~ .", self$feature))
       part_cmod = ctree(form, data = self$data$X)
     }
-      self$models[[self$feature]] = part_cmod
+      self$model = part_cmod
     }
   )
 )
