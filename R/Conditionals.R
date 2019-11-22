@@ -14,6 +14,23 @@ Conditionals = R6Class(
       self$data = data
       private$fit_conditionals()
     },
+    csample2 = function(X, feature, size){
+      assert_number(size, lower = 1)
+      assert_character(feature)
+      assert_data_table(X)
+      cmodel = self$models[[feature]]
+      data_nodes = self$cnode(self$data$X, feature)
+      X_nodes = self$cnode(X, feature)
+      xj_samples = lapply(1:nrow(X), function(i) {
+        node = X_nodes[i, "node"]
+        data_ids = which(data_nodes$node == node)
+        data_ids = setdiff(data_ids, i)
+        data_ids_sample = sample(data_ids, size = size, replace = TRUE)
+        xj = self$data$X[data_ids_sample, feature, with = FALSE]
+        data.frame(t(xj))
+      })
+      rbindlist(xj_samples)
+    },
     csample = function(X, feature, size){
       assert_number(size, lower = 1)
       assert_character(feature)
@@ -97,7 +114,17 @@ Conditionals = R6Class(
       }
       colnames(densities) = c(".dens", ".id.dist", feature)
       densities
-  }), 
+  },
+  cnode = function(X, feature, prob = c(0.05, 0.95)) {
+    cmodel = self$models[[feature]]
+    node = predict(cmodel, newdata = X, type = "node")
+    node_df = data.frame(node = factor(node), .id = names(node), .path = pathpred(cmodel, X))
+    quants = predict(cmodel, newdata = X, type = "quantile", prob = prob)
+    quants = data.frame(t(quants))
+    colnames(quants) = paste0("q", prob)
+    cbind(node_df, quants)
+  }
+  ), 
   private = list(
   fit_conditional = function(feature) {
     require("trtf")

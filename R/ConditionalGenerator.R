@@ -39,7 +39,7 @@ ConditionalGenerator = R6Class(
         X = data.table(private$dist.dat[data.slice, ])
         # All other features
         partial_j2 = private$dist.dat[data.slice, private$features.rest, with = FALSE] 
-        partial_j1 = private$cmodels$csample(X, private$feature, size = 1)  
+        partial_j1 = private$cmodels$csample2(X, private$feature, size = 1)  
         partial_j = cbind(partial_j1, partial_j2)
         colnames(partial_j)[1] = private$feature
         

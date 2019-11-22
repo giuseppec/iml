@@ -387,7 +387,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
             by = c(self$feature.name)]
         }
         results.aggregated$.type = "pdp"
-        results = rbind(results, results.aggregated)
+        results = results.aggregated 
       }
       if (!private$multiClass) { 
         results.ice$.class = NULL
