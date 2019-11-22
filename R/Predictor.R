@@ -88,7 +88,7 @@ Predictor = R6::R6Class("Predictor",
     data = NULL,
     model = NULL, 
     batch.size = NULL,
-    conditional = FALSE,
+    conditionals = FALSE,
     predict = function(newdata) {
       checkmate::assert_data_frame(newdata)
       # Makes sure it's not a data.table
@@ -146,7 +146,12 @@ Predictor = R6::R6Class("Predictor",
       }
       
       self$data = Data$new(data, y = y)
-      if(conditional) self$conditional = Conditionals$new(self$data)
+      if(conditional) {
+        self$conditionals = lapply(self$data$feature.names, function(fname) {
+          Conditional$new(self$data, fname)
+        })
+        names(self$conditionals) = self$data$feature.names
+      }
       self$class = class
       self$model = model
       self$task = inferTaskFromModel(model)

@@ -191,7 +191,8 @@ FeatureImp = R6::R6Class("FeatureImp",
         qResults = data.table::data.table()
         y.vec = data.table::data.table()
         if (self$conditional && !is.null(cmodels)) {
-          cg = iml:::ConditionalGenerator$new(data.sample, cmodels = cmodels, feature = feature, n.sample.dist = n.repetitions, y = y)
+          cmodel = cmodels[[feature]]
+          cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y)
           while (!cg$finished) {
             data.design = cg$next.batch(n, y = TRUE)
             y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
@@ -225,7 +226,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       pred  = private$run.prediction
       loss = self$loss
       predictor = self$predictor
-      if(self$conditional) cmodels = self$predictor$conditional
+      if(self$conditional) cmodels = self$predictor$conditionals
       `%mypar%` = private$get.parallel.fct(private$parallel)
       result = foreach(feature = private$sampler$feature.names, .combine = rbind, .export = "self", 
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
