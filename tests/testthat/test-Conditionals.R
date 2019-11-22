@@ -16,12 +16,12 @@ test_that("Conditionals work",{
   # Sampling
   samp = cond$csample(X[1:4,], feature = "x1", size = 5)
   expect_equal(dim(samp), c(4,5))
-  expect_equal(class(samp), "data.frame") 
+  expect_class(samp, "data.table") 
   expect_equal(class(samp[[1]]), "numeric")
   samp = cond$csample(X[1:4,], feature = "x3", size = 5)
   expect_equal(dim(samp), c(4,5))
-  expect_equal(class(samp), "data.frame")
-  expect_equal(class(samp[[1]]), "factor")
+  expect_class(samp, "data.frame")
+  expect_class(samp[[1]], "factor")
 
   # Weighting
   ww = cond$cdens(X, feature = "x1", xgrid = quantile(X$x1))

@@ -14,7 +14,7 @@ Conditionals = R6Class(
       self$data = data
       private$fit_conditionals()
     },
-    csample2 = function(X, feature, size){
+    csample = function(X, feature, size){
       assert_number(size, lower = 1)
       assert_character(feature)
       assert_data_table(X)
@@ -30,66 +30,6 @@ Conditionals = R6Class(
         data.frame(t(xj))
       })
       rbindlist(xj_samples)
-    },
-    csample = function(X, feature, size){
-      assert_number(size, lower = 1)
-      assert_character(feature)
-      assert_data_table(X)
-      cmodel = self$models[[feature]]
-      if (inherits(cmodel, "trafotree")) {
-        probs = seq(from = 0, to = 1, length.out = 50)
-        quants = quantile(self$data$X[[feature]], probs = probs, type = 1)
-        qq = predict(cmodel,
-                   newdata = X,
-	           type = "distribution",
-                   q = quants)
-        pfuns = apply(qq, 2, function(obs) {
-          last0 = rev(which(obs == 0))[1]
-	  if(is.na(last0)) last0 = 1
-          first1 = which(obs == 1)[1]
-	  if (is.na(first1)) first1 = length(qq) 
-          approxfun(x = obs[last0:first1], y = quants[last0:first1],
-		    yleft = 0, yright = 0)
-         })
-         v = sapply(pfuns, function(x) x(runif(size)))
-         if(inherits(v, "matrix")){
-           data.frame(t(v))
-         } else {
-           data.frame(matrix(v))
-         }
-      } else if(self$data$feature.types[feature] == "categorical") {
-        preds = predict(cmodel, newdata = X, type = "prob")
-        cls = colnames(preds)
-        sample_prob = function(p, x){
-          if(any(p == 1)) return(rep(x[p==1], times = size))
-          sample(x, size = size, prob = p, replace = TRUE)
-        }
-        res = apply(preds, 1, sample_prob, x = cls)
-        if(size == 1) {
-          res = data.frame(res = res)
-        } else {
-          res = data.frame(t(res))
-        }
-        res
-      } else {
-	preds = predict(cmodel, newdata = X, type = "density")
-        at = unique(X[[feature]])
-	# data.table of probabilities for unique outcomes
- 	res = sapply(preds, function(preds) preds(at) / sum(preds(at)))
-        res = data.frame(t(res))
-	colnames(res) = as.character(at)
-        sample_prob = function(p, x) {
-          if(any(p == 1)) return(rep(x[p==1], times = size))
-          base::sample(x, size = size, prob = p, replace = TRUE)
-        }
-        res = apply(res, 1, sample_prob, x = at)
-        if(size == 1) {
-          res = data.frame(res = res)
-        } else {
-          res = data.frame(t(res))
-        }
-        res
-      } 
     },
     cdens = function(X, feature, xgrid = NULL){
       cmodel = self$models[[feature]]
@@ -119,9 +59,20 @@ Conditionals = R6Class(
     cmodel = self$models[[feature]]
     node = predict(cmodel, newdata = X, type = "node")
     node_df = data.frame(node = factor(node), .id = names(node), .path = pathpred(cmodel, X))
-    quants = predict(cmodel, newdata = X, type = "quantile", prob = prob)
-    quants = data.frame(t(quants))
-    colnames(quants) = paste0("q", prob)
+    if(inherits(cmodel, "trafotree")) {
+      # case of numerical feature
+      quants = predict(cmodel, newdata = X, type = "quantile", prob = prob)
+      quants = data.frame(t(quants))
+      colnames(quants) = paste0("q", prob)
+    } else if (self$data$feature.types[[feature]] == "numerical") {
+      # case of numerical features with few unique values
+      quants = predict(cmodel, newdata = X, type = "quantile", at = prob)
+      colnames(quants) = paste0("q", prob)
+    } else {
+      # case of categorical feature
+      quants = predict(cmodel, newdata = X, type = "prob")
+      names(quants) = levels(X[[feature]])
+    }
     cbind(node_df, quants)
   }
   ), 
