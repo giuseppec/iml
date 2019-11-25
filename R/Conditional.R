@@ -95,3 +95,23 @@ Conditional = R6Class(
     }
   )
 )
+
+
+
+#' Fit conditional models
+#' 
+#' Needed for conditional PDP and Feature Importance.
+#' 
+#' @param data data.frame with data for which to fit the conditional models
+#' @return list of Conditional R6 objects
+#' @export
+fit_conditionals = function(data){
+  assert_data_frame(data)
+  features = colnames(data)
+  cmods = lapply(features, function(fname){
+    Conditional$new(Data$new(data.frame(data)), fname)
+  })
+  names(cmods) = features
+  cmods
+}
+

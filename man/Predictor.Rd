@@ -37,6 +37,7 @@ The classic use case is to say type="prob" for classification models.
 Consult the documentation of the machine learning package you use to find which type options you have.
 If both predict.fun and type are used, then type is passed as an argument to predict.fun.}
 \item{batch.size: }{(`numeric(1)`)\cr The maximum number of rows to be input the model for prediction at once. Currently only respected for FeatureImp, Partial and Interaction.}
+\item{conditional: }{(`logical(1)|list([Conditional])`)\cr If TRUE, the Predictor fits conditional models for the features, which are necessary if the Predictor is later used for conditional Partial Dependence Plot or conditional feature importance. You can also provide a list of conditional models trained with `iml::fit_conditionals`, which makes sense when you need the conditionals for different Predictors.}
 }
 }
 
