@@ -9,10 +9,12 @@ Conditional = R6Class(
     feature = NULL,
     data = NULL,
     model = NULL,
-    initialize = function(data, feature) {
+    ctrl = NULL,
+    initialize = function(data, feature, ctrl = ctree_control()) {
       assert_class(data, "Data")
       self$data = data
       self$feature = feature
+      self$ctrl = ctrl
       private$fit_conditional()
     },
     csample = function(X, size){
@@ -86,10 +88,10 @@ Conditional = R6Class(
       By  =  Bernstein_basis(yvar, order = 5, ui = "incr")
       m = ctm(response = By,  todistr = "Normal", data = self$data$X )
       form = as.formula(sprintf("%s ~ 1 | .", self$feature))
-      part_cmod = trafotree(m, formula = form,  data = self$data$X)
+      part_cmod = trafotree(m, formula = form,  data = self$data$X, control = self$ctrl)
     } else {
       form = as.formula(sprintf("%s ~ .", self$feature))
-      part_cmod = ctree(form, data = self$data$X)
+      part_cmod = ctree(form, data = self$data$X, control = self$ctrl)
     }
       self$model = part_cmod
     }
@@ -104,12 +106,13 @@ Conditional = R6Class(
 #' 
 #' @param data data.frame with data for which to fit the conditional models
 #' @return list of Conditional R6 objects
+#' @importFrom partykit ctree_control
 #' @export
-fit_conditionals = function(data){
+fit_conditionals = function(data, ctrl = ctree_control()){
   assert_data_frame(data)
   features = colnames(data)
   cmods = lapply(features, function(fname){
-    Conditional$new(Data$new(data.frame(data)), fname)
+    Conditional$new(Data$new(data.frame(data)), fname, ctrl = ctrl)
   })
   names(cmods) = features
   cmods
