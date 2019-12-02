@@ -61,7 +61,7 @@ Conditional = R6Class(
   cnode = function(X,  prob = c(0.05, 0.95)) {
     cmodel = self$model
     node = predict(cmodel, newdata = X, type = "node")
-    node_df = data.frame(node = factor(node), .id = names(node), .path = pathpred(cmodel, X))
+    node_df = data.frame(node = (node), .id = names(node), .path = pathpred(cmodel, X))
     if(inherits(cmodel, "trafotree")) {
       # case of numerical feature
       quants = predict(cmodel, newdata = X, type = "quantile", prob = prob)
