@@ -167,7 +167,7 @@ FeatureImp = R6::R6Class("FeatureImp",
       predicted = private$run.prediction(private$sampler$X)[[1]]
       # Assuring that levels are the same
       self$original.error = loss(actual, predicted)
-      if(self$original.error == 0) {
+      if(self$original.error == 0 & self$compare == "ratio") {
         warning("Model error is 0, switching from compare='ratio' to compare='difference'")
         self$compare = "difference"
       }
