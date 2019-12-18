@@ -108,7 +108,7 @@ Predictor = R6::R6Class("Predictor",
         prediction = prediction[,self$class, drop=FALSE]
       } 
       rownames(prediction) = NULL
-      data.frame(prediction)
+      data.frame(prediction, check.names = FALSE)
     },
     class = NULL,
     prediction.colnames = NULL, 

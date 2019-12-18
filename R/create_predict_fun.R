@@ -37,7 +37,7 @@ create_predict_fun.Learner = function(model, task, predict.fun = NULL, type = NU
         pred = predict(model, newdata = newdata)
         factor_to_dataframe(pred)
       } else {
-        data.frame(predict(model, newdata = newdata, predict_type = "prob"))
+        data.frame(predict(model, newdata = newdata, predict_type = "prob"), check.names = FALSE)
       }
     }
   } else if (task == "regression") {      
@@ -70,7 +70,7 @@ create_predict_fun.train = function(model, task, predict.fun = NULL, type = NULL
       } else {
         prediction = predict(model, newdata = newdata, type = type)
       }
-      data.frame(.prediction = prediction)
+      data.frame(.prediction = prediction, check.names = FALSE)
     }
   } else {
     stop(sprintf("task of type %s not allowed.", task))
@@ -85,7 +85,7 @@ create_predict_fun.NULL = function(model, task, predict.fun = NULL, type = NULL)
     if (is_label(pred)) {
       factor_to_dataframe(pred)
     }
-    data.frame(pred)
+    data.frame(pred, check.names = FALSE)
   }
 }
 
@@ -103,7 +103,7 @@ create_predict_fun.default = function(model, task, predict.fun = NULL, type = NU
     if (is_label(pred)) {
       pred = factor_to_dataframe(pred)
     }
-    data.frame(pred)
+    data.frame(pred, check.names = FALSE)
   }
 }
 
@@ -113,7 +113,7 @@ create_predict_fun.keras.engine.training.Model = function(model, task, predict.f
   }
   function(newdata) {
     pred = do.call(predict.fun, list(model, newdata = as.matrix(newdata)))
-    data.frame(pred)
+    data.frame(pred, check.names = FALSE)
   }
 }
 

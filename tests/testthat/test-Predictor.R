@@ -153,12 +153,12 @@ test_that("h20 prediction works", {
 
 test_that("Keras classification predictions work without prob", {
   expect_equal(predictor.keras$predict(newdata = iris.test),
-               as.data.frame(predict(mod.keras, data.matrix(iris.test))) %>% `colnames<-`(c("X1", "X2", "X3")))
+               as.data.frame(predict(mod.keras, data.matrix(iris.test))) %>% `colnames<-`(c("1", "2", "3")))
 })
 
 test_that("Keras classification predictions work with prob", {
   expect_equal(predictor.keras.prob$predict(newdata = iris.test),
-               as.data.frame(predict(mod.keras, data.matrix(iris.test))) %>% `colnames<-`(c("X1", "X2", "X3")))
+               as.data.frame(predict(mod.keras, data.matrix(iris.test))) %>% `colnames<-`(c("1", "2", "3")))
 })
 
 test_that("Keras classification can get nice column names through custom predict funs", {
@@ -269,6 +269,15 @@ test_that("Predictor errors with data, which includes NAs.", {
   mod = lm(y ~ x, data = dat)
   expect_error(Predictor$new(mod, data = dat))
 })
+
+test_that("Predictor keeps factor names without X", {
+  require(rpart)
+  dat = data.frame(y = factor(rep(c(1,2), times = 5)), x = factor(c(1,1,1,2,1,2,1,2,1,2), levels = c(1,2,3)), x2 = 1:10)
+  mod = rpart(y ~ x, data = dat)
+  pred = Predictor$new(mod, data = dat)
+  expect_equal(colnames(pred$predict(dat)), c("1", "2"))
+})
+
 
 # keras
 k = backend()
