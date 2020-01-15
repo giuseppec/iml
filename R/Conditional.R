@@ -17,10 +17,7 @@ Conditional = R6Class(
       self$ctrl = ctrl
       private$fit_conditional()
     },
-    csample = function(X, size){
-      assert_number(size, lower = 1)
-      assert_character(self$feature)
-      assert_data_table(X)
+    csample_data = function(X, size){
       cmodel = self$models[[self$feature]]
       data_nodes = self$cnode(self$data$X)
       X_nodes = self$cnode(X)
@@ -33,7 +30,35 @@ Conditional = R6Class(
         data.frame(t(xj))
       })
       rbindlist(xj_samples)
+
     },
+    csample_parametric = function(X, size){
+      cmodel = self$models[[self$feature]]
+      if (self$data$feature.types[[self$feature]] == "categorical") {
+        xgrid = unique(self$data$X[[self$feature]])
+      } else {
+        x = self$data$X[[self$feature]]
+        xgrid = seq(from = min(x), to = max(x), length.out = 100)
+      }
+      dens = self$cdens(X, xgrid)
+      xj_samples = lapply(1:nrow(X), function(i) {
+        dens_i = dens[dens$.id.dist == i,]
+        xj = sample(dens_i[[self$feature]], size = size, prob = dens_i[[".dens"]], replace = TRUE)
+        data.frame(t(xj))
+      })
+      rbindlist(xj_samples)
+    },
+    csample = function(X, size, type = "parametric"){
+      assert_number(size, lower = 1)
+      assert_character(self$feature)
+      assert_data_table(X)
+      assert_choice(type, c("data", "parametric"))
+      if (type == 'parametric') {
+        self$csample_parametric(X, size)
+      } else {
+        self$csample_data(X, size)
+      }
+      },
     cdens = function(X, xgrid = NULL){
       cmodel = self$model
       if(inherits(cmodel, "trafotree")) {

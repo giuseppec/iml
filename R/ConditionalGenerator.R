@@ -9,13 +9,16 @@ ConditionalGenerator = R6Class(
   public = list(
     finished = FALSE,
     n_total = NULL,
-    initialize = function(dist.dat, feature, cmodel, n.sample.dist = 1, y = NULL) {
+    sample_type = NULL,
+    initialize = function(dist.dat, feature, cmodel, n.sample.dist = 1, y = NULL, sample_type) {
       assert_data_table(dist.dat)
       assert_true(all(feature %in% colnames(dist.dat)))
       assert_character(feature, len = 1)
       assert_data_frame(y, null.ok = TRUE, nrows = nrow(dist.dat))
       assert_class(cmodel, "R6")
+      assert_choice(sample_type, c("parametric", "data"))
 
+      self$sample_type = sample_type
       private$cmodel = cmodel
       private$dist.dat = dist.dat
       private$feature = feature
@@ -39,7 +42,7 @@ ConditionalGenerator = R6Class(
         X = data.table(private$dist.dat[data.slice, ])
         # All other features
         partial_j2 = private$dist.dat[data.slice, private$features.rest, with = FALSE] 
-        partial_j1 = private$cmodel$csample(X, size = 1)  
+        partial_j1 = private$cmodel$csample(X, size = 1, type = self$sample_type)
         partial_j = cbind(partial_j1, partial_j2)
         colnames(partial_j)[1] = private$feature
         

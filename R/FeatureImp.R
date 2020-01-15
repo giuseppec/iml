@@ -140,13 +140,17 @@ FeatureImp = R6::R6Class("FeatureImp",
     n.repetitions = NULL,
     compare = NULL,
     conditional = NULL,
+    sample_type = NULL,
     initialize = function(predictor, loss, compare = "ratio", 
                           n.repetitions = 5, parallel = FALSE,
-                          conditional = FALSE) {
+                          conditional = FALSE,
+                          sample_type = "parametric") {
+      assert_choice(sample_type, c("parametric", "data"))
       assert_choice(compare, c("ratio", "difference"))
       assert_number(n.repetitions)
       assert_logical(parallel)
       assert_logical(conditional)
+      self$sample_type = sample_type
       private$parallel = parallel
       self$compare = compare
       if (!inherits(loss, "function")) {
@@ -186,13 +190,13 @@ FeatureImp = R6::R6Class("FeatureImp",
       private$dataSample = private$getData()
       result = NULL
       
-      estimate_feature_imp = function(feature, data.sample, y, n.repetitions, y.names, pred, loss, predictor, cmodels = NULL) {
+      estimate_feature_imp = function(feature, data.sample, y, n.repetitions, y.names, pred, loss, predictor, sample_type, cmodels = NULL) {
         cnames = setdiff(colnames(data.sample), y.names)
         qResults = data.table::data.table()
         y.vec = data.table::data.table()
         if (self$conditional && !is.null(cmodels)) {
           cmodel = cmodels[[feature]]
-          cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y)
+          cg = iml:::ConditionalGenerator$new(data.sample, cmodel = cmodel, feature = feature, n.sample.dist = n.repetitions, y = y, sample_type = sample_type)
           while (!cg$finished) {
             data.design = cg$next.batch(n, y = TRUE)
             y.vec = rbind(y.vec, data.design[, y.names , with = FALSE])
@@ -226,13 +230,14 @@ FeatureImp = R6::R6Class("FeatureImp",
       pred  = private$run.prediction
       loss = self$loss
       predictor = self$predictor
+      sample_type = self$sample_type
       if(self$conditional) cmodels = self$predictor$conditionals
       `%mypar%` = private$get.parallel.fct(private$parallel)
       result = foreach(feature = private$sampler$feature.names, .combine = rbind, .export = "self", 
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
         estimate_feature_imp(feature, data.sample = data.sample, y = y,
           n.repetitions = n.repetitions, y.names = y.names, pred  = pred, loss = loss,
-	  predictor = predictor, cmodels = cmodels)
+	  predictor = predictor, cmodels = cmodels, sample_type = sample_type)
       if (self$compare == "ratio") {
         result[, importance_raw := permutation_error / self$original.error]
       } else {
