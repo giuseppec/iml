@@ -3,74 +3,28 @@
 \name{Shapley}
 \alias{Shapley}
 \title{Prediction explanations with game theory}
-\format{\code{\link{R6Class}} object.}
 \description{
-\code{Shapley} computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory.
-The features values of an instance cooperate to achieve the prediction.
-The Shapley value fairly distributes the difference of the instance's prediction and the datasets average prediction among the features.
+\code{Shapley} computes feature contributions for single predictions with the
+Shapley value, an approach from cooperative game theory. The features values
+of an instance cooperate to achieve the prediction. The Shapley value fairly
+distributes the difference of the instance's prediction and the datasets
+average prediction among the features.
 }
-\section{Usage}{
-
-\preformatted{
-shapley = Shapley$new(predictor, x.interest = NULL, sample.size = 100)
-
-plot(shapley)
-shapley$results
-print(shapley)
-shapley$explain(x.interest)
+\details{
+For more details on the algorithm see
+\url{https://christophm.github.io/interpretable-ml-book/shapley.html}
 }
-}
-
-\section{Arguments}{
-
-For Shapley$new():
-\describe{
-\item{predictor: }{(Predictor)\cr
-The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{x.interest: }{(data.frame)\cr  Single row with the instance to be explained.}
-\item{sample.size: }{(\code{numeric(1)})\cr The number of  Monte Carlo samples for estimating the Shapley value.}
-}
-}
-
-\section{Details}{
-
-For more details on the algorithm see https://christophm.github.io/interpretable-ml-book/shapley.html
-}
-
-\section{Fields}{
-
-\describe{
-\item{predictor: }{(Predictor)\cr
-The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{results: }{(data.frame)\cr data.frame with the Shapley values (phi) per feature.}
-\item{sample.size: }{(\code{numeric(1)})\cr The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
-\item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
-\item{y.hat.interest: }{(numeric)\cr Predicted value for instance of interest}
-\item{y.hat.average: }{(\code{numeric(1)})\cr Average predicted value for data \code{X}}
-}
-}
-
-\section{Methods}{
-
-\describe{
-\item{explain(x.interest)}{method to set a new data point which to explain.}
-\item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
-\item{\code{clone()}}{\link{internal} method to clone the R6 object.}
-\item{\code{initialize()}}{\link{internal} method to initialize the R6 object.}
-}
-}
-
 \examples{
-if (require("rpart")) {
+library("rpart")
 # First we fit a machine learning model on the Boston housing data
-data("Boston", package  = "MASS")
-rf =  rpart(medv ~ ., data = Boston)
-X = Boston[-which(names(Boston) == "medv")]
-mod = Predictor$new(rf, data = X)
+data("Boston", package = "MASS")
+rf <- rpart(medv ~ ., data = Boston)
+X <- Boston[-which(names(Boston) == "medv")]
+mod <- Predictor$new(rf, data = X)
 
 # Then we explain the first instance of the dataset with the Shapley method:
-x.interest = X[1,]
-shapley = Shapley$new(mod, x.interest = x.interest)
+x.interest <- X[1, ]
+shapley <- Shapley$new(mod, x.interest = x.interest)
 shapley
 
 # Look at the results in a table
@@ -79,32 +33,133 @@ shapley$results
 plot(shapley)
 
 # Explain another instance
-shapley$explain(X[2,])
+shapley$explain(X[2, ])
 plot(shapley)
 \dontrun{
 # Shapley() also works with multiclass classification
-rf = rpart(Species ~ ., data = iris)
-X = iris[-which(names(iris) == "Species")]
-mod = Predictor$new(rf, data = X, type = "prob")
+rf <- rpart(Species ~ ., data = iris)
+X <- iris[-which(names(iris) == "Species")]
+mod <- Predictor$new(rf, data = X, type = "prob")
 
 # Then we explain the first instance of the dataset with the Shapley() method:
-shapley = Shapley$new(mod, x.interest = X[1,])
+shapley <- Shapley$new(mod, x.interest = X[1, ])
 shapley$results
-plot(shapley) 
+plot(shapley)
 
 # You can also focus on one class
-mod = Predictor$new(rf, data = X, type = "prob", class = "setosa")
-shapley = Shapley$new(mod, x.interest = X[1,])
+mod <- Predictor$new(rf, data = X, type = "prob", class = "setosa")
+shapley <- Shapley$new(mod, x.interest = X[1, ])
 shapley$results
-plot(shapley) 
-}
+plot(shapley)
 }
 }
 \references{
-Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and individual predictions with feature contributions. Knowledge and Information Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x
+Strumbelj, E., Kononenko, I. (2014). Explaining prediction models and
+individual predictions with feature contributions. Knowledge and Information
+Systems, 41(3), 647-665. https://doi.org/10.1007/s10115-013-0679-x
 }
 \seealso{
 \link{Shapley}
 
 A different way to explain predictions: \link{LocalModel}
+}
+\section{Super class}{
+\code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{Shapley}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{x.interest}}{\link{data.frame}\cr
+Single row with the instance to be explained.}
+
+\item{\code{y.hat.interest}}{\link{numeric}\cr
+Predicted value for instance of interest.}
+
+\item{\code{y.hat.average}}{\code{numeric(1)}\cr
+Average predicted value for data \code{X}.}
+
+\item{\code{sample.size}}{\code{numeric(1)}\cr
+The number of times coalitions/marginals are
+sampled from data X. The higher the more accurate the explanations
+become.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{Shapley$new()}}
+\item \href{#method-explain}{\code{Shapley$explain()}}
+\item \href{#method-clone}{\code{Shapley$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+Create a Shapley object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Shapley$new(predictor, x.interest = NULL, sample.size = 100)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{predictor}}{\link{Predictor}\cr
+The object (created with \code{Predictor$new()}) holding the machine
+learning model and the data.}
+
+\item{\code{x.interest}}{\link{data.frame}\cr
+Single row with the instance to be explained.}
+
+\item{\code{sample.size}}{\code{numeric(1)}\cr
+The number of Monte Carlo samples for estimating the Shapley value.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\link{data.frame}\cr
+\link{data.frame} with the Shapley values (phi) per feature.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-explain"></a>}}
+\subsection{Method \code{explain()}}{
+Set a new data point which to explain.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Shapley$explain(x.interest)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x.interest}}{\link{data.frame}\cr
+Single row with the instance to be explained.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Shapley$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

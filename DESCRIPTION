@@ -1,13 +1,18 @@
 Type: Package
 Package: iml
 Title: Interpretable Machine Learning
-Version: 0.9.0
+Version: 0.9.0.9000
 Date: 2019-02-01
 Authors@R: 
-    person(given = "Christoph",
-           family = "Molnar",
-           role = c("aut", "cre"),
-           email = "christoph.molnar@gmail.com")
+    c(person(given = "Christoph",
+             family = "Molnar",
+             role = c("aut", "cre"),
+             email = "christoph.molnar@gmail.com"),
+      person(given = "Patrick",
+             family = "Schratz",
+             role = "ctb",
+             email = "patrick.schratz@gmail.com",
+             comment = c(ORCID = "0000-0003-0748-6624")))
 Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
 Description: Interpretability methods to analyze the behavior
     and predictions of any machine learning model.  Implemented methods
@@ -59,5 +64,5 @@ Suggests:
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
-RoxygenNote: 7.0.2
 Roxygen: list(markdown = TRUE, r6 = TRUE)
+RoxygenNote: 7.0.2

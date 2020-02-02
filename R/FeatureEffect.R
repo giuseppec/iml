@@ -132,6 +132,7 @@
 #' @export
 FeatureEffect <- R6Class("FeatureEffect",
   inherit = InterpretationMethod,
+  
   public = list(
 
     #' @description Create a FeatureEffect object

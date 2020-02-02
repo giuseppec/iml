@@ -9,28 +9,30 @@
 \arguments{
 \item{object}{A Shapley R6 object}
 
-\item{sort}{logical. Should the feature values be sorted by Shapley value? Ignored for multi.class output.}
+\item{sort}{\link{logical}\cr
+Should the feature values be sorted by Shapley value? Ignored for
+multi.class output.}
 }
 \value{
 ggplot2 plot object
 }
 \description{
-plot.Shapley() plots the Shapley values - the contributions of feature values to the prediction.
+plot.Shapley() plots the Shapley values - the contributions of feature values
+to the prediction.
 }
 \examples{
 \dontrun{
-if (require("rpart")) {
+library("rpart")
 # First we fit a machine learning model on the Boston housing data
-data("Boston", package  = "MASS")
-rf =  rpart(medv ~ ., data = Boston)
-X = Boston[-which(names(Boston) == "medv")]
-mod = Predictor$new(rf, data = X)
+data("Boston", package = "MASS")
+rf <- rpart(medv ~ ., data = Boston)
+X <- Boston[-which(names(Boston) == "medv")]
+mod <- Predictor$new(rf, data = X)
 
 # Then we explain the first instance of the dataset with the Shapley method:
-x.interest = X[1,]
-shapley = Shapley$new(mod, x.interest = x.interest)
+x.interest <- X[1, ]
+shapley <- Shapley$new(mod, x.interest = x.interest)
 plot(shapley)
-}
 }
 }
 \seealso{

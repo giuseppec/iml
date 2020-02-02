@@ -13,7 +13,7 @@
 ggplot2 plot object
 }
 \description{
-plot.LocalModel() plots the feature effects of a LocalModel object.
+\code{plot.LocalModel()} plots the feature effects of a LocalModel object.
 }
 \examples{
 library("randomForest")

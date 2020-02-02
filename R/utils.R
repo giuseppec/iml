@@ -15,6 +15,7 @@ get.feature.type = function(feature.class) {
 
 #' returns TRUE if object has predict function
 #' @importFrom utils methods
+#' @param object The object to check.
 has.predict = function(object) {
   classes = class(object)
   any(unlist(lapply(classes, function(x) {
@@ -23,6 +24,7 @@ has.predict = function(object) {
 }
 
 #' Turn class probabilities into class labels
+#' @param prediction Prediction object.
 probs.to.labels = function(prediction) {
   checkmate::assert_data_frame(prediction)
   if (ncol(prediction) > 1) {

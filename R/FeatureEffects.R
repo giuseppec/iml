@@ -253,6 +253,7 @@ FeatureEffects <- R6Class("FeatureEffects",
 #' @seealso [FeatureEffects] [plot.FeatureEffect]
 #' @examples
 #' # We train a random forest on the Boston dataset:
+#' library("randomForest")
 #' data("Boston", package = "MASS")
 #' rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
 #' mod <- Predictor$new(rf, data = Boston)

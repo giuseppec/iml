@@ -130,7 +130,7 @@ If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach
 \subsection{Returns}{
 \link{data.frame} with the interaction strength (column \code{.interation}) per
 feature calculated as Friedman's H-statistic and - in the case of a
-multi-dimensional outcome - per class.}
+multi-dimensional outcome - per class.
 }
 }
 \if{html}{\out{<hr>}}

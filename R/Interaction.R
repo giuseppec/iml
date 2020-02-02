@@ -82,7 +82,7 @@ Interaction <- R6Class("Interaction",
     #' @return
     #' [data.frame] with the interaction strength (column `.interation`) per
     #' feature calculated as Friedman's H-statistic and - in the case of a
-    #' multi-dimensional outcome - per class.}
+    #' multi-dimensional outcome - per class.
     initialize = function(predictor, feature = NULL, grid.size = 30,
                           parallel = FALSE) {
       assert_vector(feature, len = 1, null.ok = TRUE)

@@ -6,6 +6,9 @@
 \usage{
 has.predict(object)
 }
+\arguments{
+\item{object}{The object to check.}
+}
 \description{
 returns TRUE if object has predict function
 }

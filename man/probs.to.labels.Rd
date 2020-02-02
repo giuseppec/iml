@@ -6,6 +6,9 @@
 \usage{
 probs.to.labels(prediction)
 }
+\arguments{
+\item{prediction}{Prediction object.}
+}
 \description{
 Turn class probabilities into class labels
 }

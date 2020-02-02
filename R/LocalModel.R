@@ -5,50 +5,37 @@
 #' regression for classification) to explain single predictions of a prediction
 #' model.
 #'
-#' @section Arguments:
-#'
-#' For LocalModel$new():
-#' \describe{
-
-#' \item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
-#' \item{dist.fun: }{(`character(1)`)\cr The name of the distance function for computing proximities (weights in the linear model). Defaults to "gower". Otherwise will be forwarded to [stats::dist].}
-#' \item{kernel.width: }{(`numeric(1)`)\cr The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
-#' \item{k: }{(`numeric(1)`)\cr
-#' The (maximum) number of features to be used for the surrogate model.}
-#' }
-#'
-#' @section Details:
-#' A weighted glm is fitted with the machine learning model prediction as target.
-#' Data points are weighted by their proximity to the instance to be explained, using the gower proximity measure.
-#' L1-regularisation is used to make the results sparse.
-#' The resulting model can be seen as a surrogate for the machine learning model, which is only valid for that one point.
-#' Categorical features are binarized, depending on the category of the instance to be explained: 1 if the category is the same, 0 otherwise.
-#' To learn more about local models, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/lime.html
-#'
+#' @details 
+#' A weighted glm is fitted with the machine learning model prediction as
+#' target. Data points are weighted by their proximity to the instance to be
+#' explained, using the gower proximity measure. L1-regularization is used to
+#' make the results sparse. 
+#' 
+#' The resulting model can be seen as a surrogate for the machine learning
+#' model, which is only valid for that one point. Categorical features are
+#' binarized, depending on the category of the instance to be explained: 1 if
+#' the category is the same, 0 otherwise.
+#' 
+#' To learn more about local models, read the Interpretable Machine Learning
+#' book: https://christophm.github.io/interpretable-ml-book/lime.html
+#' 
 #' The approach is similar to LIME, but has the following differences:
-#' \itemize{
-#' \item Distance measure: Uses as default the gower proximity (= 1 - gower distance) instead of a kernel based on the Euclidean distance. Has the advantage to have a meaningful neighbourhood and no kernel width to tune.
-#' When the distance is not "gower", then the stats::dist() function with the chosen method will be used,
-#' and turned into a similarity measure: sqrt(exp(-(distance^2) / (kernel.width^2))).
-#' \item Sampling: Uses the original data instead of sampling from normal distributions.
-#' Has the advantage to follow the original data distribution.
-#' \item Visualisation: Plots effects instead of betas. Both are the same for binary features, but ared different for numerical features.
-#' For numerical features, plotting the betas makes no sense,
-#' because a negative beta might still increase the prediction when the feature value is also negative.
-#' }
+#' - **Distance measure**: Uses as default the gower proximity (= 1 - gower
+#' distance) instead of a kernel based on the Euclidean distance. Has the
+#' advantage to have a meaningful neighborhood and no kernel width to tune.
+#' When the distance is not `"gower"`, then the [stats::dist()] function with the
+#' chosen method will be used, and turned into a similarity measure:
+#' \eqn{sqrt(exp(-(distance^2) / (kernel.width^2)))}.
+#' - **Sampling**: Uses the original data instead of sampling from normal
+#' distributions. Has the advantage to follow the original data distribution.
+#'- **Visualization**: Plots effects instead of betas. Both are the same for binary
+#'features, but ared different for numerical features. For numerical features,
+#'plotting the betas makes no sense, because a negative beta might still
+#'increase the prediction when the feature value is also negative.
 #'
-#' To learn more about local surrogate models, read the Interpretable Machine Learning book:
+#' To learn more about local surrogate models, read the Interpretable Machine
+#' Learning book:
 #' \url{https://christophm.github.io/interpretable-ml-book/lime.html}
-#'
-#' @section Methods:
-#' \describe{
-#' \item{explain(x.interest)}{method to set a new data point which to explain.}
-#' \item{plot()}{method to plot the LocalModel feature effects. See \link{plot.LocalModel}}
-#' \item{predict()}{method to predict new data with the local model See also \link{predict.LocalModel}}
-#' \item{\code{clone()}}{[internal] method to clone the R6 object.}
-#' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
-#' }
-#'
 #'
 #' @references
 #' Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?":
@@ -118,7 +105,7 @@ LocalModel <- R6Class("LocalModel",
     #'   Only used if dist.fun is not `"gower"`.
     #' @param k `numeric(1)`\cr
     #'   The number of features.
-    #' @return results [data.frame]\cr
+    #' @return [data.frame]\cr
     #'   Results with the feature names (`feature`) and contributions to the
     #'   prediction.
     initialize = function(predictor, x.interest, dist.fun = "gower", 
@@ -144,8 +131,7 @@ LocalModel <- R6Class("LocalModel",
 
     #' @description Method to predict new data with the local model See also
     #' [predict.LocalModel].
-    #' @param newdata [data.frame]\cr
-    #'   Data to predict on.
+    #' @template newdata
     #' @param ... \cr
     #' ???
     predict = function(newdata = NULL, ...) {
@@ -189,7 +175,7 @@ LocalModel <- R6Class("LocalModel",
     #'   The number of features as set by the user.
     k = NULL,
 
-    #' @field model [glmnet]\cr
+    #' @field model `glmnet`\cr
     #'  The fitted local model.
     model = NULL,
 
@@ -308,7 +294,7 @@ predict.LocalModel <- function(object, newdata = NULL, ...) {
 
 #' Plot Local Model
 #'
-#' plot.LocalModel() plots the feature effects of a LocalModel object.
+#' `plot.LocalModel()` plots the feature effects of a LocalModel object.
 #'
 #' @param object  A LocalModel R6 object
 #' @return ggplot2 plot object

@@ -1,9 +1,23 @@
-InterpretationMethod <- R6::R6Class("InterpretationMethod",
+#' Interpretation Method
+#' 
+#' @description Superclass container for Interpretation Method objects
+#' 
+#' @export
+InterpretationMethod <- R6Class("InterpretationMethod",
   public = list(
-    # The aggregated results of the experiment
-    results = NULL,
-    # The prediction model
-    predictor = NULL,
+
+    #' @description Create an InterpretationMethod object
+    #' @template predictor
+    initialize = function(predictor) {
+      checkmate::assert_class(predictor, "Predictor")
+      self$predictor <- predictor
+      private$sampler <- predictor$data
+      private$getData <- private$sampler$get.x
+    },
+
+    #' @description Plot function. Calls `private$generatePlot()` of the
+    #' respective subclass.
+    #' @param ... Passed to `private$generatePlot()`.
     plot = function(...) {
       private$plotData <- private$generatePlot(...)
       if (!is.null(private$plotData)) {
@@ -12,12 +26,8 @@ InterpretationMethod <- R6::R6Class("InterpretationMethod",
         warning("call run() first!")
       }
     },
-    initialize = function(predictor) {
-      checkmate::assert_class(predictor, "Predictor")
-      self$predictor <- predictor
-      private$sampler <- predictor$data
-      private$getData <- private$sampler$get.x
-    },
+
+    #' @description Printer for InterpretationMethod objects
     print = function() {
       cat("Interpretation method: ", class(self)[1], "\n")
       private$printParameters()
@@ -29,8 +39,18 @@ InterpretationMethod <- R6::R6Class("InterpretationMethod",
       if (!is.null(self$results)) {
         print(head(self$results))
       }
-    }
+    },
+
+    #' @field results [data.frame]\cr
+    #'  The aggregated results of the experiment
+    results = NULL,
+    # The prediction model
+
+    #' @field predictor \cr
+    #' Predictor object.
+    predictor = NULL
   ),
+
   private = list(
     parallel = FALSE,
     # The sampling object for sampling from X
