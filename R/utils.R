@@ -13,9 +13,7 @@ get.feature.type = function(feature.class) {
   feature.types[feature.class]
 }
 
-
-
-# returns TRUE if object has predict function
+#' returns TRUE if object has predict function
 #' @importFrom utils methods
 has.predict = function(object) {
   classes = class(object)
@@ -24,8 +22,7 @@ has.predict = function(object) {
   })))
 }
 
-
-# Turn class probabilities into class labels
+#' Turn class probabilities into class labels
 probs.to.labels = function(prediction) {
   checkmate::assert_data_frame(prediction)
   if (ncol(prediction) > 1) {
@@ -37,12 +34,12 @@ probs.to.labels = function(prediction) {
   }
 }
 
-# Extract glmnet effects
-# @param betas glmnet$beta
-# @param best.index index k 
-# @param x.recoded the recoded version of x
-# @param x.original the original x
-# Assuming that the first row is the x.interest
+#' Extract glmnet effects
+#' @param betas glmnet$beta
+#' @param best.index index k 
+#' @param x.recoded the recoded version of x
+#' @param x.original the original x
+#' Assuming that the first row is the x.interest
 extract.glmnet.effects = function(betas, best.index, x.recoded, x.original) {
   checkmate::assert_data_frame(x.recoded, nrows=1)
   checkmate::assert_data_frame(x.original, nrows=1)
@@ -97,7 +94,6 @@ pathpred = function(object, ...) {
   return(rules)
 }
 
-
 is_label = function(pred) {
   if (inherits(pred, c("character", "factor"))) return(TRUE)
   if (inherits(pred, c("data.frame", "matrix")) && 
@@ -106,7 +102,6 @@ is_label = function(pred) {
   }
   FALSE
 }
-
 
 checkPrediction = function(prediction, data) {
   checkmate::assert_data_frame(data)
@@ -136,12 +131,10 @@ sanitizePrediction = function(prediction) {
   prediction
 }
 
-
 cumsum_na = function(values) {
   values[is.na(values)] = 0
   cumsum(values)
 }
-
 
 get.grid = function(dat, grid.size, anchor.value = NULL, type = "equidist") {
   assert_data_frame(dat, min.cols = 1)
@@ -195,29 +188,46 @@ get.grid.1D = function(feature, grid.size,  feature.type = NULL, type = "equidis
   grid
 }
 
-
-
-#' Order levels of a categorical features
+#' @title Order levels of a categorical features
 #' 
+#' @description 
+#' Orders the levels by their similarity in other features. Computes per feature
+#' the distance, sums up all distances and does multi-dimensional scaling
+#' 
+#' @details 
 #' Goal: Compute the distances between two categories.
 #' Input: Instances from category 1 and 2
 #' 
 #' 1. For all features, do (excluding the categorical feature for which we are computing the order):
-#'   - If the feature is numerical: Take instances from category 1, calculate the empirical cumulative probability distribution function (ecdf) of the feature. The ecdf is a function that tells us for a given feature value, how many values are smaller. Do the same for category 2. The distance is the absolute maximum point-wise distance of the two ecdf. Practically, this value is high when the distribution from one category is strongly shifted far away from the other. This measure is also known as the [Kolmogorov-Smirnov distance](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test). 
-#' - If the feature is categorical: Take instances from category 1 and calculate a table with the relative frequency of each category of the other feature. Do the same for instances from category 2. The distance is the sum of the absolute difference of both relative frequency tables.
+#'  - If the feature is numerical: Take instances from category 1, calculate the
+#'  empirical cumulative probability distribution function (ecdf) of the
+#'  feature. The ecdf is a function that tells us for a given feature value, how
+#'  many values are smaller. Do the same for category 2. The distance is the
+#'  absolute maximum point-wise distance of the two ecdf. Practically, this
+#'  value is high when the distribution from one category is strongly shifted
+#'  far away from the other. This measure is also known as the
+#'  Kolmogorov-Smirnov distance 
+#'  (\url{https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test}).
+#'  - If the feature is categorical: Take instances from category 1 and
+#'  calculate a table with the relative frequency of each category of the other
+#'  feature. Do the same for instances from category 2. The distance is the sum
+#'  of the absolute difference of both relative frequency tables.
 #' 2. Sum up the distances over all features
 #' 
 #' This algorithm we run for all pairs of categories.
-#' Then we have a k times k matrix, when k is the number of categories, where each entry is the distance between two categories.
-#' Still not enough to have a single order, because, a (dis)similarity tells you the pair-wise distances, but does not give you a one-dimensional ordering of the classes.
-#' To kind of force this thing into a single dimension, we have to use a dimension reduction trick called multi-dimensional scaling. 
-#' This can be solved using multi-dimensional scaling, which takes in a distance matrix and returns a distance matrix with reduced dimension.
-#' In our case, we only want 1 dimension left, so that we have a single ordering of the categories and can compute the accumulated local effects.
-#' After reducing it to a single ordering, we are done and can use this ordering to compute ALE.
-#' This is not the Holy Grail how to order the factors, but one possibility.
+#' Then we have a k times k matrix, when k is the number of categories, where
+#' each entry is the distance between two categories. Still not enough to have a
+#' single order, because, a (dis)similarity tells you the pair-wise distances,
+#' but does not give you a one-dimensional ordering of the classes. To kind of
+#' force this thing into a single dimension, we have to use a dimension
+#' reduction trick called multi-dimensional scaling. This can be solved using
+#' multi-dimensional scaling, which takes in a distance matrix and returns a
+#' distance matrix with reduced dimension. In our case, we only want 1 dimension
+#' left, so that we have a single ordering of the categories and can compute the
+#' accumulated local effects. After reducing it to a single ordering, we are
+#' done and can use this ordering to compute ALE. This is not the Holy Grail how
+#' to order the factors, but one possibility.
 #' 
-#' Orders the levels by their similarity in other features.
-#' Computes per feature the distance, sums up all distances and does multi-dimensional scaling
 #' @param dat data.frame with the training data
 #' @param feature.name the name of the categorical feature
 #' @return the order of the levels (not levels itself)
@@ -259,7 +269,6 @@ order_levels = function(dat, feature.name) {
   order(scaled)
 }
 
-
 # Get the layout for plotting multiple feature effects
 get_layout = function(n_features, nrows = NULL, ncols = NULL) {
   assert_integerish(n_features, lower = 1, null.ok = FALSE, any.missing = FALSE)
@@ -280,7 +289,3 @@ get_layout = function(n_features, nrows = NULL, ncols = NULL) {
   }
   list("nrows" = nrows, "ncols" = ncols)
 }
-
-
-
-

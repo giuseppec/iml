@@ -24,32 +24,32 @@ print(tree)
 
 For TreeSurrogate$new():
 \describe{
-\item{predictor: }{(Predictor)\cr 
+\item{predictor: }{(Predictor)\cr
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{maxdepth: }{(`numeric(1)`)\cr The maximum depth of the tree. Default is 2.}
+\item{maxdepth: }{(\code{numeric(1)})\cr The maximum depth of the tree. Default is 2.}
 \item{tree.args: }{(named list)\cr Further arguments for \code{ctree}.}
 }
 }
 
 \section{Details}{
-  
+
 A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data.
-The \code{partykit} package and function are used to fit the tree. 
+The \code{partykit} package and function are used to fit the tree.
 By default a tree of maximum depth of 2 is fitted to improve interpretability.
 
-To learn more about global surrogate models, read the Interpretable Machine Learning book: 
+To learn more about global surrogate models, read the Interpretable Machine Learning book:
 \url{https://christophm.github.io/interpretable-ml-book/global.html}
 }
 
 \section{Fields}{
 
 \describe{
-\item{maxdepth: }{(`numeric(1)`)\cr The maximum tree depth.}
+\item{maxdepth: }{(\code{numeric(1)})\cr The maximum tree depth.}
 \item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{r.squared: }{(`numeric(1|n.classes)`)\cr R squared measures how well the decision tree approximates the underlying model. 
+\item{r.squared: }{(\code{numeric(1|n.classes)})\cr R squared measures how well the decision tree approximates the underlying model.
 It is calculated as 1 - (variance of prediction differences / variance of black box model predictions).
 For the multi-class case, r.squared contains one measure per class.}
-\item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns .node and .path) 
+\item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns .node and .path)
 and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with .y.hat).}
 \item{tree: }{(party)\cr The fitted tree. See also \link[partykit]{ctree}.}
 }
@@ -60,8 +60,8 @@ and the predicted \eqn{\hat{y}} for tree and machine learning model (columns sta
 \describe{
 \item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}.}
 \item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+\item{\code{clone()}}{\link{internal} method to clone the R6 object.}
+\item{\code{initialize()}}{\link{internal} method to initialize the R6 object.}
 }
 }
 

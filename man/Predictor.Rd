@@ -5,7 +5,7 @@
 \title{Predictor object}
 \format{\code{\link{R6Class}} object.}
 \description{
-A \code{Predictor} object holds any machine learning model (mlr, caret, randomForest, ...) and the data to be used of analysing the model. 
+A \code{Predictor} object holds any machine learning model (mlr, caret, randomForest, ...) and the data to be used of analysing the model.
 The interpretation methods in the iml package need the machine learning model to be wrapped in a \code{Predictor} object.
 }
 \section{Usage}{
@@ -25,25 +25,25 @@ model$predict(newdata)
 Other machine learning with a S3 predict functions work as well, but less robust (e.g. randomForest).}
 \item{data: }{(data.frame)\cr The data to be used for analysing the prediction model. Allowed column classes are: numeric, factor, integer, ordered and character.
 For some models the data can be extracted automatically. Predictor$new throws an error when it can't extract the data automatically.}
-\item{y: }{((`character(1)`) | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.
+\item{y: }{((\code{character(1)}) | numeric | factor)\cr The target vector or (preferably) the name of the target column in the \code{data} argument.
 Predictor tries to infer the target automatically from the model.}
-\item{class: }{(`character(1)`)\cr The class column to be returned in case of multiclass output. 
+\item{class: }{(\code{character(1)})\cr The class column to be returned in case of multiclass output.
 You can either use numbers, e.g. class=2 would take the 2nd column from the predictions, or the column name of the predicted class, e.g. class="dog".}
-\item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package. 
+\item{predict.fun: }{(function)\cr The function to predict newdata. Only needed if \code{model} is not a model from mlr or caret package.
 The first argument of predict.fun has to be the model, the second the newdata: function(model, newdata)}
-\item{type: }{(`character(1)`)\cr This argument is passed to the prediction function of the model. 
+\item{type: }{(\code{character(1)})\cr This argument is passed to the prediction function of the model.
 For regression models you usually don't have to provide the type argument.
-The classic use case is to say type="prob" for classification models. 
+The classic use case is to say type="prob" for classification models.
 Consult the documentation of the machine learning package you use to find which type options you have.
 If both predict.fun and type are used, then type is passed as an argument to predict.fun.}
-\item{batch.size: }{(`numeric(1)`)\cr The maximum number of rows to be input the model for prediction at once. Currently only respected for FeatureImp, Partial and Interaction.}
+\item{batch.size: }{(\code{numeric(1)})\cr The maximum number of rows to be input the model for prediction at once. Currently only respected for FeatureImp, Partial and Interaction.}
 }
 }
 
 \section{Details}{
- 
-A Predictor object is a container for the prediction model and the data. 
-This ensures that the machine learning model can be analysed robustly. 
+
+A Predictor object is a container for the prediction model and the data.
+This ensures that the machine learning model can be analysed robustly.
 
 Note: In case of classification, the model should return one column per class with the class probability.
 }
@@ -51,10 +51,10 @@ Note: In case of classification, the model should return one column per class wi
 \section{Fields}{
 
 \describe{
-\item{class: }{(`character(1)`)\cr The class column to be returned.}
+\item{class: }{(\code{character(1)})\cr The class column to be returned.}
 \item{data: }{(data.frame)\cr data object with the data for the model interpretation.}
 \item{prediction.colnames: }{(character)\cr The column names of the predictions.}
-\item{task: }{(`character(1)`)\cr The inferred prediction task: "classification" or "regression".}
+\item{task: }{(\code{character(1)})\cr The inferred prediction task: "classification" or "regression".}
 }
 }
 
@@ -62,8 +62,8 @@ Note: In case of classification, the model should return one column per class wi
 
 \describe{
 \item{predict(newdata)}{method to predict new data with the machine learning model.}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+\item{\code{clone()}}{\link{internal} method to clone the R6 object.}
+\item{\code{initialize()}}{\link{internal} method to initialize the R6 object.}
 }
 }
 

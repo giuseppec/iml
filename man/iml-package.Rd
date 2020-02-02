@@ -6,7 +6,7 @@
 \alias{iml-package}
 \title{Make machine learning models and predictions interpretable}
 \description{
-The iml package provides tools to analyse machine learning models and predictions.
+The iml package provides tools to analyze machine learning models and predictions.
 }
 \seealso{
 \href{https://christophm.github.io/interpretable-ml-book/agnostic}{Book on Interpretable Machine Learning}

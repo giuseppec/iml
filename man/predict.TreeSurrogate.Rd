@@ -16,15 +16,15 @@
 \item{...}{Further argumets for \code{predict_party}}
 }
 \value{
-A data.frame with the predicted outcome. 
-In case of regression it is the predicted \eqn{\hat{y}}. 
+A data.frame with the predicted outcome.
+In case of regression it is the predicted \eqn{\hat{y}}.
 In case of classification it is either the class probabilities (for type "prob") or the class label (type "class")
 }
 \description{
 Predict the response for newdata of a TreeSurrogate object.
 }
 \details{
-This function makes the TreeSurrogate object call 
+This function makes the TreeSurrogate object call
 its iternal object$predict() method.
 }
 \examples{

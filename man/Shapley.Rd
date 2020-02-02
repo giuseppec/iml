@@ -5,8 +5,8 @@
 \title{Prediction explanations with game theory}
 \format{\code{\link{R6Class}} object.}
 \description{
-\code{Shapley} computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory. 
-The features values of an instance cooperate to achieve the prediction. 
+\code{Shapley} computes feature contributions for single predictions with the Shapley value, an approach from cooperative game theory.
+The features values of an instance cooperate to achieve the prediction.
 The Shapley value fairly distributes the difference of the instance's prediction and the datasets average prediction among the features.
 }
 \section{Usage}{
@@ -22,13 +22,13 @@ shapley$explain(x.interest)
 }
 
 \section{Arguments}{
- 
+
 For Shapley$new():
 \describe{
-\item{predictor: }{(Predictor)\cr 
+\item{predictor: }{(Predictor)\cr
 The object (created with Predictor$new()) holding the machine learning model and the data.}
 \item{x.interest: }{(data.frame)\cr  Single row with the instance to be explained.}
-\item{sample.size: }{(`numeric(1)`)\cr The number of  Monte Carlo samples for estimating the Shapley value.} 
+\item{sample.size: }{(\code{numeric(1)})\cr The number of  Monte Carlo samples for estimating the Shapley value.}
 }
 }
 
@@ -40,13 +40,13 @@ For more details on the algorithm see https://christophm.github.io/interpretable
 \section{Fields}{
 
 \describe{
-\item{predictor: }{(Predictor)\cr 
+\item{predictor: }{(Predictor)\cr
 The object (created with Predictor$new()) holding the machine learning model and the data.}
 \item{results: }{(data.frame)\cr data.frame with the Shapley values (phi) per feature.}
-\item{sample.size: }{(`numeric(1)`)\cr The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
+\item{sample.size: }{(\code{numeric(1)})\cr The number of times coalitions/marginals are sampled from data X. The higher the more accurate the explanations become.}
 \item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
 \item{y.hat.interest: }{(numeric)\cr Predicted value for instance of interest}
-\item{y.hat.average: }{(`numeric(1)`)\cr Average predicted value for data \code{X}} 
+\item{y.hat.average: }{(\code{numeric(1)})\cr Average predicted value for data \code{X}}
 }
 }
 
@@ -55,8 +55,8 @@ The object (created with Predictor$new()) holding the machine learning model and
 \describe{
 \item{explain(x.interest)}{method to set a new data point which to explain.}
 \item{plot()}{method to plot the Shapley value. See \link{plot.Shapley}}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
+\item{\code{clone()}}{\link{internal} method to clone the R6 object.}
+\item{\code{initialize()}}{\link{internal} method to initialize the R6 object.}
 }
 }
 

@@ -1,11 +1,11 @@
-InterpretationMethod = R6::R6Class("InterpretationMethod",
+InterpretationMethod <- R6::R6Class("InterpretationMethod",
   public = list(
     # The aggregated results of the experiment
     results = NULL,
     # The prediction model
     predictor = NULL,
     plot = function(...) {
-      private$plotData = private$generatePlot(...)
+      private$plotData <- private$generatePlot(...)
       if (!is.null(private$plotData)) {
         return(private$plotData)
       } else {
@@ -14,9 +14,9 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     },
     initialize = function(predictor) {
       checkmate::assert_class(predictor, "Predictor")
-      self$predictor = predictor
-      private$sampler = predictor$data
-      private$getData = private$sampler$get.x
+      self$predictor <- predictor
+      private$sampler <- predictor$data
+      private$getData <- private$sampler$get.x
     },
     print = function() {
       cat("Interpretation method: ", class(self)[1], "\n")
@@ -57,32 +57,32 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     finished = FALSE,
     # Removes experiment results as preparation for running experiment again
     flush = function() {
-      private$dataSample = NULL
-      private$dataDesign = NULL
-      private$qResults = NULL
-      self$results = NULL
-      private$finished = FALSE
-    }, 
+      private$dataSample <- NULL
+      private$dataDesign <- NULL
+      private$qResults <- NULL
+      self$results <- NULL
+      private$finished <- FALSE
+    },
     run = function(force = FALSE, ...) {
       if (force) private$flush()
       if (!private$finished) {
         # DESIGN experiment
-        private$dataSample = private$getData()
-        private$dataDesign = private$intervene()
+        private$dataSample <- private$getData()
+        private$dataDesign <- private$intervene()
         # EXECUTE experiment
-        private$qResults = private$run.prediction(private$dataDesign)
+        private$qResults <- private$run.prediction(private$dataDesign)
         # AGGREGATE measurements
-        self$results = data.frame(private$aggregate())
-        private$finished = TRUE
+        self$results <- data.frame(private$aggregate())
+        private$finished <- TRUE
       }
     },
     run.prediction = function(dataDesign) {
-      private$predictResults = self$predictor$predict(data.frame(dataDesign))
-      private$multiClass = ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
+      private$predictResults <- self$predictor$predict(data.frame(dataDesign))
+      private$multiClass <- ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
       private$q(private$predictResults)
     },
     get.parallel.fct = function(parallel = FALSE) {
-      if(parallel) {
+      if (parallel) {
         foreach::`%dopar%`
       } else {
         foreach::`%do%`
@@ -93,7 +93,7 @@ InterpretationMethod = R6::R6Class("InterpretationMethod",
     # Function to generate the plot
     generatePlot = function() NULL,
     # Feature names of X
-    feature.names = NULL, 
+    feature.names = NULL,
     printParameters = function() {}
   )
 )
