@@ -200,8 +200,6 @@ FeatureImp <- R6::R6Class("FeatureImp",
     combine.aggregations = function(agg, dat) {
       if (is.null(agg)) {
         return(dat)
-      } else {
-        # FIXME: Empty?
       }
     },
     run = function(n) {
