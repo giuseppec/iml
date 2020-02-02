@@ -24,19 +24,19 @@ print(effects)
 
 For FeatureEffects$new():
 \describe{
-\item{predictor: }{(Predictor)\cr 
+\item{predictor: }{(Predictor)\cr
 The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{features: }{(`character()`)\cr 
+\item{features: }{(\code{character()})\cr
 The names of the features for which the effects should be computed.
 Default is all features used in the prediction model.}
-\item{method: }{(`character(1)`)\cr 
-'ale' for accumulated local effects (the default), 
-'pdp' for partial dependence plot, 
+\item{method: }{(\code{character(1)})\cr
+'ale' for accumulated local effects (the default),
+'pdp' for partial dependence plot,
 'ice' for individual conditional expectation curves,
 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
-\item{center.at: }{(`numeric(1)`)\cr Value at which the plot should be centered.}
-\item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr The size of the grid for evaluating the predictions}
-\item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
+\item{center.at: }{(\code{numeric(1)})\cr Value at which the plot should be centered.}
+\item{grid.size: }{(\code{numeric(1)} | \code{numeric(2)})\cr The size of the grid for evaluating the predictions}
+\item{parallel: }{\code{logical(1)}\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
 }
 }
 
@@ -47,42 +47,51 @@ FeatureEffects computes the effects for all given features on the model predicti
 FeatureEffects is a convenience class that calls FeatureEffect multiple times.
 See ?FeatureEffect for details what's actually computed.
 
-Only first-order effects can be computed with the FeatureEffects interface. 
+Only first-order effects can be computed with the FeatureEffects interface.
 If you are intereated in the visualization of interactions between two features, directly use FeatureEffect.
 }
 
 \section{Fields}{
 
-\describe{
-\item{method: }{(`character(1)`)\cr
-'ale' for accumulated local effects, 
-'pdp' for partial dependence plot, 
-'ice' for individual conditional expectation curves,
-'pdp+ice' for partial dependence plot and ice curves within the same plot.}
-\item{features: }{(`character()`)\cr
-The names of the features for which the effects were computed.}
-\item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr
-The size of the grid.}
-\item{center.at: }{(`numeric(1)` | `character(1)`)\cr
-The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
-\item{predictor: }{(Predictor)\cr
-The prediction model that was analysed.}
-\item{results: }{(list)\cr
-A list with the results of each feature effect. Each entry is a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-Can be used for creating custom effect plots.}
-\item{effects: }{(list)\cr
-A list of the FeatureEffect objects for each feature. See ?FeatureEffect what you can do with them (e.g. plot them individually).
+\itemize{
+\item method (\code{character(1)})\cr
+\itemize{
+\item 'ale' for accumulated local effects,
+\item 'pdp' for partial dependence plot,
+\item 'ice' for individual conditional expectation curves,
+\item 'pdp + ice' for partial dependence plot and ice curves within the same plot.
 }
+\item features (\link{character})\cr
+The names of the features for which the effects were computed.
+\item grid.size (\code{numeric(1)} | \code{numeric(2)})\cr
+The size of the grid.
+\item center.at (\code{numeric(1)} | \code{character(1)})\cr
+The value for the centering of the plot. Numeric for numeric features, and
+the level name for factors.
+\item predictor (\link{Predictor})\cr
+The prediction model that was analyzed.
+\item results (\link{list})\cr
+A list with the results of each feature effect. Each entry is a data.frame
+with the grid of feature of interest and the predicted $\hat{y}$. Can be used
+for creating custom effect plots.
+\itemize{
+\item \code{.value}: Computed feature effect values
+\item \code{.type}: Type of the computed feature effect
+\item \code{.borders}: Quantile borders which were used as lower and upper borders
+for computing the ALE values.
+\item \code{.feature}: Name of the feature.
+}
+\item effects (\link{list})\cr A list of the
+\link{FeatureEffect} objects for each feature. See ?\link{FeatureEffect} what you can do
+with them (e.g. plot them individually).
 }
 }
 
 \section{Methods}{
 
-\describe{
 \item{plot()}{method to plot the all effects. See \link{plot.FeatureEffects}}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
-}
+\item{\code{clone()}}{\link{internal} method to clone the R6 object.}
+\item{\code{initialize()}}{\link{internal} method to initialize the R6 object.}
 }
 
 \examples{
@@ -125,7 +134,7 @@ Apley, D. W. 2016. "Visualizing the Effects of Predictor Variables in Black Box 
 
 Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
 
-Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
+Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box:
 Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095
 }
 \seealso{

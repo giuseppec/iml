@@ -44,7 +44,7 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
     by = ".class"]
   # centering the ALEs
   deltas.accumulated = merge(deltas.accumulated, fJ0, all.x = TRUE, by = ".class")
-  fJ = deltas.accumulated[, list(.ale = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"), 
+  fJ = deltas.accumulated[, list(.value = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"), 
     by = ".class"]
   grid.dt$.id = 1:nrow(grid.dt)
   fJ = merge(fJ, grid.dt, by = ".id")
@@ -183,7 +183,7 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   ale[,feature.name[1]] =  grid.dt1[ale$.interval1 + 1, ]
   ale[,feature.name[2]] =  grid.dt2[ale$.interval2 + 1, ]
   
-  ale = ale[, setdiff(colnames(ale), c(".fJ0", ".ale1", ".ale2", ".y.hat.cumsum", ".count", 
+  ale = ale[, setdiff(colnames(ale), c(".fJ0", ".value1", ".value2", ".y.hat.cumsum", ".count", 
     ".interval1", ".interval2")), with = FALSE]
   ale$.type = "ale"
   
@@ -245,7 +245,7 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   x.count = as.numeric(table(x))
   x.prob = x.count/sum(x.count) 
   deltas = deltas[, list(.ale = .ale - sum(.ale * x.prob[level_order]), .level = levels.ordered), by = ".class"]
-  colnames(deltas) = c(".class", ".ale", feature.name)
+  colnames(deltas) = c(".class", ".value", feature.name)
   deltas[, feature.name] = factor(deltas[,feature.name,with=FALSE][[1]], levels = levels.ordered)
   deltas$.type = "ale"
   # make sure the rows are ordered by the new level order
@@ -439,7 +439,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   deltas[,feature.name[x.num.index]] =  grid.dt[deltas$.num + 1, ]
   deltas[,feature.name[x.cat.index]] =  factor(levels.ordered[deltas$.level + 1], levels = levels.ordered)
   
-  deltas = deltas[, setdiff(colnames(deltas), c(".fJ0", ".ale1", ".ale2", ".count", 
+  deltas = deltas[, setdiff(colnames(deltas), c(".fJ0", ".value1", ".value2", ".count", 
     ".level", ".num")), with = FALSE]
   deltas$.type = "ale"
   

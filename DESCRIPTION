@@ -51,5 +51,6 @@ Suggests: randomForest,
           mlr3
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
+Roxygen: list(markdown = TRUE, r6 = FALSE)
 VignetteBuilder: knitr

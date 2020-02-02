@@ -45,34 +45,44 @@
 #' 
 #' 
 #' @section Fields:
-#' \describe{
-#' \item{method: }{(`character(1)`)\cr
-#' 'ale' for accumulated local effects, 
-#' 'pdp' for partial dependence plot, 
-#' 'ice' for individual conditional expectation curves,
-#' 'pdp+ice' for partial dependence plot and ice curves within the same plot.}
-#' \item{features: }{(`character()`)\cr
-#' The names of the features for which the effects were computed.}
-#' \item{grid.size: }{(`numeric(1)` | `numeric(2)`)\cr
-#' The size of the grid.}
-#' \item{center.at: }{(`numeric(1)` | `character(1)`)\cr
-#' The value for the centering of the plot. Numeric for numeric features, and the level name for factors.}
-#' \item{predictor: }{(Predictor)\cr
-#' The prediction model that was analysed.}
-#' \item{results: }{(list)\cr
-#' A list with the results of each feature effect. Each entry is a data.frame with the grid of feature of interest and the predicted \eqn{\hat{y}}. 
-#' Can be used for creating custom effect plots.}
-#' \item{effects: }{(list)\cr
-#' A list of the FeatureEffect objects for each feature. See ?FeatureEffect what you can do with them (e.g. plot them individually).
-#' }
-#' }
+#' - method (`character(1)`)\cr
+#'   - 'ale' for accumulated local effects, 
+#'   - 'pdp' for partial dependence plot, 
+#'   - 'ice' for individual conditional expectation curves,
+#'   - 'pdp + ice' for partial dependence plot and ice curves within the same plot.
+#'   
+#' - features ([character])\cr
+#' The names of the features for which the effects were computed.
+#' 
+#' - grid.size (`numeric(1)` | `numeric(2)`)\cr
+#' The size of the grid.
+#' 
+#' - center.at (`numeric(1)` | `character(1)`)\cr
+#' The value for the centering of the plot. Numeric for numeric features, and
+#' the level name for factors.
+#' 
+#' - predictor ([Predictor])\cr
+#' The prediction model that was analyzed.
+#' 
+#' - results ([list])\cr
+#' A list with the results of each feature effect. Each entry is a data.frame
+#' with the grid of feature of interest and the predicted $\hat{y}$. Can be used
+#' for creating custom effect plots. 
+#' 
+#'   - `.value`: Computed feature effect values
+#'   - `.type`: Type of the computed feature effect
+#'   - `.borders`: Quantile borders which were used as lower and upper borders
+#'   for computing the ALE values.
+#'   - `.feature`: Name of the feature.
+#' 
+#' - effects ([list])\cr A list of the
+#' [FeatureEffect] objects for each feature. See ?[FeatureEffect] what you can do
+#' with them (e.g. plot them individually).
 #' 
 #' @section Methods:
-#' \describe{
 #' \item{plot()}{method to plot the all effects. See \link{plot.FeatureEffects}}
 #' \item{\code{clone()}}{[internal] method to clone the R6 object.}
 #' \item{\code{initialize()}}{[internal] method to initialize the R6 object.}
-#' }
 #' @seealso 
 #' \link{plot.FeatureEffect} 
 #' 
@@ -170,13 +180,14 @@ FeatureEffects = R6::R6Class("FeatureEffects",
         .packages = devtools::loaded_packages()$package, .inorder = FALSE) %mypar%
         feature_effect(feature, predictor = predictor, method = method, center.at = center.at, 
           grid.size = grid.size)
+      
       self$effects = effects
       names(self$effects) = self$features
       self$results = lapply(self$effects, function(x) {
         res = x$results
         fname.index = which(colnames(res) %in% names(self$effects))
         res$.feature = colnames(res)[fname.index]
-        colnames(res)[fname.index] = ".feature"
+        colnames(res)[fname.index] = ".borders"
         res
       })
       private$finished = TRUE
@@ -202,10 +213,10 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       del_ylab_index = setdiff(1:length(features), 1:min(layout$nrows, length(features)))
       
       
+      browser()
       if(fixed_y) { 
         res = unlist(lapply(features, function(fname){
-          cname = ifelse(self$method == "ale", ".ale", ".y.hat")
-          values = self$effects[[fname]]$results[cname]
+          values = self$effects[[fname]]$results[".value"]
           c(min(values), max(values))
         }))
         ylim = c(min(res), max(res))
