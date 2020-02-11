@@ -183,7 +183,7 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   ale[,feature.name[1]] =  grid.dt1[ale$.interval1 + 1, ]
   ale[,feature.name[2]] =  grid.dt2[ale$.interval2 + 1, ]
   
-  ale = ale[, setdiff(colnames(ale), c(".fJ0", ".value1", ".value2", ".y.hat.cumsum", ".count", 
+  ale = ale[, setdiff(colnames(ale), c(".fJ0", ".ale1", ".ale2", ".y.hat.cumsum", ".count", 
     ".interval1", ".interval2")), with = FALSE]
   ale$.type = "ale"
   
@@ -439,7 +439,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   deltas[,feature.name[x.num.index]] =  grid.dt[deltas$.num + 1, ]
   deltas[,feature.name[x.cat.index]] =  factor(levels.ordered[deltas$.level + 1], levels = levels.ordered)
   
-  deltas = deltas[, setdiff(colnames(deltas), c(".fJ0", ".value1", ".value2", ".count", 
+  deltas = deltas[, setdiff(colnames(deltas), c(".fJ0", ".ale1", ".ale2", ".count", 
     ".level", ".num")), with = FALSE]
   deltas$.type = "ale"
   

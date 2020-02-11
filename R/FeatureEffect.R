@@ -357,8 +357,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         # In case that the anchor value was also part of grid
         X.aggregated.anchor = unique(X.aggregated.anchor)
         results.ice = merge(results.ice, X.aggregated.anchor, by = c(".id.dist", ".class"))
-        results.ice$.y.hat = results.ice$.y.hat - results.ice$anchor.yhat
-        results.ice$anchor.yhat = NULL
+        results.ice$.value = results.ice$.value - results.ice$anchor.value
+        results.ice$anchor.value = NULL
       }
       results = data.table()
       if (self$method %in% c("pdp", "pdp+ice")) {
@@ -489,7 +489,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
-          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat")) + 
+          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".value")) + 
             geom_line(aes_string(group = categorical.feature, color = categorical.feature)) + 
             scale_y_continuous(private$y_axis_label)
           show.data = FALSE

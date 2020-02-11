@@ -250,7 +250,7 @@ test_that("method='ale' works for 1D numerical", {
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), c(".ale", ".type", "a"))
+  expect_equal(colnames(dat), c(".value", ".type", "a"))
   expect_equal(nrow(dat), grid.size + 1)  
   expect_equal(nrow(unique(dat)), grid.size + 1)
   expect_equal(max(dat$a, na.rm = TRUE), 5)
@@ -262,7 +262,7 @@ test_that("method='ale' works for 1D numerical", {
   expect_equal(ale$feature.name, "b")
   dat = ale$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(ale$results), c(".ale", ".type", "b"))
+  expect_equal(colnames(ale$results), c(".value", ".type", "b"))
   expect_equal(nrow(dat), grid.size + 1)  
   expect_equal(nrow(unique(dat)), grid.size + 1 )
   expect_equal(max(dat$b, na.rm = TRUE), 50)
@@ -276,7 +276,7 @@ test_that("method='ale' works for 1D numerical", {
   ale = FeatureEffect$new(predictor2, feature = "a", method = "ale", grid.size = grid.size)
   dat = ale$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c(".class", ".ale", ".type", "a"))
+  expect_equal(colnames(dat), c(".class", ".value", ".type", "a"))
   expect_equal(nrow(dat), (grid.size + 1) * 2)  
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
@@ -327,7 +327,7 @@ test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
   ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 1,K = 3)
   # equality of x values and ALE estimates
   expect_equal(ale.dat$a, ale.original$x.values)
-  expect_equal(ale.dat$.ale, ale.original$f.values)
+  expect_equal(ale.dat$.value, ale.original$f.values)
   
   # two numerical features
   grid.size = c(5)
@@ -360,7 +360,7 @@ test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
   ale.original = ALEPlot(X, predictor1, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 3)
   # equality of x values and ALE estimates
   expect_equal(as.character(ale.dat$c), ale.original$x.values)
-  expect_equal(ale.dat$.ale, ale.original$f.values)
+  expect_equal(ale.dat$.value, ale.original$f.values)
   
   # another categorical feature
   ale = FeatureEffect$new(predictor1.inter, feature = "c", method = "ale")
@@ -368,7 +368,7 @@ test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
   ale.original = ALEPlot(X, predictor1.inter, pred.fun = function(X.model, newdata){X.model$predict(newdata)[,1]}, J = 3)
   # equality of x values and ALE estimates
   expect_equal(as.character(ale.dat$c), ale.original$x.values)
-  expect_equal(ale.dat$.ale, ale.original$f.values)
+  expect_equal(ale.dat$.value, ale.original$f.values)
   
   # one numerical, one categorical feature
   ale = FeatureEffect$new(predictor1.inter, feature = c("a", "c"))
@@ -387,14 +387,14 @@ test_that("method='ale' works for 1D categorical", {
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), c( ".ale", "c", ".type"))
+  expect_equal(colnames(dat), c( ".value", "c", ".type"))
   expect_equal(nrow(dat), length(unique(X$c)))  
   checkPlot(ale)
   
   expect_equal(ale$feature.name, "c")
   ale$set.feature(4)
   expect_equal(ale$feature.name, "d")
-  expect_equal(colnames(ale$results), c(".ale", "d", ".type"))
+  expect_equal(colnames(ale$results), c(".value", "d", ".type"))
   # Centering 
   expect_warning(ale$center(0))
   
@@ -402,7 +402,7 @@ test_that("method='ale' works for 1D categorical", {
   ale = FeatureEffect$new(predictor2, feature = "c", method = "ale", grid.size = 100)
   dat = ale$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c(".class", ".ale",  "c", ".type"))
+  expect_equal(colnames(dat), c(".class", ".value",  "c", ".type"))
   expect_equal(nrow(dat), length(unique(X$c)) * 2)  
   checkPlot(ale)
   
@@ -414,7 +414,7 @@ test_that("method='ale' works for 1D categorical", {
   dat = ale$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), c( ".ale", "c", ".type"))
+  expect_equal(colnames(dat), c( ".value", "c", ".type"))
   expect_equal(nrow(dat), length(unique(X$c)))  
   expect_equal(as.character(dat$c), c("a", "b", "c"))
   checkPlot(ale)
