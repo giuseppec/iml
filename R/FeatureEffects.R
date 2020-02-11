@@ -99,7 +99,7 @@
 #' @export
 #' @examples
 #' # We train a random forest on the Boston dataset:
-#' if (require("rpart")) {
+#' library("rpart")
 #' data("Boston", package  = "MASS")
 #' rf = rpart(medv ~ ., data = Boston)
 #' mod = Predictor$new(rf, data = Boston)
@@ -199,6 +199,7 @@ FeatureEffects = R6::R6Class("FeatureEffects",
     },
     # make sure the default arguments match with plot.FeatureEffect
     generatePlot = function(features = NULL, ncols = NULL, nrows = NULL, fixed_y = TRUE, ...) {
+      
       assert_character(features, null.ok = TRUE)
       if(length(features) > 0) {
         assert_true(all(features %in% self$features))
@@ -212,8 +213,6 @@ FeatureEffects = R6::R6Class("FeatureEffects",
       # Based on layout, infer which figures will be left and or bottom
       del_ylab_index = setdiff(1:length(features), 1:min(layout$nrows, length(features)))
       
-      
-      browser()
       if(fixed_y) { 
         res = unlist(lapply(features, function(fname){
           values = self$effects[[fname]]$results[".value"]

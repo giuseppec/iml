@@ -291,7 +291,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
             colnames(df) = self$feature.name
             results = self$results
             results[,self$feature.name] = as.character(results[,self$feature.name])
-            output_col = ifelse(self$method == "ale", ".ale", ".y.hat")
+            output_col = ifelse(self$method == "ale", ".ale", ".value")
             res = merge(x = df, y = results, by = self$feature.name, all.x = TRUE, sort = FALSE)
             data.frame(res)[,output_col]
           }
@@ -342,9 +342,9 @@ FeatureEffect = R6::R6Class("FeatureEffect",
           y.hat.names = colnames(predictions)
           results.ice.inter = cbind(results.ice.inter, predictions)
           results.ice.inter = melt(results.ice.inter, variable.name = ".class", 
-            value.name = ".y.hat", measure.vars = y.hat.names)
+            value.name = ".value", measure.vars = y.hat.names)
         } else {
-          results.ice.inter[, ".y.hat" := predictions]
+          results.ice.inter[, ".value" := predictions]
           results.ice.inter$.class = 1
         }
         results.ice = rbind(results.ice, results.ice.inter)
@@ -352,8 +352,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       
       if (!is.null(private$anchor.value)) {
         anchor.index = which(results.ice[,self$feature.name, with=FALSE] == private$anchor.value)
-        X.aggregated.anchor = results.ice[anchor.index, c(".y.hat", ".id.dist", ".class"), with = FALSE]
-        names(X.aggregated.anchor) = c("anchor.yhat", ".id.dist", ".class")
+        X.aggregated.anchor = results.ice[anchor.index, c(".value", ".id.dist", ".class"), with = FALSE]
+        names(X.aggregated.anchor) = c("anchor.value", ".id.dist", ".class")
         # In case that the anchor value was also part of grid
         X.aggregated.anchor = unique(X.aggregated.anchor)
         results.ice = merge(results.ice, X.aggregated.anchor, by = c(".id.dist", ".class"))
@@ -363,10 +363,10 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       results = data.table()
       if (self$method %in% c("pdp", "pdp+ice")) {
         if (private$multiClass) {
-          results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
+          results.aggregated = results.ice[, list(.value = mean(.value)), 
             by = c(self$feature.name, ".class")]
         } else {
-          results.aggregated = results.ice[, list(.y.hat = mean(.y.hat)), 
+          results.aggregated = results.ice[, list(.value = mean(.value)), 
             by = c(self$feature.name)]
         }
         results.aggregated$.type = "pdp"
@@ -419,9 +419,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       }
       
       if (self$n.features == 1) {
-        y.name = ifelse(self$method == "ale", ".ale", ".y.hat")
         p = ggplot(self$results, 
-          mapping = aes_string(x = self$feature.name, y = y.name)) + 
+          mapping = aes_string(x = self$feature.name, y = ".value")) + 
           scale_y_continuous(private$y_axis_label, limits = ylim)
         if (self$feature.type == "categorical") {
           if (self$method %in% c("ice", "pdp+ice")){
@@ -506,8 +505,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         # Need some dummy data for ggplot to accept the data.frame
         rug.dat = private$sampler$get.x()
         rug.dat$.id =    ifelse(is.null(self$results$.id), NA, self$results$.id[1])
-        rug.dat$.ale =   ifelse(is.null(self$results$.ale), NA, self$results$.ale[1])
-        rug.dat$.y.hat = ifelse(is.null(self$results$.y.hat), NA, self$results$.y.hat[1])
+        rug.dat$.type =   ifelse(is.null(self$results$.type), NA, self$results$.type[1])
+        rug.dat$.value = ifelse(is.null(self$results$.value), NA, self$results$.value[1])
         sides = ifelse(self$n.features == 2 && self$feature.type[1] == self$feature.type[2], "bl", "b")
         
         if (sides == "b") {

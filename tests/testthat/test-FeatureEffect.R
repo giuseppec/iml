@@ -30,7 +30,7 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
   expect_false("data.table" %in% class(dat))
-  expect_equal(colnames(dat), c("a", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("a", ".value", ".type"))
   expect_equal(nrow(dat), grid.size)  
   expect_equal(nrow(unique(dat)), grid.size)
   expect_equal(max(dat$a), 5)
@@ -45,7 +45,7 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   
   pdp.obj$set.feature("c")
   # make sure the merging in $predict does not shuffle results
-  expect_equal(pdp.obj$predict(X), pdp.obj$results$.y.hat[pdp.obj$results$c[X$c]])
+  expect_equal(pdp.obj$predict(X), pdp.obj$results$.value[pdp.obj$results$c[X$c]])
   
   pdp.obj$set.feature("d")
   expect_numeric(pdp.obj$predict("A"), len = 1)
@@ -61,7 +61,7 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("b", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("b", ".value", ".type"))
   expect_equal(nrow(dat), grid.size)  
   expect_equal(nrow(unique(dat)), grid.size)
   expect_equal(max(dat$b), 50)
@@ -86,7 +86,7 @@ test_that("FeatureEffect (method=pdp) works for single output and 2 features, 2D
   pdp.obj = FeatureEffect$new(predictor1, method="pdp", feature = c("a", "b"), grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", "b", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("a", "b", ".value", ".type"))
   expect_equal(nrow(dat), grid.size[1] * grid.size[2])  
   expect_equal(nrow(unique(dat)), grid.size[1] * grid.size[2])
   expect_equal(max(dat$a), 5)
@@ -107,7 +107,7 @@ test_that("FeatureEffect (method=pdp) works for single output and 2 numerical fe
   pdp.obj = FeatureEffect$new(predictor1, method = "pdp", feature = c(1,2), grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", "b", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("a", "b", ".value", ".type"))
   expect_equal(nrow(dat), grid.size * grid.size)  
   expect_equal(nrow(unique(dat)), grid.size * grid.size)
   expect_equal(max(dat$a), 5)
@@ -123,7 +123,7 @@ test_that("FeatureEffect (method=pdp) works for single output and numerical + ca
   pdp.obj = FeatureEffect$new(predictor1, feature = c(1,3), grid.size = grid.size, method = "pdp")
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", "c", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("a", "c", ".value", ".type"))
   expect_equal(nrow(dat), grid.size[1] * length(unique(X[,3])))  
   expect_equal(nrow(unique(dat)), grid.size * length(unique(X[,3])))  
   expect_equal(max(dat$a), 5)
@@ -137,7 +137,7 @@ test_that("FeatureEffect (method=pdp) works for single output and numerical + ca
   pdp.obj = FeatureEffect$new(predictor1, method = "pdp", feature = c(3,2), grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("c", "b", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("c", "b", ".value", ".type"))
   expect_equal(nrow(dat), grid.size[2] * length(unique(X[,3])))  
   expect_equal(nrow(unique(dat)), grid.size[2] * length(unique(X[,3])))  
   expect_equal(max(dat$b), 50)
@@ -152,7 +152,7 @@ test_that("FeatureEffect (pdp) works for categorical output", {
   pdp.obj = FeatureEffect$new(predictor1, method = "pdp+ice", feature = "c", grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("c",  ".y.hat", ".type", ".id"))
+  expect_equal(colnames(dat), c("c",  ".value", ".type", ".id"))
   expect_equal(nrow(dat), length(unique(X$c)) * (nrow(X) + 1))  
   checkPlot(pdp.obj)
 })
@@ -163,7 +163,7 @@ test_that("FeatureEffect (pdp) works for multiple output", {
   dat = pdp.obj$results
   expect_error(pdp.oj$predict(2))
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type"))
+  expect_equal(colnames(dat), c("a", ".class", ".value", ".type"))
   expect_equal(nrow(dat), grid.size * 2)  
   expect_equal(nrow(unique(dat)), grid.size * 2)
   expect_equal(max(dat$a), 5)
@@ -176,7 +176,7 @@ test_that("FeatureEffect (pdp+ice) works for multiple output", {
   pdp.obj = FeatureEffect$new(predictor2, method = "pdp+ice", feature = "a", grid.size = grid.size)
   dat = pdp.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type", ".id"))
+  expect_equal(colnames(dat), c("a", ".class", ".value", ".type", ".id"))
   expect_equal(nrow(dat), grid.size * 2 + grid.size * nrow(X) * 2)  
   expect_equal(nrow(unique(dat)), grid.size * 2 + grid.size * nrow(X) * 2)
   expect_equal(max(dat$a), 5)
@@ -191,7 +191,7 @@ test_that("FeatureEffect (ice) works for single output and single feature", {
   ice.obj = FeatureEffect$new(predictor1, method = "ice", feature = 1, grid.size = grid.size)
   dat = ice.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".y.hat", ".type", ".id"))
+  expect_equal(colnames(dat), c("a", ".value", ".type", ".id"))
   expect_equal(nrow(dat), grid.size * nrow(X))  
   expect_equal(nrow(unique(dat)), grid.size * nrow(X))
   expect_equal(max(dat$a), 5)
@@ -206,7 +206,7 @@ test_that("FeatureEffect (ice) works for multiple output", {
   ice.obj = FeatureEffect$new(predictor2, feature = "a", grid.size = grid.size, method = "ice")
   dat = ice.obj$results
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type",  ".id"))
+  expect_equal(colnames(dat), c("a", ".class", ".value", ".type",  ".id"))
   expect_equal(nrow(dat), grid.size * nrow(X) * 2)  
   expect_equal(nrow(unique(dat)), grid.size * nrow(X) * 2)
   expect_equal(max(dat$a), 5)
@@ -222,7 +222,7 @@ test_that("centered FeatureEffect (ice) works for multiple output", {
   dat = ice.obj$results
   expect_equal(ice.obj$center.at, 10)
   expect_class(dat, "data.frame")
-  expect_equal(colnames(dat), c("a", ".class", ".y.hat", ".type", ".id"))
+  expect_equal(colnames(dat), c("a", ".class", ".value", ".type", ".id"))
   expect_equal(nrow(dat), (grid.size + 1) * nrow(X) * 2 + (grid.size + 1) * 2)  
   expect_equal(nrow(unique(dat)), (grid.size + 1) * nrow(X) * 2 + (grid.size + 1) * 2)  
   expect_equal(max(dat$a), 10)
