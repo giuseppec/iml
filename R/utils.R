@@ -253,7 +253,7 @@ order_levels = function(dat, feature.name) {
   })
   
   dists.cumulated.long = Reduce(function(d1, d2) {d1$dist = d1$dist + d2$dist; d1}, dists)
-  dists.cumulated = dcast(dists.cumulated.long, from.level ~ to.level, value.var = "dist")[,-1]
+  dists.cumulated = reshape2::dcast(dists.cumulated.long, from.level ~ to.level, value.var = "dist")[,-1]
   diag(dists.cumulated) = 0
   scaled = cmdscale(dists.cumulated, k = 1)
   order(scaled)

@@ -338,7 +338,7 @@ test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
   
   expect_equal(unique(ale.dat$a), ale.original$x.values[[1]])
   expect_equal(unique(ale.dat$b), ale.original$x.values[[2]])
-  dd = unname(as.matrix(data.table::dcast(ale.dat, a ~ b, value.var = ".ale"))[,-1])
+  dd = unname(as.matrix(reshape2::dcast(ale.dat, a ~ b, value.var = ".ale"))[,-1])
   dd.orig = unname(ale.original$f.values)
   expect_equal(dd, dd.orig)
   
@@ -351,7 +351,7 @@ test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
   
   expect_equal(unique(ale.dat$a), ale.original$x.values[[1]])
   expect_equal(unique(ale.dat$b), ale.original$x.values[[2]])
-  dd = as.matrix(data.table::dcast(ale.dat, a ~ b, value.var = ".ale"))[,-1]
+  dd = as.matrix(reshape2::dcast(ale.dat, a ~ b, value.var = ".ale"))[,-1]
   expect_equal(unname(ale.original$f.values), unname(dd))
   
   # one categorical feature
@@ -377,7 +377,7 @@ test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
   # equality of x values and ALE estimates
   expect_equal(as.character(unique(ale.dat$c)), ale.original$x.values[[1]])
   expect_equal(unique(ale.dat$a), ale.original$x.values[[2]])
-  res.iml = unname(as.matrix(data.table::dcast(ale.dat, c ~ a, value.var = ".ale")[, -1]))
+  res.iml = unname(as.matrix(reshape2::dcast(ale.dat, c ~ a, value.var = ".ale")[, -1]))
   expect_equal(res.iml, unname(ale.original$f.values))
 })
 
