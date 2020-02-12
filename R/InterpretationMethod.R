@@ -1,7 +1,7 @@
 #' Interpretation Method
-#' 
+#'
 #' @description Superclass container for Interpretation Method objects
-#' 
+#'
 #' @export
 InterpretationMethod <- R6Class("InterpretationMethod",
   public = list(

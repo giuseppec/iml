@@ -122,8 +122,10 @@ Predictor <- R6Class("Predictor",
       # Makes sure it's not a data.table
       newdata <- as.data.frame(newdata)
       # make sure only features are used
-      newdata <- newdata[, intersect(self$data$feature.names, 
-                                     colnames(newdata)), drop = FALSE]
+      newdata <- newdata[, intersect(
+        self$data$feature.names,
+        colnames(newdata)
+      ), drop = FALSE]
       prediction <- self$prediction.function(newdata)
       if (!private$predictionChecked) {
         checkPrediction(prediction, newdata)

@@ -5,20 +5,20 @@
 #' regression for classification) to explain single predictions of a prediction
 #' model.
 #'
-#' @details 
+#' @details
 #' A weighted glm is fitted with the machine learning model prediction as
 #' target. Data points are weighted by their proximity to the instance to be
 #' explained, using the gower proximity measure. L1-regularization is used to
-#' make the results sparse. 
-#' 
+#' make the results sparse.
+#'
 #' The resulting model can be seen as a surrogate for the machine learning
 #' model, which is only valid for that one point. Categorical features are
 #' binarized, depending on the category of the instance to be explained: 1 if
 #' the category is the same, 0 otherwise.
-#' 
+#'
 #' To learn more about local models, read the Interpretable Machine Learning
 #' book: \url{https://christophm.github.io/interpretable-ml-book/lime.html}
-#' 
+#'
 #' The approach is similar to LIME, but has the following differences:
 #' - **Distance measure**: Uses as default the gower proximity (= 1 - gower
 #' distance) instead of a kernel based on the Euclidean distance. Has the
@@ -28,10 +28,10 @@
 #' \eqn{sqrt(exp(-(distance^2) / (kernel.width^2)))}.
 #' - **Sampling**: Uses the original data instead of sampling from normal
 #' distributions. Has the advantage to follow the original data distribution.
-#'- **Visualization**: Plots effects instead of betas. Both are the same for binary
-#'features, but ared different for numerical features. For numerical features,
-#'plotting the betas makes no sense, because a negative beta might still
-#'increase the prediction when the feature value is also negative.
+#' - **Visualization**: Plots effects instead of betas. Both are the same for binary
+#' features, but ared different for numerical features. For numerical features,
+#' plotting the betas makes no sense, because a negative beta might still
+#' increase the prediction when the feature value is also negative.
 #'
 #' To learn more about local surrogate models, read the Interpretable Machine
 #' Learning book:
@@ -96,19 +96,19 @@ LocalModel <- R6Class("LocalModel",
     #' @template predictor
     #' @param x.interest [data.frame]\cr
     #'   Single row with the instance to be explained.
-    #' @param dist.fun `character(1)`)\cr 
+    #' @param dist.fun `character(1)`)\cr
     #'   The name of the distance function for computing proximities (weights in
     #'   the linear model). Defaults to `"gower"`. Otherwise will be forwarded
     #'   to [stats::dist].
-    #' @param kernel.width (`numeric(1)`)\cr 
-    #'   The width of the kernel for the proximity computation. 
+    #' @param kernel.width (`numeric(1)`)\cr
+    #'   The width of the kernel for the proximity computation.
     #'   Only used if dist.fun is not `"gower"`.
     #' @param k `numeric(1)`\cr
     #'   The number of features.
     #' @return [data.frame]\cr
     #'   Results with the feature names (`feature`) and contributions to the
     #'   prediction.
-    initialize = function(predictor, x.interest, dist.fun = "gower", 
+    initialize = function(predictor, x.interest, dist.fun = "gower",
                           kernel.width = NULL, k = 3) {
       assert_number(k, lower = 1, upper = predictor$data$n.features)
       assert_data_frame(x.interest, null.ok = TRUE)

@@ -98,8 +98,10 @@ TreeSurrogate <- R6Class("TreeSurrogate",
     predict = function(newdata, type = "prob", ...) {
       assert_choice(type, c("prob", "class"))
       newdata <- private$match_cols(newdata)
-      res <- data.frame(predict(self$tree, newdata = newdata, 
-                                type = "response", ...))
+      res <- data.frame(predict(self$tree,
+        newdata = newdata,
+        type = "response", ...
+      ))
       if (private$multiClass) {
         if (type == "class") {
           res <- data.frame(.class = colnames(res)[apply(res, 1, which.max)])
@@ -109,15 +111,15 @@ TreeSurrogate <- R6Class("TreeSurrogate",
       }
       res
     },
-    
+
     #' @field tree `party`\cr
     #'   The fitted tree. See also [partykit::ctree].
     tree = NULL,
-    
+
     #' @field maxdepth `numeric(1)`\cr
     #'   The maximum tree depth.
     maxdepth = NULL,
-    
+
     #' @field r.squared `numeric(1|n.classes)`\cr
     #'  R squared measures how well the decision tree approximates the
     #'  underlying model. It is calculated as 1 - (variance of prediction

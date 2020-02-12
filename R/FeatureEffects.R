@@ -67,7 +67,7 @@
 #' @export
 FeatureEffects <- R6Class("FeatureEffects",
   inherit = InterpretationMethod,
-  
+
   public = list(
 
     #' @description Create a FeatureEffects object
@@ -137,7 +137,6 @@ FeatureEffects <- R6Class("FeatureEffects",
   ),
 
   private = list(
-    
     run = function() {
       predictor <- self$predictor
       method <- self$method
@@ -170,7 +169,7 @@ FeatureEffects <- R6Class("FeatureEffects",
       })
       private$finished <- TRUE
     },
-    
+
     printParameters = function() {
       cat("features:", paste(sprintf(
         "%s",
@@ -178,7 +177,7 @@ FeatureEffects <- R6Class("FeatureEffects",
       ), collapse = ", "))
       cat("\ngrid size:", paste(self$grid.size, collapse = "x"))
     },
-    
+
     # make sure the default arguments match with plot.FeatureEffect
     generatePlot = function(features = NULL, ncols = NULL, nrows = NULL,
                             fixed_y = TRUE, ...) {

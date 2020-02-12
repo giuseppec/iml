@@ -20,26 +20,26 @@
 #'
 #' The loss function can be either specified via a string, or by handing a
 #' function to `FeatureImp()`. If you want to use your own loss function it
-#' should have this signature: 
-#' 
+#' should have this signature:
+#'
 #' ```
 #' function(actual, predicted)
 #' ```
-#' 
+#'
 #' Using the string is
 #' a shortcut to using loss functions from the `Metrics` package. Only use
 #' functions that return a single performance value, not a vector. Allowed
 #' losses are: `"ce"`, `"f1"`, `"logLoss"`, `"mae"`, `"mse"`, `"rmse"`, `"mape"`,
-#' `"mdae"`, `"msle"`, `"percent_bias"`, `"rae"`, `"rmse"`, `"rmsle"`, `"rse"`, 
+#' `"mdae"`, `"msle"`, `"percent_bias"`, `"rae"`, `"rmse"`, `"rmsle"`, `"rse"`,
 #' `"rrse"` and `"smape"`.
-#' 
+#'
 #'  See `library(help = "Metrics")` to get a list of functions.
 #'
 #' @references
 #' Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance:
 #' Variable Importance Measures for any Machine Learning Model Class, from the
 #' "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
-#' 
+#'
 #' @import Metrics
 #' @importFrom foreach %dopar% foreach %do%
 #' @importFrom data.table copy rbindlist
@@ -88,7 +88,7 @@
 #' imp <- FeatureImp$new(mod, loss = "ce")
 #' plot(imp)
 #'
-#' # For multiclass classification models, you can choose to only compute 
+#' # For multiclass classification models, you can choose to only compute
 #' # performance for one class.
 #' # Make sure to adapt y
 #' mod <- Predictor$new(tree,
@@ -181,7 +181,7 @@ FeatureImp <- R6::R6Class("FeatureImp",
     #' @field original.error (`numeric(1)`)\cr
     #' The loss of the model before perturbing features.
     original.error = NULL,
-    
+
     #' @field n.repetitions [integer]\cr
     #'   Number of repetitions.
     n.repetitions = NULL,
