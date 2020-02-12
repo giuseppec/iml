@@ -338,7 +338,7 @@ test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
   
   expect_equal(unique(ale.dat$a), ale.original$x.values[[1]])
   expect_equal(unique(ale.dat$b), ale.original$x.values[[2]])
-  dd = unname(as.matrix(data.table::dcast(ale.dat, a ~ b, value.var = ".ale"))[,-1])
+  dd = unname(as.matrix(data.table::dcast(as.data.table(ale.dat), a ~ b, value.var = ".ale"))[,-1])
   dd.orig = unname(ale.original$f.values)
   expect_equal(dd, dd.orig)
   

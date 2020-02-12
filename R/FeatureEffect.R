@@ -130,7 +130,7 @@ Partial = R6::R6Class("Partial",
 #' 
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
-#' @importFrom data.table melt setkeyv
+#' @importFrom data.table setkeyv
 #' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #' @export
@@ -341,8 +341,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         if (private$multiClass) {
           y.hat.names = colnames(predictions)
           results.ice.inter = cbind(results.ice.inter, predictions)
-          results.ice.inter = melt(results.ice.inter, variable.name = ".class", 
-            value.name = ".y.hat", measure.vars = y.hat.names)
+          results.ice.inter = data.table::melt(results.ice.inter, variable.name = ".class", 
+                                               value.name = ".y.hat", measure.vars = y.hat.names)
         } else {
           results.ice.inter[, ".y.hat" := predictions]
           results.ice.inter$.class = 1

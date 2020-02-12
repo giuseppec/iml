@@ -4,8 +4,7 @@
 \alias{plot.FeatureEffects}
 \title{Plot FeatureEffect}
 \usage{
-\method{plot}{FeatureEffects}(x, features = NULL, nrows = NULL,
-  ncols = NULL, fixed_y = TRUE, ...)
+\method{plot}{FeatureEffects}(x, features = NULL, nrows = NULL, ncols = NULL, fixed_y = TRUE, ...)
 }
 \arguments{
 \item{x}{A FeatureEffect R6 object}

@@ -5,6 +5,7 @@
 
 #' Compute ALE for 1 numerical feature
 #' 
+#' @importFrom data.table melt as.data.table setnames
 #' @param dat the data.frame with same columns as training data
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE
@@ -28,8 +29,8 @@ calculate.ale.num = function(dat, run.prediction, feature.name, grid.size){
   # finite differences
   prediction.deltas = predictions.upper - predictions.lower
   deltas = cbind(X.lower[,feature.name, with=FALSE], prediction.deltas, data.frame(".interval" = interval.index))
-  y.hat.names = setdiff(colnames(deltas), c(colnames(dat), ".interval"))
-  deltas = melt(deltas, variable.name = ".class", 
+  y.hat.names = as.data.table(setdiff(colnames(deltas), c(colnames(dat), ".interval")))
+  deltas = data.table::melt(deltas, variable.name = ".class", 
     value.name = ".yhat.diff", measure.vars = y.hat.names)
   # average over instances within each interval
   setkeyv(deltas, c(".class", ".interval"))
@@ -98,7 +99,7 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   y.hat.names = setdiff(colnames(deltas), c(colnames(dat), c(".interval1", ".interval2")))
   # instead of a matrix, we work with melted version of the data
   # This allows us to work with multi-dimensional predictions
-  deltas = melt(deltas, variable.name = ".class", 
+  deltas = data.table::melt(deltas, variable.name = ".class", 
     value.name = ".y.hat", measure.vars = y.hat.names)
   # Make sure all intervals are included
   interval_grid = expand.grid(.interval1 = unique(deltas$.interval1), .interval2 = unique(deltas$.interval2),
@@ -125,7 +126,7 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
   ale = ale[,list(.y.hat.cumsum = cumsum_na(c(0, .y.hat.cumsum)), .interval1 = c(0, .interval1)), by = c(".class", ".interval2")]
   # Number of cells are need for weighting later
   cell.counts = as.matrix(table(interval.index1, interval.index2))
-  cell.counts.m = melt(cell.counts)
+  cell.counts.m = data.table::melt(as.data.table(cell.counts), measure.vars = "N")[, "variable" := NULL]
   colnames(cell.counts.m) = c(".interval1", ".interval2",  ".count")
   cell.counts.m$.interval1 = as.numeric(as.character(cell.counts.m$.interval1))
   cell.counts.m$.interval2 = as.numeric(as.character(cell.counts.m$.interval2))
@@ -156,8 +157,8 @@ calculate.ale.num.num = function(dat, run.prediction, feature.name, grid.size){
     ale.cl = ale[.class == cl,]
     ale1.cl = ale1[.class == cl,]
     ale2.cl = ale2[.class == cl,]
-    dd = as.matrix(dcast(ale.cl, .interval1 ~ .interval2, value.var = ".y.hat.cumsum", drop = FALSE))[,-1]
-    dd = dd  - outer(ale1.cl$.ale1,rep(1,nrow(ale2.cl))) - outer(rep(1,nrow(ale1.cl)),ale2.cl$.ale2)
+    dd = data.table::dcast(ale.cl, .interval1 ~ .interval2, value.var = ".y.hat.cumsum", drop = FALSE)[,-1]
+    dd = dd - outer(ale1.cl$.ale1,rep(1,nrow(ale2.cl))) - outer(rep(1,nrow(ale1.cl)),ale2.cl$.ale2)
     sum(cell.counts *(dd[1:(nrow(dd)-1),1:(ncol(dd)-1)] + dd[1:(nrow(dd)-1),2:ncol(dd)] + dd[2:nrow(dd),1:(ncol(dd)-1)] + dd[2:nrow(dd), 2:ncol(dd)])/4, na.rm = TRUE)/sum(cell.counts)
   }))
   fJ0 = data.frame(".fJ0" = fJ0, .class = cls)
@@ -232,10 +233,11 @@ calculate.ale.cat = function(dat, run.prediction, feature.name){
   d.decrease = y.hat[row.ind.decrease,] - y.hat.decrease
   # Compute the differences and the ALE
   deltas = rbind(d.increase, d.decrease)
-  deltas = cbind(deltas, ".level.jump" = c(x.ordered[row.ind.increase], x.ordered[row.ind.decrease] - 1))
+  deltas = as.data.table(cbind(deltas, ".level.jump" = c(x.ordered[row.ind.increase], x.ordered[row.ind.decrease] - 1)))
   y.hat.names = colnames(y.hat)
-  deltas = data.table(melt(deltas, id.vars = c(".level.jump"), variable.name = ".class", value.name = ".yhat.diff"))
-  
+  deltas = data.table(data.table::melt(deltas, id.vars = c(".level.jump"), 
+                                       value.name = ".yhat.diff", 
+                                       variable.name = ".class"))
   # All those difference are aggregated (averaged) grouped by the jump between levels (and by .class for multi output)
   setkeyv(deltas, ".level.jump")
   deltas = deltas[,list(.yhat.diff = mean(.yhat.diff)),by = c(".class", ".level.jump")]
@@ -354,7 +356,8 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   deltas = cbind(deltas, .level = c(x.cat.ordered[row.ind.increase], x.cat.ordered[row.ind.decrease] - 1), 
     .num = interval.index[c(row.ind.increase, row.ind.decrease)])
   y.hat.names = colnames(predictions.22)
-  deltas = data.table(melt(deltas, measure.vars = y.hat.names, variable.name = ".class", value.name = ".yhat.diff"))
+  deltas = as.data.table(deltas)
+  deltas = data.table(data.table::melt(deltas, measure.vars = y.hat.names, variable.name = ".class", value.name = ".yhat.diff"))
   # add empty cells
   interval_grid = expand.grid(.level = unique(deltas$.level), .num = unique(deltas$.num),
     .class = unique(deltas$.class))
@@ -378,8 +381,9 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
   deltas = deltas[, list(.ale = cumsum(c(0, .ale)), .level = c(0, .level)), by = c(".class", ".num")]
   
   # Number of cells are need for weighting later
-  cell.counts = as.matrix(table(x.cat.ordered, interval.index))
-  cell.counts.m = melt(cell.counts)
+  cell.counts = table(x.cat.ordered, interval.index)
+  cell.counts.m = as.data.table(cell.counts)
+  data.table::setnames(cell.counts.m, "N", "value")
   colnames(cell.counts.m) = c(".level", ".num",  ".count")
   cell.counts.m$.level = as.numeric(as.character(cell.counts.m$.level)) - 1
   cell.counts.m$.num = as.numeric(as.character(cell.counts.m$.num)) 
@@ -411,7 +415,7 @@ calculate.ale.num.cat = function(dat, run.prediction, feature.name, grid.size){
     deltas.cl = deltas[.class == cl,]
     ale1.cl = ale1[.class == cl,]
     ale2.cl = ale2[.class == cl,]
-    dd = as.matrix(dcast(deltas.cl, .level ~ .num, value.var = ".ale", drop = FALSE))[,-1]
+    dd = as.matrix(data.table::dcast(deltas.cl, .level ~ .num, value.var = ".ale", drop = FALSE))[,-1]
     dd = dd  - outer(ale1.cl$.ale1,rep(1,nrow(ale2.cl))) - outer(rep(1,nrow(ale1.cl)),ale2.cl$.ale2)
     sum(cell.counts *(dd[,1:(ncol(dd)-1)] + dd[,2:ncol(dd)])/2, na.rm = TRUE)/sum(cell.counts)
   }))
