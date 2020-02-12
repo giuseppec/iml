@@ -431,7 +431,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
           }
         } else {
           if (self$method %in% c("ice", "pdp+ice")) {
-            p = p + ggplot2::geom_line(alpha = 0.2, mapping = aes(group = .id))
+            p = p + ggplot2::geom_line(alpha = 0.2, mapping = ggplot2::aes(group = .id))
           }
           if (self$method == "pdp+ice") {
             aggr = self$results[self$results$.type != "ice", ]
