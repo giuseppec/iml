@@ -339,12 +339,10 @@ FeatureEffect <- R6Class("FeatureEffect",
           with = FALSE
         ]
         if (private$multiClass) {
-          y.hat.names <- colnames(predictions)
-          results.ice.inter <- cbind(results.ice.inter, predictions)
-          results.ice.inter <- melt(results.ice.inter,
-            variable.name = ".class",
-            value.name = ".y.hat", measure.vars = y.hat.names
-          )
+          y.hat.names = colnames(predictions)
+          results.ice.inter = cbind(results.ice.inter, predictions)
+          results.ice.inter = data.table::melt(results.ice.inter, variable.name = ".class", 
+                                               value.name = ".y.hat", measure.vars = y.hat.names)
         } else {
           results.ice.inter[, ".y.hat" := predictions]
           results.ice.inter$.class <- 1

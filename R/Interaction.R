@@ -280,17 +280,14 @@ aggregate.interaction <- function(partial_dat, prediction, feature) {
     partial_dat$.y.hat <- prediction
     partial_dat$.class <- 1
   } else {
-    y.hat.names <- colnames(prediction)
-    partial_dat <- cbind(partial_dat, prediction)
-    partial_dat <- melt(partial_dat,
-      variable.name = ".class",
-      value.name = ".y.hat", measure.vars = y.hat.names
-    )
-  }
-  partial_dat <- partial_dat[, c(".id", ".feature", ".type", ".y.hat", ".class")]
-  pd <- dcast(partial_dat, .feature + .id + .class ~ .type,
-    value.var = ".y.hat", fun.aggregate = mean
-  )
+    y.hat.names = colnames(prediction)
+    partial_dat = cbind(partial_dat, prediction)
+    partial_dat = data.table::melt(partial_dat, variable.name = ".class", 
+      value.name = ".y.hat", measure.vars = y.hat.names)
+  } 
+  partial_dat = partial_dat[, c(".id", ".feature", ".type", ".y.hat", ".class")]
+  pd = data.table::dcast(partial_dat, .feature + .id + .class ~ .type, 
+    value.var = ".y.hat", fun.aggregate = mean)
   if (length(feature) == 2) {
     res <- data.frame(pd[, list(.interaction = h.test(jk, j, k)), by = list(.feature, .class)])
   } else {
