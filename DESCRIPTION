@@ -21,7 +21,6 @@ URL: https://github.com/christophM/iml
 BugReports: https://github.com/christophM/iml/issues
 Imports: R6,
          checkmate,
-         ggplot2,
          Metrics, 
          data.table,
          foreach,
@@ -42,6 +41,8 @@ Suggests: randomForest,
           mlr,
           covr, 
           rmarkdown, 
+          patchwork,
+          ggplot2,
           devtools, 
           doParallel,
           ALEPlot,
@@ -51,5 +52,5 @@ Suggests: randomForest,
           mlr3
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 VignetteBuilder: knitr

@@ -131,7 +131,6 @@ Partial = R6::R6Class("Partial",
 #' Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box: 
 #' Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095 
 #' @importFrom data.table melt setkeyv
-#' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #' @export
 #' @examples
@@ -420,25 +419,25 @@ FeatureEffect = R6::R6Class("FeatureEffect",
       
       if (self$n.features == 1) {
         y.name = ifelse(self$method == "ale", ".ale", ".y.hat")
-        p = ggplot(self$results, 
-          mapping = aes_string(x = self$feature.name, y = y.name)) + 
-          scale_y_continuous(private$y_axis_label, limits = ylim)
+        p = ggplot2::ggplot(self$results, 
+          mapping = ggplot2::aes_string(x = self$feature.name, y = y.name)) + 
+          ggplot2::scale_y_continuous(private$y_axis_label, limits = ylim)
         if (self$feature.type == "categorical") {
           if (self$method %in% c("ice", "pdp+ice")){
-            p = p + geom_boxplot(data = self$results[self$results$.type == "ice",], aes_string(group = self$feature.name))
+            p = p + ggplot2::geom_boxplot(data = self$results[self$results$.type == "ice",], ggplot2::aes_string(group = self$feature.name))
           } else {
-            p = p + geom_col() 
+            p = p + ggplot2::geom_col() 
           }
         } else {
           if (self$method %in% c("ice", "pdp+ice")) {
-            p = p + geom_line(alpha = 0.2, mapping = aes(group = .id))
+            p = p + ggplot2::geom_line(alpha = 0.2, mapping = aes(group = .id))
           }
           if (self$method == "pdp+ice") {
             aggr = self$results[self$results$.type != "ice", ]
-            p = p + geom_line(data = aggr, size = 2, color = "gold") 
+            p = p + ggplot2::geom_line(data = aggr, size = 2, color = "gold") 
           }
           if (self$method %in% c("ale", "pdp")) {
-            p =  p + geom_line()
+            p =  p + ggplot2::geom_line()
           }
         }
       } else if (self$n.features == 2) {
@@ -451,11 +450,11 @@ FeatureEffect = R6::R6Class("FeatureEffect",
             res[,categorical.feature] = as.numeric(res[,categorical.feature])
             cat.breaks = unique(res[[categorical.feature]])
             cat.labels = levels(self$results[[categorical.feature]])[cat.breaks]
-            p = ggplot(res, aes_string(x = categorical.feature, y = numerical.feature)) + 
-              geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) + 
-              scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) + 
-              scale_y_continuous(numerical.feature) + 
-              scale_fill_continuous(private$y_axis_label)
+            p = ggplot2::ggplot(res, ggplot2::aes_string(x = categorical.feature, y = numerical.feature)) + 
+              ggplot2::geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) + 
+              ggplot2::scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) + 
+              ggplot2::scale_y_continuous(numerical.feature) + 
+              ggplot2::scale_fill_continuous(private$y_axis_label)
             
             # A bit stupid, but adding a rug is special here, because i handle the 
             # categorical feature as a numeric feauture in the plot
@@ -465,41 +464,41 @@ FeatureEffect = R6::R6Class("FeatureEffect",
               dat[,categorical.feature] = as.numeric(dat[,categorical.feature,with=FALSE][[1]])
               # Need some dummy data for ggplot to accept the data.frame
               rug.dat = cbind(dat, data.frame(.y.hat = 1, .id = 1, .ale = 1))
-              p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = "bl", 
-                position = position_jitter(width = 0.07, height = 0.07))
+              p = p + ggplot2::geom_rug(data = rug.dat, alpha = 0.2, sides = "bl", 
+                position = ggplot2::position_jitter(width = 0.07, height = 0.07))
               rug = FALSE
             }
             if (show.data) {
               dat = private$sampler$get.x()
               levels(dat[[categorical.feature]]) = levels(self$results[, categorical.feature])
               dat[,categorical.feature] = as.numeric(dat[,categorical.feature,with=FALSE][[1]])
-              p = p + geom_point(data = dat, alpha = 0.3)
+              p = p + ggplot2::geom_point(data = dat, alpha = 0.3)
               show.data = FALSE
             }
           } else {
             # Adding x and y to aesthetics for the rug plot later
-            p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
-              geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
-              scale_x_continuous(self$feature.name[1]) + scale_y_continuous(self$feature.name[2]) + 
-              scale_fill_continuous(private$y_axis_label)
+            p = ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = self$feature.name[1], y = self$feature.name[2])) + 
+              ggplot2::geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) + 
+              ggplot2::scale_x_continuous(self$feature.name[1]) + ggplot2::scale_y_continuous(self$feature.name[2]) + 
+              ggplot2::scale_fill_continuous(private$y_axis_label)
           }
         } else  if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
-          p = ggplot(self$results, mapping = aes_string(x = self$feature.name[1], 
-            y = self$feature.name[2])) + geom_tile(aes(fill = .y.hat)) + 
-            scale_fill_continuous(private$y_axis_label)
+          p = ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = self$feature.name[1], 
+            y = self$feature.name[2])) + ggplot2::geom_tile(aes(fill = .y.hat)) + 
+            ggplot2::scale_fill_continuous(private$y_axis_label)
         } else {
           categorical.feature = self$feature.name[self$feature.type=="categorical"]
           numerical.feature = setdiff(self$feature.name, categorical.feature)
-          p = ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".y.hat")) + 
-            geom_line(aes_string(group = categorical.feature, color = categorical.feature)) + 
-            scale_y_continuous(private$y_axis_label)
+          p = ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = numerical.feature, y = ".y.hat")) + 
+            ggplot2::geom_line(ggplot2::aes_string(group = categorical.feature, color = categorical.feature)) + 
+            ggplot2::scale_y_continuous(private$y_axis_label)
           show.data = FALSE
         }
         
         if (show.data) {
           dat = private$sampler$get.x()
           dat[,self$feature.name] = lapply(dat[,self$feature.name,with=FALSE], as.numeric)
-          p = p + geom_point(data = dat, alpha = 0.3)
+          p = p + ggplot2::geom_point(data = dat, alpha = 0.3)
         }
       }
       if (rug) {
@@ -528,11 +527,11 @@ FeatureEffect = R6::R6Class("FeatureEffect",
           }
         }
         
-        p = p + geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
-          position = position_jitter(width = jitter_width, height = jitter_height))
+        p = p + ggplot2::geom_rug(data = rug.dat, alpha = 0.2, sides = sides, 
+          position = ggplot2::position_jitter(width = jitter_width, height = jitter_height))
       }
       if (private$multiClass) {
-        p = p + facet_wrap(".class")
+        p = p + ggplot2::facet_wrap(".class")
       } 
       p
     }, 
