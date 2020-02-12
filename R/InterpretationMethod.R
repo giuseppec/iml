@@ -42,11 +42,11 @@ InterpretationMethod <- R6Class("InterpretationMethod",
     },
 
     #' @field results [data.frame]\cr
-    #'  The aggregated results of the experiment
+    #' The aggregated results of the experiment
     results = NULL,
     # The prediction model
 
-    #' @field predictor \cr
+    #' @field predictor
     #' Predictor object.
     predictor = NULL
   ),

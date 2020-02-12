@@ -187,8 +187,7 @@ Method to predict new data with the local model See also
 \item{\code{newdata}}{\link{data.frame}\cr
 Data to predict on.}
 
-\item{\code{...}}{\cr
-???}
+\item{\code{...}}{Not used}
 }
 \if{html}{\out{</div>}}
 }

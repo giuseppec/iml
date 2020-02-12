@@ -132,8 +132,7 @@ LocalModel <- R6Class("LocalModel",
     #' @description Method to predict new data with the local model See also
     #' [predict.LocalModel].
     #' @template newdata
-    #' @param ... \cr
-    #' ???
+    #' @param ... Not used
     predict = function(newdata = NULL, ...) {
       if (is.null(newdata)) {
         newdata <- self$x.interest

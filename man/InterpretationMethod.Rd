@@ -12,8 +12,7 @@ Superclass container for Interpretation Method objects
 \item{\code{results}}{\link{data.frame}\cr
 The aggregated results of the experiment}
 
-\item{\code{predictor}}{\cr
-Predictor object.}
+\item{\code{predictor}}{Predictor object.}
 }
 \if{html}{\out{</div>}}
 }
