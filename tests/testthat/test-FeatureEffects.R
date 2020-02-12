@@ -11,7 +11,7 @@ context("FeatureEffects")
 test_that("FeatureEffect (pdp only) works for single output and single feature", {
   grid.size = 10
   pdp.objs = FeatureEffects$new(predictor1, method = "pdp",  grid.size = grid.size)
-  expect_class(pdp.objs$plot(), "arrangelist")
+  expect_s3_class(pdp.objs$plot(), "patchwork")
   
   pdp.obj.a = FeatureEffect$new(predictor1, feature = c("a"), method = "pdp",  grid.size = grid.size)
   pdp.obj.b = FeatureEffect$new(predictor1, feature = c("b"), method = "pdp",  grid.size = grid.size)
@@ -24,7 +24,7 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
   expect_equal(pdp.obj.d$results, pdp.objs$effects$d$results)
   
   pdp.objs = FeatureEffects$new(predictor1, features = c("a", "c"), method = "pdp",  grid.size = grid.size)
-  expect_class(pdp.objs$plot(), "arrangelist")
+  expect_s3_class(pdp.objs$plot(), "patchwork")
   
   expect_equal(pdp.obj.a$results, pdp.objs$effects$a$results)
   expect_equal(pdp.obj.c$results, pdp.objs$effects$c$results)
@@ -32,12 +32,12 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
   
   
   pdp.objs = FeatureEffects$new(predictor1, method = "ale",  grid.size = 10)
-  expect_class(pdp.objs$plot(), "arrangelist")
+  expect_s3_class(pdp.objs$plot(), "patchwork")
   pdp.obj.a = FeatureEffect$new(predictor1, feature = c("a"), method = "ale",  grid.size = 10)
   expect_equal(pdp.obj.a$results, pdp.objs$effects$a$results)
   
   pdp.objs = FeatureEffects$new(predictor1, method = "pdp+ice",  grid.size = 2)
-  expect_class(pdp.objs$plot(), "arrangelist")
+  expect_s3_class(pdp.objs$plot(), "patchwork")
   pdp.obj.a = FeatureEffect$new(predictor1, feature = c("a"), method = "pdp+ice",  grid.size = 2)
   expect_equal(pdp.obj.a$results, pdp.objs$effects$a$results)
 })
