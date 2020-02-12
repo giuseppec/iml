@@ -341,8 +341,8 @@ FeatureEffect = R6::R6Class("FeatureEffect",
         if (private$multiClass) {
           y.hat.names = colnames(predictions)
           results.ice.inter = cbind(results.ice.inter, predictions)
-          results.ice.inter = reshape2::melt(results.ice.inter, variable.name = ".class", 
-            value.name = ".y.hat", measure.vars = y.hat.names)
+          results.ice.inter = data.table::melt(results.ice.inter, variable.name = ".class", 
+                                               value.name = ".y.hat", measure.vars = y.hat.names)
         } else {
           results.ice.inter[, ".y.hat" := predictions]
           results.ice.inter$.class = 1

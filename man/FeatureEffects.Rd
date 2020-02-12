@@ -93,7 +93,7 @@ rf = rpart(medv ~ ., data = Boston)
 mod = Predictor$new(rf, data = Boston)
 
 # Compute the accumulated local effects for all features
-eff = FeatureEffects$new(mod)
+eff = FeatureEffects$new(mod, method = "ale")
 eff$plot()
 
 \dontrun{
