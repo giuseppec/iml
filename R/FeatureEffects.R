@@ -188,6 +188,8 @@ FeatureEffects = R6::R6Class("FeatureEffects",
     # make sure the default arguments match with plot.FeatureEffect
     generatePlot = function(features = NULL, ncols = NULL, nrows = NULL, fixed_y = TRUE, ...) {
       assert_character(features, null.ok = TRUE)
+      requireNamespace("ggplot2", quietly = TRUE)
+      requireNamespace("patchwork", quietly = TRUE)
       if(length(features) > 0) {
         assert_true(all(features %in% self$features))
       } else {

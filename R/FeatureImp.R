@@ -238,16 +238,17 @@ if (self$compare == "ratio") {
       self$results = data.frame(result)
     },
     generatePlot = function(sort = TRUE, ...) {
+      requireNamespace("ggplot2", quietly = TRUE)
       res = self$results
       if (sort) {
         res$feature = factor(res$feature, levels = res$feature[order(res$importance)])
       }
       xstart = ifelse(self$compare == "ratio", 1, 0)
-      ggplot(res, aes(y = feature, x = importance)) +  
-        geom_segment(aes(y = feature, yend = feature, x=importance.05, xend = importance.95), size = 1.5, color = "darkslategrey") +
-        geom_point(size = 3)+
-        scale_x_continuous(sprintf("Feature Importance (loss: %s)", private$loss_string)) + 
-        scale_y_discrete("")
+      ggplot2::ggplot(res, ggplot2::aes(y = feature, x = importance)) +  
+        ggplot2::geom_segment(ggplot2::aes(y = feature, yend = feature, x=importance.05, xend = importance.95), size = 1.5, color = "darkslategrey") +
+        ggplot2::geom_point(size = 3)+
+        ggplot2::scale_x_continuous(sprintf("Feature Importance (loss: %s)", private$loss_string)) + 
+        ggplot2::scale_y_discrete("")
     }, 
     set_loss = function(loss) {
       self$loss = loss

@@ -174,17 +174,18 @@ Shapley = R6::R6Class("Shapley",
       self$y.hat.average = colMeans(self$predictor$predict(private$sampler$get.x()))
     },
     generatePlot = function(sort = TRUE, ...) {
+      requireNamespace("ggplot2", quietly = TRUE)
       res = self$results
       if (sort & !private$multiClass) {
         res$feature.value = factor(res$feature.value, levels = res$feature.value[order(res$phi)])
       }
-      p = ggplot(res) + 
-        geom_col(aes(y = phi, x=feature.value)) + coord_flip() + 
+      p = ggplot2::ggplot(res) + 
+        ggplot2::geom_col(ggplot2::aes(y = phi, x=feature.value)) + ggplot2::coord_flip() + 
         xlab("") 
       if (private$multiClass) {
-        p = p + facet_wrap("class")
+        p = p + ggplot2::facet_wrap("class")
       } else {
-        p = p + ggtitle(sprintf("Actual prediction: %.2f\nAverage prediction: %.2f", 
+        p = p + ggplot2::ggtitle(sprintf("Actual prediction: %.2f\nAverage prediction: %.2f", 
           self$y.hat.interest, self$y.hat.average))
         
       }
