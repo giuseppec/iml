@@ -343,7 +343,7 @@ FeatureEffect = R6::R6Class("FeatureEffect",
           results.ice.inter = data.table::melt(results.ice.inter, variable.name = ".class", 
                                                value.name = ".y.hat", measure.vars = y.hat.names)
         } else {
-          results.ice.inter[, ".y.hat" := predictions]
+          results.ice.inter$.y.hat = predictions
           results.ice.inter$.class = 1
         }
         results.ice = rbind(results.ice, results.ice.inter)

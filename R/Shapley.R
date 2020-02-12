@@ -182,7 +182,7 @@ Shapley = R6::R6Class("Shapley",
       }
       p = ggplot2::ggplot(res) + 
         ggplot2::geom_col(ggplot2::aes(y = phi, x=feature.value)) + ggplot2::coord_flip() + 
-        xlab("") 
+        ggplot2::xlab("") 
       if (private$multiClass) {
         p = p + ggplot2::facet_wrap("class")
       } else {
