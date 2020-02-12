@@ -6,6 +6,7 @@
 #' 
 #' @format \code{\link{R6Class}} object.
 #' @name Shapley
+#' @importFrom data.table melt
 #' @section Usage:
 #' \preformatted{
 #' shapley = Shapley$new(predictor, x.interest = NULL, sample.size = 100)
@@ -131,7 +132,7 @@ Shapley = R6::R6Class("Shapley",
       cnames = colnames(y.hat.diff)
       y.hat.diff = cbind(data.table(feature = rep(colnames(private$dataDesign), times = self$sample.size)), 
                                     y.hat.diff)
-      y.hat.diff = melt(y.hat.diff, variable.name = "class", value.name = "value", measure.vars = cnames)
+      y.hat.diff = data.table::melt(y.hat.diff, variable.name = "class", value.name = "value", measure.vars = cnames)
       y.hat.diff = y.hat.diff[, list("phi" = mean(value), "phi.var" = var(value)), by = c("feature", "class")]
       if (!private$multiClass) y.hat.diff$class = NULL
       x.original = unlist(lapply(self$x.interest[1,], as.character))
