@@ -49,6 +49,7 @@ Now we can easily compute feature importance in parallel. This means that the co
 
 ```{r}
 imp = FeatureImp$new(predictor, loss = "mae", parallel = TRUE)
+library("ggplot2")
 plot(imp)
 ```
 
