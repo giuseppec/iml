@@ -20,7 +20,7 @@ binarized, depending on the category of the instance to be explained: 1 if
 the category is the same, 0 otherwise.
 
 To learn more about local models, read the Interpretable Machine Learning
-book: https://christophm.github.io/interpretable-ml-book/lime.html
+book: \url{https://christophm.github.io/interpretable-ml-book/lime.html}
 
 The approach is similar to LIME, but has the following differences:
 \itemize{

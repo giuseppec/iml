@@ -17,7 +17,7 @@
 #' the category is the same, 0 otherwise.
 #' 
 #' To learn more about local models, read the Interpretable Machine Learning
-#' book: https://christophm.github.io/interpretable-ml-book/lime.html
+#' book: \url{https://christophm.github.io/interpretable-ml-book/lime.html}
 #' 
 #' The approach is similar to LIME, but has the following differences:
 #' - **Distance measure**: Uses as default the gower proximity (= 1 - gower

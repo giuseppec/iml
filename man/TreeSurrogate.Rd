@@ -149,7 +149,7 @@ Data to predict on.}
 
 \item{\code{type}}{Prediction type.}
 
-\item{\code{...}}{???}
+\item{\code{...}}{Further arguments passed to \code{predict()}.}
 }
 \if{html}{\out{</div>}}
 }
