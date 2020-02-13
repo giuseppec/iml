@@ -3,122 +3,171 @@
 \name{TreeSurrogate}
 \alias{TreeSurrogate}
 \title{Decision tree surrogate model}
-\format{\code{\link{R6Class}} object.}
 \description{
 \code{TreeSurrogate} fits a decision tree on the predictions of a prediction model.
 }
-\section{Usage}{
+\details{
+A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from
+the machine learning model and the data. The \code{partykit} package and
+function are used to fit the tree. By default a tree of maximum depth of 2 is
+fitted to improve interpretability.
 
-\preformatted{
-tree = TreeSurrogate$new(predictor, maxdepth = 2, tree.args = NULL)
-
-plot(tree)
-predict(tree, newdata)
-tree$results
-print(tree)
-}
-}
-
-\section{Arguments}{
-
-
-For TreeSurrogate$new():
-\describe{
-\item{predictor: }{(Predictor)\cr 
-The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{maxdepth: }{(`numeric(1)`)\cr The maximum depth of the tree. Default is 2.}
-\item{tree.args: }{(named list)\cr Further arguments for \code{ctree}.}
-}
-}
-
-\section{Details}{
-  
-A conditional inference tree is fitted on the predicted \eqn{\hat{y}} from the machine learning model and the data.
-The \code{partykit} package and function are used to fit the tree. 
-By default a tree of maximum depth of 2 is fitted to improve interpretability.
-
-To learn more about global surrogate models, read the Interpretable Machine Learning book: 
+To learn more about global surrogate models, read the Interpretable Machine
+Learning book:
 \url{https://christophm.github.io/interpretable-ml-book/global.html}
 }
-
-\section{Fields}{
-
-\describe{
-\item{maxdepth: }{(`numeric(1)`)\cr The maximum tree depth.}
-\item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{r.squared: }{(`numeric(1|n.classes)`)\cr R squared measures how well the decision tree approximates the underlying model. 
-It is calculated as 1 - (variance of prediction differences / variance of black box model predictions).
-For the multi-class case, r.squared contains one measure per class.}
-\item{results: }{(data.frame)\cr Data.frame with sampled feature X together with the leaf node information (columns .node and .path) 
-and the predicted \eqn{\hat{y}} for tree and machine learning model (columns starting with .y.hat).}
-\item{tree: }{(party)\cr The fitted tree. See also \link[partykit]{ctree}.}
-}
-}
-
-\section{Methods}{
-
-\describe{
-\item{plot()}{method to plot the leaf nodes of the surrogate decision tree. See \link{plot.TreeSurrogate}.}
-\item{predict()}{method to predict new data with the tree. See also \link{predict.TreeSurrogate}}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
-}
-}
-
 \examples{
-if (require("randomForest")) {
+library("randomForest")
 # Fit a Random Forest on the Boston housing data set
-data("Boston", package  = "MASS")
-rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+data("Boston", package = "MASS")
+rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
 # Create a model object
-mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+mod <- Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")])
 
 # Fit a decision tree as a surrogate for the whole random forest
-dt = TreeSurrogate$new(mod)
+dt <- TreeSurrogate$new(mod)
 
 # Plot the resulting leaf nodes
-plot(dt) 
+plot(dt)
 
 # Use the tree to predict new data
-predict(dt, Boston[1:10,])
+predict(dt, Boston[1:10, ])
 
 # Extract the results
-dat = dt$results
+dat <- dt$results
 head(dat)
 
-
 # It also works for classification
-rf = randomForest(Species ~ ., data = iris, ntree = 50)
-X = iris[-which(names(iris) == "Species")]
-mod = Predictor$new(rf, data = X, type = "prob")
+rf <- randomForest(Species ~ ., data = iris, ntree = 50)
+X <- iris[-which(names(iris) == "Species")]
+mod <- Predictor$new(rf, data = X, type = "prob")
 
 # Fit a decision tree as a surrogate for the whole random forest
-dt = TreeSurrogate$new(mod, maxdepth=2)
+dt <- TreeSurrogate$new(mod, maxdepth = 2)
 
 # Plot the resulting leaf nodes
-plot(dt) 
+plot(dt)
 
-# If you want to visualise the tree directly:
+# If you want to visualize the tree directly:
 plot(dt$tree)
 
 # Use the tree to predict new data
 set.seed(42)
-iris.sample = X[sample(1:nrow(X), 10),]
+iris.sample <- X[sample(1:nrow(X), 10), ]
 predict(dt, iris.sample)
 predict(dt, iris.sample, type = "class")
 
 # Extract the dataset
-dat = dt$results
+dat <- dt$results
 head(dat)
 }
-}
 \references{
-Craven, M., & Shavlik, J. W. (1996). Extracting tree-structured representations of trained networks. In Advances in neural information processing systems (pp. 24-30).
+Craven, M., & Shavlik, J. W. (1996). Extracting tree-structured
+representations of trained networks. In Advances in neural information
+processing systems (pp. 24-30).
 }
 \seealso{
-\link{predict.TreeSurrogate}
-\link{plot.TreeSurrogate}
+\link{predict.TreeSurrogate} \link{plot.TreeSurrogate}
 
 For the tree implementation
-\link[partykit]{ctree}
+\code{\link[partykit:ctree]{partykit::ctree()}}
+}
+\section{Super class}{
+\code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{TreeSurrogate}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{tree}}{\code{party}\cr
+The fitted tree. See also \link[partykit:ctree]{partykit::ctree}.}
+
+\item{\code{maxdepth}}{\code{numeric(1)}\cr
+The maximum tree depth.}
+
+\item{\code{r.squared}}{\code{numeric(1|n.classes)}\cr
+R squared measures how well the decision tree approximates the
+underlying model. It is calculated as 1 - (variance of prediction
+differences / variance of black box model predictions). For the
+multi-class case, r.squared contains one measure per class.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{TreeSurrogate$new()}}
+\item \href{#method-predict}{\code{TreeSurrogate$predict()}}
+\item \href{#method-clone}{\code{TreeSurrogate$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+Create a TreeSurrogate object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSurrogate$new(predictor, maxdepth = 2, tree.args = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{predictor}}{\link{Predictor}\cr
+The object (created with \code{Predictor$new()}) holding the machine
+learning model and the data.}
+
+\item{\code{maxdepth}}{\code{numeric(1)}\cr
+The maximum depth of the tree. Default is 2.}
+
+\item{\code{tree.args}}{(named list)\cr
+Further arguments for \code{\link[party:ctree]{party::ctree()}}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-predict"></a>}}
+\subsection{Method \code{predict()}}{
+Predict new data with the tree.
+See also \link{predict.TreeSurrogate}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSurrogate$predict(newdata, type = "prob", ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{newdata}}{\link{data.frame}\cr
+Data to predict on.}
+
+\item{\code{type}}{Prediction type.}
+
+\item{\code{...}}{Further arguments passed to \code{predict()}.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{TreeSurrogate$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }
