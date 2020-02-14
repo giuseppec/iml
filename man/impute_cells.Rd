@@ -7,10 +7,10 @@
 impute_cells(cell.dat, grid1 = NULL, grid2, x1.ind = 1, x2.ind = 2)
 }
 \arguments{
-\item{cell.dat}{data.table with at least 4 columns: .yhat.diff and the two interval indices. 
+\item{cell.dat}{data.table with at least 4 columns: .yhat.diff and the two interval indices.
 Make sure that empty cells are also included and cell.dat is not the sparse representation.}
 
-\item{grid1}{data.frame where each row is the actual value for a given interval index for feature 1. 
+\item{grid1}{data.frame where each row is the actual value for a given interval index for feature 1.
 If empty impute_cells  assumes that the feature is categorical (factor).}
 
 \item{grid2}{data.frame where each row is the actual value for a given interval index for feature 2}

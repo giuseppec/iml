@@ -3,10 +3,95 @@
 \name{Partial}
 \alias{Partial}
 \title{Effect of one or two feature(s) on the model predictions (deprecated)}
-\format{\code{\link{R6Class}} object.}
 \description{
-Deprecated, please use 'FeatureEffect', see ?FeatureEffect
+Effect of one or two feature(s) on the model predictions (deprecated)
+
+Effect of one or two feature(s) on the model predictions (deprecated)
+}
+\details{
+Deprecated, please use \link{FeatureEffect}.
 }
 \seealso{
 \link{FeatureEffect}
+}
+\section{Super classes}{
+\code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{\link[iml:FeatureEffect]{iml::FeatureEffect}} -> \code{Partial}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{Partial$new()}}
+\item \href{#method-clone}{\code{Partial$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="center">}\href{../../iml/html/FeatureEffect.html#method-center}{\code{iml::FeatureEffect$center()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="predict">}\href{../../iml/html/FeatureEffect.html#method-predict}{\code{iml::FeatureEffect$predict()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="set.feature">}\href{../../iml/html/FeatureEffect.html#method-set.feature}{\code{iml::FeatureEffect$set.feature()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+Effect of one or two feature(s) on the model predictions
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Partial$new(
+  predictor,
+  feature,
+  aggregation = "pdp",
+  ice = TRUE,
+  center.at = NULL,
+  grid.size = 20
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{predictor}}{\link{Predictor}\cr
+The object (created with \code{Predictor$new()}) holding the machine
+learning model and the data.}
+
+\item{\code{feature}}{(\code{character(1)} | \code{character(2)} | \code{numeric(1)} |
+\code{numeric(2)})\cr
+The feature name or index for which to compute the effects.}
+
+\item{\code{aggregation}}{(\code{character(1)})\cr
+The aggregation approach to use. Possible values are \code{"pdp"},
+\code{"ale"} or \code{"none"}.}
+
+\item{\code{ice}}{\link{logical}\cr
+Whether to compute ice plots.}
+
+\item{\code{center.at}}{(\code{numeric(1)})\cr
+Value at which the plot should be centered. Ignored in the case of two
+features.}
+
+\item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
+The size of the grid for evaluating the predictions.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Partial$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

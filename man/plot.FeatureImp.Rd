@@ -7,9 +7,10 @@
 \method{plot}{FeatureImp}(x, sort = TRUE, ...)
 }
 \arguments{
-\item{x}{A FeatureImp R6 object}
+\item{x}{A \link{FeatureImp} object}
 
-\item{sort}{logical. Should the features be sorted in descending order? Defaults to TRUE.}
+\item{sort}{logical. Should the features be sorted in descending order?
+Defaults to TRUE.}
 
 \item{...}{Further arguments for the objects plot function}
 }
@@ -17,31 +18,32 @@
 ggplot2 plot object
 }
 \description{
-plot.FeatureImp() plots the feature importance results of a FeatureImp object.
+\code{plot.FeatureImp()} plots the feature importance results of a FeatureImp
+object.
 }
 \details{
 The plot shows the importance per feature.
 
-When n.repetitions in `FeatureImp$new` was larger than 1, then we get multiple importance estimates per feature.
-The importances are aggregated and the plot shows the median importance per feature (as dots) and also the 90%-quantile, which 
-helps to understand how much variance the computation has per feature.
+When \code{n.repetitions} in \code{FeatureImp$new} was larger than 1, then we get
+multiple importance estimates per feature. The importance are aggregated and
+the plot shows the median importance per feature (as dots) and also the
+90\%-quantile, which helps to understand how much variance the computation has
+per feature.
 }
 \examples{
- 
-if (require("rpart")) {
+library("rpart")
 # We train a tree on the Boston dataset:
-data("Boston", package  = "MASS")
-tree = rpart(medv ~ ., data = Boston)
-y = Boston$medv
-X = Boston[-which(names(Boston) == "medv")]
-mod = Predictor$new(tree, data = X, y = y)
+data("Boston", package = "MASS")
+tree <- rpart(medv ~ ., data = Boston)
+y <- Boston$medv
+X <- Boston[-which(names(Boston) == "medv")]
+mod <- Predictor$new(tree, data = X, y = y)
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, loss = "mae")
+imp <- FeatureImp$new(mod, loss = "mae")
 
 # Plot the results directly
 plot(imp)
-}
 }
 \seealso{
 \link{FeatureImp}

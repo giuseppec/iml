@@ -3,98 +3,56 @@
 \name{LocalModel}
 \alias{LocalModel}
 \title{LocalModel}
-\format{\code{\link{R6Class}} object.}
 \description{
-\code{LocalModel} fits locally weighted linear regression models (logistic regression for classification) to explain single predictions of a prediction model.
+\code{LocalModel} fits locally weighted linear regression models (logistic
+regression for classification) to explain single predictions of a prediction
+model.
 }
-\section{Usage}{
+\details{
+A weighted glm is fitted with the machine learning model prediction as
+target. Data points are weighted by their proximity to the instance to be
+explained, using the gower proximity measure. L1-regularization is used to
+make the results sparse.
 
-\preformatted{
-lime = LocalModel$new(predictor, x.interest = NULL, dist.fun = "gower",  
-                      kernel.width = NULL, k = 3)
+The resulting model can be seen as a surrogate for the machine learning
+model, which is only valid for that one point. Categorical features are
+binarized, depending on the category of the instance to be explained: 1 if
+the category is the same, 0 otherwise.
 
-plot(lime)
-predict(lime, newdata)
-lime$results
-lime$explain(x.interest)
-print(lime)
-}
-}
-
-\section{Arguments}{
-
-
-For LocalModel$new():
-\describe{
-\item{predictor: }{(Predictor)\cr 
-The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{x.interest: }{(data.frame)\cr Single row with the instance to be explained.}
-\item{dist.fun: }{(`character(1)`)\cr The name of the distance function for computing proximities (weights in the linear model). Defaults to "gower". Otherwise will be forwarded to [stats::dist].}
-\item{kernel.width: }{(`numeric(1)`)\cr The width of the kernel for the proximity computation. Only used if dist.fun is not 'gower'.}
-\item{k: }{(`numeric(1)`)\cr
-The (maximum) number of features to be used for the surrogate model.}
-}
-}
-
-\section{Details}{
- 
-A weighted glm is fitted with the machine learning model prediction as target. 
-Data points are weighted by their proximity to the instance to be explained, using the gower proximity measure. 
-L1-regularisation is used to make the results sparse. 
-The resulting model can be seen as a surrogate for the machine learning model, which is only valid for that one point.
-Categorical features are binarized, depending on the category of the instance to be explained: 1 if the category is the same, 0 otherwise.
-To learn more about local models, read the Interpretable Machine Learning book: https://christophm.github.io/interpretable-ml-book/lime.html
+To learn more about local models, read the Interpretable Machine Learning
+book: \url{https://christophm.github.io/interpretable-ml-book/lime.html}
 
 The approach is similar to LIME, but has the following differences:
 \itemize{
-\item Distance measure: Uses as default the gower proximity (= 1 - gower distance) instead of a kernel based on the Euclidean distance. Has the advantage to have a meaningful neighbourhood and no kernel width to tune.
-When the distance is not "gower", then the stats::dist() function with the chosen method will be used, 
-and turned into a similarity measure: sqrt(exp(-(distance^2) / (kernel.width^2))).
-\item Sampling: Uses the original data instead of sampling from normal distributions. 
-Has the advantage to follow the original data distribution. 
-\item Visualisation: Plots effects instead of betas. Both are the same for binary features, but ared different for numerical features. 
-For numerical features, plotting the betas makes no sense, 
-because a negative beta might still increase the prediction when the feature value is also negative.
+\item \strong{Distance measure}: Uses as default the gower proximity (= 1 - gower
+distance) instead of a kernel based on the Euclidean distance. Has the
+advantage to have a meaningful neighborhood and no kernel width to tune.
+When the distance is not \code{"gower"}, then the \code{\link[stats:dist]{stats::dist()}} function with the
+chosen method will be used, and turned into a similarity measure:
+\eqn{sqrt(exp(-(distance^2) / (kernel.width^2)))}.
+\item \strong{Sampling}: Uses the original data instead of sampling from normal
+distributions. Has the advantage to follow the original data distribution.
+\item \strong{Visualization}: Plots effects instead of betas. Both are the same for binary
+features, but ared different for numerical features. For numerical features,
+plotting the betas makes no sense, because a negative beta might still
+increase the prediction when the feature value is also negative.
 }
 
-To learn more about local surrogate models, read the Interpretable Machine Learning book: 
+To learn more about local surrogate models, read the Interpretable Machine
+Learning book:
 \url{https://christophm.github.io/interpretable-ml-book/lime.html}
 }
-
-\section{Fields}{
-
-\describe{
-\item{best.fit.index: }{(`numeric(1)`)\cr The index of the best glmnet fit.}
-\item{k: }{(`numeric(1)`)\cr The number of features as set by the user.}
-\item{model: }{(glmnet)\cr The fitted local model.}
-\item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{results: }{(data.frame)\cr Results with the feature names (\code{feature}) and contributions to the prediction}
-\item{x.interest: }{(data.frame)\cr The instance to be explained. See Examples for usage.}
-}
-}
-
-\section{Methods}{
-
-\describe{
-\item{explain(x.interest)}{method to set a new data point which to explain.}
-\item{plot()}{method to plot the LocalModel feature effects. See \link{plot.LocalModel}}
-\item{predict()}{method to predict new data with the local model See also \link{predict.LocalModel}}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
-}
-}
-
 \examples{
-if (require("randomForest")) {
+library("randomForest")
 # First we fit a machine learning model on the Boston housing data
-data("Boston", package  = "MASS")
-X = Boston[-which(names(Boston) == "medv")]
-rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Predictor$new(rf, data = X)
+data("Boston", package = "MASS")
+X <- Boston[-which(names(Boston) == "medv")]
+rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
+mod <- Predictor$new(rf, data = X)
 
 # Explain the first instance of the dataset with the LocalModel method:
-x.interest = X[1,]
-lemon = LocalModel$new(mod, x.interest = x.interest, k = 2)
+x.interest <- X[1, ]
+lemon <- LocalModel$new(mod, x.interest = x.interest, k = 2)
 lemon
 
 # Look at the results in a table
@@ -104,30 +62,167 @@ plot(lemon)
 
 # Reuse the object with a new instance to explain
 lemon$x.interest
-lemon$explain(X[2,])
+lemon$explain(X[2, ])
 lemon$x.interest
 plot(lemon)
-  
+
 # LocalModel also works with multiclass classification
-rf = randomForest(Species ~ ., data= iris, ntree=50)
-X = iris[-which(names(iris) == 'Species')]
-mod = Predictor$new(rf, data = X, type = "prob", class = "setosa")
+rf <- randomForest(Species ~ ., data = iris, ntree = 50)
+X <- iris[-which(names(iris) == "Species")]
+mod <- Predictor$new(rf, data = X, type = "prob", class = "setosa")
 
 # Then we explain the first instance of the dataset with the LocalModel method:
-lemon = LocalModel$new(mod, x.interest = X[1,], k = 2)
+lemon <- LocalModel$new(mod, x.interest = X[1, ], k = 2)
 lemon$results
-plot(lemon) 
-}
+plot(lemon)
 }
 \references{
-Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?": Explaining the Predictions of Any Classifier. Retrieved from http://arxiv.org/abs/1602.04938
+Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why Should I Trust You?":
+Explaining the Predictions of Any Classifier. Retrieved from
+http://arxiv.org/abs/1602.04938
 
-Gower, J. C. (1971), "A general coefficient of similarity and some of its properties". Biometrics, 27, 623--637.
+Gower, J. C. (1971), "A general coefficient of similarity and some of its
+properties". Biometrics, 27, 623--637.
 }
 \seealso{
 \code{\link{plot.LocalModel}} and \code{\link{predict.LocalModel}}
 
 \code{\link{Shapley}} can also be used to explain single predictions
 
-The package `lime` with the original implementation
+The package \code{lime} with the original implementation
+}
+\section{Super class}{
+\code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{LocalModel}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{x.interest}}{\link{data.frame}\cr
+Single row with the instance to be explained.}
+
+\item{\code{k}}{\code{numeric(1)}\cr
+The number of features as set by the user.}
+
+\item{\code{model}}{\code{glmnet}\cr
+The fitted local model.}
+
+\item{\code{best.fit.index}}{\code{numeric(1)}\cr
+The index of the best glmnet fit.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{LocalModel$new()}}
+\item \href{#method-predict}{\code{LocalModel$predict()}}
+\item \href{#method-explain}{\code{LocalModel$explain()}}
+\item \href{#method-clone}{\code{LocalModel$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+Create a Local Model object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LocalModel$new(
+  predictor,
+  x.interest,
+  dist.fun = "gower",
+  kernel.width = NULL,
+  k = 3
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{predictor}}{\link{Predictor}\cr
+The object (created with \code{Predictor$new()}) holding the machine
+learning model and the data.}
+
+\item{\code{x.interest}}{\link{data.frame}\cr
+Single row with the instance to be explained.}
+
+\item{\code{dist.fun}}{\code{character(1)})\cr
+The name of the distance function for computing proximities (weights in
+the linear model). Defaults to \code{"gower"}. Otherwise will be forwarded
+to \link[stats:dist]{stats::dist}.}
+
+\item{\code{kernel.width}}{(\code{numeric(1)})\cr
+The width of the kernel for the proximity computation.
+Only used if dist.fun is not \code{"gower"}.}
+
+\item{\code{k}}{\code{numeric(1)}\cr
+The number of features.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\link{data.frame}\cr
+Results with the feature names (\code{feature}) and contributions to the
+prediction.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-predict"></a>}}
+\subsection{Method \code{predict()}}{
+Method to predict new data with the local model See also
+\link{predict.LocalModel}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LocalModel$predict(newdata = NULL, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{newdata}}{\link{data.frame}\cr
+Data to predict on.}
+
+\item{\code{...}}{Not used}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-explain"></a>}}
+\subsection{Method \code{explain()}}{
+Set a new data point to explain.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LocalModel$explain(x.interest)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x.interest}}{\link{data.frame}\cr
+Single row with the instance to be explained.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{LocalModel$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }
