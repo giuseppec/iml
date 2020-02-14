@@ -128,21 +128,23 @@ Interaction <- R6Class("Interaction",
     },
     generatePlot = function(sort = TRUE, ...) {
       requireNamespace("ggplot2", quietly = TRUE)
-      res = self$results
+      res <- self$results
       if (sort & !private$multiClass) {
         res$.feature <- factor(res$.feature,
           levels = res$.feature[order(res$.interaction)]
         )
       }
-      
-      y.axis.label = ifelse(is.null(private$feature), "Interaction strength", 
-        sprintf("Interaction strength with %s", private$feature))
-      p = ggplot2::ggplot(res, ggplot2::aes(y = .feature, x = .interaction)) + ggplot2::geom_point() + 
-        ggplot2::geom_segment(ggplot2::aes(yend = .feature, x = 0, xend = .interaction)) + 
-        ggplot2::scale_x_continuous("Overall interaction strength") + 
+
+      y.axis.label <- ifelse(is.null(private$feature), "Interaction strength",
+        sprintf("Interaction strength with %s", private$feature)
+      )
+      p <- ggplot2::ggplot(res, ggplot2::aes(y = .feature, x = .interaction)) +
+        ggplot2::geom_point() +
+        ggplot2::geom_segment(ggplot2::aes(yend = .feature, x = 0, xend = .interaction)) +
+        ggplot2::scale_x_continuous("Overall interaction strength") +
         ggplot2::scale_y_discrete("Features")
       if (private$multiClass) {
-        p = p + ggplot2::facet_wrap(".class")
+        p <- p + ggplot2::facet_wrap(".class")
       }
       p
     },

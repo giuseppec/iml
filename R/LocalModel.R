@@ -226,17 +226,19 @@ LocalModel <- R6Class("LocalModel",
     intervene = function() private$dataSample,
     generatePlot = function() {
       requireNamespace("ggplot2", quietly = TRUE)
-      p = ggplot2::ggplot(self$results) + 
-        ggplot2::geom_col(ggplot2::aes(y = effect, x = reorder(feature.value,effect))) + 
-        ggplot2::coord_flip() + 
-        ggplot2::ylab("effect") + 
-        ggplot2::xlab("") 
+      p <- ggplot2::ggplot(self$results) +
+        ggplot2::geom_col(ggplot2::aes(y = effect, x = reorder(feature.value, effect))) +
+        ggplot2::coord_flip() +
+        ggplot2::ylab("effect") +
+        ggplot2::xlab("")
       if (!private$multiClass) {
-        original_prediction = self$predictor$predict(self$x.interest)[[1]]
-        p = p + ggplot2::ggtitle(sprintf("Actual prediction: %.2f\nLocalModel prediction: %.2f", 
-          original_prediction, self$predict()))
+        original_prediction <- self$predictor$predict(self$x.interest)[[1]]
+        p <- p + ggplot2::ggtitle(sprintf(
+          "Actual prediction: %.2f\nLocalModel prediction: %.2f",
+          original_prediction, self$predict()
+        ))
       }
-      if (private$multiClass) p = p + ggplot2::facet_wrap(".class")
+      if (private$multiClass) p <- p + ggplot2::facet_wrap(".class")
       p
     },
     get.weight.fun = function(dist.fun, kernel.width) {

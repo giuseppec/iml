@@ -184,30 +184,30 @@ FeatureEffects <- R6Class("FeatureEffects",
       assert_character(features, null.ok = TRUE)
       requireNamespace("ggplot2", quietly = TRUE)
       requireNamespace("patchwork", quietly = TRUE)
-      if(length(features) > 0) {
+      if (length(features) > 0) {
         assert_true(all(features %in% self$features))
       } else {
         features <- self$features
       }
-      
-      if(fixed_y) { 
-        res = unlist(lapply(features, function(fname){
-          cname = ifelse(self$method == "ale", ".ale", ".y.hat")
-          values = self$effects[[fname]]$results[cname]
+
+      if (fixed_y) {
+        res <- unlist(lapply(features, function(fname) {
+          cname <- ifelse(self$method == "ale", ".ale", ".y.hat")
+          values <- self$effects[[fname]]$results[cname]
           c(min(values), max(values))
         }))
         ylim <- c(min(res), max(res))
       } else {
         ylim <- c(NA, NA)
       }
-      plts = lapply(features, function(fname) {
-        self$effects[[fname]]$plot(..., ylim = ylim) + 
-          ggplot2::theme(axis.title.y=ggplot2::element_blank()) 
+      plts <- lapply(features, function(fname) {
+        self$effects[[fname]]$plot(..., ylim = ylim) +
+          ggplot2::theme(axis.title.y = ggplot2::element_blank())
       })
-      
-      y_axis_label = self$effects[[1]]$.__enclos_env__$private$y_axis_label
-      
-      patchwork::wrap_plots(plts) + 
+
+      y_axis_label <- self$effects[[1]]$.__enclos_env__$private$y_axis_label
+
+      patchwork::wrap_plots(plts) +
         patchwork::plot_annotation(title = y_axis_label)
     }
   )
