@@ -182,26 +182,20 @@ TreeSurrogate <- R6Class("TreeSurrogate",
     },
 
     generatePlot = function() {
-      p <- ggplot(self$results) +
-        geom_boxplot(aes(y = .y.hat, x = "")) +
-        scale_x_discrete("") +
-        facet_wrap(".path") +
-        scale_y_continuous(expression(hat(y)))
+      p <- ggplot2::ggplot(self$results) +
+        ggplot2::geom_boxplot(ggplot2::aes(y = .y.hat, x = "")) +
+        ggplot2::scale_x_discrete("") +
+        ggplot2::facet_wrap(".path") +
+        ggplot2::scale_y_continuous(expression(hat(y)))
       if (private$multiClass) {
         plotData <- self$results
         # max class for model
-        plotData$.class <- private$object.predict.colnames[apply(
-          plotData[private$object.predict.colnames],
-          1, which.max
-        )]
+        plotData$.class <- private$object.predict.colnames[apply(plotData[private$object.predict.colnames], 1, which.max)]
         plotData$.class <- gsub(".y.hat.", "", plotData$.class)
-        plotData <- plotData[setdiff(
-          names(plotData),
-          private$object.predict.colnames
-        )]
-        p <- ggplot(plotData) +
-          geom_bar(aes(x = .class)) +
-          facet_wrap(".path")
+        plotData <- plotData[setdiff(names(plotData), private$object.predict.colnames)]
+        p <- ggplot2::ggplot(plotData) +
+          ggplot2::geom_bar(ggplot2::aes(x = .class)) +
+          ggplot2::facet_wrap(".path")
       }
       p
     },

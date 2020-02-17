@@ -182,20 +182,13 @@ FeatureEffects <- R6Class("FeatureEffects",
     generatePlot = function(features = NULL, ncols = NULL, nrows = NULL,
                             fixed_y = TRUE, ...) {
       assert_character(features, null.ok = TRUE)
+      requireNamespace("ggplot2", quietly = TRUE)
+      requireNamespace("patchwork", quietly = TRUE)
       if (length(features) > 0) {
         assert_true(all(features %in% self$features))
       } else {
         features <- self$features
       }
-
-      # Compute size of gtable
-      layout <- get_layout(length(features), nrows, ncols)
-
-      # Based on layout, infer which figures will be left and or bottom
-      del_ylab_index <- setdiff(
-        1:length(features),
-        1:min(layout$nrows, length(features))
-      )
 
       if (fixed_y) {
         res <- unlist(lapply(features, function(fname) {
@@ -208,20 +201,14 @@ FeatureEffects <- R6Class("FeatureEffects",
         ylim <- c(NA, NA)
       }
       plts <- lapply(features, function(fname) {
-        gg <- self$effects[[fname]]$plot(..., ylim = ylim) +
-          theme(axis.title.y = element_blank())
-        ggplotGrob(gg)
+        self$effects[[fname]]$plot(..., ylim = ylim) +
+          ggplot2::theme(axis.title.y = ggplot2::element_blank())
       })
 
       y_axis_label <- self$effects[[1]]$.__enclos_env__$private$y_axis_label
-      # Fill gtable with graphics
-      ml <- marrangeGrob(
-        grobs = plts, nrow = layout$nrows, ncol = layout$ncols,
-        top = NULL, left = y_axis_label
-      )
-      # For graphics not on left side, remove y-axis names and x-axis names
-      # return grid
-      ml
+
+      patchwork::wrap_plots(plts) +
+        patchwork::plot_annotation(title = y_axis_label)
     }
   )
 )

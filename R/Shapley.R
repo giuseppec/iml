@@ -181,20 +181,21 @@ Shapley <- R6Class("Shapley",
     },
 
     generatePlot = function(sort = TRUE, ...) {
+      requireNamespace("ggplot2", quietly = TRUE)
       res <- self$results
       if (sort & !private$multiClass) {
         res$feature.value <- factor(res$feature.value,
           levels = res$feature.value[order(res$phi)]
         )
       }
-      p <- ggplot(res) +
-        geom_col(aes(y = phi, x = feature.value)) +
-        coord_flip() +
-        xlab("")
+      p <- ggplot2::ggplot(res) +
+        ggplot2::geom_col(ggplot2::aes(y = phi, x = feature.value)) +
+        ggplot2::coord_flip() +
+        ggplot2::xlab("")
       if (private$multiClass) {
-        p <- p + facet_wrap("class")
+        p <- p + ggplot2::facet_wrap("class")
       } else {
-        p <- p + ggtitle(sprintf(
+        p <- p + ggplot2::ggtitle(sprintf(
           "Actual prediction: %.2f\nAverage prediction: %.2f",
           self$y.hat.interest, self$y.hat.average
         ))
