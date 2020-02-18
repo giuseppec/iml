@@ -4,37 +4,42 @@
 \alias{plot.FeatureEffect}
 \title{Plot FeatureEffect}
 \usage{
-\method{plot}{FeatureEffect}(x, rug = TRUE, show.data = FALSE,
-  ylim = NULL)
+\method{plot}{FeatureEffect}(x, rug = TRUE, show.data = FALSE, ylim = NULL)
 }
 \arguments{
-\item{x}{A FeatureEffect R6 object}
+\item{x}{A \link{FeatureEffect} object.}
 
-\item{rug}{[logical] Should a rug be plotted to indicate the feature distribution? The rug will be jittered a bit, so the location may not be exact, 
-but it avoids overplotting.}
+\item{rug}{\link{logical}\cr
+Should a rug be plotted to indicate the feature distribution? The rug will
+be jittered a bit, so the location may not be exact, but it avoids
+overplotting.}
 
-\item{show.data}{Should the data points be shown? Only affects 2D plots, and ignored for 1D plots, because rug has the same information.}
+\item{show.data}{(\code{logical(1)})\cr
+Should the data points be shown? Only affects 2D plots, and ignored for 1D
+plots, because rug has the same information.}
 
-\item{ylim}{Vector with two coordinates for the y-axis. Only works when one feature is used in FeatureEffet, ignored when two are used.}
+\item{ylim}{(\code{numeric(2)})\cr Vector with two coordinates for the y-axis.
+Only works when one feature is used in \link{FeatureEffect}, ignored when two
+are used.}
 }
 \value{
 ggplot2 plot object
 }
 \description{
-plot.FeatureEffect() plots the results of a FeatureEffect object.
+\code{plot.FeatureEffect()} plots the results of a \link{FeatureEffect} object.
 }
 \examples{
 # We train a random forest on the Boston dataset:
 if (require("randomForest")) {
-data("Boston", package  = "MASS")
-rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Predictor$new(rf, data = Boston)
+  data("Boston", package = "MASS")
+  rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
+  mod <- Predictor$new(rf, data = Boston)
 
-# Compute the ALE for the first feature
-eff = FeatureEffect$new(mod, feature = "crim")
+  # Compute the ALE for the first feature
+  eff <- FeatureEffect$new(mod, feature = "crim")
 
-# Plot the results directly
-plot(eff)
+  # Plot the results directly
+  plot(eff)
 }
 }
 \seealso{

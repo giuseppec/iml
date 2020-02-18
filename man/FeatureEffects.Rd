@@ -2,141 +2,178 @@
 % Please edit documentation in R/FeatureEffects.R
 \name{FeatureEffects}
 \alias{FeatureEffects}
-\title{Effect of all features on predictions}
-\format{\code{\link{R6Class}} object.}
+\title{Effect of a feature on predictions}
 \description{
-\code{FeatureEffects} computes feature effects for multiple features at once.
+\code{FeatureEffects} computes and plots feature effects
+of multiple features at once.
 }
-\section{Usage}{
+\details{
+FeatureEffects computes the effects for all given features on the model
+prediction. \link{FeatureEffects} is a convenience class that calls FeatureEffect
+multiple times. See \code{?FeatureEffect} for details what's actually computed.
 
-\preformatted{
-effects = FeatureEffects$new(predictor, features = NULL, method = "ale", 
-    grid.size = 20, center.at = NULL, parallel = FALSE)
-
-plot(effects)
-effects$results
-print(effects)
+Only first-order effects can be computed with the \link{FeatureEffects} interface.
+If you are intereated in the visualization of interactions between two
+features, directly use \link{FeatureEffect}.
 }
-}
-
-\section{Arguments}{
-
-
-For FeatureEffects$new():
-\describe{
-\item{predictor: }{(Predictor)\cr
-The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{features: }{(\code{character()})\cr
-The names of the features for which the effects should be computed.
-Default is all features used in the prediction model.}
-\item{method: }{(\code{character(1)})\cr
-'ale' for accumulated local effects (the default),
-'pdp' for partial dependence plot,
-'ice' for individual conditional expectation curves,
-'pdp+ice' for partial dependence plot and ice curves within the same plot.}
-\item{center.at: }{(\code{numeric(1)})\cr Value at which the plot should be centered.}
-\item{grid.size: }{(\code{numeric(1)} | \code{numeric(2)})\cr The size of the grid for evaluating the predictions}
-\item{parallel: }{\code{logical(1)}\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
-}
-}
-
-\section{Details}{
-
-
-FeatureEffects computes the effects for all given features on the model prediction.
-FeatureEffects is a convenience class that calls FeatureEffect multiple times.
-See ?FeatureEffect for details what's actually computed.
-
-Only first-order effects can be computed with the FeatureEffects interface.
-If you are intereated in the visualization of interactions between two features, directly use FeatureEffect.
-}
-
-\section{Fields}{
-
-\itemize{
-\item method (\code{character(1)})\cr
-\itemize{
-\item 'ale' for accumulated local effects,
-\item 'pdp' for partial dependence plot,
-\item 'ice' for individual conditional expectation curves,
-\item 'pdp + ice' for partial dependence plot and ice curves within the same plot.
-}
-\item features (\link{character})\cr
-The names of the features for which the effects were computed.
-\item grid.size (\code{numeric(1)} | \code{numeric(2)})\cr
-The size of the grid.
-\item center.at (\code{numeric(1)} | \code{character(1)})\cr
-The value for the centering of the plot. Numeric for numeric features, and
-the level name for factors.
-\item predictor (\link{Predictor})\cr
-The prediction model that was analyzed.
-\item results (\link{list})\cr
-A list with the results of each feature effect. Each entry is a data.frame
-with the grid of feature of interest and the predicted $\hat{y}$. Can be used
-for creating custom effect plots.
-\itemize{
-\item \code{.value}: Computed feature effect values
-\item \code{.type}: Type of the computed feature effect
-\item \code{.borders}: Quantile borders which were used as lower and upper borders
-for computing the ALE values.
-\item \code{.feature}: Name of the feature.
-}
-\item effects (\link{list})\cr A list of the
-\link{FeatureEffect} objects for each feature. See ?\link{FeatureEffect} what you can do
-with them (e.g. plot them individually).
-}
-}
-
-\section{Methods}{
-
-\item{plot()}{method to plot the all effects. See \link{plot.FeatureEffects}}
-\item{\code{clone()}}{\link{internal} method to clone the R6 object.}
-\item{\code{initialize()}}{\link{internal} method to initialize the R6 object.}
-}
-
 \examples{
 # We train a random forest on the Boston dataset:
-if (require("rpart")) {
+library("rpart")
 data("Boston", package  = "MASS")
 rf = rpart(medv ~ ., data = Boston)
 mod = Predictor$new(rf, data = Boston)
 
 # Compute the accumulated local effects for all features
-eff = FeatureEffects$new(mod)
+eff <- FeatureEffects$new(mod)
 eff$plot()
-
 \dontrun{
 # Again, but this time with a partial dependence plot
-eff = FeatureEffects$new(mod, method = "pdp")
+eff <- FeatureEffects$new(mod, method = "pdp")
 eff$plot()
 
 # Only a subset of features
-eff = FeatureEffects$new(mod, features = c("nox", "crim"))
+eff <- FeatureEffects$new(mod, features = c("nox", "crim"))
 eff$plot()
-
 
 # You can access each FeatureEffect individually
 
-eff.nox = eff$effects[["nox"]]
+eff.nox <- eff$effects[["nox"]]
 eff.nox$plot()
 
 
 # FeatureEffects also works with multiclass classification
-rf = rpart(Species ~ ., data = iris)
-mod = Predictor$new(rf, data = iris, type = "prob")
+rf <- rpart(Species ~ ., data = iris)
+mod <- Predictor$new(rf, data = iris, type = "prob")
 
 FeatureEffects$new(mod)$plot(ncol = 2)
 }
 }
-}
 \references{
-Apley, D. W. 2016. "Visualizing the Effects of Predictor Variables in Black Box Supervised Learning Models." ArXiv Preprint.
+Apley, D. W. 2016. "Visualizing the Effects of Predictor Variables in Black
+Box Supervised Learning Models." ArXiv Preprint.
 
-Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting Machine." Annals of Statistics 29: 1189-1232.
+Friedman, J.H. 2001. "Greedy Function Approximation: A Gradient Boosting
+Machine." Annals of Statistics 29: 1189-1232.
 
-Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking Inside the Black Box:
-Visualizing Statistical Learning with Plots of Individual Conditional Expectation, 1-22. https://doi.org/10.1080/10618600.2014.907095
+Goldstein, A., Kapelner, A., Bleich, J., and Pitkin, E. (2013). Peeking
+Inside the Black Box: Visualizing Statistical Learning with Plots of
+Individual Conditional Expectation, 1-22.
+https://doi.org/10.1080/10618600.2014.907095
 }
 \seealso{
 \link{plot.FeatureEffect}
+}
+\section{Super class}{
+\code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{FeatureEffects}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
+The size of the grid.}
+
+\item{\code{method}}{(\code{character(1)})\cr
+\itemize{
+\item "ale" for accumulated local effects,
+\item "pdp" for partial dependence plot,
+\item "ice" for individual conditional expectation curves,
+\item "pdp+ ice" for partial dependence plot and ice curves within the same
+plot.
+}}
+
+\item{\code{effects}}{(\link{list})\cr
+Named list of FeatureEffects.}
+
+\item{\code{features}}{(\code{character()})\cr
+The names of the features for which the effects were computed.}
+
+\item{\code{center.at}}{\link{numeric}\cr
+Value at which the plot was centered. Ignored in the case of two
+features.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{FeatureEffects$new()}}
+\item \href{#method-clone}{\code{FeatureEffects$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+Create a FeatureEffects object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FeatureEffects$new(
+  predictor,
+  features = NULL,
+  method = "ale",
+  center.at = NULL,
+  grid.size = 20,
+  parallel = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{predictor}}{\link{Predictor}\cr
+The object (created with \code{Predictor$new()}) holding the machine
+learning model and the data.}
+
+\item{\code{features}}{(\code{character()})\cr
+The names of the features for which to compute the feature effects.}
+
+\item{\code{method}}{(\code{character(1)})\cr
+\itemize{
+\item 'ale' for accumulated local effects,
+\item 'pdp' for partial dependence plot,
+\item 'ice' for individual conditional expectation curves,
+\item 'pdp + ice' for partial dependence plot and ice curves within the same
+plot.
+}}
+
+\item{\code{center.at}}{(\code{numeric(1)})\cr
+Value at which the plot should be centered. Ignored in the case of two
+features.}
+
+\item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
+The size of the grid for evaluating the predictions.}
+
+\item{\code{parallel}}{\code{logical(1)}\cr
+Should the method be executed in parallel?
+If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach::foreach}.}
+
+\item{\code{feature}}{(\code{character(1)} | \code{character(2)} | \code{numeric(1)} |
+\code{numeric(2)})\cr
+The feature name or index for which to compute the effects.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FeatureEffects$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

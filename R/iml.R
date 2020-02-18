@@ -1,13 +1,11 @@
 #' Make machine learning models and predictions interpretable
 #'
-#' The iml package provides tools to analyse machine learning models and predictions. 
+#' The iml package provides tools to analyze machine learning models and predictions.
 #'
-#' 
-#' @seealso 
+#' @seealso
 #' \href{https://christophm.github.io/interpretable-ml-book/agnostic}{Book on Interpretable Machine Learning}
 "_PACKAGE"
-#> [1] "_PACKAGE"
-
+# > [1] "_PACKAGE"
 
 #' @import  R6 checkmate
 NULL

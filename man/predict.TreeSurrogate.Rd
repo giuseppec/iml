@@ -7,40 +7,40 @@
 \method{predict}{TreeSurrogate}(object, newdata, type = "prob", ...)
 }
 \arguments{
-\item{object}{The surrogate tree. A TreeSurrogate R6 object}
+\item{object}{The surrogate tree. A \link{TreeSurrogate} object.}
 
-\item{newdata}{A data.frame for which to predict}
+\item{newdata}{A \link{data.frame} for which to predict.}
 
-\item{type}{Either "prob" or "class". Ignored if the surrogate tree does regression.}
+\item{type}{Either "prob" or "class". Ignored if the surrogate tree does
+regression.}
 
-\item{...}{Further argumets for \code{predict_party}}
+\item{...}{Further arguments for \code{predict_party}.}
 }
 \value{
-A data.frame with the predicted outcome. 
-In case of regression it is the predicted \eqn{\hat{y}}. 
-In case of classification it is either the class probabilities (for type "prob") or the class label (type "class")
+A data.frame with the predicted outcome.
+In case of regression it is the predicted \eqn{\hat{y}}. In case of
+classification it is either the class probabilities (for type "prob") or the
+class label (type "class")
 }
 \description{
-Predict the response for newdata of a TreeSurrogate object.
-}
-\details{
-This function makes the TreeSurrogate object call 
-its iternal object$predict() method.
+Predict the response for newdata of a \link{TreeSurrogate} object.
+
+This function makes the \link{TreeSurrogate} object call
+its internal \verb{$predict()} method.
 }
 \examples{
-if (require("randomForest")) {
+library("randomForest")
 # Fit a Random Forest on the Boston housing data set
-data("Boston", package  = "MASS")
-rf = randomForest(medv ~ ., data = Boston, ntree = 50)
+data("Boston", package = "MASS")
+rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
 # Create a model object
-mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+mod <- Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")])
 
 # Fit a decision tree as a surrogate for the whole random forest
-dt = TreeSurrogate$new(mod)
+dt <- TreeSurrogate$new(mod)
 
 # Plot the resulting leaf nodes
 predict(dt, newdata = Boston)
-} 
 }
 \seealso{
 \link{TreeSurrogate}

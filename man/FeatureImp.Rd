@@ -3,138 +3,210 @@
 \name{FeatureImp}
 \alias{FeatureImp}
 \title{Feature importance}
-\format{\code{\link{R6Class}} object.}
 \description{
-\code{FeatureImp} computes feature importances for prediction models.
-The importance is measured as the factor by which the model's prediction error increases when the feature is shuffled.
+\code{FeatureImp} computes feature importance for prediction models. The
+importance is measured as the factor by which the model's prediction error
+increases when the feature is shuffled.
 }
-\section{Usage}{
-
-\preformatted{
-imp = FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5)
-
-imp$plot()
-imp$results
-print(imp)
-}
-}
-
-\section{Arguments}{
-
-
-For FeatureImp$new():
-\describe{
-\item{predictor: }{(Predictor)\cr 
-The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{loss: }{(`character(1)` | function)\cr The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a function. See Details for allowed losses.}
-\item{compare: }{(`character(1)`)\cr Either "ratio" or "difference". 
-Should importance be measured as the difference or as the ratio of original model error and model error after permutation?
-Ratio: error.permutation/error.orig,   Difference: error.permutation - error.orig}
-\item{n.repetitions: }{`numeric(1)`\cr How often should the shuffling of the feature be repeated?
-The higher the number of repetitions the more stable and accurate the results become. 
-}
-\item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
-}
-}
-
-\section{Details}{
-
-
-To compute the feature importance for a single feature, the model prediction loss (error) is measured before
-and after shuffling the values of the feature. By shuffling the feature values, the association between the 
-outcome and the feature is destroyed. The larger the increase in prediction error, the more important
-the feature was. The shuffling is repeated to get more accurate results, since the permutation 
-feature importance tends to be quite instable.
-Read the Interpretable Machine Learning book to learn about feature importance  in detail: 
+\details{
+To compute the feature importance for a single feature, the model prediction
+loss (error) is measured before and after shuffling the values of the
+feature. By shuffling the feature values, the association between the outcome
+and the feature is destroyed. The larger the increase in prediction error,
+the more important the feature was. The shuffling is repeated to get more
+accurate results, since the permutation feature importance tends to be quite
+unstable.
+Read the Interpretable Machine Learning book to learn about feature
+importance in detail:
 \url{https://christophm.github.io/interpretable-ml-book/feature-importance.html}
 
+The loss function can be either specified via a string, or by handing a
+function to \code{FeatureImp()}. If you want to use your own loss function it
+should have this signature:\preformatted{function(actual, predicted)
+}
 
-The loss function can be either specified via a string, or by handing a function to \code{FeatureImp()}.
-If you want to use your own loss function it should have this signature: function(actual, predicted).
-Using the string is a shortcut to using loss functions from the \code{Metrics} package. 
-Only use functions that return a single performance value, not a vector.
-Allowed losses are: "ce", "f1", "logLoss", "mae", "mse", "rmse", "mape", "mdae",
-"msle", "percent_bias", "rae", "rmse", "rmsle", "rse", "rrse", "smape"
+Using the string is
+a shortcut to using loss functions from the \code{Metrics} package. Only use
+functions that return a single performance value, not a vector. Allowed
+losses are: \code{"ce"}, \code{"f1"}, \code{"logLoss"}, \code{"mae"}, \code{"mse"}, \code{"rmse"}, \code{"mape"},
+\code{"mdae"}, \code{"msle"}, \code{"percent_bias"}, \code{"rae"}, \code{"rmse"}, \code{"rmsle"}, \code{"rse"},
+\code{"rrse"} and \code{"smape"}.
+
 See \code{library(help = "Metrics")} to get a list of functions.
 }
-
-\section{Fields}{
-
-\describe{
-\item{original.error: }{(`numeric(1)`)\cr The loss of the model before perturbing features.}
-\item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{compare: }{(`character(1)`)\cr Either "ratio" or "difference", depending on whether the importance was calculated as difference between original model error and model error after permutation or as ratio.}
-\item{results: }{(data.frame)\cr data.frame with the results of the feature importance computation. One row per feature with the following columns:
-                 importance.05 (5% quantile of importance values from the repetitions), 
-                 importance (median importance),
-                 importance.95 (95% quantile) and the permutation.error (median error over all repetitions). The distribution of the importance 
-                 is also visualized as a bar in the plots, the median importance over the repetitions as a point.}
-}
-}
-
-\section{Methods}{
-
-\describe{
-\item{loss(actual,predicted)}{The loss function. Can also be applied to data: \code{object$loss(actual, predicted)}}
-\item{plot()}{method to plot the feature importances. See \link{plot.FeatureImp}}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
-}
-}
-
 \examples{
-if (require("rpart")) {
+library("rpart")
 # We train a tree on the Boston dataset:
-data("Boston", package  = "MASS")
-tree = rpart(medv ~ ., data = Boston)
-y = Boston$medv
-X = Boston[-which(names(Boston) == "medv")]
-mod = Predictor$new(tree, data = X, y = y)
+data("Boston", package = "MASS")
+tree <- rpart(medv ~ ., data = Boston)
+y <- Boston$medv
+X <- Boston[-which(names(Boston) == "medv")]
+mod <- Predictor$new(tree, data = X, y = y)
 
 
 # Compute feature importances as the performance drop in mean absolute error
-imp = FeatureImp$new(mod, loss = "mae")
+imp <- FeatureImp$new(mod, loss = "mae")
 
 # Plot the results directly
 plot(imp)
 
 
-# Since the result is a ggplot object, you can extend it: 
-if (require("ggplot2")) {
-  plot(imp) + theme_bw()
-  # If you want to do your own thing, just extract the data: 
-  imp.dat = imp$results
-  head(imp.dat)
-  ggplot(imp.dat, aes(x = feature, y = importance)) + geom_point() + 
+# Since the result is a ggplot object, you can extend it:
+library("ggplot2")
+plot(imp) + theme_bw()
+# If you want to do your own thing, just extract the data:
+imp.dat <- imp$results
+head(imp.dat)
+ggplot(imp.dat, aes(x = feature, y = importance)) +
+  geom_point() +
   theme_bw()
-}
 
 # We can also look at the difference in model error instead of the ratio
-imp = FeatureImp$new(mod, loss = "mae", compare = "difference")
+imp <- FeatureImp$new(mod, loss = "mae", compare = "difference")
 
 # Plot the results directly
 plot(imp)
 
 
-# FeatureImp also works with multiclass classification. 
+# FeatureImp also works with multiclass classification.
 # In this case, the importance measurement regards all classes
-tree = rpart(Species ~ ., data= iris)
-X = iris[-which(names(iris) == "Species")]
-y = iris$Species
-mod = Predictor$new(tree, data = X, y = y, type = "prob") 
+tree <- rpart(Species ~ ., data = iris)
+X <- iris[-which(names(iris) == "Species")]
+y <- iris$Species
+mod <- Predictor$new(tree, data = X, y = y, type = "prob")
 
 # For some models we have to specify additional arguments for the predict function
-imp = FeatureImp$new(mod, loss = "ce")
+imp <- FeatureImp$new(mod, loss = "ce")
 plot(imp)
 
-# For multiclass classification models, you can choose to only compute performance for one class. 
+# For multiclass classification models, you can choose to only compute
+# performance for one class.
 # Make sure to adapt y
-mod = Predictor$new(tree, data = X, y = y == "virginica", 
- type = "prob", class = "virginica") 
-imp = FeatureImp$new(mod, loss = "ce")
+mod <- Predictor$new(tree,
+  data = X, y = y == "virginica",
+  type = "prob", class = "virginica"
+)
+imp <- FeatureImp$new(mod, loss = "ce")
 plot(imp)
 }
-}
 \references{
-Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance: Variable Importance Measures for any Machine Learning Model Class, from the "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
+Fisher, A., Rudin, C., and Dominici, F. (2018). Model Class Reliance:
+Variable Importance Measures for any Machine Learning Model Class, from the
+"Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
+}
+\section{Super class}{
+\code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{FeatureImp}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{loss}}{(\code{character(1)} | \link{function})\cr
+The loss function. Either the name of a loss (e.g. \code{"ce"} for
+classification or \code{"mse"}) or a function.}
+
+\item{\code{original.error}}{(\code{numeric(1)})\cr
+The loss of the model before perturbing features.}
+
+\item{\code{n.repetitions}}{\link{integer}\cr
+Number of repetitions.}
+
+\item{\code{compare}}{(\code{character(1)})\cr Either \code{"ratio"} or \code{"difference"},
+depending on whether the importance was calculated as difference
+between original model error and model error after permutation or as
+ratio.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{FeatureImp$new()}}
+\item \href{#method-clone}{\code{FeatureImp$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+Create a FeatureImp object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FeatureImp$new(
+  predictor,
+  loss,
+  compare = "ratio",
+  n.repetitions = 5,
+  parallel = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{predictor}}{\link{Predictor}\cr
+The object (created with \code{Predictor$new()}) holding the machine
+learning model and the data.}
+
+\item{\code{loss}}{(\code{character(1)} | \link{function})\cr
+The loss function. Either the name of a loss (e.g. \code{"ce"} for
+classification or \code{"mse"}) or a function. See Details for allowed
+losses.}
+
+\item{\code{compare}}{(\code{character(1)})\cr
+Either \code{"ratio"} or \code{"difference"}.
+Should importance be measured as the difference or as the ratio of
+original model error and model error after permutation?
+\itemize{
+\item Ratio: error.permutation/error.orig
+\item Difference: error.permutation - error.orig
+}}
+
+\item{\code{n.repetitions}}{(\code{numeric(1)})\cr
+How often should the shuffling of the feature be repeated?
+The higher the number of repetitions the more stable and accurate the
+results become.}
+
+\item{\code{parallel}}{\code{logical(1)}\cr
+Should the method be executed in parallel?
+If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach::foreach}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.frame)\cr
+data.frame with the results of the feature importance computation. One
+row per feature with the following columns:
+\itemize{
+\item importance.05 (5\% quantile of importance values from the repetitions)
+\item importance (median importance)
+\item importance.95 (95\% quantile) and the permutation.error (median error
+over all repetitions).
+}
+
+The distribution of the importance is also visualized as a bar in the
+plots, the median importance over the repetitions as a point.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{FeatureImp$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

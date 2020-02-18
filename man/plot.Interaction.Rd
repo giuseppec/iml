@@ -9,28 +9,28 @@
 \arguments{
 \item{x}{An Interaction R6 object}
 
-\item{sort}{logical. Should the features be sorted in descending order? Defaults to TRUE.}
+\item{sort}{logical. Should the features be sorted in descending order?
+Defaults to TRUE.}
 }
 \value{
 ggplot2 plot object
 }
 \description{
-plot.Interaction() plots the results of an Interaction object.
+\code{plot.Interaction()} plots the results of an Interaction object.
 }
 \examples{
 # We train a tree on the Boston dataset:
 \dontrun{
-if (require("rpart")) {
-data("Boston", package  = "MASS")
-rf = rpart(medv ~ ., data = Boston)
-mod = Predictor$new(rf, data = Boston)
+library("rpart")
+data("Boston", package = "MASS")
+rf <- rpart(medv ~ ., data = Boston)
+mod <- Predictor$new(rf, data = Boston)
 
 # Compute the interactions
-ia = Interaction$new(mod)
+ia <- Interaction$new(mod)
 
 # Plot the results directly
 plot(ia)
-}
 }
 }
 \seealso{

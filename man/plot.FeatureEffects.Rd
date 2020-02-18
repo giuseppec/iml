@@ -4,22 +4,23 @@
 \alias{plot.FeatureEffects}
 \title{Plot FeatureEffect}
 \usage{
-\method{plot}{FeatureEffects}(x, features = NULL, nrows = NULL,
-  ncols = NULL, fixed_y = TRUE, ...)
+\method{plot}{FeatureEffects}(x, features = NULL, nrows = NULL, ncols = NULL, fixed_y = TRUE, ...)
 }
 \arguments{
-\item{x}{A FeatureEffect R6 object}
+\item{x}{A \link{FeatureEffect} object.}
 
-\item{features}{[character()] For which features should the effects be plotted? Default is all features. 
-You can also sort the order of the plots with this argument.}
+\item{features}{\link{character} For which features should the effects be
+plotted? Default is all features. You can also sort the order of the plots
+with this argument.}
 
 \item{nrows}{The number of rows in the table of graphics}
 
 \item{ncols}{The number of columns in the table of graphics}
 
-\item{fixed_y}{Should the y-axis range be the same for all effects? Defaults to TRUE.}
+\item{fixed_y}{Should the y-axis range be the same for all effects? Defaults
+to TRUE.}
 
-\item{...}{Further arguments for FeatureEffect$plot()}
+\item{...}{Further arguments for \code{FeatureEffect$plot()}}
 }
 \value{
 grid object
@@ -28,18 +29,19 @@ grid object
 plot.FeatureEffect() plots the results of a FeatureEffect object.
 }
 \details{
-In contrast to other plot methods in iml, for FeatureEffects the returned plot is not a ggplot2 object, but a grid object, 
-a collection of multiple ggplot2 plots.
+In contrast to other plot methods in {iml}, for FeatureEffects the returned
+plot is not a ggplot2 object, but a grid object, a collection of multiple
+ggplot2 plots.
 }
 \examples{
 # We train a random forest on the Boston dataset:
-if (require("randomForest")) {
-data("Boston", package  = "MASS")
-rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-mod = Predictor$new(rf, data = Boston)
+library("randomForest")
+data("Boston", package = "MASS")
+rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
+mod <- Predictor$new(rf, data = Boston)
 
 # Compute the partial dependence for the first feature
-eff = FeatureEffects$new(mod)
+eff <- FeatureEffects$new(mod)
 
 # Plot the results directly
 eff$plot()
@@ -50,8 +52,6 @@ eff$plot(features = c("lstat", "crim"))
 # With a different layout
 eff$plot(nrows = 2)
 }
-}
 \seealso{
-\link{FeatureEffects}
-\link{plot.FeatureEffect}
+\link{FeatureEffects} \link{plot.FeatureEffect}
 }

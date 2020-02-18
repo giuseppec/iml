@@ -3,110 +3,150 @@
 \name{Interaction}
 \alias{Interaction}
 \title{Feature interactions}
-\format{\code{\link{R6Class}} object.}
 \description{
+Feature interactions
+
+Feature interactions
+}
+\details{
 \code{Interaction} estimates the feature interactions in a prediction model.
-}
-\section{Usage}{
 
-\preformatted{
-ia = Interaction$new(predictor, feature = NULL, grid.size = 20)
+Interactions between features are measured via the decomposition of the
+prediction function: If a feature \code{j} has no interaction with any other
+feature, the prediction function can be expressed as the sum of the partial
+function that depends only on \code{j} and the partial function that only depends
+on features other than \code{j}. If the variance of the full function is
+completely explained by the sum of the partial functions, there is no
+interaction between feature \code{j} and the other features. Any variance that is
+not explained can be attributed to the interaction and is used as a measure
+of interaction strength.
 
-plot(ia)
-ia$results
-print(ia)
-}
-}
+The interaction strength between two features is the proportion of the
+variance of the 2-dimensional partial dependence function that is not
+explained by the sum of the two 1-dimensional partial dependence functions.
 
-\section{Arguments}{
+The interaction is measured by Friedman's H-statistic (square root of the
+H-squared test statistic) and takes on values between 0 (no interaction) to 1
+(100\% of standard deviation of f(x) du to interaction).
 
-
-For Interaction$new():
-\describe{
-\item{predictor: }{(Predictor)\cr 
-The object (created with Predictor$new()) holding the machine learning model and the data.}
-\item{feature: }{(`numeric(1)`|NULL)\cr 
-If NULL, for each feature the interactions with all other features are estimated.
-If one feature name is selected, the 2-way interactions of this feature with all other features are estimated}
-\item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.
-A larger grid.size means more accurate the results but longer the computation time.
-For each of the grid points, the partial dependence functions have to be computed, which involves marginalizing over all data points.}
-\item{parallel: }{`logical(1)`\cr Should the method be executed in parallel? If TRUE, requires a cluster to be registered, see ?foreach::foreach.}
-}
-}
-
-\section{Details}{
-  
-Interactions between features are measured via the decomposition of the prediction function:
-If a feature j has no interaction with any other feature, the prediction function can 
-be expressed as the sum of the partial function that depends only on j and the partial function that only depends on features other than j.
-If the variance of the full function is completely explained by the sum of the partial functions, there is no interaction between feature j and the other features. 
-Any variance that is not explained can be attributed to the interaction and is used as a measure of interaction strength.
-
-The interaction strength between two features is the proportion of the variance of the 2-dimensional partial dependence function that is not explained
-by the sum of the two 1-dimensional partial dependence functions.
-
-The interaction is measured by Friedman's H-statistic (square root of the H-squared test statistic) and takes on values between 0 (no interaction) to 1 (100% of standard deviation of f(x) du to interaction).
-
-To learn more about interaction effects, read the Interpretable Machine Learning book: 
+To learn more about interaction effects, read the Interpretable Machine Learning book:
 \url{https://christophm.github.io/interpretable-ml-book/interaction.html}
 }
-
-\section{Fields}{
-
-\describe{
-\item{grid.size: }{(`logical(1)`)\cr The number of values per feature that should be used to estimate the interaction strength.}
-\item{predictor: }{(Predictor)\cr The prediction model that was analysed.}
-\item{results: }{(data.frame)\cr Data.frame with the interaction strength (column '.interation') per feature calculated as Friedman's H-statistic and - in the case of a multi-dimensional outcome - per class.}
-}
-}
-
-\section{Methods}{
-
-\describe{
-\item{plot()}{method to plot the feature interactions. See \link{plot.Interaction}.}
-\item{\code{clone()}}{[internal] method to clone the R6 object.}
-\item{\code{initialize()}}{[internal] method to initialize the R6 object.}
-}
-}
-
 \examples{
 \dontrun{
-if (require("rpart")) {
+library("rpart")
 set.seed(42)
 # Fit a CART on the Boston housing data set
-data("Boston", package  = "MASS")
-rf = rpart(medv ~ ., data = Boston)
+data("Boston", package = "MASS")
+rf <- rpart(medv ~ ., data = Boston)
 # Create a model object
-mod = Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")]) 
+mod <- Predictor$new(rf, data = Boston[-which(names(Boston) == "medv")])
 
 # Measure the interaction strength
-ia = Interaction$new(mod)
+ia <- Interaction$new(mod)
 
 # Plot the resulting leaf nodes
-plot(ia) 
+plot(ia)
 
-
-# Extract the results 
-dat = ia$results
+# Extract the results
+dat <- ia$results
 head(dat)
 
 # Interaction also works with multiclass classification
-rf = rpart(Species ~ ., data = iris)
-mod = Predictor$new(rf, data = iris, type = "prob")
+rf <- rpart(Species ~ ., data = iris)
+mod <- Predictor$new(rf, data = iris, type = "prob")
 
-# For some models we have to specify additional arguments for the predict function
-ia = Interaction$new(mod)
+# For some models we have to specify additional arguments for the
+# predict function
+ia <- Interaction$new(mod)
 
 ia$plot()
 
 # For multiclass classification models, you can choose to only show one class:
-mod = Predictor$new(rf, data = iris, type = "prob", class = "virginica")
+mod <- Predictor$new(rf, data = iris, type = "prob", class = "virginica")
 plot(Interaction$new(mod))
 }
-}
+
 }
 \references{
-Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning via rule ensembles." 
-The Annals of Applied Statistics 2.3 (2008): 916-954.
+Friedman, Jerome H., and Bogdan E. Popescu. "Predictive learning
+via rule ensembles." The Annals of Applied Statistics 2.3 (2008): 916-954.
+}
+\section{Super class}{
+\code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{Interaction}
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{grid.size}}{(\code{logical(1)})\cr
+The number of values per feature that should be used to estimate the
+interaction strength.}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{Interaction$new()}}
+\item \href{#method-clone}{\code{Interaction$clone()}}
+}
+}
+\if{html}{
+\out{<details open ><summary>Inherited methods</summary>}
+\itemize{
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
+\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
+}
+\out{</details>}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\subsection{Method \code{new()}}{
+Create an Interaction object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Interaction$new(predictor, feature = NULL, grid.size = 30, parallel = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{predictor}}{\link{Predictor}\cr
+The object (created with \code{Predictor$new()}) holding the machine
+learning model and the data.}
+
+\item{\code{feature}}{(\code{character(1)} | \code{character(2)} | \code{numeric(1)} |
+\code{numeric(2)})\cr
+The feature name or index for which to compute the effects.}
+
+\item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
+The size of the grid for evaluating the predictions.}
+
+\item{\code{parallel}}{\code{logical(1)}\cr
+Should the method be executed in parallel?
+If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach::foreach}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+\link{data.frame} with the interaction strength (column \code{.interation}) per
+feature calculated as Friedman's H-statistic and - in the case of a
+multi-dimensional outcome - per class.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Interaction$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

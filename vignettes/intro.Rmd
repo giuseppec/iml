@@ -85,6 +85,7 @@ The marks on the x-axis indicates the distribution of the 'lstat' feature, showi
 
 ```{r}
 ale = FeatureEffect$new(predictor, feature = "lstat")
+library("ggplot2")
 ale$plot()
 ```
 
