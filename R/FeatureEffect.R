@@ -234,15 +234,25 @@ FeatureEffect <- R6Class("FeatureEffect",
     #' @description Predict the marginal outcome given a feature.
     #' @param data [data.frame]\cr
     #'  Data.frame with the feature or a vector.
+		#' @param extrapolate (`character(1)`)\cr
+		#'   If TRUE, predict returns NA for x values outside of observed range. 
+		#'   If FALSE, predcit returns the closest PDP value for x values outside the range.
+		#'   Ignored for categorical features
     #' @return Values of the effect curves at the given values.
-    predict = function(data) {
+    predict = function(data, extrapolate = FALSE) {
+			assert_logical(extrapolate)
       if (self$n.features == 2) stop("Only implemented for single feature")
       if (private$multiClass) stop("Only works for one-dimensional output")
       if (inherits(data, "data.frame")) {
         data <- data[, self$feature.name]
       }
       assert_vector(data)
-      private$predict_inner(data)
+      predictions = private$predict_inner(data)
+			if (!extrapolate & (self$feature.type == "numerical")) {
+				predictions[data < min(self$results[[self$feature.name]])] <- NA
+				predictions[data > max(self$results[[self$feature.name]])] <- NA
+			}
+			predictions
     }
   ),
   private = list(
@@ -265,7 +275,7 @@ FeatureEffect <- R6Class("FeatureEffect",
             self$results$.type %in% c("ale", "pdp"),
             self$feature.name
           ]
-          private$predict_inner <- approxfun(x = x, y = y)
+          private$predict_inner <- approxfun(x = x, y = y, rule = 2)
         } else {
           private$predict_inner <- function(x) {
             df <- data.table(as.character(x), stringsAsFactors = FALSE)

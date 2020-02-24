@@ -37,6 +37,8 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   expect_equal(min(dat$a), 1)
   checkPlot(pdp.obj)
   expect_numeric(pdp.obj$predict(1), len = 1)
+  expect_true(all(is.na(pdp.obj$predict(c(-100, 1000), extrapolate = FALSE))))
+  expect_numeric(pdp.obj$predict(1000, extrapolate = TRUE))
   expect_numeric(pdp.obj$predict(c(1, 2)), len = 2, any.missing = FALSE)
   expect_numeric(pdp.obj$predict(X), len = nrow(X), any.missing = FALSE)
   expect_numeric(pdp.obj$predict(X[1:2, ]), len = 2, any.missing = FALSE)
@@ -48,7 +50,8 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   expect_equal(pdp.obj$predict(X), pdp.obj$results$.y.hat[pdp.obj$results$c[X$c]])
 
   pdp.obj$set.feature("d")
-  expect_numeric(pdp.obj$predict("A"), len = 1)
+  expect_numeric(pdp.obj$predict("A", extrapolate = FALSE), len = 1)
+  expect_numeric(pdp.obj$predict("A", extrapolate = TRUE), len = 1)
   expect_numeric(pdp.obj$predict(c("A", "B")), len = 2, any.missing = FALSE)
   expect_numeric(pdp.obj$predict(X), len = nrow(X), any.missing = FALSE)
   expect_numeric(pdp.obj$predict(X[1:2, ]), len = 2, any.missing = FALSE)
