@@ -15,10 +15,10 @@
 #' multiple times. See `?FeatureEffect` for details what's actually computed.
 #'
 #' Only first-order effects can be computed with the [FeatureEffects] interface.
-#' If you are intereated in the visualization of interactions between two
+#' If you are interested in the visualization of interactions between two
 #' features, directly use [FeatureEffect].
 #'
-#' @seealso [plot.FeatureEffect]
+#' @seealso [plot.FeatureEffects]
 #'
 #' @references
 #' Apley, D. W. 2016. "Visualizing the Effects of Predictor Variables in Black
@@ -83,7 +83,7 @@ FeatureEffects <- R6Class("FeatureEffects",
     #' - 'ale' for accumulated local effects,
     #' - 'pdp' for partial dependence plot,
     #' - 'ice' for individual conditional expectation curves,
-    #' - 'pdp + ice' for partial dependence plot and ice curves within the same
+    #' - 'pdp+ice' for partial dependence plot and ice curves within the same
     #' plot.
     #' @param center.at (`numeric(1)`)\cr
     #'   Value at which the plot should be centered. Ignored in the case of two
