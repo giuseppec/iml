@@ -74,7 +74,7 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   pdp.obj$center(0)
   checkPlot(pdp.obj)
   dat <- pdp.obj$results
-  expect_equal(min(dat$.y), 0)
+  expect_equal(min(dat$.value), 0)
 
 
   # Centering

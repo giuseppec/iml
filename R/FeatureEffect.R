@@ -340,6 +340,7 @@ FeatureEffect <- R6Class("FeatureEffect",
         self$feature.name,
         id.dist = TRUE, cartesian = TRUE
       )
+      browser()
       results.ice <- data.table()
       while (!mg$finished) {
         results.ice.inter <- mg$next.batch(n)
@@ -351,7 +352,7 @@ FeatureEffect <- R6Class("FeatureEffect",
           y.hat.names <- colnames(predictions)
           results.ice.inter <- cbind(results.ice.inter, predictions)
           results.ice.inter <- data.table::melt(results.ice.inter,
-            variable.name = ".value",
+            variable.name = ".class",
             value.name = ".value", measure.vars = y.hat.names
           )
         } else {
@@ -367,7 +368,7 @@ FeatureEffect <- R6Class("FeatureEffect",
           c(".value", ".id.dist", ".class"),
           with = FALSE
         ]
-        names(X.aggregated.anchor) <- c(".value", ".id.dist", ".class")
+        names(X.aggregated.anchor) <- c("anchor.value", ".id.dist", ".class")
         # In case that the anchor value was also part of grid
         X.aggregated.anchor <- unique(X.aggregated.anchor)
         results.ice <- merge(results.ice, X.aggregated.anchor,
@@ -377,6 +378,7 @@ FeatureEffect <- R6Class("FeatureEffect",
         results.ice$anchor.value <- NULL
       }
       results <- data.table()
+      browser()
       if (self$method %in% c("pdp", "pdp+ice")) {
         if (private$multiClass) {
           results.aggregated <- results.ice[, list(.value = mean(.value)),
