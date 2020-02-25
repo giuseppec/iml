@@ -328,6 +328,8 @@ FeatureEffect <- R6Class("FeatureEffect",
       }
       # only keep .class when multiple outputs
       if (!private$multiClass) results$.class <- NULL
+      # change order of DF: Move feature name to front
+      results = results[, c(3, 1, 2)]
       self$results <- results
     },
     run.pdp = function(n) {
