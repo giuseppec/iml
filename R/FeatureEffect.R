@@ -6,7 +6,6 @@
 #'   of prediction models.
 #'
 #' @importFrom data.table melt setkeyv
-#' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #'
 #' @details

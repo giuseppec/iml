@@ -13,7 +13,7 @@ prediction. \link{FeatureEffects} is a convenience class that calls FeatureEffec
 multiple times. See \code{?FeatureEffect} for details what's actually computed.
 
 Only first-order effects can be computed with the \link{FeatureEffects} interface.
-If you are intereated in the visualization of interactions between two
+If you are interested in the visualization of interactions between two
 features, directly use \link{FeatureEffect}.
 }
 \examples{
@@ -61,7 +61,7 @@ Individual Conditional Expectation, 1-22.
 https://doi.org/10.1080/10618600.2014.907095
 }
 \seealso{
-\link{plot.FeatureEffect}
+\link{plot.FeatureEffects}
 }
 \section{Super class}{
 \code{\link[iml:InterpretationMethod]{iml::InterpretationMethod}} -> \code{FeatureEffects}
@@ -138,7 +138,7 @@ The names of the features for which to compute the feature effects.}
 \item 'ale' for accumulated local effects,
 \item 'pdp' for partial dependence plot,
 \item 'ice' for individual conditional expectation curves,
-\item 'pdp + ice' for partial dependence plot and ice curves within the same
+\item 'pdp+ice' for partial dependence plot and ice curves within the same
 plot.
 }}
 

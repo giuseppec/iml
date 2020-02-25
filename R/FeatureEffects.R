@@ -5,7 +5,6 @@
 #' @description `FeatureEffects` computes and plots feature effects
 #'   of multiple features at once.
 #' @importFrom data.table melt setkeyv
-#' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #'
 #' @details
