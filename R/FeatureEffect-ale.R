@@ -136,7 +136,8 @@ calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.size) 
   ale <- ale[, list(.y.hat.cumsum = cumsum_na(c(0, .y.hat.cumsum)), .interval1 = c(0, .interval1)), by = c(".class", ".interval2")]
   # Number of cells are need for weighting later
   cell.counts <- as.matrix(table(interval.index1, interval.index2))
-  cell.counts.m <- data.table::melt(as.data.table(cell.counts), measure.vars = "N")[, "variable" := NULL]
+  cell.counts.m <- data.table::melt(as.data.table(cell.counts), measure.vars = "N")
+  cell.counts.m$variable = NULL
   colnames(cell.counts.m) <- c(".interval1", ".interval2", ".count")
   cell.counts.m$.interval1 <- as.numeric(as.character(cell.counts.m$.interval1))
   cell.counts.m$.interval2 <- as.numeric(as.character(cell.counts.m$.interval2))
