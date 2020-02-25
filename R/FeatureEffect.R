@@ -342,7 +342,6 @@ FeatureEffect <- R6Class("FeatureEffect",
         self$feature.name,
         id.dist = TRUE, cartesian = TRUE
       )
-      browser()
       results.ice <- data.table()
       while (!mg$finished) {
         results.ice.inter <- mg$next.batch(n)
@@ -380,7 +379,6 @@ FeatureEffect <- R6Class("FeatureEffect",
         results.ice$anchor.value <- NULL
       }
       results <- data.table()
-      browser()
       if (self$method %in% c("pdp", "pdp+ice")) {
         if (private$multiClass) {
           results.aggregated <- results.ice[, list(.value = mean(.value)),
