@@ -476,7 +476,7 @@ FeatureEffect <- R6Class("FeatureEffect",
             cat.breaks <- unique(res[[categorical.feature]])
             cat.labels <- levels(self$results[[categorical.feature]])[cat.breaks]
             p <- ggplot2::ggplot(res, ggplot2::aes_string(x = categorical.feature, y = numerical.feature)) +
-              ggplot2::geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) +
+              ggplot2::geom_rect(ggplot2::aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) +
               ggplot2::scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) +
               ggplot2::scale_y_continuous(numerical.feature) +
               ggplot2::scale_fill_continuous(private$y_axis_label)
@@ -507,7 +507,7 @@ FeatureEffect <- R6Class("FeatureEffect",
           } else {
             # Adding x and y to aesthetics for the rug plot later
             p <- ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = self$feature.name[1], y = self$feature.name[2])) +
-              ggplot2::geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) +
+              ggplot2::geom_rect(ggplot2::aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) +
               ggplot2::scale_x_continuous(self$feature.name[1]) +
               ggplot2::scale_y_continuous(self$feature.name[2]) +
               ggplot2::scale_fill_continuous(private$y_axis_label)
@@ -517,7 +517,7 @@ FeatureEffect <- R6Class("FeatureEffect",
             x = self$feature.name[1],
             y = self$feature.name[2]
           )) +
-            ggplot2::geom_tile(aes(fill = .y.hat)) +
+            ggplot2::geom_tile(ggplot2::aes(fill = .y.hat)) +
             ggplot2::scale_fill_continuous(private$y_axis_label)
         } else {
           categorical.feature <- self$feature.name[self$feature.type == "categorical"]
