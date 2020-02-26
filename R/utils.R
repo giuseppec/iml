@@ -303,3 +303,26 @@ get_layout <- function(n_features, nrows = NULL, ncols = NULL) {
   }
   list("nrows" = nrows, "ncols" = ncols)
 }
+
+# move positions of columns in a data.frame
+# https://stackoverflow.com/questions/18339370/reordering-columns-in-a-large-dataframe?noredirect=1&lq=1
+
+moveMe <- function(data, tomove, where = "last", ba = NULL) {
+  temp <- setdiff(names(data), tomove)
+  x <- switch(
+    where,
+    first = data[c(tomove, temp)],
+    last = data[c(temp, tomove)],
+    before = {
+      if (is.null(ba)) stop("must specify ba column")
+      if (length(ba) > 1) stop("ba must be a single character string")
+      data[append(temp, values = tomove, after = (match(ba, temp) - 1))]
+    },
+    after = {
+      if (is.null(ba)) stop("must specify ba column")
+      if (length(ba) > 1) stop("ba must be a single character string")
+      data[append(temp, values = tomove, after = (match(ba, temp)))]
+    }
+  )
+  x
+}
