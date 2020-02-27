@@ -1,4 +1,9 @@
-# 0.9.1 (In Progress) 
+# 0.10 (In Progress) 
+* Changes to FeatureEffect$results data.frame:
+  * All numeric values are stored in .value (no more .y.hat and .ale)
+  * Additional column .type denoting the Feature Effect type
+  * renamed column .feature to .borders. This column stores the grid borders which were used for computing the FE with respect to the used method
+  * For ALE type the column containing the feature name was moved to the front (as it is for the other types)
 * Adds support for h2o
 * Adds support for keras
 * Adds support for mlr3
