@@ -48,7 +48,7 @@ calculate.ale.num <- function(dat, run.prediction, feature.name, grid.size) {
   ]
   # centering the ALEs
   deltas.accumulated <- merge(deltas.accumulated, fJ0, all.x = TRUE, by = ".class")
-  fJ <- deltas.accumulated[, list(.ale = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"),
+  fJ <- deltas.accumulated[, list(.value = .y.hat.cumsum - .ale0, .id = 1:nrow(.SD), .type = "ale"),
     by = ".class"
   ]
   grid.dt$.id <- 1:nrow(grid.dt)
@@ -136,7 +136,8 @@ calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.size) 
   ale <- ale[, list(.y.hat.cumsum = cumsum_na(c(0, .y.hat.cumsum)), .interval1 = c(0, .interval1)), by = c(".class", ".interval2")]
   # Number of cells are need for weighting later
   cell.counts <- as.matrix(table(interval.index1, interval.index2))
-  cell.counts.m <- data.table::melt(as.data.table(cell.counts), measure.vars = "N")[, "variable" := NULL]
+  cell.counts.m <- data.table::melt(as.data.table(cell.counts), measure.vars = "N")
+  cell.counts.m$variable = NULL
   colnames(cell.counts.m) <- c(".interval1", ".interval2", ".count")
   cell.counts.m$.interval1 <- as.numeric(as.character(cell.counts.m$.interval1))
   cell.counts.m$.interval2 <- as.numeric(as.character(cell.counts.m$.interval2))
@@ -263,7 +264,7 @@ calculate.ale.cat <- function(dat, run.prediction, feature.name) {
   x.count <- as.numeric(table(x))
   x.prob <- x.count / sum(x.count)
   deltas <- deltas[, list(.ale = .ale - sum(.ale * x.prob[level_order]), .level = levels.ordered), by = ".class"]
-  colnames(deltas) <- c(".class", ".ale", feature.name)
+  colnames(deltas) <- c(".class", ".value", feature.name)
   deltas[, feature.name] <- factor(deltas[, feature.name, with = FALSE][[1]], levels = levels.ordered)
   deltas$.type <- "ale"
   # make sure the rows are ordered by the new level order

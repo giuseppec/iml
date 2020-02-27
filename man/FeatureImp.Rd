@@ -79,7 +79,7 @@ mod <- Predictor$new(tree, data = X, y = y, type = "prob")
 imp <- FeatureImp$new(mod, loss = "ce")
 plot(imp)
 
-# For multiclass classification models, you can choose to only compute 
+# For multiclass classification models, you can choose to only compute
 # performance for one class.
 # Make sure to adapt y
 mod <- Predictor$new(tree,

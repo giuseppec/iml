@@ -261,7 +261,7 @@ features.}
 \subsection{Method \code{predict()}}{
 Predict the marginal outcome given a feature.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureEffect$predict(data)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FeatureEffect$predict(data, extrapolate = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -269,6 +269,11 @@ Predict the marginal outcome given a feature.
 \describe{
 \item{\code{data}}{\link{data.frame}\cr
 Data.frame with the feature or a vector.}
+
+\item{\code{extrapolate}}{(\code{character(1)})\cr
+If TRUE, predict returns NA for x values outside of observed range.
+If FALSE, predcit returns the closest PDP value for x values outside the range.
+Ignored for categorical features}
 }
 \if{html}{\out{</div>}}
 }

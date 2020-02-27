@@ -6,7 +6,6 @@
 #'   of prediction models.
 #'
 #' @importFrom data.table melt setkeyv
-#' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #'
 #' @details
@@ -282,7 +281,7 @@ FeatureEffect <- R6Class("FeatureEffect",
             colnames(df) <- self$feature.name
             results <- self$results
             results[, self$feature.name] <- as.character(results[, self$feature.name])
-            output_col <- ifelse(self$method == "ale", ".ale", ".y.hat")
+            output_col <- ifelse(self$method == "ale", ".ale", ".value")
             res <- merge(
               x = df, y = results, by = self$feature.name,
               all.x = TRUE, sort = FALSE
@@ -329,6 +328,8 @@ FeatureEffect <- R6Class("FeatureEffect",
       }
       # only keep .class when multiple outputs
       if (!private$multiClass) results$.class <- NULL
+      # change order of DF: Move feature name to front
+      results = moveMe(results, ".type", "first")
       self$results <- results
     },
     run.pdp = function(n) {
@@ -353,10 +354,10 @@ FeatureEffect <- R6Class("FeatureEffect",
           results.ice.inter <- cbind(results.ice.inter, predictions)
           results.ice.inter <- data.table::melt(results.ice.inter,
             variable.name = ".class",
-            value.name = ".y.hat", measure.vars = y.hat.names
+            value.name = ".value", measure.vars = y.hat.names
           )
         } else {
-          results.ice.inter$.y.hat <- predictions
+          results.ice.inter$.value <- predictions
           results.ice.inter$.class <- 1
         }
         results.ice <- rbind(results.ice, results.ice.inter)
@@ -365,26 +366,26 @@ FeatureEffect <- R6Class("FeatureEffect",
       if (!is.null(private$anchor.value)) {
         anchor.index <- which(results.ice[, self$feature.name, with = FALSE] == private$anchor.value)
         X.aggregated.anchor <- results.ice[anchor.index,
-          c(".y.hat", ".id.dist", ".class"),
+          c(".value", ".id.dist", ".class"),
           with = FALSE
         ]
-        names(X.aggregated.anchor) <- c("anchor.yhat", ".id.dist", ".class")
+        names(X.aggregated.anchor) <- c("anchor.value", ".id.dist", ".class")
         # In case that the anchor value was also part of grid
         X.aggregated.anchor <- unique(X.aggregated.anchor)
         results.ice <- merge(results.ice, X.aggregated.anchor,
           by = c(".id.dist", ".class")
         )
-        results.ice$.y.hat <- results.ice$.y.hat - results.ice$anchor.yhat
-        results.ice$anchor.yhat <- NULL
+        results.ice$.value <- results.ice$.value - results.ice$anchor.value
+        results.ice$anchor.value <- NULL
       }
       results <- data.table()
       if (self$method %in% c("pdp", "pdp+ice")) {
         if (private$multiClass) {
-          results.aggregated <- results.ice[, list(.y.hat = mean(.y.hat)),
+          results.aggregated <- results.ice[, list(.value = mean(.value)),
             by = c(self$feature.name, ".class")
           ]
         } else {
-          results.aggregated <- results.ice[, list(.y.hat = mean(.y.hat)),
+          results.aggregated <- results.ice[, list(.value = mean(.value)),
             by = c(self$feature.name)
           ]
         }
@@ -442,9 +443,8 @@ FeatureEffect <- R6Class("FeatureEffect",
       }
 
       if (self$n.features == 1) {
-        y.name <- ifelse(self$method == "ale", ".ale", ".y.hat")
         p <- ggplot2::ggplot(self$results,
-          mapping = ggplot2::aes_string(x = self$feature.name, y = y.name)
+          mapping = ggplot2::aes_string(x = self$feature.name, y = ".value")
         ) +
           ggplot2::scale_y_continuous(private$y_axis_label, limits = ylim)
         if (self$feature.type == "categorical") {
@@ -476,7 +476,7 @@ FeatureEffect <- R6Class("FeatureEffect",
             cat.breaks <- unique(res[[categorical.feature]])
             cat.labels <- levels(self$results[[categorical.feature]])[cat.breaks]
             p <- ggplot2::ggplot(res, ggplot2::aes_string(x = categorical.feature, y = numerical.feature)) +
-              ggplot2::geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) +
+              ggplot2::geom_rect(ggplot2::aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) +
               ggplot2::scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) +
               ggplot2::scale_y_continuous(numerical.feature) +
               ggplot2::scale_fill_continuous(private$y_axis_label)
@@ -507,7 +507,7 @@ FeatureEffect <- R6Class("FeatureEffect",
           } else {
             # Adding x and y to aesthetics for the rug plot later
             p <- ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = self$feature.name[1], y = self$feature.name[2])) +
-              ggplot2::geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) +
+              ggplot2::geom_rect(ggplot2::aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) +
               ggplot2::scale_x_continuous(self$feature.name[1]) +
               ggplot2::scale_y_continuous(self$feature.name[2]) +
               ggplot2::scale_fill_continuous(private$y_axis_label)
@@ -517,12 +517,12 @@ FeatureEffect <- R6Class("FeatureEffect",
             x = self$feature.name[1],
             y = self$feature.name[2]
           )) +
-            ggplot2::geom_tile(aes(fill = .y.hat)) +
+            ggplot2::geom_tile(ggplot2::aes(fill = .y.hat)) +
             ggplot2::scale_fill_continuous(private$y_axis_label)
         } else {
           categorical.feature <- self$feature.name[self$feature.type == "categorical"]
           numerical.feature <- setdiff(self$feature.name, categorical.feature)
-          p <- ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = numerical.feature, y = ".y.hat")) +
+          p <- ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = numerical.feature, y = ".value")) +
             ggplot2::geom_line(ggplot2::aes_string(group = categorical.feature, color = categorical.feature)) +
             ggplot2::scale_y_continuous(private$y_axis_label)
           show.data <- FALSE
@@ -540,11 +540,11 @@ FeatureEffect <- R6Class("FeatureEffect",
         rug.dat$.id <- ifelse(is.null(self$results$.id), NA,
           self$results$.id[1]
         )
-        rug.dat$.ale <- ifelse(is.null(self$results$.ale), NA,
-          self$results$.ale[1]
+        rug.dat$.type <- ifelse(is.null(self$results$.type), NA,
+          self$results$.type[1]
         )
-        rug.dat$.y.hat <- ifelse(is.null(self$results$.y.hat), NA,
-          self$results$.y.hat[1]
+        rug.dat$.value <- ifelse(is.null(self$results$.value), NA,
+          self$results$.value[1]
         )
         sides <- ifelse(self$n.features == 2 &&
           self$feature.type[1] == self$feature.type[2], "bl", "b")

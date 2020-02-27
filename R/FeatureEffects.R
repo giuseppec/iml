@@ -5,7 +5,6 @@
 #' @description `FeatureEffects` computes and plots feature effects
 #'   of multiple features at once.
 #' @importFrom data.table melt setkeyv
-#' @import ggplot2
 #' @importFrom stats cmdscale ecdf quantile
 #'
 #' @details
@@ -34,11 +33,11 @@
 #'
 #' @examples
 #' # We train a random forest on the Boston dataset:
-#' data("Boston", package = "MASS")
 #' library("rpart")
-#' rf <- rpart(medv ~ ., data = Boston)
-#' mod <- Predictor$new(rf, data = Boston)
-#'
+#' data("Boston", package  = "MASS")
+#' rf = rpart(medv ~ ., data = Boston)
+#' mod = Predictor$new(rf, data = Boston)
+#' 
 #' # Compute the accumulated local effects for all features
 #' eff <- FeatureEffects$new(mod)
 #' eff$plot()
@@ -164,7 +163,7 @@ FeatureEffects <- R6Class("FeatureEffects",
         res <- x$results
         fname.index <- which(colnames(res) %in% names(self$effects))
         res$.feature <- colnames(res)[fname.index]
-        colnames(res)[fname.index] <- ".feature"
+        colnames(res)[fname.index] <- ".borders"
         res
       })
       private$finished <- TRUE
@@ -190,10 +189,9 @@ FeatureEffects <- R6Class("FeatureEffects",
         features <- self$features
       }
 
-      if (fixed_y) {
-        res <- unlist(lapply(features, function(fname) {
-          cname <- ifelse(self$method == "ale", ".ale", ".y.hat")
-          values <- self$effects[[fname]]$results[cname]
+  if(fixed_y) { 
+    res = unlist(lapply(features, function(fname){
+      values = self$effects[[fname]]$results[".value"]
           c(min(values), max(values))
         }))
         ylim <- c(min(res), max(res))
