@@ -266,9 +266,9 @@ FeatureEffect <- R6Class("FeatureEffect",
       if (self$n.features == 1 & !private$multiClass &
         self$method %in% c("ale", "pdp", "pdp+ice")) {
         if (self$feature.type == "numerical") {
-          if (self$method == "ale") y <- self$results$.ale
+          if (self$method == "ale") y <- self$results$.value
           if (self$method %in% c("pdp", "pdp+ice")) {
-            y <- self$results$.y.hat[self$results$.type == "pdp"]
+            y <- self$results$.value[self$results$.type == "pdp"]
           }
           x <- self$results[
             self$results$.type %in% c("ale", "pdp"),
@@ -490,7 +490,7 @@ FeatureEffect <- R6Class("FeatureEffect",
                 with = FALSE
               ][[1]])
               # Need some dummy data for ggplot to accept the data.frame
-              rug.dat <- cbind(dat, data.frame(.y.hat = 1, .id = 1, .ale = 1))
+              rug.dat <- cbind(dat, data.frame(.value = 1, .id = 1, .ale = 1))
               p <- p + ggplot2::geom_rug(
                 data = rug.dat, alpha = 0.2, sides = "bl",
                 position = ggplot2::position_jitter(width = 0.07, height = 0.07)
@@ -517,7 +517,7 @@ FeatureEffect <- R6Class("FeatureEffect",
             x = self$feature.name[1],
             y = self$feature.name[2]
           )) +
-            ggplot2::geom_tile(ggplot2::aes(fill = .y.hat)) +
+            ggplot2::geom_tile(ggplot2::aes(fill = .value)) +
             ggplot2::scale_fill_continuous(private$y_axis_label)
         } else {
           categorical.feature <- self$feature.name[self$feature.type == "categorical"]
