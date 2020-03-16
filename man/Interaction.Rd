@@ -101,10 +101,11 @@ interaction strength.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create an Interaction object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Interaction$new(predictor, feature = NULL, grid.size = 30, parallel = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Interaction$new(predictor, feature = NULL, grid.size = 30)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -120,10 +121,6 @@ The feature name or index for which to compute the effects.}
 
 \item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
 The size of the grid for evaluating the predictions.}
-
-\item{\code{parallel}}{\code{logical(1)}\cr
-Should the method be executed in parallel?
-If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach::foreach}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -135,6 +132,7 @@ multi-dimensional outcome - per class.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

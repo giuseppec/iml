@@ -110,6 +110,7 @@ multi-class case, r.squared contains one measure per class.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a TreeSurrogate object
 \subsection{Usage}{
@@ -134,6 +135,7 @@ Further arguments for \code{\link[party:ctree]{party::ctree()}}.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-predict}{}}}
 \subsection{Method \code{predict()}}{
 Predict new data with the tree.
 See also \link{predict.TreeSurrogate}
@@ -156,6 +158,7 @@ Data to predict on.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

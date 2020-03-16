@@ -130,6 +130,7 @@ The index of the best glmnet fit.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a Local Model object.
 \subsection{Usage}{
@@ -174,6 +175,7 @@ prediction.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-predict}{}}}
 \subsection{Method \code{predict()}}{
 Method to predict new data with the local model See also
 \link{predict.LocalModel}.
@@ -194,6 +196,7 @@ Data to predict on.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-explain"></a>}}
+\if{latex}{\out{\hypertarget{method-explain}{}}}
 \subsection{Method \code{explain()}}{
 Set a new data point to explain.
 \subsection{Usage}{
@@ -211,6 +214,7 @@ Single row with the instance to be explained.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

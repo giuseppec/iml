@@ -134,16 +134,11 @@ ratio.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a FeatureImp object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImp$new(
-  predictor,
-  loss,
-  compare = "ratio",
-  n.repetitions = 5,
-  parallel = FALSE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -171,10 +166,6 @@ original model error and model error after permutation?
 How often should the shuffling of the feature be repeated?
 The higher the number of repetitions the more stable and accurate the
 results become.}
-
-\item{\code{parallel}}{\code{logical(1)}\cr
-Should the method be executed in parallel?
-If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach::foreach}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -195,6 +186,7 @@ plots, the median importance over the repetitions as a point.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

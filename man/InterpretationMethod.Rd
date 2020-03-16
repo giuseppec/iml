@@ -27,6 +27,7 @@ The aggregated results of the experiment}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create an InterpretationMethod object
 \subsection{Usage}{
@@ -45,6 +46,7 @@ learning model and the data.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-plot}{}}}
 \subsection{Method \code{plot()}}{
 Plot function. Calls \code{private$generatePlot()} of the
 respective subclass.
@@ -62,6 +64,7 @@ respective subclass.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 Printer for InterpretationMethod objects
 \subsection{Usage}{
@@ -71,6 +74,7 @@ Printer for InterpretationMethod objects
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

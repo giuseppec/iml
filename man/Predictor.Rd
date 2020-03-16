@@ -74,6 +74,7 @@ The inferred prediction task: \code{"classification"} or \code{"regression"}.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a Predictor object
 \subsection{Usage}{
@@ -137,6 +138,7 @@ Currently only respected for \link{FeatureImp}, \link{Partial} and \link{Interac
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-predict}{}}}
 \subsection{Method \code{predict()}}{
 Predict new data with the machine learning model.
 \subsection{Usage}{
@@ -154,6 +156,7 @@ Data to predict on.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
 \subsection{Method \code{print()}}{
 Print the Predictor object.
 \subsection{Usage}{
@@ -163,6 +166,7 @@ Print the Predictor object.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
