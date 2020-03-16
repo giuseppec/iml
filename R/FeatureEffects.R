@@ -205,7 +205,7 @@ FeatureEffects <- R6Class("FeatureEffects",
 
       y_axis_label <- self$effects[[1]]$.__enclos_env__$private$y_axis_label
 
-      patchwork::wrap_plots(plts) +
+      patchwork::wrap_plots(plts, nrow = nrows, ncol = ncols) +
         patchwork::plot_annotation(title = y_axis_label)
     }
   )
