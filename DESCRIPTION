@@ -2,7 +2,7 @@ Type: Package
 Package: iml
 Title: Interpretable Machine Learning
 Version: 0.10.0
-Date: 2019-02-01
+Date: 2019-03-16
 Authors@R: 
     c(person(given = "Christoph",
              family = "Molnar",
