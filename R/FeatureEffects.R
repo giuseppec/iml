@@ -89,8 +89,11 @@ FeatureEffects <- R6Class("FeatureEffects",
     #'   features.
     #' @param grid.size (`numeric(1)` | `numeric(2)`)\cr
     #'   The size of the grid for evaluating the predictions.
-    initialize = function(predictor, features = NULL, method = "ale",
-                          center.at = NULL, grid.size = 20) {
+    initialize = function(predictor,
+                          features = NULL,
+                          method = "ale",
+                          center.at = NULL,
+                          grid.size = 20) {
       if (is.null(features)) {
         self$features <- predictor$data$feature.names
       } else {
@@ -135,24 +138,22 @@ FeatureEffects <- R6Class("FeatureEffects",
 
   private = list(
     run = function() {
-      predictor <- self$predictor
-      method <- self$method
-      center.at <- self$center.at
-      grid.size <- self$grid.size
-      feature.names <- self$features
 
-      feature_effect <- function(x, predictor, method, center.at, grid.size) {
-        FeatureEffect$new(
-          feature = x, predictor = predictor, method = method,
-          center.at = center.at, grid.size = grid.size
-        )
-      }
-
-      effects <- future.apply::future_lapply(feature.names,
+      effects <- future.apply::future_lapply(self$features,
         function(x) {
+          
+          feature_effect <- function(x, predictor, method, center.at, grid.size) {
+            FeatureEffect$new(
+              feature = x, predictor = predictor, method = method,
+              center.at = center.at, grid.size = grid.size
+            )
+          }
+          
           feature_effect(x,
-            predictor = predictor, method = method, center.at = center.at,
-            grid.size = grid.size
+            predictor = self$predictor, 
+            method = self$method, 
+            center.at = self$center.at,
+            grid.size = self$grid.size
           )
         },
         future.seed = TRUE,

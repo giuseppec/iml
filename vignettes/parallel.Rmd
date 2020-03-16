@@ -10,6 +10,7 @@ vignette: >
 ```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>", fig.width = 7, fig.height = 7, fig.align = "center")
 options(tibble.print_min = 4L, tibble.print_max = 4L)
+library(bench)
 ```
 
 The `iml` package can now handle bigger datasets. 
@@ -51,11 +52,11 @@ plot(imp)
 That wasn't very impressive, let's actually see how much speed up we get by parallelization.
 
 ```{r}
-bench::system_time({
+system_time({
   plan(sequential)
   FeatureImp$new(predictor, loss = "mae")
 })
-bench::system_time({
+system_time({
   plan("multisession", workers = 2)
   FeatureImp$new(predictor, loss = "mae")
 })
@@ -65,12 +66,12 @@ A little bit of improvement, but not too impressive.
 Parallelization is more useful in the case where the model uses a lot of features or where the feature importance computation is repeated more often to get more stable results.
 
 ```{r}
-bench::system_time({
+system_time({
   plan(sequential)
   FeatureImp$new(predictor, loss = "mae", n.repetitions = 20)
 })
 
-bench::system_time({
+system_time({
   plan("multisession", workers = 2)
   FeatureImp$new(predictor, loss = "mae", n.repetitions = 20)
 })
@@ -83,11 +84,11 @@ Here the parallel computation is twice as fast as the sequential computation of 
 The parallelization also speeds up the computation of the interaction statistics:
 
 ```{r}
-bench::system_time({
+system_time({
   plan(sequential)
   Interaction$new(predictor)
 })
-bench::system_time({
+system_time({
   plan("multisession", workers = 2)
   Interaction$new(predictor)
 })
@@ -98,11 +99,11 @@ bench::system_time({
 Same for `FeatureEffects`:
 
 ```{r}
-bench::system_time({
+system_time({
   plan(sequential)
   FeatureEffects$new(predictor)
 })
-bench::system_time({
+system_time({
   plan("multisession", workers = 2)
   FeatureEffects$new(predictor)
 })
