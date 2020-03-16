@@ -32,18 +32,18 @@ BugReports: https://github.com/christophM/iml/issues
 Imports: 
     checkmate,
     data.table,
-    foreach,
     Formula,
+    future,
+    future.apply,
     gridExtra,
     Metrics,
     prediction,
     R6
 Suggests: 
     ALEPlot,
+    bench,
     caret,
     covr,
-    devtools,
-    doParallel,
     e1071,
     ggplot2,
     glmnet,
@@ -66,4 +66,4 @@ VignetteBuilder:
     knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0

@@ -124,7 +124,7 @@ calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.size) 
   deltas.na.cell$missing <- is.na(deltas.na.cell$.yhat.diff)
   deltas.na.cell$.yhat.diff <- NULL
   # replace the missing ones with the closest non-missing difference (measured in number of intervals)
-  deltas <- rbindlist(lapply(unique(deltas$.class), function(cl) {
+  deltas <- rbindlist(future.apply::future_lapply(unique(deltas$.class), function(cl) {
     impute_cells(deltas[.class == cl, ],
       grid1 = grid.dt1, grid2 = grid.dt2,
       x1.ind = ".interval1", x2.ind = ".interval2"
@@ -394,7 +394,7 @@ calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.size) 
   deltas.na.cell$missing <- is.na(deltas$.yhat.diff)
   deltas.na.cell$.yhat.diff <- NULL
   # replace the missing ones with the closest non-missing difference (measured in number of intervals)
-  deltas <- rbindlist(lapply(unique(deltas$.class), function(cl) {
+  deltas <- rbindlist(future.apply::future_lapply(unique(deltas$.class), function(cl) {
     impute_cells(deltas[.class == cl, ],
       grid2 = grid.dt,
       x1.ind = ".level", x2.ind = ".num"

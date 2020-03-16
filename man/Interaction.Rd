@@ -32,6 +32,19 @@ H-squared test statistic) and takes on values between 0 (no interaction) to 1
 To learn more about interaction effects, read the Interpretable Machine Learning book:
 \url{https://christophm.github.io/interpretable-ml-book/interaction.html}
 }
+\section{Parallelization}{
+
+Parallelization is supported via package \CRANpkg{future}.
+To initialize future-based parallelization, select an appropriate backend and
+specify the amount of workers.
+For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="r">}}\preformatted{future::plan(multisession, workers = 2)
+<iml function here>
+}\if{html}{\out{</div>}}
+
+Consult the resources of the \CRANpkg{future} package for more parallel
+backend options.
+}
+
 \examples{
 \dontrun{
 library("rpart")
@@ -101,10 +114,11 @@ interaction strength.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create an Interaction object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Interaction$new(predictor, feature = NULL, grid.size = 30, parallel = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Interaction$new(predictor, feature = NULL, grid.size = 30)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -120,10 +134,6 @@ The feature name or index for which to compute the effects.}
 
 \item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
 The size of the grid for evaluating the predictions.}
-
-\item{\code{parallel}}{\code{logical(1)}\cr
-Should the method be executed in parallel?
-If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach::foreach}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -135,6 +145,7 @@ multi-dimensional outcome - per class.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

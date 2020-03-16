@@ -18,7 +18,7 @@
 #' features, directly use [FeatureEffect].
 #'
 #' @seealso [plot.FeatureEffects]
-#'
+#' @template parallel
 #' @references
 #' Apley, D. W. 2016. "Visualizing the Effects of Predictor Variables in Black
 #' Box Supervised Learning Models." ArXiv Preprint.
@@ -34,10 +34,10 @@
 #' @examples
 #' # We train a random forest on the Boston dataset:
 #' library("rpart")
-#' data("Boston", package  = "MASS")
-#' rf = rpart(medv ~ ., data = Boston)
-#' mod = Predictor$new(rf, data = Boston)
-#' 
+#' data("Boston", package = "MASS")
+#' rf <- rpart(medv ~ ., data = Boston)
+#' mod <- Predictor$new(rf, data = Boston)
+#'
 #' # Compute the accumulated local effects for all features
 #' eff <- FeatureEffects$new(mod)
 #' eff$plot()
@@ -89,9 +89,11 @@ FeatureEffects <- R6Class("FeatureEffects",
     #'   features.
     #' @param grid.size (`numeric(1)` | `numeric(2)`)\cr
     #'   The size of the grid for evaluating the predictions.
-    #' @template parallel
-    initialize = function(predictor, features = NULL, method = "ale",
-                          center.at = NULL, grid.size = 20, parallel = FALSE) {
+    initialize = function(predictor,
+                          features = NULL,
+                          method = "ale",
+                          center.at = NULL,
+                          grid.size = 20) {
       if (is.null(features)) {
         self$features <- predictor$data$feature.names
       } else {
@@ -100,13 +102,12 @@ FeatureEffects <- R6Class("FeatureEffects",
       }
       assert_numeric(grid.size, min.len = 1)
       assert_number(center.at, null.ok = TRUE)
-      private$parallel <- parallel
       assert_choice(method, c("ale", "pdp", "ice", "pdp+ice"))
       self$grid.size <- grid.size
       self$method <- method
       self$center.at <- center.at
       super$initialize(predictor)
-      private$run()
+      suppressPackageStartupMessages(private$run())
     },
 
     #' @field grid.size (`numeric(1)` | `numeric(2)`)\cr
@@ -137,35 +138,39 @@ FeatureEffects <- R6Class("FeatureEffects",
 
   private = list(
     run = function() {
-      predictor <- self$predictor
-      method <- self$method
-      center.at <- self$center.at
-      grid.size <- self$grid.size
-      feature.names <- self$features
-      `%mypar%` <- private$get.parallel.fct(private$parallel)
-      feature_effect <- function(x, predictor, method, center.at, grid.size) {
-        FeatureEffect$new(
-          feature = x, predictor = predictor, method = method,
-          center.at = center.at, grid.size = grid.size
-        )
-      }
-      effects <- foreach(
-        feature = feature.names,
-        .packages = devtools::loaded_packages()$package, .inorder = FALSE
-      ) %mypar%
-        feature_effect(feature,
-          predictor = predictor, method = method, center.at = center.at,
-          grid.size = grid.size
-        )
+
+      effects <- future.apply::future_lapply(self$features,
+        function(x) {
+          
+          feature_effect <- function(x, predictor, method, center.at, grid.size) {
+            FeatureEffect$new(
+              feature = x, predictor = predictor, method = method,
+              center.at = center.at, grid.size = grid.size
+            )
+          }
+          
+          feature_effect(x,
+            predictor = self$predictor, 
+            method = self$method, 
+            center.at = self$center.at,
+            grid.size = self$grid.size
+          )
+        },
+        future.seed = TRUE,
+        future.packages = loadedNamespaces()
+      )
+
       self$effects <- effects
       names(self$effects) <- self$features
-      self$results <- lapply(self$effects, function(x) {
+      self$results <- future.apply::future_lapply(self$effects, function(x) {
         res <- x$results
         fname.index <- which(colnames(res) %in% names(self$effects))
         res$.feature <- colnames(res)[fname.index]
         colnames(res)[fname.index] <- ".borders"
         res
-      })
+      },
+      future.seed = TRUE
+      )
       private$finished <- TRUE
     },
 
@@ -189,16 +194,16 @@ FeatureEffects <- R6Class("FeatureEffects",
         features <- self$features
       }
 
-  if(fixed_y) { 
-    res = unlist(lapply(features, function(fname){
-      values = self$effects[[fname]]$results[".value"]
+      if (fixed_y) {
+        res <- unlist(future.apply::future_lapply(features, function(fname) {
+          values <- self$effects[[fname]]$results[".value"]
           c(min(values), max(values))
         }))
         ylim <- c(min(res), max(res))
       } else {
         ylim <- c(NA, NA)
       }
-      plts <- lapply(features, function(fname) {
+      plts <- future.apply::future_lapply(features, function(fname) {
         self$effects[[fname]]$plot(..., ylim = ylim) +
           ggplot2::theme(axis.title.y = ggplot2::element_blank())
       })

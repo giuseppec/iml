@@ -1,8 +1,6 @@
 language: r
 cache: packages
 latex: true
-r_github_packages:
-  - r-lib/covr
 before_install:
   - sudo apt-get update
   - sudo apt-get install libmagic-dev

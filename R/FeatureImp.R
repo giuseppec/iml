@@ -41,8 +41,8 @@
 #' "Rashomon" Perspective. Retrieved from http://arxiv.org/abs/1801.01489
 #'
 #' @import Metrics
-#' @importFrom foreach %dopar% foreach %do%
 #' @importFrom data.table copy rbindlist
+#' @template parallel
 #' @examples
 #' library("rpart")
 #' # We train a tree on the Boston dataset:
@@ -122,9 +122,6 @@ FeatureImp <- R6::R6Class("FeatureImp",
     #' How often should the shuffling of the feature be repeated?
     #' The higher the number of repetitions the more stable and accurate the
     #' results become.
-    #' @param parallel `logical(1)`\cr
-    #'   Should the method be executed in parallel?
-    #'   If TRUE, requires a cluster to be registered, see [foreach::foreach].
     #' @return (data.frame)\cr
     #' data.frame with the results of the feature importance computation. One
     #' row per feature with the following columns:
@@ -137,11 +134,9 @@ FeatureImp <- R6::R6Class("FeatureImp",
     #' plots, the median importance over the repetitions as a point.
     #'
     initialize = function(predictor, loss, compare = "ratio",
-                          n.repetitions = 5, parallel = FALSE) {
+                          n.repetitions = 5) {
       assert_choice(compare, c("ratio", "difference"))
       assert_number(n.repetitions)
-      assert_logical(parallel)
-      private$parallel <- parallel
       self$compare <- compare
       if (!inherits(loss, "function")) {
         ## Only allow metrics from Metrics package
@@ -170,7 +165,8 @@ FeatureImp <- R6::R6Class("FeatureImp",
         warning("Model error is 0, switching from compare='ratio' to compare='difference'")
         self$compare <- "difference"
       }
-      private$run(self$predictor$batch.size)
+      # suppressing package startup messages
+      suppressPackageStartupMessages(private$run(self$predictor$batch.size))
     },
 
     #' @field loss (`character(1)` | [function])\cr
@@ -206,13 +202,19 @@ FeatureImp <- R6::R6Class("FeatureImp",
       private$dataSample <- private$getData()
       result <- NULL
 
-      estimate_feature_imp <- function(feature, data.sample, y, n.repetitions,
-                                       y.names, pred, loss) {
+      estimate_feature_imp <- function(feature,
+                                       data.sample,
+                                       y,
+                                       n.repetitions,
+                                       y.names,
+                                       pred,
+                                       loss) {
+        
         cnames <- setdiff(colnames(data.sample), y.names)
         qResults <- data.table::data.table()
         y.vec <- data.table::data.table()
         for (repi in 1:n.repetitions) {
-          mg <- iml:::MarginalGenerator$new(data.sample, data.sample,
+          mg <- MarginalGenerator$new(data.sample, data.sample,
             features = feature, n.sample.dist = 1, y = y, cartesian = FALSE,
             id.dist = TRUE
           )
@@ -243,17 +245,22 @@ FeatureImp <- R6::R6Class("FeatureImp",
       pred <- private$run.prediction
       loss <- self$loss
 
-      `%mypar%` <- private$get.parallel.fct(private$parallel)
-      result <- foreach(
-        feature = private$sampler$feature.names, .combine = rbind,
-        .export = "self",
-        .packages = devtools::loaded_packages()$package, .inorder = FALSE
-      ) %mypar%
-        estimate_feature_imp(feature,
-          data.sample = data.sample, y = y,
-          n.repetitions = n.repetitions, y.names = y.names, pred = pred,
-          loss = loss
+      result <- rbindlist(unname(
+        future.apply::future_lapply(private$sampler$feature.names, function(x) {
+          estimate_feature_imp(x,
+            data.sample = data.sample, 
+            y = y,
+            n.repetitions = n.repetitions, 
+            y.names = y.names,
+            pred = pred,
+            loss = loss
+          )
+        },
+        future.seed = TRUE, 
+        future.globals = FALSE,
+        future.packages = loadedNamespaces()
         )
+      ), use.names = TRUE)
 
       if (self$compare == "ratio") {
         result[, importance_raw := permutation_error / self$original.error]
