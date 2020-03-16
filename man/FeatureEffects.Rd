@@ -16,12 +16,25 @@ Only first-order effects can be computed with the \link{FeatureEffects} interfac
 If you are interested in the visualization of interactions between two
 features, directly use \link{FeatureEffect}.
 }
+\section{Parallelization}{
+
+Parallelization is supported via package \CRANpkg{future}.
+To initialize future-based parallelization, select an appropriate backend and
+specify the amount of workers.
+For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="r">}}\preformatted{future::plan(multisession, workers = 2)
+<iml function here>
+}\if{html}{\out{</div>}}
+
+Consult the resources of the \CRANpkg{future} package for more parallel
+backend options.
+}
+
 \examples{
 # We train a random forest on the Boston dataset:
 library("rpart")
-data("Boston", package  = "MASS")
-rf = rpart(medv ~ ., data = Boston)
-mod = Predictor$new(rf, data = Boston)
+data("Boston", package = "MASS")
+rf <- rpart(medv ~ ., data = Boston)
+mod <- Predictor$new(rf, data = Boston)
 
 # Compute the accumulated local effects for all features
 eff <- FeatureEffects$new(mod)
@@ -110,6 +123,7 @@ features.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a FeatureEffects object
 \subsection{Usage}{
@@ -118,8 +132,7 @@ Create a FeatureEffects object
   features = NULL,
   method = "ale",
   center.at = NULL,
-  grid.size = 20,
-  parallel = FALSE
+  grid.size = 20
 )}\if{html}{\out{</div>}}
 }
 
@@ -149,10 +162,6 @@ features.}
 \item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
 The size of the grid for evaluating the predictions.}
 
-\item{\code{parallel}}{\code{logical(1)}\cr
-Should the method be executed in parallel?
-If TRUE, requires a cluster to be registered, see \link[foreach:foreach]{foreach::foreach}.}
-
 \item{\code{feature}}{(\code{character(1)} | \code{character(2)} | \code{numeric(1)} |
 \code{numeric(2)})\cr
 The feature name or index for which to compute the effects.}
@@ -162,6 +171,7 @@ The feature name or index for which to compute the effects.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

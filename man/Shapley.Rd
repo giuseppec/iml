@@ -103,6 +103,7 @@ become.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a Shapley object
 \subsection{Usage}{
@@ -131,6 +132,7 @@ The number of Monte Carlo samples for estimating the Shapley value.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-explain"></a>}}
+\if{latex}{\out{\hypertarget{method-explain}{}}}
 \subsection{Method \code{explain()}}{
 Set a new data point which to explain.
 \subsection{Usage}{
@@ -148,6 +150,7 @@ Single row with the instance to be explained.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

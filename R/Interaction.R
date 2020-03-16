@@ -5,8 +5,7 @@
 #' `Interaction` estimates the feature interactions in a prediction model.
 #'
 #' @importFrom data.table dcast
-#' @importFrom foreach %do%
-#'
+#' @template parallel
 #' @details
 #' Interactions between features are measured via the decomposition of the
 #' prediction function: If a feature `j` has no interaction with any other
@@ -78,17 +77,13 @@ Interaction <- R6Class("Interaction",
     #' @template predictor
     #' @template feature
     #' @template grid.size
-    #' @template parallel
     #' @return
     #' [data.frame] with the interaction strength (column `.interation`) per
     #' feature calculated as Friedman's H-statistic and - in the case of a
     #' multi-dimensional outcome - per class.
-    initialize = function(predictor, feature = NULL, grid.size = 30,
-                          parallel = FALSE) {
+    initialize = function(predictor, feature = NULL, grid.size = 30) {
       assert_vector(feature, len = 1, null.ok = TRUE)
       assert_number(grid.size, lower = 2)
-      assert_logical(parallel)
-      private$parallel <- parallel
       if (!is.null(feature) && is.numeric(feature)) {
         private$feature <- predictor$data$feature.names[feature]
       } else {
@@ -112,18 +107,21 @@ Interaction <- R6Class("Interaction",
       data.sample <- private$sampler$get.x()
       probe <- self$predictor$predict(data.frame(data.sample[1, ]))
       private$multiClass <- ifelse(ncol(probe) > 1, TRUE, FALSE)
-      `%mypar%` <- private$get.parallel.fct(private$parallel)
-      self$results <- foreach(
-        feature = features, .combine = rbind,
-        .export = c("self"), .packages = devtools::loaded_packages()$package,
-        .inorder = FALSE
-      ) %mypar%
+
+      self$results <- rbindlist(unname(future.apply::future_lapply(features, function(x) {
         private$interaction.run.single(
           dataSample = data.sample,
-          feature.name = c(feature, private$feature),
+          feature.name = c(x, private$feature),
           grid.size = self$grid.size,
-          batch.size = batch.size, q = private$q, predictor = self$predictor
+          batch.size = batch.size,
+          q = private$q,
+          predictor = self$predictor
         )
+      },
+      future.seed = TRUE,
+      future.packages = loadedNamespaces()
+      )), use.names = TRUE)
+
       private$finished <- TRUE
     },
     generatePlot = function(sort = TRUE, ...) {

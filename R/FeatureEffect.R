@@ -233,25 +233,25 @@ FeatureEffect <- R6Class("FeatureEffect",
     #' @description Predict the marginal outcome given a feature.
     #' @param data [data.frame]\cr
     #'  Data.frame with the feature or a vector.
-		#' @param extrapolate (`character(1)`)\cr
-		#'   If TRUE, predict returns NA for x values outside of observed range. 
-		#'   If FALSE, predcit returns the closest PDP value for x values outside the range.
-		#'   Ignored for categorical features
+    #' @param extrapolate (`character(1)`)\cr
+    #'   If TRUE, predict returns NA for x values outside of observed range.
+    #'   If FALSE, predcit returns the closest PDP value for x values outside the range.
+    #'   Ignored for categorical features
     #' @return Values of the effect curves at the given values.
     predict = function(data, extrapolate = FALSE) {
-			assert_logical(extrapolate)
+      assert_logical(extrapolate)
       if (self$n.features == 2) stop("Only implemented for single feature")
       if (private$multiClass) stop("Only works for one-dimensional output")
       if (inherits(data, "data.frame")) {
         data <- data[, self$feature.name]
       }
       assert_vector(data)
-      predictions = private$predict_inner(data)
-			if (!extrapolate & (self$feature.type == "numerical")) {
-				predictions[data < min(self$results[[self$feature.name]])] <- NA
-				predictions[data > max(self$results[[self$feature.name]])] <- NA
-			}
-			predictions
+      predictions <- private$predict_inner(data)
+      if (!extrapolate & (self$feature.type == "numerical")) {
+        predictions[data < min(self$results[[self$feature.name]])] <- NA
+        predictions[data > max(self$results[[self$feature.name]])] <- NA
+      }
+      predictions
     }
   ),
   private = list(
@@ -329,7 +329,7 @@ FeatureEffect <- R6Class("FeatureEffect",
       # only keep .class when multiple outputs
       if (!private$multiClass) results$.class <- NULL
       # change order of DF: Move feature name to front
-      results = moveMe(results, ".type", "first")
+      results <- moveMe(results, ".type", "first")
       self$results <- results
     },
     run.pdp = function(n) {

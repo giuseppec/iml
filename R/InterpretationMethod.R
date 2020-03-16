@@ -52,7 +52,6 @@ InterpretationMethod <- R6Class("InterpretationMethod",
   ),
 
   private = list(
-    parallel = FALSE,
     # The sampling object for sampling from X
     sampler = NULL,
     # Wrapper for sampler
@@ -100,13 +99,6 @@ InterpretationMethod <- R6Class("InterpretationMethod",
       private$predictResults <- self$predictor$predict(data.frame(dataDesign))
       private$multiClass <- ifelse(ncol(private$predictResults) > 1, TRUE, FALSE)
       private$q(private$predictResults)
-    },
-    get.parallel.fct = function(parallel = FALSE) {
-      if (parallel) {
-        foreach::`%dopar%`
-      } else {
-        foreach::`%do%`
-      }
     },
     # The data need for plotting of results
     plotData = NULL,

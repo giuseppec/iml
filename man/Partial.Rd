@@ -37,6 +37,7 @@ Deprecated, please use \link{FeatureEffect}.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Effect of one or two feature(s) on the model predictions
 \subsection{Usage}{
@@ -80,6 +81,7 @@ The size of the grid for evaluating the predictions.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -10,6 +10,7 @@
 * Fixes problem with FeatureImp that caused unused features to get non-zero importances
 * FeatureEffects$plot() based on `patchwork` now
 * Use new roxygen R6 documentation
+* Use futures for parallel code execution
 
 # iml 0.9.0
 * Removes the `run` parameter from all interpretation methods.

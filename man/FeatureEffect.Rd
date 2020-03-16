@@ -179,6 +179,7 @@ features.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 Create a FeatureEffect object
 \subsection{Usage}{
@@ -223,6 +224,7 @@ The size of the grid for evaluating the predictions.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-set.feature"></a>}}
+\if{latex}{\out{\hypertarget{method-set.feature}{}}}
 \subsection{Method \code{set.feature()}}{
 Get/set feature(s) (by index) for which to compute PDP.
 \subsection{Usage}{
@@ -240,6 +242,7 @@ Feature name.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-center"></a>}}
+\if{latex}{\out{\hypertarget{method-center}{}}}
 \subsection{Method \code{center()}}{
 Set the value at which the ice computations are centered.
 \subsection{Usage}{
@@ -258,6 +261,7 @@ features.}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-predict}{}}}
 \subsection{Method \code{predict()}}{
 Predict the marginal outcome given a feature.
 \subsection{Usage}{
@@ -283,6 +287,7 @@ Values of the effect curves at the given values.
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
