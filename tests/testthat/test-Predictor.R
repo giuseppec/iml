@@ -1,6 +1,5 @@
 context("Predictor")
 
-
 library("mlr")
 library("mlr3")
 library("caret")
@@ -63,22 +62,26 @@ mod.h2o.regr <- h2o.randomForest(training_frame = dat, x = x, y = y)
 predictor.h2o.regr <- Predictor$new(mod.h2o.regr, data = iris)
 
 # keras
-k <- backend()
-k$clear_session()
-x_mat <- data.matrix(iris[, 1:4])
-y_mat <- model.matrix(~ Species - 1, iris)
-mod.keras <- keras_model_sequential() %>%
-  layer_dense(units = 4, activation = "relu", input_shape = 4) %>%
-  layer_dense(units = 3, activation = "softmax") %>%
-  compile(loss = "categorical_crossentropy", optimizer = optimizer_rmsprop(), metrics = c("accuracy"))
-mod.keras %>% fit(x = x_mat, y = y_mat, epochs = 25, batch_size = 20, validation_split = 0, verbose = 0)
-predictor.keras <- Predictor$new(mod.keras, data = iris)
-predictor.keras.prob <- Predictor$new(mod.keras, data = iris, type = "prob")
-predictor.keras.nice <- Predictor$new(mod.keras, data = iris, predict.fun = function(object, newdata) {
-  res <- predict(object, newdata)
-  colnames(res) <- levels(iris$Species)
-  res
+if (identical(Sys.getenv("NOT_CRAN"), "true")) {
+  skip_on_cran()
+  k <- backend()
+  k$clear_session()
+  x_mat <- data.matrix(iris[, 1:4])
+  y_mat <- model.matrix(~ Species - 1, iris)
+  mod.keras <- keras_model_sequential() %>%
+    layer_dense(units = 4, activation = "relu", input_shape = 4) %>%
+    layer_dense(units = 3, activation = "softmax") %>%
+    compile(loss = "categorical_crossentropy", optimizer = optimizer_rmsprop(), metrics = c("accuracy"))
+  mod.keras %>% fit(x = x_mat, y = y_mat, epochs = 25, batch_size = 20, validation_split = 0, verbose = 0)
+  predictor.keras <- Predictor$new(mod.keras, data = iris)
+  predictor.keras.prob <- Predictor$new(mod.keras, data = iris, type = "prob")
+  predictor.keras.nice <- Predictor$new(mod.keras, data = iris, predict.fun = function(object, newdata) {
+    res <- predict(object, newdata)
+    colnames(res) <- levels(iris$Species)
+    res
 })
+  expect_true(TRUE)
+}
 
 # function
 mod.f <- function(newdata) {
@@ -160,6 +163,7 @@ test_that("h20 prediction works", {
 
 
 test_that("Keras classification predictions work without prob", {
+  skip_on_cran()
   expect_equal(
     predictor.keras$predict(newdata = iris.test),
     as.data.frame(predict(mod.keras, data.matrix(iris.test))) %>% `colnames<-`(c("1", "2", "3"))
@@ -167,6 +171,7 @@ test_that("Keras classification predictions work without prob", {
 })
 
 test_that("Keras classification predictions work with prob", {
+  skip_on_cran()
   expect_equal(
     predictor.keras.prob$predict(newdata = iris.test),
     as.data.frame(predict(mod.keras, data.matrix(iris.test))) %>% `colnames<-`(c("1", "2", "3"))
@@ -174,6 +179,7 @@ test_that("Keras classification predictions work with prob", {
 })
 
 test_that("Keras classification can get nice column names through custom predict funs", {
+  skip_on_cran()
   expect_equal(
     predictor.keras.nice$predict(newdata = iris.test),
     as.data.frame(predict(mod.keras, data.matrix(iris.test))) %>% `colnames<-`(c("setosa", "versicolor", "virginica"))
@@ -295,18 +301,19 @@ test_that("Predictor keeps factor names without X", {
 
 
 # keras
-k <- backend()
-k$clear_session()
-x_mat <- data.matrix(Boston[, 1:13])
-y_mat <- data.matrix(Boston[, 14])
-mod.keras <- keras_model_sequential() %>%
-  layer_dense(units = 4, activation = "relu", input_shape = 13) %>%
-  layer_dense(units = 1, activation = "linear") %>%
-  compile(loss = "mean_squared_error", optimizer = optimizer_rmsprop(), metrics = c("mean_squared_error"))
-mod.keras %>% fit(x = x_mat, y = y_mat, epochs = 25, batch_size = 20, validation_split = 0, verbose = 0)
-predictor.keras <- Predictor$new(mod.keras, data = Boston)
+test_that("Setup keras", {
+  skip_on_cran()
+  k <- backend()
+  k$clear_session()
+  x_mat <- data.matrix(Boston[, 1:13])
+  y_mat <- data.matrix(Boston[, 14])
+  mod.keras <- keras_model_sequential() %>%
+    layer_dense(units = 4, activation = "relu", input_shape = 13) %>%
+    layer_dense(units = 1, activation = "linear") %>%
+    compile(loss = "mean_squared_error", optimizer = optimizer_rmsprop(), metrics = c("mean_squared_error"))
+  mod.keras %>% fit(x = x_mat, y = y_mat, epochs = 25, batch_size = 20, validation_split = 0, verbose = 0)
+  predictor.keras <- Predictor$new(mod.keras, data = Boston)
 
-test_that("Keras regression predictions work", {
   expect_equal(
     predictor.keras$predict(newdata = boston.test[, 1:13]),
     as.data.frame(predict(mod.keras, data.matrix(boston.test[, 1:13]))) %>% `colnames<-`(c("pred"))
