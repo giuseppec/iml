@@ -62,13 +62,13 @@ if (Sys.info()[["sysname"]] != "Windows") {
       loss = "categorical_crossentropy",
       optimizer = optimizer_rmsprop(), metrics = c("accuracy")
     )
-  mod.keras %>% fit(
+  mod.keras1 %>% fit(
     x = x_mat, y = y_mat, epochs = 25, batch_size = 20,
     validation_split = 0, verbose = 0
   )
-  predictor.keras1 <- Predictor$new(mod.keras, data = iris)
-  predictor.keras1.prob <- Predictor$new(mod.keras, data = iris, type = "prob")
-  predictor.keras1.nice <- Predictor$new(mod.keras,
+  predictor.keras1 <- Predictor$new(mod.keras1, data = iris)
+  predictor.keras1.prob <- Predictor$new(mod.keras1, data = iris, type = "prob")
+  predictor.keras1.nice <- Predictor$new(mod.keras1,
     data = iris,
     predict.fun = function(object, newdata) {
       res <- predict(object, newdata)
@@ -94,6 +94,67 @@ if (Sys.info()[["sysname"]] != "Windows") {
       x = x_mat, y = y_mat, epochs = 25, batch_size = 20,
       validation_split = 0, verbose = 0
     )
-  predictor.keras2 <- Predictor$new(mod.keras, data = Boston)
+  predictor.keras2 <- Predictor$new(mod.keras2, data = Boston)
 
 }
+
+## mlr
+task <- mlr::makeClassifTask(data = iris, target = "Species")
+lrn <- mlr::makeLearner("classif.rpart", predict.type = "prob")
+mod.mlr <- mlr::train(lrn, task)
+predictor.mlr <- Predictor$new(mod.mlr, data = iris)
+
+## mlr3
+task_iris <- TaskClassif$new(id = "iris", backend = iris, target = "Species")
+learner_iris <- lrn("classif.rpart", predict_type = "prob")
+learner_iris$train(task_iris)
+predictor.mlr3 <- Predictor$new(learner_iris, data = iris)
+
+
+# S3 predict
+mod.S3 <- mod.mlr$learner.model
+predict.fun <- function(object, newdata) predict(object, newdata, type = "prob")
+predictor.S3 <- Predictor$new(mod.S3, data = iris, predict.fun = predict.fun)
+
+# caret
+mod.caret <- caret::train(Species ~ .,
+  data = iris, method = "knn",
+  trControl = caret::trainControl(method = "cv")
+)
+predictor.caret <- Predictor$new(mod.caret, data = iris, type = "prob")
+
+
+# h2o multinomial classification
+h2o.init()
+h2o.no_progress()
+# fit h2o model
+dat <- as.h2o(iris)
+y <- "Species"
+x <- setdiff(names(iris), y)
+mod.h2o.class <- h2o.glm(training_frame = dat, x = x, y = y, family = "multinomial", solver = "L_BFGS")
+# create predictor
+predictor.h2o.class <- Predictor$new(mod.h2o.class, data = iris)
+
+# Artificially create binary classification task from iris
+iris2 <- iris
+iris2$Species <- as.factor(iris2$Species == "setosa")
+dat2 <- as.h2o(iris2)
+# h2o binomial classification
+mod.h2o.class2 <- h2o.glm(training_frame = dat2, x = x, y = y, family = "binomial", solver = "L_BFGS")
+# create predictor
+predictor.h2o.class2 <- Predictor$new(mod.h2o.class2, data = iris2)
+
+# h2o regression
+y <- "Sepal.Width"
+x <- setdiff(names(iris), y)
+dat <- as.h2o(iris)
+mod.h2o.regr <- h2o.randomForest(training_frame = dat, x = x, y = y)
+predictor.h2o.regr <- Predictor$new(mod.h2o.regr, data = iris)
+
+# function
+mod.f <- function(newdata) {
+  predict(mod.caret, newdata = newdata, type = "prob")
+}
+predictor.f <- Predictor$new(predict.fun = mod.f, data = iris)
+iris.test <- iris[c(2, 20, 100, 150), c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")]
+prediction.f <- predictor.f$predict(iris.test)
