@@ -1,6 +1,8 @@
 language: r
 cache: packages
 latex: true
+r_packages: 
+  - bench
 r_github_packages:
   - r-lib/covr
 before_install:
