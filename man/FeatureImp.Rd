@@ -34,6 +34,19 @@ losses are: \code{"ce"}, \code{"f1"}, \code{"logLoss"}, \code{"mae"}, \code{"mse
 
 See \code{library(help = "Metrics")} to get a list of functions.
 }
+\section{Parallelization}{
+
+Parallelization is supported via package \CRANpkg{future}.
+To initialize future-based parallelization, select an appropriate backend and
+specify the amount of workers.
+For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="r">}}\preformatted{future::plan(multisession, workers = 2)
+<iml function here>
+}\if{html}{\out{</div>}}
+
+Consult the resources of the \CRANpkg{future} package for more parallel
+backend options.
+}
+
 \examples{
 library("rpart")
 # We train a tree on the Boston dataset:

@@ -16,6 +16,19 @@ Only first-order effects can be computed with the \link{FeatureEffects} interfac
 If you are interested in the visualization of interactions between two
 features, directly use \link{FeatureEffect}.
 }
+\section{Parallelization}{
+
+Parallelization is supported via package \CRANpkg{future}.
+To initialize future-based parallelization, select an appropriate backend and
+specify the amount of workers.
+For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="r">}}\preformatted{future::plan(multisession, workers = 2)
+<iml function here>
+}\if{html}{\out{</div>}}
+
+Consult the resources of the \CRANpkg{future} package for more parallel
+backend options.
+}
+
 \examples{
 # We train a random forest on the Boston dataset:
 library("rpart")

@@ -5,7 +5,7 @@
 #' `Interaction` estimates the feature interactions in a prediction model.
 #'
 #' @importFrom data.table dcast
-#'
+#' @template parallel
 #' @details
 #' Interactions between features are measured via the decomposition of the
 #' prediction function: If a feature `j` has no interaction with any other

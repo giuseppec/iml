@@ -42,6 +42,7 @@
 #'
 #' @import Metrics
 #' @importFrom data.table copy rbindlist
+#' @template parallel
 #' @examples
 #' library("rpart")
 #' # We train a tree on the Boston dataset:

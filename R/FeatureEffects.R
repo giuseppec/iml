@@ -18,7 +18,7 @@
 #' features, directly use [FeatureEffect].
 #'
 #' @seealso [plot.FeatureEffects]
-#'
+#' @template parallel
 #' @references
 #' Apley, D. W. 2016. "Visualizing the Effects of Predictor Variables in Black
 #' Box Supervised Learning Models." ArXiv Preprint.
@@ -168,8 +168,7 @@ FeatureEffects <- R6Class("FeatureEffects",
         colnames(res)[fname.index] <- ".borders"
         res
       },
-      future.seed = TRUE#,
-      #future.packages = loadedNamespaces()
+      future.seed = TRUE,
       )
       private$finished <- TRUE
     },
