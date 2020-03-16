@@ -54,6 +54,7 @@ Suggests:
     MASS,
     mlr,
     mlr3,
+    party,
     partykit,
     patchwork,
     randomForest,
