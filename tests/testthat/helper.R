@@ -33,6 +33,7 @@ X <- data.frame(
 
 set.seed(12)
 y <- f(X) + rnorm(nrow(X))
+y_fe = y
 y2 <- factor(ifelse(X$b + X$a < 20, "pred", "pred2"))
 
 predictor1 <- Predictor$new(data = X, y = y, predict.fun = f)

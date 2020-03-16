@@ -547,7 +547,7 @@ test_that("method='ale' works for 1D categorical", {
   # ordered by the user
   X2 <- X
   X2$c <- ordered(X2$c)
-  pred1.order <- Predictor$new(data = X2, y = y, predict.fun = f)
+  pred1.order <- Predictor$new(data = X2, y = y_fe, predict.fun = f)
   ale <- FeatureEffect$new(pred1.order, feature = "c")
   dat <- ale$results
   expect_class(dat, "data.frame")
