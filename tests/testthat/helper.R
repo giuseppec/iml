@@ -5,6 +5,8 @@ library("data.table")
 library("keras")
 library("h2o")
 
+data(Boston, package = "MASS")
+
 f <- function(newdata, multi = FALSE) {
   pred <- unlist(newdata[, "a"] + newdata[, "b"] + 100 * (newdata[, "c"] == "a")) / (155)
   dat <- data.frame(pred = pred)

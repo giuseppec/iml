@@ -2,8 +2,14 @@ context("Predictor")
 
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
-  expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
-  expect_equivalent(predictor.mlr3$predict(iris.test), predictor.S3$predict(iris.test))
+  expect_equivalent(
+    predictor.mlr$predict(iris.test),
+    predictor.S3$predict(iris.test)
+  )
+  expect_equivalent(
+    predictor.mlr3$predict(iris.test),
+    predictor.S3$predict(iris.test)
+  )
 })
 
 test_that("f works", {
@@ -111,15 +117,24 @@ predictor.S3 <- Predictor$new(mod.S3,
   data = iris
 )
 # caret
-predictor.caret <- Predictor$new(mod.caret, class = 2, data = iris, type = "prob")
+predictor.caret <- Predictor$new(mod.caret,
+  class = 2, data = iris,
+  type = "prob"
+)
 # function
 predictor.f <- Predictor$new(predict.fun = mod.f, class = 2, data = iris)
 prediction.f <- predictor.f$predict(iris.test)
 
 test_that("equivalence", {
   expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
-  expect_equivalent(predictor.mlr$predict(iris.test), predictor.S3$predict(iris.test))
-  expect_equivalent(predictor.mlr3$predict(iris.test), predictor.S3$predict(iris.test))
+  expect_equivalent(
+    predictor.mlr$predict(iris.test),
+    predictor.S3$predict(iris.test)
+  )
+  expect_equivalent(
+    predictor.mlr3$predict(iris.test),
+    predictor.S3$predict(iris.test)
+  )
 })
 
 test_that("Missing predict.type for mlr gives warning", {
@@ -131,7 +146,6 @@ test_that("Missing predict.type for mlr gives warning", {
 
 # Test numeric predictions
 
-data(Boston, package = "MASS")
 ## mlr
 task <- mlr::makeRegrTask(data = Boston, target = "medv")
 lrn <- mlr::makeLearner("regr.rpart")
