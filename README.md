@@ -1,8 +1,8 @@
 
 <!-- badges: start -->
 
-[![Build
-Status](https://travis-ci.org/christophM/iml.svg?branch=master)](https://travis-ci.org/christophM/iml)
+[![R CMD Check via
+{tic}](https://img.shields.io/github/workflow/status/christophM/iml/R%20CMD%20Check%20via%20%7Btic%7D?logo=github&label=R%20CMD%20Check%20via%20%7Btic%7D&style=flat-square)](https://github.com/christophM/iml/actions)
 [![CRAN Status
 Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN
@@ -13,14 +13,13 @@ Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://cran.rstud
 
 # iml
 
-`iml` is an R package that interprets the behaviour and explains
-predictions of machine learning models. It implements model-agnostic
-interpretability methods - meaning they can be used with any machine
-learning model.
+`iml` is an R package that interprets the behavior and explains
+predictions of machine learning models.
+<img src="https://github.com/christophM/iml/blob/pkgdown/man/figures/iml.png?raw=true" align="right" height=140/>
+It implements model-agnostic interpretability methods - meaning they can
+be used with any machine learning model.
 
-<img src="man/figures/iml.png" width="203" style="display: block; margin: auto;" />
-
-Currently implemented:
+## Features
 
   - Feature importance
   - Partial dependence plots
@@ -30,8 +29,9 @@ Currently implemented:
   - LocalModel: Local Interpretable Model-agnostic Explanations
   - Shapley value for explaining single predictions
 
-Read more about the methods in the [Interpretable Machine Learning
-book](https://christophm.github.io/interpretable-ml-book/agnostic.html)
+Read more about the methods in the [Interpretable Machine
+Learning](https://christophm.github.io/interpretable-ml-book/agnostic.html)
+book.
 
 ## Tutorial
 
@@ -59,7 +59,7 @@ file](https://christophm.github.io/iml/news/index.html).
 ## Quickstart
 
 First we train a Random Forest to predict the Boston median housing
-value. How does lstat influence the prediction individually and on
+value. How does `lstat` influence the prediction individually and on
 average? (Accumulated local effects)
 
 ``` r
@@ -73,7 +73,7 @@ effect = FeatureEffects$new(model)
 effect$plot(features = c("lstat", "age", "rm"))
 ```
 
-![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-2-1.png)<!-- -->
 
 ## Contribute
 
