@@ -10,7 +10,7 @@ Authors@R:
              email = "christoph.molnar@gmail.com"),
       person(given = "Patrick",
              family = "Schratz",
-             role = "ctb",
+             role = "aut",
              email = "patrick.schratz@gmail.com",
              comment = c(ORCID = "0000-0003-0748-6624")))
 Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
