@@ -41,6 +41,7 @@ Imports:
     R6
 Suggests: 
     ALEPlot,
+    bench,
     caret,
     covr,
     e1071,

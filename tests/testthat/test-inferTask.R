@@ -5,19 +5,18 @@ library("randomForest")
 rf <- randomForest(Species ~ ., data = iris, ntree = 1)
 f <- function(x) predict(rf, newdata = x)
 
-
 test_that("classificaton", {
   ## use linear discriminant analysis to classify iris data
-  task <- makeClassifTask(data = iris, target = "Species")
-  learner <- makeLearner("classif.lda", method = "mle")
+  task <- mlr::makeClassifTask(data = iris, target = "Species")
+  learner <- mlr::makeLearner("classif.lda", method = "mle")
   mod <- mlr::train(learner, task)
   expect_warning({
     tsk <- inferTaskFromModel(mod)
   })
   expect_equal(tsk, "classification")
 
-  task <- TaskClassif$new(id = "iris", backend = iris, target = "Species")
-  learner <- lrn("classif.rpart")
+  task <- mlr3::TaskClassif$new(id = "iris", backend = iris, target = "Species")
+  learner <- mlr3::lrn("classif.rpart")
   mod <- learner$train(task)
   expect_equal(tsk, "classification")
 
@@ -25,11 +24,11 @@ test_that("classificaton", {
   TrainData <- iris[, 1:4]
   TrainClasses <- iris[, 5]
 
-  knnFit1 <- train(TrainData, TrainClasses,
+  knnFit1 <- caret::train(TrainData, TrainClasses,
     method = "knn",
     preProcess = c("center", "scale"),
     tuneLength = 2,
-    trControl = trainControl(method = "cv")
+    trControl = caret::trainControl(method = "cv")
   )
 
   expect_equal(inferTaskFromModel(knnFit1), "classification")
@@ -44,13 +43,13 @@ test_that("classificaton", {
 test_that("regression", {
 
   ## use linear discriminant analysis to classify iris data
-  task <- makeRegrTask(data = cars, target = "dist")
-  learner <- makeLearner("regr.lm")
+  task <- mlr::makeRegrTask(data = cars, target = "dist")
+  learner <- mlr::makeLearner("regr.lm")
   mod <- mlr::train(learner, task)
   expect_equal(inferTaskFromModel(mod), "regression")
 
 
-  lmFit <- train(dist ~ .,
+  lmFit <- caret::train(dist ~ .,
     data = cars,
     method = "lm"
   )
