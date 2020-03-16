@@ -168,7 +168,7 @@ FeatureEffects <- R6Class("FeatureEffects",
         colnames(res)[fname.index] <- ".borders"
         res
       },
-      future.seed = TRUE,
+      future.seed = TRUE
       )
       private$finished <- TRUE
     },
