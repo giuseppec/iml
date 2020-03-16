@@ -45,6 +45,7 @@ Suggests:
     caret,
     covr,
     e1071,
+    future.callr,
     ggplot2,
     glmnet,
     gower,

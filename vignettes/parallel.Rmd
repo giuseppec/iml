@@ -36,8 +36,9 @@ All you need to do is to choose a parallel backend via `future::plan()`.
 
 ```{r}
 library("future")
+library("future.callr")
 # Creates a PSOCK cluster with 2 cores
-plan("multisession", workers = 2)
+plan("callr", workers = 2)
 ```
 
 Now we can easily compute feature importance in parallel. This means that the computation per feature is distributed among the 2 cores I specified earlier.
@@ -56,7 +57,7 @@ bench::system_time({
   FeatureImp$new(predictor, loss = "mae")
 })
 bench::system_time({
-  plan("multisession", workers = 2)
+  plan("callr", workers = 2)
   FeatureImp$new(predictor, loss = "mae")
 })
 ```
@@ -71,7 +72,7 @@ bench::system_time({
 })
 
 bench::system_time({
-  plan("multisession", workers = 2)
+  plan("callr", workers = 2)
   FeatureImp$new(predictor, loss = "mae", n.repetitions = 20)
 })
 ```
@@ -88,7 +89,7 @@ bench::system_time({
   Interaction$new(predictor)
 })
 bench::system_time({
-  plan("multisession", workers = 2)
+  plan("callr", workers = 2)
   Interaction$new(predictor)
 })
 ```
@@ -103,7 +104,7 @@ bench::system_time({
   FeatureEffects$new(predictor)
 })
 bench::system_time({
-  plan("multisession", workers = 2)
+  plan("callr", workers = 2)
   FeatureEffects$new(predictor)
 })
 ```
