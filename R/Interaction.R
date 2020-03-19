@@ -148,7 +148,7 @@ Interaction <- R6Class("Interaction",
     },
 
     interaction.run.single = function(batch.size, dataSample, feature.name,
-      grid.size, predictor, q) {
+                                      grid.size, predictor, q) {
 
       assert_data_table(dataSample)
       assert_character(feature.name,

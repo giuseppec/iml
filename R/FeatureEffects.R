@@ -90,10 +90,10 @@ FeatureEffects <- R6Class("FeatureEffects",
     #' @param grid.size (`numeric(1)` | `numeric(2)`)\cr
     #'   The size of the grid for evaluating the predictions.
     initialize = function(predictor,
-      features = NULL,
-      method = "ale",
-      center.at = NULL,
-      grid.size = 20) {
+                          features = NULL,
+                          method = "ale",
+                          center.at = NULL,
+                          grid.size = 20) {
 
       if (is.null(features)) {
         self$features <- predictor$data$feature.names
@@ -183,7 +183,7 @@ FeatureEffects <- R6Class("FeatureEffects",
 
     # make sure the default arguments match with plot.FeatureEffect
     generatePlot = function(features = NULL, ncols = NULL, nrows = NULL,
-      fixed_y = TRUE, ...) {
+                            fixed_y = TRUE, ...) {
 
       assert_character(features, null.ok = TRUE)
       requireNamespace("ggplot2", quietly = TRUE)
@@ -259,7 +259,7 @@ FeatureEffects <- R6Class("FeatureEffects",
 #' # With a different layout
 #' eff$plot(nrows = 2)
 plot.FeatureEffects <- function(x, features = NULL, nrows = NULL, ncols = NULL,
-  fixed_y = TRUE, ...) {
+                                fixed_y = TRUE, ...) {
   x$plot(
     features = features, nrows = nrows, ncols = ncols,
     fixed_y = fixed_y, ...

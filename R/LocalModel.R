@@ -109,7 +109,7 @@ LocalModel <- R6Class("LocalModel",
     #'   Results with the feature names (`feature`) and contributions to the
     #'   prediction.
     initialize = function(predictor, x.interest, dist.fun = "gower",
-      kernel.width = NULL, k = 3) {
+                          kernel.width = NULL, k = 3) {
 
       assert_number(k, lower = 1, upper = predictor$data$n.features)
       assert_data_frame(x.interest, null.ok = TRUE)

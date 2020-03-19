@@ -98,7 +98,7 @@ test_that("Keras classification predictions work with prob", {
 test_that("Keras classification can get nice column names through custom predict funs", {
   skip_on_os("windows")
   skip_on_cran()
-  
+
   expect_equal(
     predictor.keras1.nice$predict(newdata = iris.test),
     as.data.frame(predict(mod.keras1, data.matrix(iris.test))) %>%

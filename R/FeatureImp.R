@@ -134,7 +134,7 @@ FeatureImp <- R6::R6Class("FeatureImp",
     #' plots, the median importance over the repetitions as a point.
     #'
     initialize = function(predictor, loss, compare = "ratio",
-      n.repetitions = 5) {
+                          n.repetitions = 5) {
 
       assert_choice(compare, c("ratio", "difference"))
       assert_number(n.repetitions)
@@ -205,12 +205,12 @@ FeatureImp <- R6::R6Class("FeatureImp",
       result <- NULL
 
       estimate_feature_imp <- function(feature,
-        data.sample,
-        y,
-        n.repetitions,
-        y.names,
-        pred,
-        loss) {
+                                       data.sample,
+                                       y,
+                                       n.repetitions,
+                                       y.names,
+                                       pred,
+                                       loss) {
 
         cnames <- setdiff(colnames(data.sample), y.names)
         qResults <- data.table::data.table()

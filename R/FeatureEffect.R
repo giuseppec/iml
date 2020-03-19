@@ -148,7 +148,7 @@ FeatureEffect <- R6Class("FeatureEffect",
     #'   features.
     #' @template grid.size
     initialize = function(predictor, feature, method = "ale", center.at = NULL,
-      grid.size = 20) {
+                          grid.size = 20) {
 
       feature_index <- private$sanitize.feature(
         feature,
@@ -702,7 +702,7 @@ Partial <- R6Class("Partial",
     #' @param grid.size (`numeric(1)` | `numeric(2)`)\cr
     #'   The size of the grid for evaluating the predictions.
     initialize = function(predictor, feature, aggregation = "pdp", ice = TRUE,
-      center.at = NULL, grid.size = 20) {
+                          center.at = NULL, grid.size = 20) {
 
       assert_choice(aggregation, c("ale", "pdp", "none"))
       assert_logical(ice)

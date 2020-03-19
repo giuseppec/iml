@@ -19,12 +19,12 @@ if (Sys.info()[["sysname"]] != "Windows") {
   predictor.keras1 <- Predictor$new(mod.keras1, data = iris)
   predictor.keras1.prob <- Predictor$new(mod.keras1, data = iris, type = "prob")
   predictor.keras1.nice <- Predictor$new(mod.keras1,
-                                         data = iris,
-                                         predict.fun = function(object, newdata) {
-                                           res <- predict(object, newdata)
-                                           colnames(res) <- levels(iris$Species)
-                                           res
-                                         }
+    data = iris,
+    predict.fun = function(object, newdata) {
+      res <- predict(object, newdata)
+      colnames(res) <- levels(iris$Species)
+      res
+    }
   )
 
   # keras
