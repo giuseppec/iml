@@ -117,6 +117,7 @@ Shapley <- R6Class("Shapley",
 
   private = list(
     aggregate = function() {
+
       y.hat.with.k <- private$qResults[1:(nrow(private$qResults) / 2), , drop = FALSE]
       y.hat.without.k <- private$qResults[(nrow(private$qResults) / 2 + 1):nrow(private$qResults), , drop = FALSE]
       y.hat.diff <- y.hat.with.k - y.hat.without.k
@@ -188,14 +189,14 @@ Shapley <- R6Class("Shapley",
           levels = res$feature.value[order(res$phi)]
         )
       }
-      p <- ggplot2::ggplot(res) +
-        ggplot2::geom_col(ggplot2::aes(y = phi, x = feature.value)) +
-        ggplot2::coord_flip() +
-        ggplot2::xlab("")
+      p <- ggplot(res) +
+        geom_col(aes(y = phi, x = feature.value)) +
+        coord_flip() +
+        xlab("")
       if (private$multiClass) {
-        p <- p + ggplot2::facet_wrap("class")
+        p <- p + facet_wrap("class")
       } else {
-        p <- p + ggplot2::ggtitle(sprintf(
+        p <- p + ggtitle(sprintf(
           "Actual prediction: %.2f\nAverage prediction: %.2f",
           self$y.hat.interest, self$y.hat.average
         ))

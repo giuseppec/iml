@@ -7,7 +7,7 @@
 #'
 #' @importFrom data.table melt setkeyv
 #' @importFrom stats cmdscale ecdf quantile
-#'
+#' @import ggplot2
 #' @details
 #'
 #' The [FeatureEffect] class compute the effect a feature has on the prediction.
@@ -148,7 +148,8 @@ FeatureEffect <- R6Class("FeatureEffect",
     #'   features.
     #' @template grid.size
     initialize = function(predictor, feature, method = "ale", center.at = NULL,
-                          grid.size = 20) {
+      grid.size = 20) {
+
       feature_index <- private$sanitize.feature(
         feature,
         predictor$data$feature.names
@@ -333,6 +334,7 @@ FeatureEffect <- R6Class("FeatureEffect",
       self$results <- results
     },
     run.pdp = function(n) {
+
       private$dataSample <- private$getData()
       grid.dt <- get.grid(private$getData()[, self$feature.name, with = FALSE],
         self$grid.size,
@@ -443,26 +445,26 @@ FeatureEffect <- R6Class("FeatureEffect",
       }
 
       if (self$n.features == 1) {
-        p <- ggplot2::ggplot(self$results,
-          mapping = ggplot2::aes_string(x = self$feature.name, y = ".value")
+        p <- ggplot(self$results,
+          mapping = aes_string(x = self$feature.name, y = ".value")
         ) +
-          ggplot2::scale_y_continuous(private$y_axis_label, limits = ylim)
+          scale_y_continuous(private$y_axis_label, limits = ylim)
         if (self$feature.type == "categorical") {
           if (self$method %in% c("ice", "pdp+ice")) {
-            p <- p + ggplot2::geom_boxplot(data = self$results[self$results$.type == "ice", ], ggplot2::aes_string(group = self$feature.name))
+            p <- p + geom_boxplot(data = self$results[self$results$.type == "ice", ], aes_string(group = self$feature.name))
           } else {
-            p <- p + ggplot2::geom_col()
+            p <- p + geom_col()
           }
         } else {
           if (self$method %in% c("ice", "pdp+ice")) {
-            p <- p + ggplot2::geom_line(alpha = 0.2, mapping = ggplot2::aes(group = .id))
+            p <- p + geom_line(alpha = 0.2, mapping = aes(group = .id))
           }
           if (self$method == "pdp+ice") {
             aggr <- self$results[self$results$.type != "ice", ]
-            p <- p + ggplot2::geom_line(data = aggr, size = 2, color = "gold")
+            p <- p + geom_line(data = aggr, size = 2, color = "gold")
           }
           if (self$method %in% c("ale", "pdp")) {
-            p <- p + ggplot2::geom_line()
+            p <- p + geom_line()
           }
         }
       } else if (self$n.features == 2) {
@@ -475,11 +477,11 @@ FeatureEffect <- R6Class("FeatureEffect",
             res[, categorical.feature] <- as.numeric(res[, categorical.feature])
             cat.breaks <- unique(res[[categorical.feature]])
             cat.labels <- levels(self$results[[categorical.feature]])[cat.breaks]
-            p <- ggplot2::ggplot(res, ggplot2::aes_string(x = categorical.feature, y = numerical.feature)) +
-              ggplot2::geom_rect(ggplot2::aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) +
-              ggplot2::scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) +
-              ggplot2::scale_y_continuous(numerical.feature) +
-              ggplot2::scale_fill_continuous(private$y_axis_label)
+            p <- ggplot(res, aes_string(x = categorical.feature, y = numerical.feature)) +
+              geom_rect(aes(ymin = .bottom, ymax = .top, fill = .ale, xmin = .left, xmax = .right)) +
+              scale_x_continuous(categorical.feature, breaks = cat.breaks, labels = cat.labels) +
+              scale_y_continuous(numerical.feature) +
+              scale_fill_continuous(private$y_axis_label)
 
             # A bit stupid, but adding a rug is special here, because i handle the
             # categorical feature as a numeric feauture in the plot
@@ -491,9 +493,9 @@ FeatureEffect <- R6Class("FeatureEffect",
               ][[1]])
               # Need some dummy data for ggplot to accept the data.frame
               rug.dat <- cbind(dat, data.frame(.value = 1, .id = 1, .ale = 1))
-              p <- p + ggplot2::geom_rug(
+              p <- p + geom_rug(
                 data = rug.dat, alpha = 0.2, sides = "bl",
-                position = ggplot2::position_jitter(width = 0.07, height = 0.07)
+                position = position_jitter(width = 0.07, height = 0.07)
               )
               rug <- FALSE
             }
@@ -501,37 +503,37 @@ FeatureEffect <- R6Class("FeatureEffect",
               dat <- private$sampler$get.x()
               levels(dat[[categorical.feature]]) <- levels(self$results[, categorical.feature])
               dat[, categorical.feature] <- as.numeric(dat[, categorical.feature, with = FALSE][[1]])
-              p <- p + ggplot2::geom_point(data = dat, alpha = 0.3)
+              p <- p + geom_point(data = dat, alpha = 0.3)
               show.data <- FALSE
             }
           } else {
             # Adding x and y to aesthetics for the rug plot later
-            p <- ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = self$feature.name[1], y = self$feature.name[2])) +
-              ggplot2::geom_rect(ggplot2::aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) +
-              ggplot2::scale_x_continuous(self$feature.name[1]) +
-              ggplot2::scale_y_continuous(self$feature.name[2]) +
-              ggplot2::scale_fill_continuous(private$y_axis_label)
+            p <- ggplot(self$results, mapping = aes_string(x = self$feature.name[1], y = self$feature.name[2])) +
+              geom_rect(aes(xmin = .left, xmax = .right, ymin = .bottom, ymax = .top, fill = .ale)) +
+              scale_x_continuous(self$feature.name[1]) +
+              scale_y_continuous(self$feature.name[2]) +
+              scale_fill_continuous(private$y_axis_label)
           }
         } else if (all(self$feature.type %in% "numerical") | all(self$feature.type %in% "categorical")) {
-          p <- ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(
+          p <- ggplot(self$results, mapping = aes_string(
             x = self$feature.name[1],
             y = self$feature.name[2]
           )) +
-            ggplot2::geom_tile(ggplot2::aes(fill = .value)) +
-            ggplot2::scale_fill_continuous(private$y_axis_label)
+            geom_tile(aes(fill = .value)) +
+            scale_fill_continuous(private$y_axis_label)
         } else {
           categorical.feature <- self$feature.name[self$feature.type == "categorical"]
           numerical.feature <- setdiff(self$feature.name, categorical.feature)
-          p <- ggplot2::ggplot(self$results, mapping = ggplot2::aes_string(x = numerical.feature, y = ".value")) +
-            ggplot2::geom_line(ggplot2::aes_string(group = categorical.feature, color = categorical.feature)) +
-            ggplot2::scale_y_continuous(private$y_axis_label)
+          p <- ggplot(self$results, mapping = aes_string(x = numerical.feature, y = ".value")) +
+            geom_line(aes_string(group = categorical.feature, color = categorical.feature)) +
+            scale_y_continuous(private$y_axis_label)
           show.data <- FALSE
         }
 
         if (show.data) {
           dat <- private$sampler$get.x()
           dat[, self$feature.name] <- lapply(dat[, self$feature.name, with = FALSE], as.numeric)
-          p <- p + ggplot2::geom_point(data = dat, alpha = 0.3)
+          p <- p + geom_point(data = dat, alpha = 0.3)
         }
       }
       if (rug) {
@@ -573,13 +575,13 @@ FeatureEffect <- R6Class("FeatureEffect",
           }
         }
 
-        p <- p + ggplot2::geom_rug(
+        p <- p + geom_rug(
           data = rug.dat, alpha = 0.2, sides = sides,
-          position = ggplot2::position_jitter(width = jitter_width, height = jitter_height)
+          position = position_jitter(width = jitter_width, height = jitter_height)
         )
       }
       if (private$multiClass) {
-        p <- p + ggplot2::facet_wrap(".class")
+        p <- p + facet_wrap(".class")
       }
       p
     },
@@ -700,7 +702,8 @@ Partial <- R6Class("Partial",
     #' @param grid.size (`numeric(1)` | `numeric(2)`)\cr
     #'   The size of the grid for evaluating the predictions.
     initialize = function(predictor, feature, aggregation = "pdp", ice = TRUE,
-                          center.at = NULL, grid.size = 20) {
+      center.at = NULL, grid.size = 20) {
+
       assert_choice(aggregation, c("ale", "pdp", "none"))
       assert_logical(ice)
       .Deprecated("FeatureEffect", old = "Partial")
