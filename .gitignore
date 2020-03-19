@@ -12,3 +12,5 @@ notes.md
 notebooks/.ipynb_checkpoints
 *.html
 *.pdf
+docs/
+.vscode
