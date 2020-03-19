@@ -12,7 +12,7 @@ output: github_document
 
 # iml 
 
- `iml ` is an R package that interprets the behavior and explains predictions of machine learning models. <img src="https://github.com/christophM/iml/blob/pkgdown/man/figures/iml.png?raw=true" align="right" height=140/>
+ `iml ` is an R package that interprets the behavior and explains predictions of machine learning models. <img src="https://github.com/christophM/iml/blob/master/man/figures/iml.png?raw=true" align="right" height=140/>
  It implements model-agnostic interpretability methods - meaning they can be used with any machine learning model.
 
 ## Features
@@ -33,8 +33,8 @@ Start an interactive notebook tutorial by clicking on this badge [![Binder](http
 
 ```{r global_options, include=FALSE}
 library(knitr)
-opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE,
-               fig.path = "man/figures/README-")
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE,
+  fig.path = "man/figures/README-")
 set.seed(42)
 ```
 
@@ -62,9 +62,9 @@ How does `lstat` influence the prediction individually and on average? (Accumula
 ```{r}
 library("iml")
 library("randomForest")
-data("Boston", package  = "MASS")
+data("Boston", package = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-X =  Boston[which(names(Boston) != "medv")]
+X = Boston[which(names(Boston) != "medv")]
 model = Predictor$new(rf, data = X, y = Boston$medv)
 effect = FeatureEffects$new(model)
 effect$plot(features = c("lstat", "age", "rm"))
@@ -78,7 +78,7 @@ Please check the [contribution guidelines](CONTRIBUTING.md)
 
 ```{r, results='asis', echo=FALSE}
 cat(sprintf(paste0("&copy; 2018 - %s [Christoph Molnar](https://christophm.github.io/)"),
-               format(Sys.time(), "%Y")))
+  format(Sys.time(), "%Y")))
 ```
 
 The contents of this repository are distributed under the MIT license. See

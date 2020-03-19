@@ -15,7 +15,7 @@ Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://cran.rstud
 
 `iml` is an R package that interprets the behavior and explains
 predictions of machine learning models.
-<img src="https://github.com/christophM/iml/blob/pkgdown/man/figures/iml.png?raw=true" align="right" height=140/>
+<img src="https://github.com/christophM/iml/blob/master/man/figures/iml.png?raw=true" align="right" height=140/>
 It implements model-agnostic interpretability methods - meaning they can
 be used with any machine learning model.
 
@@ -35,7 +35,7 @@ book.
 
 ## Tutorial
 
-Start an interactive notebook tutorial by clicking on the badge:
+Start an interactive notebook tutorial by clicking on this badge
 [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/christophM/iml/master?filepath=./notebooks/tutorial-intro.ipynb)
 
 ## Installation
@@ -65,9 +65,9 @@ average? (Accumulated local effects)
 ``` r
 library("iml")
 library("randomForest")
-data("Boston", package  = "MASS")
+data("Boston", package = "MASS")
 rf = randomForest(medv ~ ., data = Boston, ntree = 50)
-X =  Boston[which(names(Boston) != "medv")]
+X = Boston[which(names(Boston) != "medv")]
 model = Predictor$new(rf, data = X, y = Boston$medv)
 effect = FeatureEffects$new(model)
 effect$plot(features = c("lstat", "age", "rm"))
@@ -87,8 +87,6 @@ The contents of this repository are distributed under the MIT license.
 See below for details:
 
     The MIT License (MIT)
-    
-    Copyright (c) 2018 Christoph Molnar
     
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
