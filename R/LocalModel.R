@@ -110,6 +110,7 @@ LocalModel <- R6Class("LocalModel",
     #'   prediction.
     initialize = function(predictor, x.interest, dist.fun = "gower",
                           kernel.width = NULL, k = 3) {
+
       assert_number(k, lower = 1, upper = predictor$data$n.features)
       assert_data_frame(x.interest, null.ok = TRUE)
       assert_choice(dist.fun, c(
@@ -190,6 +191,7 @@ LocalModel <- R6Class("LocalModel",
       self$predictor$data$match_cols(data.frame(newdata))
     },
     aggregate = function() {
+
       X.recode <- recode(private$dataDesign, self$x.interest)
       x.recoded <- recode(self$x.interest, self$x.interest)
       fam <- ifelse(private$multiClass, "multinomial", "gaussian")
@@ -226,19 +228,19 @@ LocalModel <- R6Class("LocalModel",
     intervene = function() private$dataSample,
     generatePlot = function() {
       requireNamespace("ggplot2", quietly = TRUE)
-      p <- ggplot2::ggplot(self$results) +
-        ggplot2::geom_col(ggplot2::aes(y = effect, x = reorder(feature.value, effect))) +
-        ggplot2::coord_flip() +
-        ggplot2::ylab("effect") +
-        ggplot2::xlab("")
+      p <- ggplot(self$results) +
+        geom_col(aes(y = effect, x = reorder(feature.value, effect))) +
+        coord_flip() +
+        ylab("effect") +
+        xlab("")
       if (!private$multiClass) {
         original_prediction <- self$predictor$predict(self$x.interest)[[1]]
-        p <- p + ggplot2::ggtitle(sprintf(
+        p <- p + ggtitle(sprintf(
           "Actual prediction: %.2f\nLocalModel prediction: %.2f",
           original_prediction, self$predict()
         ))
       }
-      if (private$multiClass) p <- p + ggplot2::facet_wrap(".class")
+      if (private$multiClass) p <- p + facet_wrap(".class")
       p
     },
     get.weight.fun = function(dist.fun, kernel.width) {

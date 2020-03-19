@@ -94,6 +94,7 @@ FeatureEffects <- R6Class("FeatureEffects",
                           method = "ale",
                           center.at = NULL,
                           grid.size = 20) {
+
       if (is.null(features)) {
         self$features <- predictor$data$feature.names
       } else {
@@ -138,20 +139,18 @@ FeatureEffects <- R6Class("FeatureEffects",
 
   private = list(
     run = function() {
-
       effects <- future.apply::future_lapply(self$features,
         function(x) {
-          
           feature_effect <- function(x, predictor, method, center.at, grid.size) {
             FeatureEffect$new(
               feature = x, predictor = predictor, method = method,
               center.at = center.at, grid.size = grid.size
             )
           }
-          
+
           feature_effect(x,
-            predictor = self$predictor, 
-            method = self$method, 
+            predictor = self$predictor,
+            method = self$method,
             center.at = self$center.at,
             grid.size = self$grid.size
           )
@@ -185,6 +184,7 @@ FeatureEffects <- R6Class("FeatureEffects",
     # make sure the default arguments match with plot.FeatureEffect
     generatePlot = function(features = NULL, ncols = NULL, nrows = NULL,
                             fixed_y = TRUE, ...) {
+
       assert_character(features, null.ok = TRUE)
       requireNamespace("ggplot2", quietly = TRUE)
       requireNamespace("patchwork", quietly = TRUE)
@@ -205,7 +205,7 @@ FeatureEffects <- R6Class("FeatureEffects",
       }
       plts <- future.apply::future_lapply(features, function(fname) {
         self$effects[[fname]]$plot(..., ylim = ylim) +
-          ggplot2::theme(axis.title.y = ggplot2::element_blank())
+          theme(axis.title.y = element_blank())
       })
 
       y_axis_label <- self$effects[[1]]$.__enclos_env__$private$y_axis_label
