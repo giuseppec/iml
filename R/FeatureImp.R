@@ -135,6 +135,7 @@ FeatureImp <- R6::R6Class("FeatureImp",
     #'
     initialize = function(predictor, loss, compare = "ratio",
                           n.repetitions = 5) {
+
       assert_choice(compare, c("ratio", "difference"))
       assert_number(n.repetitions)
       self$compare <- compare
@@ -199,6 +200,7 @@ FeatureImp <- R6::R6Class("FeatureImp",
       }
     },
     run = function(n) {
+
       private$dataSample <- private$getData()
       result <- NULL
 
@@ -209,7 +211,7 @@ FeatureImp <- R6::R6Class("FeatureImp",
                                        y.names,
                                        pred,
                                        loss) {
-        
+
         cnames <- setdiff(colnames(data.sample), y.names)
         qResults <- data.table::data.table()
         y.vec <- data.table::data.table()
@@ -248,15 +250,15 @@ FeatureImp <- R6::R6Class("FeatureImp",
       result <- rbindlist(unname(
         future.apply::future_lapply(private$sampler$feature.names, function(x) {
           estimate_feature_imp(x,
-            data.sample = data.sample, 
+            data.sample = data.sample,
             y = y,
-            n.repetitions = n.repetitions, 
+            n.repetitions = n.repetitions,
             y.names = y.names,
             pred = pred,
             loss = loss
           )
         },
-        future.seed = TRUE, 
+        future.seed = TRUE,
         future.globals = FALSE,
         future.packages = loadedNamespaces()
         )
@@ -291,11 +293,11 @@ FeatureImp <- R6::R6Class("FeatureImp",
         )
       }
       xstart <- ifelse(self$compare == "ratio", 1, 0)
-      ggplot2::ggplot(res, ggplot2::aes(y = feature, x = importance)) +
-        ggplot2::geom_segment(ggplot2::aes(y = feature, yend = feature, x = importance.05, xend = importance.95), size = 1.5, color = "darkslategrey") +
-        ggplot2::geom_point(size = 3) +
-        ggplot2::scale_x_continuous(sprintf("Feature Importance (loss: %s)", private$loss_string)) +
-        ggplot2::scale_y_discrete("")
+      ggplot(res, aes(y = feature, x = importance)) +
+        geom_segment(aes(y = feature, yend = feature, x = importance.05, xend = importance.95), size = 1.5, color = "darkslategrey") +
+        geom_point(size = 3) +
+        scale_x_continuous(sprintf("Feature Importance (loss: %s)", private$loss_string)) +
+        scale_y_discrete("")
     },
     set_loss = function(loss) {
       self$loss <- loss

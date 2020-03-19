@@ -136,19 +136,20 @@ Interaction <- R6Class("Interaction",
       y.axis.label <- ifelse(is.null(private$feature), "Interaction strength",
         sprintf("Interaction strength with %s", private$feature)
       )
-      p <- ggplot2::ggplot(res, ggplot2::aes(y = .feature, x = .interaction)) +
-        ggplot2::geom_point() +
-        ggplot2::geom_segment(ggplot2::aes(yend = .feature, x = 0, xend = .interaction)) +
-        ggplot2::scale_x_continuous("Overall interaction strength") +
-        ggplot2::scale_y_discrete("Features")
+      p <- ggplot(res, aes(y = .feature, x = .interaction)) +
+        geom_point() +
+        geom_segment(aes(yend = .feature, x = 0, xend = .interaction)) +
+        scale_x_continuous("Overall interaction strength") +
+        scale_y_discrete("Features")
       if (private$multiClass) {
-        p <- p + ggplot2::facet_wrap(".class")
+        p <- p + facet_wrap(".class")
       }
       p
     },
 
     interaction.run.single = function(batch.size, dataSample, feature.name,
                                       grid.size, predictor, q) {
+
       assert_data_table(dataSample)
       assert_character(feature.name,
         min.len = 1, max.len = 2,
@@ -268,6 +269,7 @@ my.scale <- function(x) {
 }
 
 aggregate.interaction <- function(partial_dat, prediction, feature) {
+
   assert_data_table(partial_dat)
   assert_data_frame(prediction)
   assert_character(feature, null.ok = TRUE)
