@@ -1,0 +1,10 @@
+# installs dependencies, runs R CMD check, runs covr::codecov()
+do_package_checks(args = "--as-cran")
+
+get_stage("install") %>% 
+  add_code_step(keras::install_keras())
+
+if (ci_on_ghactions()) {
+  # creates pkgdown site and pushes to gh-pages branch
+  do_pkgdown()
+}

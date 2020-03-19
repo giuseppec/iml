@@ -18,5 +18,9 @@ install.R
 paper
 codemeta.json
 CONTRIBUTING.md
+^\.ccache$
+^\.github$
+^clang-.*
+^tic\.R$
 docs/
 .vscode
