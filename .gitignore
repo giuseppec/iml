@@ -13,3 +13,4 @@ notebooks/.ipynb_checkpoints
 *.html
 *.pdf
 docs/
+.vscode

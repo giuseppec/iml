@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^Meta$
 ^doc$
 ^.*\.Rproj$
@@ -20,3 +22,5 @@ CONTRIBUTING.md
 ^\.github$
 ^clang-.*
 ^tic\.R$
+docs/
+.vscode
