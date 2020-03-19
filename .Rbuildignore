@@ -1,3 +1,5 @@
+^renv$
+^renv\.lock$
 ^Meta$
 ^doc$
 ^.*\.Rproj$
@@ -16,3 +18,4 @@ install.R
 paper
 codemeta.json
 CONTRIBUTING.md
+docs/
