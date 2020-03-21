@@ -261,7 +261,7 @@ test_that("Predictor keeps factor names without X", {
 
 test_that("Keras regression predictions work", {
   skip_on_os("windows")
-
+  skip_on_cran()
   expect_equal(
     predictor.keras2$predict(newdata = boston.test[, 1:13]),
     as.data.frame(predict(mod.keras2, data.matrix(boston.test[, 1:13]))) %>%
