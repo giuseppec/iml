@@ -18,7 +18,7 @@ test_that("get.feature.type", {
 
 test_that("probs.to.labels", {
   probs <- data.frame(a = c(0.1, 0.2, 0.7), b = c(0.9, 0.8, 0.3), c = c(0, 1, 0))
-  labels <- data.frame(..class = factor(c("b", "c", "a")), stringsAsFactors = FALSE)
+  labels <- data.frame(..class = factor(c("b", "c", "a")))
   expect_equal(probs.to.labels(probs), labels)
   pred <- data.frame(prediction = 1:10)
   expect_equal(probs.to.labels(pred), pred)
