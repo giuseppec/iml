@@ -1,4 +1,4 @@
-if (Sys.info()[["sysname"]] != "Windows") {
+if ((Sys.info()[["sysname"]] != "Windows") & identical(Sys.getenv("NOT_CRAN"), "true")) {
 
   # keras
   k <- backend()
