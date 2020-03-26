@@ -3,6 +3,8 @@ context("Shapley()")
 expected_colnames <- c("feature", "phi", "phi.var", "feature.value")
 
 test_that("Shapley works for single output and single feature", {
+  skip_on_os("windows")
+  skip_on_cran()
   x.interest <- X[1, ]
 
   set.seed(42)
@@ -30,6 +32,8 @@ test_that("Shapley works for single output and single feature", {
 })
 
 test_that("Shapley works for multiple output", {
+  skip_on_os("windows")
+  skip_on_cran()
   x.interest <- X[1, ]
   set.seed(42)
   shap <- Shapley$new(predictor2, x.interest, sample.size = 400)
