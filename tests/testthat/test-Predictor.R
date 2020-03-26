@@ -32,15 +32,21 @@ test_that("extracts y automatically for randomForest", {
 })
 
 test_that("extracts y automatically for H2OMultinomialModel", {
+  skip_on_os("windows")
+  skip_on_cran()
   expect_equal(predictor.h2o.class$data$y.names, "Species")
 })
 
 test_that("extracts y automatically for H2OBinomialModel", {
+  skip_on_os("windows")
+  skip_on_cran()
   expect_equal(predictor.h2o.class2$data$y.names, "Species")
 })
 
 test_that("extracts y automatically for H2ORegressionModel", {
-  expect_equal(predictor.h2o.regr$data$y.names, "Sepal.Width")
+  skip_on_os("windows")
+  skip_on_cran()
+expect_equal(predictor.h2o.regr$data$y.names, "Sepal.Width")
 })
 
 test_that("extracts data automatically for caret::train", {
@@ -60,6 +66,8 @@ test_that("errors when trying to extract data from for mlr3::Learner", {
 })
 
 test_that("h20 prediction works", {
+  skip_on_os("windows")
+  skip_on_cran()
   expect_equal(
     predictor.h2o.class$predict(iris),
     as.data.frame(predict(mod.h2o.class, newdata = dat))[-1]
