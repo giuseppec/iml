@@ -35,7 +35,6 @@ Imports:
     future,
     future.apply,
     ggplot2,
-    gridExtra,
     Metrics,
     prediction,
     R6
