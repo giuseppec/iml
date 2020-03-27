@@ -7,5 +7,7 @@
 "_PACKAGE"
 # > [1] "_PACKAGE"
 
-#' @import  R6 checkmate
+#' @import R6
+#' @import checkmate
+#' @import future 
 NULL
