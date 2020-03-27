@@ -2,7 +2,7 @@
 <!-- badges: start -->
 
 [![R CMD Check via
-{tic}](https://img.shields.io/github/workflow/status/christophM/iml/R%20CMD%20Check%20via%20%7Btic%7D?logo=github&label=R%20CMD%20Check%20via%20%7Btic%7D&style=flat-square)](https://github.com/christophM/iml/actions)
+{tic}](https://github.com/christophM/iml/workflows/R%20CMD%20Check%20via%20%7Btic%7D/badge.svg?branch=master)](https://github.com/christophM/iml/actions)
 [![CRAN Status
 Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN
