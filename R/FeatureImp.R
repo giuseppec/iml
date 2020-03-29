@@ -308,8 +308,8 @@ FeatureImp <- R6::R6Class("FeatureImp",
   )
 )
 
-#' Plot Feature Importance
-#'
+#' @title Plot Feature Importance
+#' @description
 #' `plot.FeatureImp()` plots the feature importance results of a FeatureImp
 #' object.
 #'

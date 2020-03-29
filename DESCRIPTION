@@ -27,6 +27,7 @@ Description: Interpretability methods to analyze the behavior
     Friedman et. al <doi:10.1214/07-AOAS148> and tree surrogate models.
 License: MIT + file LICENSE
 URL: https://christophm.github.io/iml/,
+    https://github.com/christophM/iml/
 BugReports: https://github.com/christophM/iml/issues
 Imports: 
     checkmate,
@@ -65,6 +66,5 @@ Suggests:
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
-https: //github.com/christophM/iml
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.1.0
