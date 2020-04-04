@@ -109,6 +109,7 @@ jobs:
         if: runner.os == 'macOS' && matrix.config.r == 'devel'
         run: |
           brew install ccache pkg-config libxml2
+          brew link --force libxml2
           # install SDK 10.13 (High Sierra, used by CRAN)
           wget -nv https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
           tar fxz MacOSX10.13.sdk.tar.xz
@@ -120,7 +121,7 @@ jobs:
           sudo installer -package /Volumes/gfortran*/gfortran*/gfortran*.pkg -target /
           sudo hdiutil detach /Volumes/gfortran-8.2-Mojave
           # set compiler flags and custom gfortran compiler
-          mkdir -p ~/.R && echo -e 'CXX_STD = CXX14\n\nCC=ccache /usr/bin/clang\nCC11=ccache /usr/bin/clang\nCC14=ccache /usr/bin/clang\nCXX=ccache /usr/bin/clang++\nCXX11=ccache /usr/bin/clang++\nCXX14=ccache /usr/bin/clang++\nC11=ccache /usr/bin/clang++\nC14=ccache /usr/bin/clang++\nCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCXXFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCPPFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nF77=ccache /usr/local/gfortran/bin/gfortran\nFC=ccache /usr/local/gfortran/bin/gfortran' > $HOME/.R/Makevars
+          mkdir -p ~/.R && echo -e 'CXX_STD = CXX14\n\nCC=ccache /usr/bin/clang\nCC11=ccache /usr/bin/clang\nCC14=ccache /usr/bin/clang\nCXX=ccache /usr/bin/clang++\nCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCXXFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCPPFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nF77=ccache /usr/local/gfortran/bin/gfortran\nFC=ccache /usr/local/gfortran/bin/gfortran' > $HOME/.R/Makevars
 
       # for some strange Windows reason this step and the next one need to be decoupled
       - name: "[Stage] Prepare"
