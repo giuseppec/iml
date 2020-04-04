@@ -108,7 +108,7 @@ jobs:
       - name: "[macOS-devel] ccache"
         if: runner.os == 'macOS' && matrix.config.r == 'devel'
         run: |
-          brew install ccache pkg-config
+          brew install ccache pkg-config libxml2
           # install SDK 10.13 (High Sierra, used by CRAN)
           wget -nv https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
           tar fxz MacOSX10.13.sdk.tar.xz
