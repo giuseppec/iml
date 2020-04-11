@@ -39,7 +39,7 @@ jobs:
       # prevent rgl issues because no X11 display is available
       RGL_USE_NULL: true
       # macos devel linking
-      #SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+      SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 
     steps:
       - uses: actions/checkout@v2
