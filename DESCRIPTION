@@ -65,8 +65,6 @@ Suggests:
     yaImpute
 VignetteBuilder: 
     knitr
-Remotes:
-  r-lib/xml2
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.1.0
