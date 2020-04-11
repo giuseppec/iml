@@ -38,6 +38,8 @@ jobs:
       TIC_DEPLOY_KEY: ${{ secrets.TIC_DEPLOY_KEY }}
       # prevent rgl issues because no X11 display is available
       RGL_USE_NULL: true
+      # macos devel linking
+      #SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
 
     steps:
       - uses: actions/checkout@v2
@@ -108,7 +110,7 @@ jobs:
       - name: "[macOS-devel] ccache"
         if: runner.os == 'macOS' && matrix.config.r == 'devel'
         run: |
-          brew install ccache libxml2
+          brew install ccache
           # install SDK 10.13 (High Sierra, used by CRAN)
           wget -nv https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
           tar fxz MacOSX10.13.sdk.tar.xz
@@ -121,7 +123,7 @@ jobs:
           sudo hdiutil detach /Volumes/gfortran-8.2-Mojave
           rm gfortran-8*
           # set compiler flags
-          mkdir -p ~/.R && echo -e 'CXX_STD = CXX14\n\nCC=ccache /usr/bin/clang\nCC11=ccache /usr/bin/clang\nCC14=ccache /usr/bin/clang\nCXX=ccache /usr/bin/clang++\nCXX11=ccache /usr/bin/clang++\nCXX14=ccache /usr/bin/clang++\nC11=ccache /usr/bin/clang++\nC14=ccache /usr/bin/clang++\nCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCXXFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nCPPFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk\nF77=ccache /usr/local/gfortran/bin/gfortran\nFC=ccache /usr/local/gfortran/bin/gfortran' > $HOME/.R/Makevars
+          mkdir -p ~/.R && echo -e 'CC=ccache /usr/bin/clang\nCXX=ccache /usr/bin/clang++\nF77=ccache /usr/local/gfortran/bin/gfortran\nFC=ccache /usr/local/gfortran/bin/gfortran\nCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include\nCCFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include\nCXXFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk-I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include\nCPPFLAGS=-isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include' > $HOME/.R/Makevars
 
       # for some strange Windows reason this step and the next one need to be decoupled
       - name: "[Stage] Prepare"
