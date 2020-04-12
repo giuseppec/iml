@@ -1,23 +1,23 @@
-# 0.10.0.9000 
+# iml 0.10.0.9000 
 
 
-# 0.10
+# iml 0.10.0
 
-- Changes to FeatureEffect\$results data.frame:
-  - All numeric values are stored in .value (no more .y.hat and .ale)
+- Changes to `FeatureEffect$results` `data.frame`:
+  - All numeric values are stored in .value (no more `.y.hat` and `.ale`)
   - Additional column .type denoting the Feature Effect type
   - renamed column .feature to .borders. This column stores the grid borders which were used for computing the FE with respect to the used method
   - For ALE type the column containing the feature name was moved to the front (as it is for the other types)
-- Adds support for h2o
-- Adds support for keras
-- Adds support for mlr3
+- Adds support for {h2o}
+- Adds support for {keras}
+- Adds support for {mlr3}
 - Fixes problem with FeatureImp that caused unused features to get non-zero importances
-- FeatureEffects\$plot() based on `patchwork` now
-- Use new roxygen R6 documentation
-- Use futures for parallel code execution
+- `FeatureEffects\$plot()` based on {patchwork} now
+- Use roxygen R6 documentation
+- Use the {future} framework for parallel code execution
 - Test on GitHub Actions instead of Travis
-- Add a pkgdown site
-- Use "callr" backend in "parallel" vignette
+- Add a {pkgdown} site
+- Use the "callr" backend in "parallel" vignette
 
 # iml 0.9.0
 
