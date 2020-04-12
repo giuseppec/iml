@@ -1,4 +1,7 @@
-# 0.10 (In Progress)
+# 0.10.0.9000 
+
+
+# 0.10
 
 - Changes to FeatureEffect\$results data.frame:
   - All numeric values are stored in .value (no more .y.hat and .ale)
