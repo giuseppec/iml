@@ -24,3 +24,6 @@ CONTRIBUTING.md
 ^tic\.R$
 docs/
 .vscode
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
