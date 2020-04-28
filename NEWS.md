@@ -1,3 +1,8 @@
+# iml 0.10.0.9001
+
+- Ensure that the `data` argument in `Predictor$new()` is always a data.frame (#126)
+
+
 # iml 0.10.0.9000 
 
 
