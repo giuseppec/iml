@@ -46,7 +46,7 @@ test_that("extracts y automatically for H2OBinomialModel", {
 test_that("extracts y automatically for H2ORegressionModel", {
   skip_on_os("windows")
   skip_on_cran()
-expect_equal(predictor.h2o.regr$data$y.names, "Sepal.Width")
+  expect_equal(predictor.h2o.regr$data$y.names, "Sepal.Width")
 })
 
 test_that("extracts data automatically for caret::train", {
@@ -114,12 +114,18 @@ test_that("Keras classification can get nice column names through custom predict
   )
 })
 
-# Test single class  predictions
+# Test single class predictions
 
 # mlr
 predictor.mlr <- Predictor$new(mod.mlr, class = 2, data = iris)
 # mlr3
 predictor.mlr3 <- Predictor$new(learner_iris, class = 2, data = iris)
+# mlr3_ check that mlr3 tasks work when supplied as "data" (#115)
+train <- sample(task_iris$nrow, task_iris$nrow * 2 / 3)
+predictor.mlr3_2 <- Predictor$new(learner_iris,
+  data = task_iris$data(train, cols = task_iris$feature_names),
+  y = task_iris$truth(train)
+)
 # S3 predict
 predictor.S3 <- Predictor$new(mod.S3,
   class = 2, predict.fun = predict.fun,
