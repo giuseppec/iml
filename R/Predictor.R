@@ -103,6 +103,11 @@ Predictor <- R6Class("Predictor",
           y <- NULL
         }
       }
+      
+      # data needs to be a data.frame to work with class "Data" (#115)
+      if (inherits(data, "data.table")) {
+        data.table::setDF(data)
+      }
 
       self$data <- Data$new(data, y = y)
       self$class <- class
