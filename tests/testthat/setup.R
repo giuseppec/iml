@@ -1,6 +1,7 @@
-if ((Sys.info()[["sysname"]] != "Windows") & identical(Sys.getenv("NOT_CRAN"), "true")) {
+if ((Sys.info()[["sysname"]] != "Windows") &&
+  identical(Sys.getenv("NOT_CRAN"), "true")) {
 
-  # keras
+  # keras ----------------------------------------------------------------------
   k <- backend()
   k$clear_session()
   x_mat <- data.matrix(iris[, 1:4])
@@ -27,7 +28,6 @@ if ((Sys.info()[["sysname"]] != "Windows") & identical(Sys.getenv("NOT_CRAN"), "
     }
   )
 
-  # keras
   k <- backend()
   k$clear_session()
   x_mat <- data.matrix(Boston[, 1:13])
@@ -46,15 +46,17 @@ if ((Sys.info()[["sysname"]] != "Windows") & identical(Sys.getenv("NOT_CRAN"), "
     )
   predictor.keras2 <- Predictor$new(mod.keras2, data = Boston)
 
-
-  # h2o multinomial classification
+  # h2o multinomial classification ---------------------------------------------
   h2o.init()
   h2o.no_progress()
   # fit h2o model
   dat <- as.h2o(iris)
   y <- "Species"
   x <- setdiff(names(iris), y)
-  mod.h2o.class <- h2o.glm(training_frame = dat, x = x, y = y, family = "multinomial", solver = "L_BFGS")
+  mod.h2o.class <- h2o.glm(
+    training_frame = dat, x = x, y = y,
+    family = "multinomial", solver = "L_BFGS"
+  )
   # create predictor
   predictor.h2o.class <- Predictor$new(mod.h2o.class, data = iris)
 
@@ -63,7 +65,10 @@ if ((Sys.info()[["sysname"]] != "Windows") & identical(Sys.getenv("NOT_CRAN"), "
   iris2$Species <- as.factor(iris2$Species == "setosa")
   dat2 <- as.h2o(iris2)
   # h2o binomial classification
-  mod.h2o.class2 <- h2o.glm(training_frame = dat2, x = x, y = y, family = "binomial", solver = "L_BFGS")
+  mod.h2o.class2 <- h2o.glm(
+    training_frame = dat2, x = x, y = y,
+    family = "binomial", solver = "L_BFGS"
+  )
   # create predictor
   predictor.h2o.class2 <- Predictor$new(mod.h2o.class2, data = iris2)
 
@@ -74,6 +79,3 @@ if ((Sys.info()[["sysname"]] != "Windows") & identical(Sys.getenv("NOT_CRAN"), "
   mod.h2o.regr <- h2o.randomForest(training_frame = dat, x = x, y = y)
   predictor.h2o.regr <- Predictor$new(mod.h2o.regr, data = iris)
 }
-
-
-
