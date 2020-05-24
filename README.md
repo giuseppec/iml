@@ -79,6 +79,26 @@ effect$plot(features = c("lstat", "age", "rm"))
 
 Please check the [contribution guidelines](CONTRIBUTING.md)
 
+## Citation
+
+If you use iml in a scientific publication, please cite it as:
+
+    Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl. "iml: An R package for interpretable machine learning." Journal of Open Source Software 3.26 (2018): 786.
+
+BibTeX:
+
+``` tex
+@article{molnar2018iml,
+  title={iml: An R package for interpretable machine learning},
+  author={Molnar, Christoph and Casalicchio, Giuseppe and Bischl, Bernd},
+  journal={Journal of Open Source Software},
+  volume={3},
+  number={26},
+  pages={786},
+  year={2018}
+}
+```
+
 ## License
 
 © 2018 - 2020 [Christoph Molnar](https://christophm.github.io/)
@@ -105,10 +125,6 @@ See below for details:
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
-
-## Python Implementation
-
-Referring to <https://github.com/datascienceinc/Skater>
 
 ## Funding
 
