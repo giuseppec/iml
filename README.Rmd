@@ -74,6 +74,29 @@ effect$plot(features = c("lstat", "age", "rm"))
 
 Please check the [contribution guidelines](CONTRIBUTING.md)
 
+## Citation
+
+If you use iml in a scientific publication, please cite it as:
+
+```
+Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl. "iml: An R package for interpretable machine learning." Journal of Open Source Software 3.26 (2018): 786.
+```
+
+BibTeX:
+
+```{tex}
+@article{molnar2018iml,
+  title={iml: An R package for interpretable machine learning},
+  author={Molnar, Christoph and Casalicchio, Giuseppe and Bischl, Bernd},
+  journal={Journal of Open Source Software},
+  volume={3},
+  number={26},
+  pages={786},
+  year={2018}
+}
+
+```
+
 ## License
 
 ```{r, results='asis', echo=FALSE}
