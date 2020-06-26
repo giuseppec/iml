@@ -3,7 +3,7 @@ output: github_document
 ---
 
 <!-- badges: start -->
-[![R CMD Check via {tic}](https://github.com/christophM/iml/workflows/R%20CMD%20Check%20via%20{tic}/badge.svg?branch=master)](https://github.com/christophM/iml/actions)
+[![tic](https://github.com/christophM/iml/workflows/tic/badge.svg?branch=master)](https://github.com/christophM/iml/actions)
 [![CRAN Status Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://cran.rstudio.com/web/packages/iml/index.html)
 [![codecov.io](https://codecov.io/github/christophM/iml/coverage.svg?branch=master)](https://codecov.io/github/christophM/iml?branch=master)

@@ -1,8 +1,7 @@
 
 <!-- badges: start -->
 
-[![R CMD Check via
-{tic}](https://github.com/christophM/iml/workflows/R%20CMD%20Check%20via%20%7Btic%7D/badge.svg?branch=master)](https://github.com/christophM/iml/actions)
+[![tic](https://github.com/christophM/iml/workflows/tic/badge.svg?branch=master)](https://github.com/christophM/iml/actions)
 [![CRAN Status
 Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN
