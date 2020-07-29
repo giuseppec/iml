@@ -103,10 +103,18 @@ Predictor <- R6Class("Predictor",
           y <- NULL
         }
       }
-      
+
       # data needs to be a data.frame to work with class "Data" (#115)
       if (inherits(data, "data.table")) {
         data.table::setDF(data)
+      }
+
+      # check for classif learners - they should have arg "class" set
+      # FIXME: This needs a more robust and general approach
+      if (is.null(class) &&
+        inherits(model, "LearnerClassif") &&
+        any(c("response", "prob") %in% model$predict_types)) {
+        warning("Argument 'class' not specified but a classification problem was detected. This will likely cause issues down the road. Please supply it in `Predictor$new()`.")
       }
 
       self$data <- Data$new(data, y = y)
