@@ -282,3 +282,14 @@ test_that("Keras regression predictions work", {
       `colnames<-`(c("pred"))
   )
 })
+
+# Predictor_mlr3 ---------------------------------------------------------------
+
+library(mlr3)
+task = tsk("sonar")
+train_set = sample(task$nrow, 0.8 * task$nrow)
+test_set = setdiff(seq_len(task$nrow), train_set)
+learner <- lrn("classif.rpart")$train(task, row_ids = train_set)
+
+predictor_mlr3 <- Predictor_mlr3$new(learner, task)
+predictor_mlr3$predict(task, row_ids = test_set)

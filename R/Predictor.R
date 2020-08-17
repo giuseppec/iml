@@ -103,7 +103,7 @@ Predictor <- R6Class("Predictor",
           y <- NULL
         }
       }
-      
+
       # data needs to be a data.frame to work with class "Data" (#115)
       if (inherits(data, "data.table")) {
         data.table::setDF(data)
@@ -122,36 +122,18 @@ Predictor <- R6Class("Predictor",
 
     #' @description Predict new data with the machine learning model.
     #' @template newdata
-    predict = function(newdata) {
-      checkmate::assert_data_frame(newdata)
-      # Makes sure it's not a data.table
-      newdata <- as.data.frame(newdata)
-      # make sure only features are used
-      newdata <- newdata[, intersect(
-        self$data$feature.names,
-        colnames(newdata)
-      ), drop = FALSE]
-      prediction <- self$prediction.function(newdata)
-      if (!private$predictionChecked) {
-        checkPrediction(prediction, newdata)
-        private$predictionChecked <- TRUE
-      }
-      # If S3 or function, we can only infer the task
-      # once we see the predictions
-      if (is.null(self$task)) {
-        self$task <- inferTaskFromPrediction(prediction)
-      }
-      if (!is.null(self$class) & ncol(prediction) > 1) {
-        prediction <- prediction[, self$class, drop = FALSE]
-      }
-      rownames(prediction) <- NULL
-      data.frame(prediction, check.names = FALSE)
+    predict = function(newdata, row_ids = NULL) {
+
+      preds <- private$.predict(newdata, row_ids)
+      return(preds)
     },
 
     #' @description Print the Predictor object.
     print = function() {
       cat("Prediction task:", self$task, "\n")
       if (self$task == "classification") {
+        # FIXME?
+        # prediction.colnames is never set?
         cat("Classes: ", paste(self$prediction.colnames, collapse = ", "))
       }
     },
@@ -185,6 +167,31 @@ Predictor <- R6Class("Predictor",
     task = NULL
   ),
   private = list(
-    predictionChecked = FALSE
+    predictionChecked = FALSE,
+    .predict = function(newdata, row_ids = NULL) {
+      checkmate::assert_data_frame(newdata)
+      # Makes sure it's not a data.table
+      newdata <- as.data.frame(newdata)
+      # make sure only features are used
+      newdata <- newdata[, intersect(
+        self$data$feature.names,
+        colnames(newdata)
+      ), drop = FALSE]
+      prediction <- self$prediction.function(newdata)
+      if (!private$predictionChecked) {
+        checkPrediction(prediction, newdata)
+        private$predictionChecked <- TRUE
+      }
+      # If S3 or function, we can only infer the task
+      # once we see the predictions
+      if (is.null(self$task)) {
+        self$task <- inferTaskFromPrediction(prediction)
+      }
+      if (!is.null(self$class) & ncol(prediction) > 1) {
+        prediction <- prediction[, self$class, drop = FALSE]
+      }
+      rownames(prediction) <- NULL
+      data.frame(prediction, check.names = FALSE)
+    }
   )
 )
