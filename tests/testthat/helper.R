@@ -2,8 +2,6 @@ suppressPackageStartupMessages(library("mlr", quietly = TRUE))
 suppressPackageStartupMessages(library("mlr3"))
 suppressPackageStartupMessages(library("caret"))
 suppressPackageStartupMessages(library("data.table", quietly = TRUE))
-suppressPackageStartupMessages(library("keras"))
-suppressPackageStartupMessages(library("h2o", quietly = TRUE))
 
 data(Boston, package = "MASS")
 
@@ -58,8 +56,8 @@ mod.mlr <- mlr::train(lrn, task)
 predictor.mlr <- Predictor$new(mod.mlr, data = iris)
 
 ## mlr3
-task_iris <- TaskClassif$new(id = "iris", backend = iris, target = "Species")
-learner_iris <- lrn("classif.rpart", predict_type = "prob")
+task_iris <- mlr3::TaskClassif$new(id = "iris", backend = iris, target = "Species")
+learner_iris <- mlr3::lrn("classif.rpart", predict_type = "prob")
 learner_iris$train(task_iris)
 predictor.mlr3 <- Predictor$new(learner_iris, data = iris)
 
