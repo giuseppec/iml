@@ -1,8 +1,8 @@
 Type: Package
 Package: iml
 Title: Interpretable Machine Learning
-Version: 0.10.0.9001
-Authors@R: 
+Version: 0.10.1
+Authors@R:
     c(person(given = "Christoph",
              family = "Molnar",
              role = c("aut", "cre"),
@@ -29,7 +29,7 @@ License: MIT + file LICENSE
 URL: https://christophm.github.io/iml/,
     https://github.com/christophM/iml/
 BugReports: https://github.com/christophM/iml/issues
-Imports: 
+Imports:
     checkmate,
     data.table,
     Formula,
@@ -40,7 +40,7 @@ Imports:
     Metrics,
     prediction,
     R6
-Suggests: 
+Suggests:
     ALEPlot,
     bench,
     caret,
@@ -63,7 +63,7 @@ Suggests:
     rpart,
     testthat,
     yaImpute
-VignetteBuilder: 
+VignetteBuilder:
     knitr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
