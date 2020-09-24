@@ -1,5 +1,6 @@
-if ((Sys.info()[["sysname"]] != "Windows") &&
+if ((Sys.info()[["sysname"]] != "Windows") &
   identical(Sys.getenv("NOT_CRAN"), "true")) {
+  skip_on_cran()
   suppressPackageStartupMessages(library("h2o", quietly = TRUE))
   suppressPackageStartupMessages(library("keras"))
 
