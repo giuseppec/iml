@@ -1,7 +1,7 @@
 Type: Package
 Package: iml
 Title: Interpretable Machine Learning
-Version: 0.10.1
+Version: 0.10.1.9000
 Authors@R:
     c(person(given = "Christoph",
              family = "Molnar",

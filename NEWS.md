@@ -1,9 +1,12 @@
-# iml 0.10.0.9001
+# iml 0.10.1.9000
+
+- Internal changes only.
+
+
+# iml 0.10.1
 
 - Ensure that the `data` argument in `Predictor$new()` is always a data.frame (#126)
-
-
-# iml 0.10.0.9000 
+- Fix CRAN checks
 
 
 # iml 0.10.0
