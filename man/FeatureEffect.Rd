@@ -42,8 +42,8 @@ For individual conditional expectation:
 \examples{
 # We train a random forest on the Boston dataset:
 data("Boston", package = "MASS")
-library("randomForest")
-rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
+library("rpart")
+rf <- rpart(medv ~ ., data = Boston)
 mod <- Predictor$new(rf, data = Boston)
 
 # Compute the accumulated local effects for the first feature
@@ -95,7 +95,7 @@ eff <- FeatureEffect$new(mod, feature = c("crim", "lstat"))
 plot(eff)
 
 # FeatureEffect plots also works with multiclass classification
-rf <- randomForest(Species ~ ., data = iris, ntree = 50)
+rf <- rpart(Species ~ ., data = iris)
 mod <- Predictor$new(rf, data = iris, type = "prob")
 
 # For some models we have to specify additional arguments for the predict
