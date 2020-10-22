@@ -99,7 +99,11 @@ Shapley <- R6Class("Shapley",
     #' @field x.interest [data.frame]\cr
     #'   Single row with the instance to be explained.
     x.interest = NULL,
-
+    
+    #' @field auxiliaryTab [data.frame]\cr
+    #'   Auxiliary table created for one-time vlookup.
+    auxiliaryTab = NULL,
+    
     #' @field y.hat.interest [numeric]\cr
     #'   Predicted value for instance of interest.
     y.hat.interest = NULL,
@@ -130,7 +134,9 @@ Shapley <- R6Class("Shapley",
       y.hat.diff <- y.hat.diff[, list("phi" = mean(value), "phi.var" = var(value)), by = c("feature", "class")]
       if (!private$multiClass) y.hat.diff$class <- NULL
       x.original <- unlist(lapply(self$x.interest[1, ], as.character))
-      y.hat.diff$feature.value <- rep(sprintf("%s=%s", colnames(self$x.interest), x.original), times = length(cnames))
+      auxiliaryTab <- data.table("feature" = rep(sprintf("%s", colnames(self$x.interest)), times = length(cnames)), 
+                                                  "feature.value" = rep(sprintf("%s=%s", colnames(self$x.interest), x.original), times = length(cnames)))
+      y.hat.diff <- merge(y.hat.diff, auxiliaryTab, all.x = TRUE, by = "feature")
       y.hat.diff
     },
 
