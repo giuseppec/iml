@@ -140,3 +140,49 @@ test_that("Feature Importance 0", {
   fimp <- FeatureImp$new(pred, loss = "mae", n.repetitions = 3)
   expect_equal(fimp$results$importance[3], 1)
 })
+
+test_that("FeatureImp works for a subset of features", {
+  var.imp <- FeatureImp$new(predictor1, loss = "mse", features = c("a", "b"))
+  dat <- var.imp$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), expected_colnames)
+  expect_equal(nrow(dat), 2)
+  p <- plot(var.imp)
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
+})
+
+test_that("Invalid feature names are caught", {
+  expect_error(
+    FeatureImp$new(predictor1, loss = "mse", features = c("x", "y", "z")),
+    "failed: Must be a subset of {'a','b','c','d'}, but is {'x','y','z'}",
+    fixed = TRUE
+  )
+})
+
+test_that("FeatureImp works for groups of features", {
+  groups = list(ab = c("a", "b"), cd = c("c", "d"))
+  var.imp <- FeatureImp$new(predictor1, loss = "mse", features = groups)
+  dat <- var.imp$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), expected_colnames)
+  expect_equal(nrow(dat), 2)
+  p <- plot(var.imp)
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
+})
+
+test_that("FeatureImp works for overlapping groups of features", {
+  groups = list(ab = c("a", "b"), bc = c("b", "c"))
+  var.imp <- FeatureImp$new(predictor1, loss = "mse", features = groups)
+  dat <- var.imp$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), expected_colnames)
+  expect_equal(nrow(dat), 2)
+  p <- plot(var.imp)
+  expect_s3_class(p, c("gg", "ggplot"))
+  p
+})
