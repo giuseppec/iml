@@ -80,6 +80,18 @@ imp <- FeatureImp$new(mod, loss = "mae", compare = "difference")
 # Plot the results directly
 plot(imp)
 
+# We can calculate feature importance for a subset of features 
+imp <- FeatureImp$new(mod, loss = "mae", features = c("crim", "zn", "indus"))
+plot(imp)
+
+# We can calculate joint importance of groups of features
+groups = list(
+ grp1 = c("crim", "zn", "indus", "chas"),
+ grp2 = c("nox", "rm", "age", "dis"),
+ grp3 = c("rad", "tax", "ptratio", "black", "lstat")
+)
+imp <- FeatureImp$new(mod, loss = "mae", features = groups)
+plot(imp)
 
 # FeatureImp also works with multiclass classification.
 # In this case, the importance measurement regards all classes
@@ -127,6 +139,10 @@ Number of repetitions.}
 depending on whether the importance was calculated as difference
 between original model error and model error after permutation or as
 ratio.}
+
+\item{\code{features}}{(\code{list})\cr Features for which importance scores are to
+be calculated. The names are the feature/group names, while the contents
+specify which feature(s) are to be permuted.}
 }
 \if{html}{\out{</div>}}
 }
@@ -151,7 +167,13 @@ ratio.}
 \subsection{Method \code{new()}}{
 Create a FeatureImp object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FeatureImp$new(predictor, loss, compare = "ratio", n.repetitions = 5)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{FeatureImp$new(
+  predictor,
+  loss,
+  compare = "ratio",
+  n.repetitions = 5,
+  features = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -179,6 +201,12 @@ original model error and model error after permutation?
 How often should the shuffling of the feature be repeated?
 The higher the number of repetitions the more stable and accurate the
 results become.}
+
+\item{\code{features}}{(\verb{character or list})\cr
+For which features do you want importance scores calculated. The default
+value of \code{NULL} implies all features. Use a named list of character vectors
+to define groups of features for which joint importance will be calculated.
+See examples.}
 }
 \if{html}{\out{</div>}}
 }
