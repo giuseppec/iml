@@ -1,3 +1,7 @@
+# iml 0.11
+
+- Allow computation of importance for groups of features (FeatureImp)
+
 # iml 0.10.1.9000
 
 - Internal changes only.
