@@ -39,3 +39,10 @@ test_that("y as character works", {
   expect_equal(ds$feature.names, setdiff(colnames(iris), "Species"))
   expect_equal(unname(ds$feature.types), rep("numerical", times = 4))
 })
+
+
+test_that("only first class used", {
+  data("diamonds")
+  x = Data$new(X = diamonds)
+  expect_true(!any(is.na(names(x$feature.types))))
+})

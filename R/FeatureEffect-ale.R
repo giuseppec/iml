@@ -73,7 +73,6 @@ calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.dt1, g
              (dat[[feature.name[1]]] >= min(grid.dt1[[1]])) &
              (dat[[feature.name[2]]] <= max(grid.dt2[[1]])) &
              (dat[[feature.name[2]]] >= min(grid.dt2[[1]])),]
-  print(dat)
   # Matching instances to the grid of feature 1
   interval.index1 <- findInterval(dat[[feature.name[1]]], grid.dt1[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero

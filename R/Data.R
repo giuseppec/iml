@@ -43,7 +43,7 @@ Data <- R6::R6Class("Data",
       cbind(self$X, self$y)
     },
     print = function() {
-      cat("Sampling from data.frame with", nrow(self$X), "rows and", ncol(self$X), "columns.")
+      cat("Sampling from data.frame with", nrow(self$X), "rows and", ncol(self$X), "columns.\n")
     },
     initialize = function(X, y = NULL, prob = NULL) {
 
@@ -68,7 +68,7 @@ Data <- R6::R6Class("Data",
       self$X <- data.table(X[, setdiff(colnames(X), self$y.names), drop = FALSE])
       if (ncol(self$X) == 1) stop("Only 1 feature was provided. The iml package is only useful and works for multiple features.")
       self$prob <- prob
-      self$feature.types <- get.feature.type(unlist(lapply(self$X, class)))
+      self$feature.types <- get.feature.type(unlist(lapply(self$X, function(x){class(x)[1]})))
       self$feature.names <- colnames(self$X)
       self$n.features <- ncol(self$X)
       self$n.rows <- nrow(self$X)
