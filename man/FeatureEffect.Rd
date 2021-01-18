@@ -188,7 +188,8 @@ Create a FeatureEffect object
   feature,
   method = "ale",
   center.at = NULL,
-  grid.size = 20
+  grid.size = 20,
+  grid.points = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -218,6 +219,12 @@ features.}
 
 \item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
 The size of the grid for evaluating the predictions.}
+
+\item{\code{grid.points}}{(\code{numeric() | list(numeric(), numeric())})\cr
+An optional grid along the feature. If grid.points are set, the grid.size
+argument is ignored. Provide a list of two vectors with the same order as
+in the 'feature' argument, if PDP/ALE for two features is to be computed
+with a user-defined grid.}
 }
 \if{html}{\out{</div>}}
 }

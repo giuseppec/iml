@@ -4,7 +4,7 @@
 \alias{calculate.ale.num}
 \title{Compute ALE for 1 numerical feature}
 \usage{
-calculate.ale.num(dat, run.prediction, feature.name, grid.size)
+calculate.ale.num(dat, run.prediction, feature.name, grid.dt)
 }
 \arguments{
 \item{dat}{the data.frame with same columns as training data}
@@ -13,7 +13,7 @@ calculate.ale.num(dat, run.prediction, feature.name, grid.size)
 
 \item{feature.name}{The column name of the feature for which to compute ALE}
 
-\item{grid.size}{The number of intervals}
+\item{grid.dt}{data.table with single column with grid values for the numerical feature}
 }
 \description{
 Compute ALE for 1 numerical feature

@@ -147,8 +147,9 @@ FeatureEffect <- R6Class("FeatureEffect",
     #'   Value at which the plot should be centered. Ignored in the case of two
     #'   features.
     #' @template grid.size
+    #' @template grid.points
     initialize = function(predictor, feature, method = "ale", center.at = NULL,
-                          grid.size = 20) {
+                          grid.size = 20, grid.points = NULL) {
 
       feature_index <- private$sanitize.feature(
         feature,
@@ -159,6 +160,9 @@ FeatureEffect <- R6Class("FeatureEffect",
         min.len = 1, max.len = 2
       )
       assert_numeric(grid.size, min.len = 1, max.len = length(feature))
+      assert(check_numeric(grid.points, null.ok = TRUE, min.len = 2),
+             check_list(grid.points), null.ok = TRUE, min.len = 1, max.len = 2,
+             combine = "or")
       assert_number(center.at, null.ok = TRUE)
       assert_choice(method, c("ale", "pdp", "ice", "pdp+ice"))
       self$method <- method
@@ -169,6 +173,7 @@ FeatureEffect <- R6Class("FeatureEffect",
           stop("ICE is not implemented for two features.")
         }
       }
+      if (!is.null(grid.points)) private$grid.points = unique(grid.points)
       private$anchor.value <- center.at
       super$initialize(predictor)
       private$set_feature_from_index(feature_index)
@@ -258,6 +263,7 @@ FeatureEffect <- R6Class("FeatureEffect",
   private = list(
     run = function(n) {
       if (self$method == "ale") {
+
         private$run.ale()
       } else {
         private$run.pdp(self$predictor$batch.size)
@@ -296,34 +302,66 @@ FeatureEffect <- R6Class("FeatureEffect",
     anchor.value = NULL,
     grid.size.original = NULL,
     y_axis_label = NULL,
+    grid.points = NULL,
     # core functionality of self$predict
     predict_inner = NULL,
     run.ale = function() {
+
       private$dataSample <- private$getData()
+      dat <- private$dataSample
       if (self$n.features == 1) {
         if (self$feature.type == "numerical") { # one numerical feature
+          if (is.null(private$grid.points)) {
+            grid.dt <- unique(get.grid(dat[, self$feature.name, with = FALSE],
+                                       self$grid.size + 1, type = "quantile"))
+          } else {
+            grid.dt <- data.table(unique(sort(private$grid.points)))
+            colnames(grid.dt) <- self$feature.name
+          }
           results <- calculate.ale.num(
-            dat = private$dataSample, run.prediction = private$run.prediction,
-            feature.name = self$feature.name, grid.size = self$grid.size
+            dat = dat, run.prediction = private$run.prediction,
+            feature.name = self$feature.name, grid.dt = grid.dt
           )
         } else { # one categorical feature
           results <- calculate.ale.cat(
-            dat = private$dataSample, run.prediction = private$run.prediction,
+            dat = dat, run.prediction = private$run.prediction,
             feature.name = self$feature.name
           )
         }
       } else { # two features
         if (all(self$feature.type == "numerical")) { # two numerical features
+          # Create grid for feature 1
+          if (is.null(private$grid.points)) {
+            grid.dt1 <- unique(get.grid(dat[, self$feature.name[1], with = FALSE],
+                                        grid.size = self$grid.size[1] + 1, type = "quantile"))
+            grid.dt2 <- unique(get.grid(dat[, self$feature.name[2], with = FALSE],
+                                        grid.size = self$grid.size[2] + 1, type = "quantile"))
+          } else {
+            grid.dt1 <- data.table(unique(sort(private$grid.points[[1]])))
+            grid.dt2 <- data.table(unique(sort(private$grid.points[[2]])))
+          }
+          colnames(grid.dt1) <- self$feature.name[[1]]
+          colnames(grid.dt2) <- self$feature.name[[2]]
           results <- calculate.ale.num.num(
-            dat = private$dataSample, run.prediction = private$run.prediction,
-            feature.name = self$feature.name, grid.size = self$grid.size
-          )
+            dat = dat, run.prediction = private$run.prediction,
+            feature.name = self$feature.name, grid.dt1 = grid.dt1, grid.dt2 = grid.dt2)
         } else if (all(self$feature.type == "categorical")) { # two categorical features
           stop("ALE for two categorical features is not yet implemented.")
         } else { # mixed numerical and categorical
+
+          x.num.index <- ifelse(inherits(dat[, self$feature.name, with = FALSE][[1]], "numeric"), 1, 2)
+          if (is.null(private$grid.points)) {
+            grid.dt <- unique(get.grid(dat[, self$feature.name[x.num.index], with = FALSE],
+                                       grid.size = self$grid.size[x.num.index] + 1, type = "quantile"
+                              ))
+          } else {
+            grid.dt <- data.table(sort(unique(private$grid.points)))
+          }
+          colnames(grid.dt) <- self$feature.name[x.num.index]
+
           results <- calculate.ale.num.cat(
-            dat = private$dataSample, run.prediction = private$run.prediction,
-            feature.name = self$feature.name, grid.size = self$grid.size
+            dat = dat, run.prediction = private$run.prediction,
+            feature.name = self$feature.name, grid.dt = grid.dt
           )
         }
       }
@@ -334,12 +372,21 @@ FeatureEffect <- R6Class("FeatureEffect",
       self$results <- results
     },
     run.pdp = function(n) {
-
       private$dataSample <- private$getData()
-      grid.dt <- get.grid(private$getData()[, self$feature.name, with = FALSE],
-        self$grid.size,
-        anchor.value = private$anchor.value
-      )
+      if (is.null(private$grid.points)) {
+        grid.dt <- get.grid(private$getData()[, self$feature.name, with = FALSE],
+          self$grid.size,
+          anchor.value = private$anchor.value
+        )
+      } else {
+        if(self$n.features == 1){
+          grid.dt <- data.table(private$grid.points)
+        } else {
+          grid.dt <- data.table(expand.grid(private$grid.points[[1]],
+                                            private$grid.points[[2]]))
+        }
+        names(grid.dt)  <- self$feature.name
+      }
       mg <- MarginalGenerator$new(grid.dt, private$dataSample,
         self$feature.name,
         id.dist = TRUE, cartesian = TRUE
@@ -347,7 +394,7 @@ FeatureEffect <- R6Class("FeatureEffect",
       results.ice <- data.table()
       while (!mg$finished) {
         results.ice.inter <- mg$next.batch(n)
-        predictions <- private$run.prediction(results.ice.inter)
+        predictions <- private$run.prediction(results.ice.inter[,self$predictor$data$feature.names, with = FALSE])
         results.ice.inter <- results.ice.inter[, c(self$feature.name, ".id.dist"),
           with = FALSE
         ]

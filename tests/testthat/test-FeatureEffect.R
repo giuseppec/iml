@@ -114,6 +114,24 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   p <- plot(pdp.obj, ylim = c(1, 2))
   expect_s3_class(p, c("gg", "ggplot"))
   plot(p)
+
+  # User provided grid
+  grpoints  <- 1:3
+  pdp.obj <- FeatureEffect$new(predictor1,
+    method = "pdp", feature = 1,
+    grid.points = grpoints
+  )
+  expect_equal(pdp.obj$results$a, grpoints)
+  p <- plot(pdp.obj, ylim = c(1, 2))
+  expect_s3_class(p, c("gg", "ggplot"))
+  plot(p)
+
+  grpoints  <- c(1, 1, 1:3)
+  pdp.obj <- FeatureEffect$new(predictor1,
+    method = "pdp", feature = 1,
+    grid.points = grpoints
+  )
+  expect_equal(pdp.obj$results$a, unique(grpoints))
 })
 
 test_that("FeatureEffect (method=pdp) works for single output and 2 features, 2D grid.size", {
@@ -144,6 +162,21 @@ test_that("FeatureEffect (method=pdp) works for single output and 2 features, 2D
     feature = c("a", "b"), grid.size = grid.size
   )
   expect_equal(pdp.obj$results, pdp.obj3$results)
+
+  grid.points <- list(1:3, c(10, 10, 20, 40))
+  pdp.obj <- FeatureEffect$new(predictor1,
+    method = "pdp",
+    feature = c("a", "b"), grid.points = grid.points
+  )
+  dat = pdp.obj$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(dat), c("a", "b", ".value", ".type"))
+  expect_equal(nrow(dat), length(unique(grid.points[[1]])) * length(unique(grid.points[[2]])))
+  expect_equal(max(dat$a), 3)
+  expect_equal(min(dat$a), 1)
+  expect_equal(max(dat$b), 40)
+  expect_equal(min(dat$b), 10)
+
 })
 
 test_that("FeatureEffect (method=pdp) works for single output and 2 numerical features, 1D grid.size", {
@@ -199,6 +232,24 @@ test_that("FeatureEffect (method=pdp) works for single output and numerical + ca
   expect_equal(unique(dat$c), unique(X$c))
   checkPlot(pdp.obj)
   expect_error(pdp.obj$predict(1))
+
+  # Using grid points
+  grpoints <- list(c("a", "b"), c(10, 11))
+  pdp.obj <- FeatureEffect$new(predictor1,
+    method = "pdp", feature = c(3, 2),
+    grid.points = grpoints
+  )
+  dat <- pdp.obj$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(dat), c("c", "b", ".value", ".type"))
+  expect_equal(nrow(dat), 4)
+  expect_equal(nrow(unique(dat)), 4)
+  expect_equal(max(dat$b), 11)
+  expect_equal(min(dat$b), 10)
+  expect_equal(as.character(unique(dat$c)), grpoints[[1]])
+  checkPlot(pdp.obj)
+  expect_error(pdp.obj$predict(1))
+
 })
 
 test_that("FeatureEffect (pdp) works for categorical output", {
@@ -211,6 +262,17 @@ test_that("FeatureEffect (pdp) works for categorical output", {
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), c("c", ".value", ".type", ".id"))
   expect_equal(nrow(dat), length(unique(X$c)) * (nrow(X) + 1))
+  checkPlot(pdp.obj)
+
+  # User-defined grid points
+  pdp.obj <- FeatureEffect$new(predictor1,
+    method = "pdp+ice", feature = "c",
+    grid.points = c("a", "b")
+  )
+  dat <- pdp.obj$results
+  expect_class(dat, "data.frame")
+  expect_equal(colnames(dat), c("c", ".value", ".type", ".id"))
+  expect_equal(nrow(dat), 2 * (nrow(X) + 1))
   checkPlot(pdp.obj)
 })
 
@@ -365,6 +427,20 @@ test_that("method='ale' works for 1D numerical", {
   expect_equal(max(dat$a), 5)
   expect_equal(min(dat$a), 1)
   checkPlot(ale)
+
+  ale <- FeatureEffect$new(predictor1,
+    feature = 1, grid.points = c(1,2,3),
+    method = "ale"
+  )
+  dat <- ale$results
+  expect_class(dat, "data.frame")
+  expect_false("data.table" %in% class(dat))
+  expect_equal(colnames(dat), c(".type", ".value", "a"))
+  expect_equal(nrow(dat), 3)
+  expect_equal(nrow(unique(dat)), 3)
+  expect_equal(max(dat$a, na.rm = TRUE), 3)
+  expect_equal(min(dat$a, na.rm = TRUE), 1)
+  checkPlot(ale)
 })
 
 test_that("method='ale' works for 2D numerical", {
@@ -417,6 +493,28 @@ test_that("method='ale' works for 2D numerical", {
     grid.size = grid.size, method = "ale"
   )
   expect_equal(ale$results, ale2$results)
+
+  grid.points <- list(3:5, c(30, 40, 52))
+  ale <- FeatureEffect$new(predictor2,
+    method = "ale", feature = c("a", "b"),
+    grid.points = grid.points
+  )
+  dat <- ale$results
+  expect_class(dat, "data.frame")
+  expect_equal(sort(colnames(dat)), sort(c(
+    ".type", ".class", ".ale", ".right",
+    ".left", ".bottom", ".top", "a", "b"
+  )))
+  expect_lte(nrow(dat), grid.size[1] * grid.size[2] * 2)
+  expect_lte(nrow(unique(dat)), 2*9)
+  expect_equal(max(dat$a), 5)
+  expect_equal(min(dat$a), 3)
+  expect_equal(max(dat$b), 52)
+  expect_equal(min(dat$b), 30)
+  expect_equal(3:5, unique(dat$a))
+  expect_equal(c(30, 40, 52), unique(dat$b))
+  checkPlot(ale)
+
 })
 
 test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
@@ -600,6 +698,20 @@ test_that("method='ale' works for 2D numerical x categorical", {
     grid.size = grid.size, method = "ale"
   )
   expect_equal(ale$results, ale2$results)
+
+  grpoints = c(2, 4, 1)
+  ale <- FeatureEffect$new(predictor2, feature = c("a", "c"), grid.points = grpoints)
+  dat <- ale$results
+  expect_class(dat, "data.frame")
+  expect_equal(sort(colnames(dat)), sort(c(
+    ".type", ".class", ".ale", ".right",
+    ".left", ".bottom", ".top", "a", "c"
+  )))
+  # nlevels * l(grpoints) * target_dim
+  expect_equal(nrow(dat), 3 * 3 * 2)
+  expect_equal(max(dat$a), 4)
+  expect_equal(min(dat$a), 1)
+  checkPlot(ale)
 })
 
 
