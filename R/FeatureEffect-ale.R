@@ -223,7 +223,7 @@ calculate.ale.cat <- function(dat, run.prediction, feature.name) {
   # The new order of the levels
   levels.ordered <- levels.original[level_order]
   # The feature with the levels in the new order
-  x.ordered <- order(level_order)[as.numeric(x)]
+  x.ordered <- order(level_order)[as.numeric(droplevels(x))]
   X.lower <- X.upper <- dat
 
   # We only want to increase/decrease the ones that are not already the minimum or maximum level
