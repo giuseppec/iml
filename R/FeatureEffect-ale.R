@@ -11,11 +11,7 @@
 #' @param feature.name The column name of the feature for which to compute ALE
 #' @param grid.size The number of intervals
 #' @keywords internal
-calculate.ale.num <- function(dat, run.prediction, feature.name, grid.size) {
-  # from number of intervals to number of borders
-  n.borders <- grid.size + 1
-  # Handling duplicated grid values
-  grid.dt <- unique(get.grid(dat[, feature.name, with = FALSE], n.borders, type = "quantile"))
+calculate.ale.num <- function(dat, run.prediction, feature.name, grid.dt) {
   # Matching data instances to intervals
   interval.index <- findInterval(dat[[feature.name]], grid.dt[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
@@ -70,17 +66,11 @@ calculate.ale.num <- function(dat, run.prediction, feature.name, grid.size) {
 #' @param feature.name The column names of the feature for which to compute ALE
 #' @param grid.size The number of cells
 #' @keywords internal
-calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.size) {
-  # Create grid for feature 1
-  grid.dt1 <- unique(get.grid(dat[, feature.name[1], with = FALSE], grid.size = grid.size[1] + 1, type = "quantile"))
-  colnames(grid.dt1) <- feature.name[1]
+calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.dt1, grid.dt2) {
   # Matching instances to the grid of feature 1
   interval.index1 <- findInterval(dat[[feature.name[1]]], grid.dt1[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
   interval.index1[interval.index1 == 0] <- 1
-  ## Create grid for feature 2
-  grid.dt2 <- unique(get.grid(dat[, feature.name[2], with = FALSE], grid.size = grid.size[2] + 1, type = "quantile"))
-  colnames(grid.dt2) <- feature.name[2]
   # Matching instances to the grid of feature 2
   interval.index2 <- findInterval(dat[[feature.name[2]]], grid.dt2[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
@@ -279,12 +269,11 @@ calculate.ale.cat <- function(dat, run.prediction, feature.name) {
 #' @param feature.name The column name of the features for which to compute ALE
 #' @param grid.size The number of intervals for the numerical feature
 #' @keywords internal
-calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.size) {
+calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.dt) {
 
   # Figure out which feature is numeric and which categeorical
   x.num.index <- ifelse(inherits(dat[, feature.name, with = FALSE][[1]], "numeric"), 1, 2)
   x.cat.index <- setdiff(c(1, 2), x.num.index)
-  x.num <- dat[, feature.name[x.num.index], with = FALSE][[1]]
   x.cat <- dat[, feature.name[x.cat.index], with = FALSE][[1]]
 
   levels.original <- levels(x.cat)
@@ -303,12 +292,6 @@ calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.size) 
   row.ind.increase <- (1:nrow(dat))[x.cat.ordered < nlevels(x.cat)]
   row.ind.decrease <- (1:nrow(dat))[x.cat.ordered > 1]
 
-
-  ## Create ALE for increasing categorical feature
-  grid.dt <- unique(get.grid(dat[, feature.name[x.num.index], with = FALSE],
-    grid.size = grid.size[x.num.index] + 1, type = "quantile"
-  ))
-  colnames(grid.dt) <- feature.name[x.num.index]
   interval.index <- findInterval(dat[[feature.name[x.num.index]]], grid.dt[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
   interval.index[interval.index == 0] <- 1
