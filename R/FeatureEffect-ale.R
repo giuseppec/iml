@@ -9,7 +9,7 @@
 #' @param dat the data.frame with same columns as training data
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the feature for which to compute ALE
-#' @param grid.size The number of intervals
+#' @param grid.dt data.table with single column with grid values for the numerical feature
 #' @keywords internal
 calculate.ale.num <- function(dat, run.prediction, feature.name, grid.dt) {
   # Matching data instances to intervals
@@ -64,7 +64,8 @@ calculate.ale.num <- function(dat, run.prediction, feature.name, grid.dt) {
 #' @param dat the data.frame with same columns as training data
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column names of the feature for which to compute ALE
-#' @param grid.size The number of cells
+#' @param grid.dt1 Data.table with single column with the grid value for feature 1
+#' @param grid.dt2 Data.table with single column with the grid value for feature 2
 #' @keywords internal
 calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.dt1, grid.dt2) {
   # Remove data outside of boundaries
@@ -274,7 +275,7 @@ calculate.ale.cat <- function(dat, run.prediction, feature.name) {
 #' @param dat the data.frame with same columns as training data
 #' @param run.prediction Predict function of type: f(newdata)
 #' @param feature.name The column name of the features for which to compute ALE
-#' @param grid.size The number of intervals for the numerical feature
+#' @param grid.dt data.table with single column with grid values for the numerical feature
 #' @keywords internal
 calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.dt) {
 

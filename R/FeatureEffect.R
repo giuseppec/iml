@@ -147,9 +147,7 @@ FeatureEffect <- R6Class("FeatureEffect",
     #'   Value at which the plot should be centered. Ignored in the case of two
     #'   features.
     #' @template grid.size
-    #' @param grid.points (`numeric()`)\cr
-    #'   An optional grid along the feature. If grid.points are set, the grid.size
-    #'   argument is ignored.
+    #' @template grid.points
     initialize = function(predictor, feature, method = "ale", center.at = NULL,
                           grid.size = 20, grid.points = NULL) {
 

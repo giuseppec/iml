@@ -1,6 +1,7 @@
 # iml 0.11
 
 - Allow computation of importance for groups of features (FeatureImp)
+- FeatureEffect can now be computed with user provided grid points. Works for ice, ale and pdp
 
 # iml 0.10.1.9000
 
