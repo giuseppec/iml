@@ -313,8 +313,13 @@ FeatureEffect <- R6Class("FeatureEffect",
       dat <- private$dataSample
       if (self$n.features == 1) {
         if (self$feature.type == "numerical") { # one numerical feature
-          grid.dt <- unique(get.grid(dat[, self$feature.name, with = FALSE],
-                                     self$grid.size + 1, type = "quantile"))
+          if (is.null(private$grid.points)) {
+            grid.dt <- unique(get.grid(dat[, self$feature.name, with = FALSE],
+                                       self$grid.size + 1, type = "quantile"))
+          } else {
+            grid.dt <- data.table(unique(sort(private$grid.points)))
+            colnames(grid.dt) <- self$feature.name
+          }
           results <- calculate.ale.num(
             dat = dat, run.prediction = private$run.prediction,
             feature.name = self$feature.name, grid.dt = grid.dt
@@ -328,10 +333,15 @@ FeatureEffect <- R6Class("FeatureEffect",
       } else { # two features
         if (all(self$feature.type == "numerical")) { # two numerical features
           # Create grid for feature 1
-          grid.dt1 <- unique(get.grid(dat[, self$feature.name[1], with = FALSE],
-                                      grid.size = self$grid.size[1] + 1, type = "quantile"))
-          grid.dt2 <- unique(get.grid(dat[, self$feature.name[2], with = FALSE],
-                                      grid.size = self$grid.size[2] + 1, type = "quantile"))
+          if (is.null(private$grid.points)) {
+            grid.dt1 <- unique(get.grid(dat[, self$feature.name[1], with = FALSE],
+                                        grid.size = self$grid.size[1] + 1, type = "quantile"))
+            grid.dt2 <- unique(get.grid(dat[, self$feature.name[2], with = FALSE],
+                                        grid.size = self$grid.size[2] + 1, type = "quantile"))
+          } else {
+            grid.dt1 <- data.table(unique(sort(private$grid.points[[1]])))
+            grid.dt2 <- data.table(unique(sort(private$grid.points[[2]])))
+          }
           colnames(grid.dt1) <- self$feature.name[[1]]
           colnames(grid.dt2) <- self$feature.name[[2]]
           results <- calculate.ale.num.num(
@@ -340,10 +350,15 @@ FeatureEffect <- R6Class("FeatureEffect",
         } else if (all(self$feature.type == "categorical")) { # two categorical features
           stop("ALE for two categorical features is not yet implemented.")
         } else { # mixed numerical and categorical
+
           x.num.index <- ifelse(inherits(dat[, self$feature.name, with = FALSE][[1]], "numeric"), 1, 2)
-          grid.dt <- unique(get.grid(dat[, self$feature.name[x.num.index], with = FALSE],
-                                     grid.size = self$grid.size[x.num.index] + 1, type = "quantile"
-                            ))
+          if (is.null(private$grid.points)) {
+            grid.dt <- unique(get.grid(dat[, self$feature.name[x.num.index], with = FALSE],
+                                       grid.size = self$grid.size[x.num.index] + 1, type = "quantile"
+                              ))
+          } else {
+            grid.dt <- data.table(sort(unique(private$grid.points)))
+          }
           colnames(grid.dt) <- self$feature.name[x.num.index]
 
           results <- calculate.ale.num.cat(

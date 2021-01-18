@@ -67,6 +67,12 @@ calculate.ale.num <- function(dat, run.prediction, feature.name, grid.dt) {
 #' @param grid.size The number of cells
 #' @keywords internal
 calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.dt1, grid.dt2) {
+  # Remove data outside of boundaries
+  dat <- dat[(dat[[feature.name[1]]] <= max(grid.dt1[[1]])) &
+             (dat[[feature.name[1]]] >= min(grid.dt1[[1]])) &
+             (dat[[feature.name[2]]] <= max(grid.dt2[[1]])) &
+             (dat[[feature.name[2]]] >= min(grid.dt2[[1]])),]
+  print(dat)
   # Matching instances to the grid of feature 1
   interval.index1 <- findInterval(dat[[feature.name[1]]], grid.dt1[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
@@ -204,6 +210,7 @@ calculate.ale.num.num <- function(dat, run.prediction, feature.name, grid.dt1, g
 #' @keywords internal
 calculate.ale.cat <- function(dat, run.prediction, feature.name) {
   x <- dat[, feature.name, with = FALSE][[1]]
+
   levels.original <- levels(droplevels(x))
   nlev <- nlevels(droplevels(x))
   # if ordered, than already use that
@@ -273,9 +280,14 @@ calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.dt) {
 
   # Figure out which feature is numeric and which categeorical
   x.num.index <- ifelse(inherits(dat[, feature.name, with = FALSE][[1]], "numeric"), 1, 2)
+  x.num <- dat[, feature.name[x.num.index], with = FALSE][[1]]
+  # We can only compute ALE within min and max boundaries of given intervals
+  # This part is only relevat for user-defined intervals
+  dat <- dat[which((x.num >= min(grid.dt[[1]])) &
+                   (x.num <= max(grid.dt[[1]])))]
+
   x.cat.index <- setdiff(c(1, 2), x.num.index)
   x.cat <- dat[, feature.name[x.cat.index], with = FALSE][[1]]
-
   levels.original <- levels(x.cat)
   # if ordered, than already use that
   if (inherits(x.cat, "ordered")) {
@@ -291,7 +303,7 @@ calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.dt) {
   # The rows for which the category can be increased
   row.ind.increase <- (1:nrow(dat))[x.cat.ordered < nlevels(x.cat)]
   row.ind.decrease <- (1:nrow(dat))[x.cat.ordered > 1]
-
+  
   interval.index <- findInterval(dat[[feature.name[x.num.index]]], grid.dt[[1]], left.open = TRUE)
   # Data point in the left most interval should be in interval 1, not zero
   interval.index[interval.index == 0] <- 1
@@ -459,7 +471,6 @@ calculate.ale.num.cat <- function(dat, run.prediction, feature.name, grid.dt) {
     ".level", ".num"
   )), with = FALSE]
   deltas$.type <- "ale"
-
   data.frame(deltas)
 }
 
