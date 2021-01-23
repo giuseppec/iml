@@ -727,7 +727,7 @@ test_that("method='ale' in case of single category as well", {
 test_that("FeatureEffect handles empty level", {
   set.seed(123)
   dat <- data.frame(y = 1:10, x = factor(c(1, 2, 1, 2, 1, 2, 1, 2, 1, 2),
-    levels = c(1, 2, 3)
+    levels = c(3, 2, 1)
   ), xx = rnorm(10))
   mod <- lm(y ~ x, data = dat)
   pred <- Predictor$new(mod, data = dat)
