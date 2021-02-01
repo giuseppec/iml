@@ -252,7 +252,7 @@ LocalModel <- R6Class("LocalModel",
       } else if (is.character(dist.fun)) {
         assert_numeric(kernel.width)
         function(X, x.interest) {
-          d <- dist(rbind(x.interest, X), method = dist.fun)[1 + 1:nrow(X)]
+          d <- dist(rbind(x.interest, X), method = dist.fun)[1:nrow(X)]
           sqrt(exp(-(d^2) / (kernel.width^2)))
         }
       } else {
