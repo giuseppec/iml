@@ -1,5 +1,3 @@
-context("TreeSurrogate")
-
 epsilon <- 0.0001
 lower.r.squared <- 0 - epsilon
 upper.r.squared <- 1 + epsilon

@@ -13,21 +13,20 @@ Authors@R:
              email = "patrick.schratz@gmail.com",
              comment = c(ORCID = "0000-0003-0748-6624")))
 Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
-Description: Interpretability methods to analyze the behavior
-    and predictions of any machine learning model.  Implemented methods
-    are: Feature importance described by Fisher et al. (2018)
+Description: Interpretability methods to analyze the behavior and
+    predictions of any machine learning model.  Implemented methods are:
+    Feature importance described by Fisher et al. (2018)
     <arXiv:1801.01489>, accumulated local effects plots described by Apley
     (2018) <arXiv:1612.08468>, partial dependence plots described by
-    Friedman (2001) <www.jstor.org/stable/2699986>, individual
-    conditional expectation ('ice') plots described by Goldstein et al.
-    (2013) <doi:10.1080/10618600.2014.907095>, local models (variant of
-    'lime') described by Ribeiro et. al (2016) <arXiv:1602.04938>, the
-    Shapley Value described by Strumbelj et. al (2014)
+    Friedman (2001) <www.jstor.org/stable/2699986>, individual conditional
+    expectation ('ice') plots described by Goldstein et al.  (2013)
+    <doi:10.1080/10618600.2014.907095>, local models (variant of 'lime')
+    described by Ribeiro et. al (2016) <arXiv:1602.04938>, the Shapley
+    Value described by Strumbelj et. al (2014)
     <doi:10.1007/s10115-013-0679-x>, feature interactions described by
     Friedman et. al <doi:10.1214/07-AOAS148> and tree surrogate models.
 License: MIT + file LICENSE
-URL: https://christophm.github.io/iml/,
-    https://github.com/christophM/iml/
+URL: https://christophm.github.io/iml/, https://github.com/christophM/iml/
 BugReports: https://github.com/christophM/iml/issues
 Imports:
     checkmate,
@@ -65,6 +64,8 @@ Suggests:
     yaImpute
 VignetteBuilder:
     knitr
+Config/testthat/edition: 3
+Config/testthat/parallel: true
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
 RoxygenNote: 7.1.1

@@ -1,6 +1,3 @@
-context("create_predict_fun")
-
-
 library("mlr")
 library("mlr3")
 library("caret")
@@ -57,9 +54,9 @@ test_that("output shape", {
 })
 
 test_that("equivalence", {
-  expect_equivalent(prediction.f, predictor.caret(iris.test))
-  expect_equivalent(predictor.mlr(iris.test), data.frame(predictor.S3(iris.test)))
-  expect_equivalent(predictor.mlr3(iris.test), data.frame(predictor.S3(iris.test)))
+  expect_equal(ignore_attr = TRUE, prediction.f, predictor.caret(iris.test))
+  expect_equal(ignore_attr = TRUE, predictor.mlr(iris.test), data.frame(predictor.S3(iris.test)))
+  expect_equal(ignore_attr = TRUE, predictor.mlr3(iris.test), data.frame(predictor.S3(iris.test)))
 })
 
 test_that("f works", {
@@ -122,7 +119,7 @@ test_that("output shape", {
 
 
 test_that("equivalence", {
-  expect_equivalent(prediction.f, predictor.caret(boston.test))
-  expect_equivalent(predictor.mlr(boston.test), predictor.S3(boston.test))
-  expect_equivalent(predictor.mlr(boston.test), predictor.mlr3(boston.test))
+  expect_equal(ignore_attr = TRUE, prediction.f, predictor.caret(boston.test))
+  expect_equal(ignore_attr = TRUE, predictor.mlr(boston.test), predictor.S3(boston.test))
+  expect_equal(ignore_attr = TRUE, predictor.mlr(boston.test), predictor.mlr3(boston.test))
 })

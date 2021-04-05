@@ -1,5 +1,3 @@
-context("FeatureEffects")
-
 # Test
 # Equality of $effects with individual ALE and so on
 # different methods, ALE, PDP, ...

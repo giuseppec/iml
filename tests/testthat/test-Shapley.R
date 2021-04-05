@@ -1,5 +1,3 @@
-context("Shapley()")
-
 expected_colnames <- c("feature", "phi", "phi.var", "feature.value")
 
 test_that("Shapley works for single output and single feature", {
@@ -25,7 +23,7 @@ test_that("Shapley works for single output and single feature", {
   expect_class(dat, "data.frame")
   expect_equal(colnames(dat), expected_colnames)
   expect_equal(nrow(dat), ncol(X))
-  expect_equal(sum(dat$phi), unlist(f(x.interest2) - mean(f(X)$pred), use.names = FALSE), tolerance = 0.02)
+  expect_equal(sum(dat$phi), unlist(f(x.interest2) - mean(f(X)$pred), use.names = FALSE), tolerance = 0.05)
 
   shap <- Shapley$new(predictor1, sample.size = 400)
   shap$explain(x.interest)

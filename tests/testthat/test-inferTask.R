@@ -1,5 +1,3 @@
-context("inferTask")
-
 library("randomForest")
 
 rf <- randomForest(Species ~ ., data = iris, ntree = 1)

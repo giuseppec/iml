@@ -3,6 +3,8 @@ suppressPackageStartupMessages(library("mlr3"))
 suppressPackageStartupMessages(library("caret"))
 suppressPackageStartupMessages(library("data.table", quietly = TRUE))
 
+library("MASS")
+data(iris, package = "datasets")
 data(Boston, package = "MASS")
 
 f <- function(newdata, multi = FALSE) {

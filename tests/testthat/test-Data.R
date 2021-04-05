@@ -1,4 +1,3 @@
-context("Data")
 ds <- Data$new(iris)
 sample1 <- ds$sample(3)
 n <- 100

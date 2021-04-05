@@ -1,5 +1,3 @@
-context("FeatureImp()")
-
 set.seed(42)
 
 expected_colnames <- c(

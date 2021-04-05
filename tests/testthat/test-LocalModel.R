@@ -1,5 +1,3 @@
-context("LocalModel()")
-
 set.seed(12)
 expected.colnames <- c("beta", "x.recoded", "effect", "x.original", "feature", "feature.value")
 
