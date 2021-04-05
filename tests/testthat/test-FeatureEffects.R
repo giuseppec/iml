@@ -14,7 +14,7 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
     method = "pdp",
     grid.size = grid.size
   )
-  expect_s3_class(pdp.objs$plot(), "patchwork")
+  suppressWarnings(expect_s3_class(pdp.objs$plot(), "patchwork"))
 
   pdp.obj.a <- FeatureEffect$new(predictor1,
     feature = c("a"),
@@ -42,7 +42,7 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
     features = c("a", "c"),
     method = "pdp", grid.size = grid.size
   )
-  expect_s3_class(pdp.objs$plot(), "patchwork")
+  suppressWarnings(expect_s3_class(pdp.objs$plot(), "patchwork"))
 
   expect_equal(pdp.obj.a$results, pdp.objs$effects$a$results)
   expect_equal(pdp.obj.c$results, pdp.objs$effects$c$results)
@@ -50,7 +50,7 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
 
 
   pdp.objs <- FeatureEffects$new(predictor1, method = "ale", grid.size = 10)
-  expect_s3_class(pdp.objs$plot(), "patchwork")
+  suppressWarnings(expect_s3_class(pdp.objs$plot(), "patchwork"))
   pdp.obj.a <- FeatureEffect$new(predictor1,
     feature = c("a"), method = "ale",
     grid.size = 10

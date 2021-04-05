@@ -113,7 +113,7 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   # Centering
   p <- plot(pdp.obj, ylim = c(1, 2))
   expect_s3_class(p, c("gg", "ggplot"))
-  plot(p)
+  suppressWarnings(plot(p))
 
   # User provided grid
   grpoints  <- 1:3
@@ -124,7 +124,7 @@ test_that("FeatureEffect (method=pdp) works for single output and single feature
   expect_equal(pdp.obj$results$a, grpoints)
   p <- plot(pdp.obj, ylim = c(1, 2))
   expect_s3_class(p, c("gg", "ggplot"))
-  plot(p)
+  suppressWarnings(plot(p))
 
   grpoints  <- c(1, 1, 1:3)
   pdp.obj <- FeatureEffect$new(predictor1,
