@@ -1,6 +1,10 @@
-if ((Sys.info()[["sysname"]] != "Windows") &
+if ((Sys.info()[["sysname"]] != "Windows" & Sys.info()[["sysname"]] != "Darwin") &
   identical(Sys.getenv("NOT_CRAN"), "true")) {
   skip_on_cran()
+  
+  # FIXME: tensorflow installation issues
+  # skip_on_os("mac")
+  
   suppressPackageStartupMessages(library("h2o", quietly = TRUE))
   suppressPackageStartupMessages(library("keras"))
 

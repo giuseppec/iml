@@ -27,10 +27,10 @@ test_that("LocalModel works for single output and single feature", {
   expect_data_frame(pred, nrows = 2)
   expect_equal(colnames(pred), "prediction")
   
-  LocalModel1 <- LocalModel$new(predictor1,
+  LocalModel1 <- suppressWarnings(LocalModel$new(predictor1,
                                 x.interest = x.interest, k = k,
                                 dist.fun = "euclidean", kernel.width = 1
-  )
+  ))
   LocalModel1$explain(x.interest2)
   dat <- LocalModel1$results
   expect_equal(colnames(dat), expected.colnames)
@@ -49,7 +49,7 @@ test_that("LocalModel works for multiple output", {
   k <- 1
   set.seed(42)
   # rbind X a few times to eliminate glm warning
-  LocalModel1 <- LocalModel$new(mod, x.interest, k = k)
+  LocalModel1 <- suppressWarnings(LocalModel$new(mod, x.interest, k = k))
   dat <- LocalModel1$results
   expect_equal(colnames(dat), c(expected.colnames, ".class"))
   expect_lte(nrow(dat), k * 3)
