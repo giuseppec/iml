@@ -1,5 +1,3 @@
-context("Interaction()")
-
 test.interaction.range <- function(dat) {
   expect_numeric(dat$.interaction,
     lower = 0, upper = 1.000001,

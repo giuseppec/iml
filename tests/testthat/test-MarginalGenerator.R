@@ -1,5 +1,3 @@
-context("MarginalGenerator()")
-
 library(data.table)
 mg.dat <- data.table(
   a = 1:10,

@@ -1,6 +1,3 @@
-context("utility functions")
-
-
 test_that("get.feature.type", {
   f1 <- c("a", "b")
   expect_equal(get.feature.type(class(f1)), c("character" = "categorical"))

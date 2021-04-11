@@ -1,6 +1,3 @@
-context("FeatureEffect()")
-
-
 test_that("FeatureEffect is Partial", {
   grid.size <- 10
   pdp.obj1 <- expect_warning(Partial$new(predictor1,

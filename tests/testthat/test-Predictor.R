@@ -1,12 +1,10 @@
-context("Predictor")
-
 test_that("equivalence", {
-  expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
-  expect_equivalent(
+  expect_equal(ignore_attr = TRUE, prediction.f, predictor.caret$predict(iris.test))
+  expect_equal(ignore_attr = TRUE, 
     predictor.mlr$predict(iris.test),
     predictor.S3$predict(iris.test)
   )
-  expect_equivalent(
+  expect_equal(ignore_attr = TRUE, 
     predictor.mlr3$predict(iris.test),
     predictor.S3$predict(iris.test)
   )
@@ -148,12 +146,12 @@ predictor.f <- Predictor$new(predict.fun = mod.f, class = 2, data = iris)
 prediction.f <- predictor.f$predict(iris.test)
 
 test_that("equivalence", {
-  expect_equivalent(prediction.f, predictor.caret$predict(iris.test))
-  expect_equivalent(
+  expect_equal(ignore_attr = TRUE, prediction.f, predictor.caret$predict(iris.test))
+  expect_equal(ignore_attr = TRUE, 
     predictor.mlr$predict(iris.test),
     predictor.S3$predict(iris.test)
   )
-  expect_equivalent(
+  expect_equal(ignore_attr = TRUE, 
     predictor.mlr3$predict(iris.test),
     predictor.S3$predict(iris.test)
   )
@@ -201,15 +199,15 @@ prediction.f <- predictor.f$predict(boston.test)
 
 
 test_that("equivalence", {
-  expect_equivalent(
+  expect_equal(ignore_attr = TRUE, 
     prediction.f,
     predictor.caret$predict(boston.test)
   )
-  expect_equivalent(
+  expect_equal(ignore_attr = TRUE, 
     predictor.mlr$predict(boston.test),
     predictor.S3$predict(boston.test)
   )
-  expect_equivalent(
+  expect_equal(ignore_attr = TRUE, 
     predictor.mlr3$predict(boston.test),
     predictor.S3$predict(boston.test)
   )
