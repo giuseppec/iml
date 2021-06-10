@@ -125,7 +125,7 @@ Interaction <- R6Class("Interaction",
       private$finished <- TRUE
     },
     generatePlot = function(sort = TRUE, ...) {
-      requireNamespace("ggplot2", quietly = TRUE)
+      require("ggplot2", quietly = TRUE)
       res <- self$results
       if (sort & !private$multiClass) {
         res$.feature <- factor(res$.feature,

@@ -467,7 +467,7 @@ FeatureEffect <- R6Class("FeatureEffect",
     },
     # make sure the default arguments match with plot.FeatureEffect
     generatePlot = function(rug = TRUE, show.data = FALSE, ylim = NULL) {
-      requireNamespace("ggplot2", quietly = TRUE)
+      require("ggplot2", quietly = TRUE)
       if (is.null(ylim)) ylim <- c(NA, NA)
       if (is.null(private$anchor.value)) {
         if (self$method == "ale") {
