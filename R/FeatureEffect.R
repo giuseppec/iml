@@ -7,7 +7,6 @@
 #'
 #' @importFrom data.table melt setkeyv
 #' @importFrom stats cmdscale ecdf quantile
-#' @import ggplot2
 #' @details
 #'
 #' The [FeatureEffect] class compute the effect a feature has on the prediction.
