@@ -19,6 +19,7 @@ InterpretationMethod <- R6Class("InterpretationMethod",
     #' respective subclass.
     #' @param ... Passed to `private$generatePlot()`.
     plot = function(...) {
+      requireNamespace("ggplot2", quietly = TRUE)
       private$plotData <- private$generatePlot(...)
       if (!is.null(private$plotData)) {
         return(private$plotData)
