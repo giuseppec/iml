@@ -35,7 +35,6 @@ Imports:
     future,
     future.apply,
     ggplot2,
-    keras (>= 2.2.5.0),
     Metrics,
     prediction,
     R6
@@ -49,6 +48,7 @@ Suggests:
     glmnet,
     gower,
     h2o,
+    keras (>= 2.2.5.0),
     knitr,
     MASS,
     mlr,
