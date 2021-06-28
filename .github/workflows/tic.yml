@@ -1,5 +1,5 @@
 ## tic GitHub Actions template: linux-macos-windows-deploy
-## revision date: 2021-06-26
+## revision date: 2021-06-27
 on:
   workflow_dispatch:
   push:
@@ -76,6 +76,10 @@ jobs:
           key: ${{ runner.os }}-r-${{ matrix.config.r }}-${{steps.date.outputs.date}}
           restore-keys: ${{ runner.os }}-r-${{ matrix.config.r }}-${{steps.date.outputs.date}}
 
+      - name: "[Stage] [Linux] Install required system libs"
+        if: runner.os == 'Linux'
+        run: sudo apt install libcurl4-openssl-dev libgit2-dev
+
       # for some strange Windows reason this step and the next one need to be decoupled
       - name: "[Stage] Prepare"
         run: |
@@ -89,6 +93,10 @@ jobs:
       - name: "[Stage] [macOS] Install system libs for pkgdown"
         if: runner.os == 'macOS' && matrix.config.pkgdown != ''
         run: brew install harfbuzz fribidi
+
+      - name: "[Stage] [Linux] Install system libs for pkgdown"
+        if: runner.os == 'Linux' && matrix.config.pkgdown != ''
+        run: sudo apt install libharfbuzz-dev libfribidi-dev
 
       # Try to automatically check for system dependencies and install them
       # Note: this might not catch all required system libs and manual action might be needed
