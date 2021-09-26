@@ -1,4 +1,4 @@
-## tic GitHub Actions template: linux-macos-windows-deploy
+## tic GitHub Actions template: custom-deploy
 ## revision date: 2021-06-27
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
       matrix:
         config:
           # use a different tic template type if you do not want to build on all listed platforms
-          - { os: windows-latest, r: "release" }
+          # - { os: windows-latest, r: "release" }
           - { os: macOS-latest, r: "release", pkgdown: "true", latex: "true" }
           - { os: ubuntu-latest, r: "devel" }
           - { os: ubuntu-latest, r: "release" }
