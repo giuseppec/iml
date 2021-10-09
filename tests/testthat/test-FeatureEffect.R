@@ -1,6 +1,10 @@
 test_that("FeatureEffect is Partial", {
   grid.size <- 10
-  pdp.obj1 <- expect_warning(Partial$new(predictor1,
+  expect_warning(Partial$new(predictor1,
+    aggregation = "pdp",
+    ice = FALSE, feature = 1, grid.size = grid.size
+  ))
+  pdp.obj1 <- suppressWarnings(Partial$new(predictor1,
     aggregation = "pdp",
     ice = FALSE, feature = 1, grid.size = grid.size
   ))
@@ -10,7 +14,11 @@ test_that("FeatureEffect is Partial", {
   )
   expect_equal(pdp.obj1$results, pdp.obj2$results)
 
-  pdp.obj1 <- expect_warning(Partial$new(predictor1,
+  expect_warning(Partial$new(predictor1,
+    aggregation = "pdp",
+    ice = TRUE, feature = 1, grid.size = grid.size
+  ))
+  pdp.obj1 <- suppressWarnings(Partial$new(predictor1,
     aggregation = "pdp",
     ice = TRUE, feature = 1, grid.size = grid.size
   ))
@@ -20,7 +28,11 @@ test_that("FeatureEffect is Partial", {
   )
   expect_equal(pdp.obj1$results, pdp.obj2$results)
 
-  pdp.obj1 <- expect_warning(Partial$new(predictor1,
+  expect_warning(Partial$new(predictor1,
+    aggregation = "ale",
+    ice = FALSE, feature = 1, grid.size = grid.size
+  ))
+  pdp.obj1 <- suppressWarnings(Partial$new(predictor1,
     aggregation = "ale",
     ice = FALSE, feature = 1, grid.size = grid.size
   ))
@@ -30,20 +42,30 @@ test_that("FeatureEffect is Partial", {
   )
   expect_equal(pdp.obj1$results, pdp.obj2$results)
 
-  pdp.obj1 <- expect_warning(Partial$new(predictor1,
+  expect_warning(Partial$new(predictor1,
     aggregation = "none",
     ice = TRUE, feature = 1, grid.size = grid.size
   ))
+  pdp.obj1 <- suppressWarnings(Partial$new(predictor1,
+    aggregation = "none",
+    ice = TRUE, feature = 1, grid.size = grid.size
+  ))
+
   pdp.obj2 <- FeatureEffect$new(predictor1,
     method = "ice", feature = 1,
     grid.size = grid.size
   )
   expect_equal(pdp.obj1$results, pdp.obj2$results)
 
-  pdp.obj1 <- expect_warning(Partial$new(predictor1,
+  expect_warning(Partial$new(predictor1,
     aggregation = "ale",
     ice = TRUE, feature = c(1, 3), grid.size = grid.size
   ))
+  pdp.obj1 <- suppressWarnings(Partial$new(predictor1,
+    aggregation = "ale",
+    ice = TRUE, feature = c(1, 3), grid.size = grid.size
+  ))
+
   pdp.obj2 <- FeatureEffect$new(predictor1,
     method = "ale", feature = c(1, 3),
     grid.size = grid.size
