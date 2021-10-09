@@ -26,7 +26,6 @@ calculate.ale.num <- function(dat, run.prediction, feature.name, grid.dt) {
   prediction.deltas <- predictions.upper - predictions.lower
   deltas <- cbind(X.lower[, feature.name, with = FALSE], prediction.deltas, data.frame(".interval" = interval.index))
   y.hat.names <- as.data.table(setdiff(colnames(deltas), c(colnames(dat), ".interval")))
-  y.hat.names = unlist(y.hat.names)
   deltas <- data.table::melt(deltas,
     variable.name = ".class",
     value.name = ".yhat.diff", measure.vars = y.hat.names
