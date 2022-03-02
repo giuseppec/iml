@@ -32,11 +32,11 @@ jobs:
           # [Custom matrix env var]
           # - { os: windows-latest, r: "release" }
           # [Custom matrix env var]
-          # - { os: macOS-latest, r: "release", pkgdown: "true", latex: "true" }
+          - { os: macOS-latest, r: "release", pkgdown: "true", latex: "true" }
           # [Custom matrix env var]
-          # - { os: ubuntu-latest, r: "release" }
+          - { os: ubuntu-latest, r: "release" }
           # [Custom matrix env var]
-          # - { os: ubuntu-latest, r: "devel" }
+          - { os: ubuntu-latest, r: "devel" }
 
     env:
       # otherwise remotes::fun() errors cause the build to fail. Example: Unavailability of binaries
