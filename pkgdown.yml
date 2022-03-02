@@ -1,8 +1,8 @@
-pandoc: 2.7.3
+pandoc: 2.14.2
 pkgdown: 2.0.2
 pkgdown_sha: ~
 articles:
   intro: intro.html
   parallel: parallel.html
-last_built: 2022-03-02T04:21Z
+last_built: 2022-03-02T09:29Z
 
