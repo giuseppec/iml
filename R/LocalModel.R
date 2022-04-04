@@ -129,7 +129,7 @@ LocalModel <- R6Class("LocalModel",
       if (!is.null(x.interest)) {
         self$x.interest <- private$match_cols(x.interest)
       }
-      private$weight.fun <- private$get.weight.fun(dist.fun, kernel.width)
+      private$weight.fun <- private$get.weight.fun(dist.fun, kernel.width, gower.power)
 
       if (!is.null(x.interest)) private$run()
     },
@@ -247,9 +247,10 @@ LocalModel <- R6Class("LocalModel",
       if (private$multiClass) p <- p + facet_wrap(".class")
       p
     },
-    get.weight.fun = function(dist.fun, kernel.width) {
+    get.weight.fun = function(dist.fun, kernel.width, gower.power) {
       if (dist.fun == "gower") {
         require("gower")
+        assert_numeric(gower.power)
         function(X, x.interest) {
           1 - (gower_dist(X, x.interest))^gower.power
         }
