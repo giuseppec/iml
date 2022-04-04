@@ -251,7 +251,7 @@ LocalModel <- R6Class("LocalModel",
       if (dist.fun == "gower") {
         require("gower")
         function(X, x.interest) {
-          (1 - gower_dist(X, x.interest))^gower.power
+          1 - (gower_dist(X, x.interest))^gower.power
         }
       } else if (is.character(dist.fun)) {
         assert_numeric(kernel.width)
