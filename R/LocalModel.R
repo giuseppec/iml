@@ -16,6 +16,12 @@
 #' binarized, depending on the category of the instance to be explained: 1 if
 #' the category is the same, 0 otherwise.
 #'
+#' Please note that scaling continuous features in the machine learning method
+#' might be advisable when using LIME as an interpretation technique. LIME uses
+#' a distance measure to compute proximity weights for the weighted glm. Hence,
+#' the original scale of the features may influence the distance measure and
+#' therewith LIME results.
+#'
 #' To learn more about local models, read the Interpretable Machine Learning
 #' book: \url{https://christophm.github.io/interpretable-ml-book/lime.html}
 #'
