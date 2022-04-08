@@ -106,6 +106,10 @@ LocalModel <- R6Class("LocalModel",
     #'   The name of the distance function for computing proximities (weights in
     #'   the linear model). Defaults to `"gower"`. Otherwise will be forwarded
     #'   to [stats::dist].
+    #' @param gower.power (`numeric(1)`)\cr
+    #'   The calculated gower proximity will be raised to the power of this
+    #'   value. Can be used to specify the size of the neighborhood for the
+    #'   LocalModel (similar to kernel.width for the euclidean distance).
     #' @param kernel.width (`numeric(1)`)\cr
     #'   The width of the kernel for the proximity computation.
     #'   Only used if dist.fun is not `"gower"`.
@@ -115,7 +119,7 @@ LocalModel <- R6Class("LocalModel",
     #'   Results with the feature names (`feature`) and contributions to the
     #'   prediction.
     initialize = function(predictor, x.interest, dist.fun = "gower",
-                          kernel.width = NULL, k = 3) {
+                          gower.power = 1, kernel.width = NULL, k = 3) {
 
       assert_number(k, lower = 1, upper = predictor$data$n.features)
       assert_data_frame(x.interest, null.ok = TRUE)
@@ -131,7 +135,7 @@ LocalModel <- R6Class("LocalModel",
       if (!is.null(x.interest)) {
         self$x.interest <- private$match_cols(x.interest)
       }
-      private$weight.fun <- private$get.weight.fun(dist.fun, kernel.width)
+      private$weight.fun <- private$get.weight.fun(dist.fun, kernel.width, gower.power)
 
       if (!is.null(x.interest)) private$run()
     },
@@ -249,11 +253,12 @@ LocalModel <- R6Class("LocalModel",
       if (private$multiClass) p <- p + facet_wrap(".class")
       p
     },
-    get.weight.fun = function(dist.fun, kernel.width) {
+    get.weight.fun = function(dist.fun, kernel.width, gower.power) {
       if (dist.fun == "gower") {
         require("gower")
+        assert_numeric(gower.power)
         function(X, x.interest) {
-          1 - gower_dist(X, x.interest)
+          1 - (gower_dist(X, x.interest))^gower.power
         }
       } else if (is.character(dist.fun)) {
         assert_numeric(kernel.width)

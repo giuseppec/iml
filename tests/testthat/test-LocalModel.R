@@ -78,6 +78,7 @@ test_that("LocalModel prediction expects same cols as training dat", {
 
 test_that("LocalModel distance functions work as expected", {
   kernel.width <- 1
+  gower.power <- 1
   distance.functions <- c(
     "gower", "euclidean", "maximum",
     "manhattan", "canberra", "binary", "minkowski")
@@ -95,7 +96,7 @@ test_that("LocalModel distance functions work as expected", {
   # test all distance functions by explicitly constructing them via get.weight.fun()
   for(fun in distance.functions){
     weight_fun <- LocalModel1$.__enclos_env__$private$get.weight.fun(
-      dist.fun = fun, kernel.width = kernel.width)
+      dist.fun = fun, kernel.width = kernel.width, gower.power = gower.power)
     expect_equal(object = weight_fun(X.recode, x.recoded)[2], expected = 1)
   }
 })
