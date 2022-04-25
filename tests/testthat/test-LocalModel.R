@@ -3,7 +3,7 @@ expected.colnames <- c("beta", "x.recoded", "effect", "x.original", "feature", "
 
 test_that("LocalModel works for single output and single feature", {
   x.interest <- X[2, ]
-  k <- 2
+  k <- 1
   set.seed(42)
   LocalModel1 <- LocalModel$new(predictor1, x.interest = x.interest, k = k)
   dat <- LocalModel1$results
