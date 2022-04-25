@@ -41,6 +41,7 @@ Imports:
 Suggests:
     ALEPlot,
     bench,
+    bit64,
     caret,
     covr,
     e1071,
