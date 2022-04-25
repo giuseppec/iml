@@ -80,6 +80,11 @@ make the results sparse.</p>
 model, which is only valid for that one point. Categorical features are
 binarized, depending on the category of the instance to be explained: 1 if
 the category is the same, 0 otherwise.</p>
+<p>Please note that scaling continuous features in the machine learning method
+might be advisable when using LIME as an interpretation technique. LIME uses
+a distance measure to compute proximity weights for the weighted glm. Hence,
+the original scale of the features may influence the distance measure and
+therewith LIME results.</p>
 <p>To learn more about local models, read the Interpretable Machine Learning
 book: <a href="https://christophm.github.io/interpretable-ml-book/lime.html" class="external-link">https://christophm.github.io/interpretable-ml-book/lime.html</a></p>
 <p>The approach is similar to LIME, but has the following differences:</p><ul><li><p><strong>Distance measure</strong>: Uses as default the gower proximity (= 1 - gower
@@ -160,6 +165,7 @@ The index of the best glmnet fit.</p></dd>
   <span class="va">predictor</span>,
   <span class="va">x.interest</span>,
   dist.fun <span class="op">=</span> <span class="st">"gower"</span>,
+  gower.power <span class="op">=</span> <span class="fl">1</span>,
   kernel.width <span class="op">=</span> <span class="cn">NULL</span>,
   k <span class="op">=</span> <span class="fl">3</span>
 <span class="op">)</span></code></pre></div><p></p></div>
@@ -183,6 +189,13 @@ Single row with the instance to be explained.</p></dd>
 The name of the distance function for computing proximities (weights in
 the linear model). Defaults to <code>"gower"</code>. Otherwise will be forwarded
 to <a href="https://rdrr.io/r/stats/dist.html" class="external-link">stats::dist</a>.</p></dd>
+
+
+<dt><code>gower.power</code></dt>
+<dd><p>(<code>numeric(1)</code>)<br>
+The calculated gower proximity will be raised to the power of this
+value. Can be used to specify the size of the neighborhood for the
+LocalModel (similar to kernel.width for the euclidean distance).</p></dd>
 
 
 <dt><code>kernel.width</code></dt>
@@ -293,15 +306,15 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Head of results:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     2.9830887     6.575 19.613808      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.3024991     4.980 -1.506445       4.98   lstat    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            beta x.recoded    effect x.original feature feature.value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     2.934338     6.575 19.293270      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.309286     4.980 -1.540245       4.98   lstat    lstat=4.98</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Look at the results in a table</span></span>
 <span class="r-in"><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     2.9830887     6.575 19.613808      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.3024991     4.980 -1.506445       4.98   lstat    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            beta x.recoded    effect x.original feature feature.value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     2.934338     6.575 19.293270      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.309286     4.980 -1.540245       4.98   lstat    lstat=4.98</span>
 <span class="r-in"><span class="co"># Or as a plot</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="LocalModel-1.png" alt="" width="700" height="433"></span>
@@ -326,8 +339,8 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-in"><span class="va">lemon</span> <span class="op">&lt;-</span> <span class="va">LocalModel</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, x.interest <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    beta x.recoded     effect x.original      feature</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1763628       3.5  0.6172697        3.5  Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2160465       1.4 -0.3024651        1.4 Petal.Length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1786793       3.5  0.6253775        3.5  Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2149962       1.4 -0.3009946        1.4 Petal.Length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 feature.value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   Sepal.Width=3.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length Petal.Length=1.4</span>
@@ -347,7 +360,7 @@ Single row with the instance to be explained.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
       </footer></div>
