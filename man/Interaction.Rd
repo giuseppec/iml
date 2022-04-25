@@ -37,7 +37,7 @@ To learn more about interaction effects, read the Interpretable Machine Learning
 Parallelization is supported via package \CRANpkg{future}.
 To initialize future-based parallelization, select an appropriate backend and
 specify the amount of workers.
-For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="r">}}\preformatted{future::plan(multisession, workers = 2)
+For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="sourceCode r">}}\preformatted{future::plan(multisession, workers = 2)
 <iml function here>
 }\if{html}{\out{</div>}}
 

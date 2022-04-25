@@ -19,6 +19,12 @@ model, which is only valid for that one point. Categorical features are
 binarized, depending on the category of the instance to be explained: 1 if
 the category is the same, 0 otherwise.
 
+Please note that scaling continuous features in the machine learning method
+might be advisable when using LIME as an interpretation technique. LIME uses
+a distance measure to compute proximity weights for the weighted glm. Hence,
+the original scale of the features may influence the distance measure and
+therewith LIME results.
+
 To learn more about local models, read the Interpretable Machine Learning
 book: \url{https://christophm.github.io/interpretable-ml-book/lime.html}
 
@@ -138,6 +144,7 @@ Create a Local Model object.
   predictor,
   x.interest,
   dist.fun = "gower",
+  gower.power = 1,
   kernel.width = NULL,
   k = 3
 )}\if{html}{\out{</div>}}
@@ -157,6 +164,11 @@ Single row with the instance to be explained.}
 The name of the distance function for computing proximities (weights in
 the linear model). Defaults to \code{"gower"}. Otherwise will be forwarded
 to \link[stats:dist]{stats::dist}.}
+
+\item{\code{gower.power}}{(\code{numeric(1)})\cr
+The calculated gower proximity will be raised to the power of this
+value. Can be used to specify the size of the neighborhood for the
+LocalModel (similar to kernel.width for the euclidean distance).}
 
 \item{\code{kernel.width}}{(\code{numeric(1)})\cr
 The width of the kernel for the proximity computation.
