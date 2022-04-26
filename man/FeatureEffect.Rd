@@ -220,7 +220,7 @@ features.}
 \item{\code{grid.size}}{(\code{numeric(1)} | \code{numeric(2)})\cr
 The size of the grid for evaluating the predictions.}
 
-\item{\code{grid.points}}{(\code{numeric() | list(numeric(), numeric())})\cr
+\item{\code{grid.points}}{(\code{numeric()} | \verb{list(numeric()}, \code{numeric()})\cr
 An optional grid along the feature. If grid.points are set, the grid.size
 argument is ignored. Provide a list of two vectors with the same order as
 in the 'feature' argument, if PDP/ALE for two features is to be computed

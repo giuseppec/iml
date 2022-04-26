@@ -146,7 +146,8 @@ get.grid <- function(dat, grid.size, anchor.value = NULL, type = "equidist") {
   assert_data_frame(dat, min.cols = 1)
   features <- colnames(dat)
   feature.type <- unlist(lapply(dat, function(x) {
-    get.feature.type(class(x))
+    # old: get.feature.type(class(x))
+    get.feature.type(class(x)[1])
   }))
   assert_character(features, min.len = 1, max.len = 2)
   assert_true(length(features) == length(feature.type))

@@ -154,7 +154,7 @@ test_that("FeatureImp works for a subset of features", {
 test_that("Invalid feature names are caught", {
   expect_error(
     FeatureImp$new(predictor1, loss = "mse", features = c("x", "y", "z")),
-    "failed: Must be a subset of {'a','b','c','d'}, but is {'x','y','z'}",
+    "failed: Must be a subset of {'a','b','c','d'}, but has additional elements {'x','y','z'}",
     fixed = TRUE
   )
 })
