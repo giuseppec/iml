@@ -226,29 +226,29 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Head of results:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature       phi   phi.var feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    crim 0.3095547  1.516409  crim=0.00632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    crim 0.2579623  1.277117  crim=0.00632</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      zn 0.0000000  0.000000         zn=18</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   indus 0.0000000  0.000000    indus=2.31</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4    chas 0.0000000  0.000000        chas=0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5     nox 0.0000000  0.000000     nox=0.538</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      rm 1.7928108 36.926579      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      rm 2.0383672 35.796019      rm=6.575</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Look at the results in a table</span></span>
 <span class="r-in"><span class="va">shapley</span><span class="op">$</span><span class="va">results</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    feature        phi   phi.var feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     crim  0.3095547  1.516409  crim=0.00632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     crim  0.2579623  1.277117  crim=0.00632</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2       zn  0.0000000  0.000000         zn=18</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    indus  0.0000000  0.000000    indus=2.31</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4     chas  0.0000000  0.000000        chas=0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      nox  0.0000000  0.000000     nox=0.538</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       rm  1.7928108 36.926579      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       rm  2.0383672 35.796019      rm=6.575</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7      age  0.0000000  0.000000      age=65.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      dis -0.2114545  2.213069      dis=4.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      dis -0.5960330  8.864538      dis=4.09</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9      rad  0.0000000  0.000000         rad=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10     tax  0.0000000  0.000000       tax=296</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11 ptratio  0.0000000  0.000000  ptratio=15.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12   black  0.0000000  0.000000   black=396.9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13   lstat  4.3757133 29.332832    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13   lstat  3.4430423 33.675238    lstat=4.98</span>
 <span class="r-in"><span class="co"># Or as a plot</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">shapley</span><span class="op">)</span></span>
 <span class="r-plt img"><img src="Shapley-1.png" alt="" width="700" height="433"></span>
