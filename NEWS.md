@@ -1,20 +1,19 @@
 <!-- NEWS.md is maintained by https://cynkra.github.io/fledge, do not edit -->
 
-# iml 0.12.0
-
-- Same as previous version.
-
-
 # iml 0.11.0
 
-- Allow computation of importance for groups of features (FeatureImp)
-- FeatureEffect can now be computed with user provided grid points. Works for ice, ale and pdp
-- Fix possible future issue with data.table::melt() 
-
-# iml 0.10.1.9000
-
-- Internal changes only.
-
+- Fix possible future issue with `data.table::melt()` (#182)
+- Account for R 4.2.0 changes (#189)
+- Add {bit64} to suggests because of {data.table} (#190)
+- Test optimizations (#190)
+- Enhance documentation for LocalModel (#187, @mirka-henninger)
+- Move {keras} from imports to suggests
+- Run tests in parallel
+- Fix off-by-one error in euclidean distance computation (#163, @mirka-henninger)
+- Fix `FeatureEffect` handling of empty levels (#160, @grantirv)
+- Allow computation of importance for groups of features (`FeatureImp`) (#158)
+- `FeatureEffect` can now be computed with user provided grid points. Works for ice, ale and pdp.
+- `FeatureImp` gets new argument `features` which allows to calculate feature importance for a subset of features. If a list of characters is provided, the joint feature importance per group is calculated (#156, @grantirv)
 
 # iml 0.10.1
 
