@@ -2,16 +2,11 @@ Type: Package
 Package: iml
 Title: Interpretable Machine Learning
 Version: 0.12.0
-Authors@R:
-    c(person(given = "Christoph",
-             family = "Molnar",
-             role = c("aut", "cre"),
-             email = "christoph.molnar@gmail.com"),
-      person(given = "Patrick",
-             family = "Schratz",
-             role = "aut",
-             email = "patrick.schratz@gmail.com",
-             comment = c(ORCID = "0000-0003-0748-6624")))
+Authors@R:c(
+    person("Christoph", "Molnar", , "christoph.molnar@gmail.com", role = c("aut", "cre")),
+    person("Patrick", "Schratz", , "patrick.schratz@gmail.com", role = "aut",
+           comment = c(ORCID = "0000-0003-0748-6624"))
+  )
 Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
 Description: Interpretability methods to analyze the behavior and
     predictions of any machine learning model.  Implemented methods are:
