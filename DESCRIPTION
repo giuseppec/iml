@@ -1,7 +1,7 @@
 Type: Package
 Package: iml
 Title: Interpretable Machine Learning
-Version: 0.10.1.9000
+Version: 0.11.0
 Authors@R:
     c(person(given = "Christoph",
              family = "Molnar",
@@ -41,6 +41,7 @@ Imports:
 Suggests:
     ALEPlot,
     bench,
+    bit64,
     caret,
     covr,
     e1071,
@@ -68,4 +69,4 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
