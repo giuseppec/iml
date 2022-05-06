@@ -5,7 +5,7 @@
 [![CRAN Status
 Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN
-Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://cran.rstudio.com/web/packages/iml/index.html)
+Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://CRAN.R-project.org/package=iml)
 [![codecov.io](https://codecov.io/github/christophM/iml/coverage.svg?branch=master)](https://codecov.io/github/christophM/iml?branch=master)
 [![DOI](http://joss.theoj.org/papers/10.21105/joss.00786/status.svg)](https://doi.org/10.21105/joss.00786)
 <!-- badges: end -->
@@ -20,13 +20,13 @@ be used with any machine learning model.
 
 ## Features
 
-  - Feature importance
-  - Partial dependence plots
-  - Individual conditional expectation plots (ICE)
-  - Accumulated local effects
-  - Tree surrogate
-  - LocalModel: Local Interpretable Model-agnostic Explanations
-  - Shapley value for explaining single predictions
+-   Feature importance
+-   Partial dependence plots
+-   Individual conditional expectation plots (ICE)
+-   Accumulated local effects
+-   Tree surrogate
+-   LocalModel: Local Interpretable Model-agnostic Explanations
+-   Shapley value for explaining single predictions
 
 Read more about the methods in the [Interpretable Machine
 Learning](https://christophm.github.io/interpretable-ml-book/agnostic.html)
@@ -100,23 +100,23 @@ BibTeX:
 
 ## License
 
-© 2018 - 2020 [Christoph Molnar](https://christophm.github.io/)
+© 2018 - 2022 [Christoph Molnar](https://christophm.github.io/)
 
 The contents of this repository are distributed under the MIT license.
 See below for details:
 
     The MIT License (MIT)
-    
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
