@@ -222,16 +222,16 @@ Data to predict on.</p></dd>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">Boston</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Dropping additional columns: medv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .y.hat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  25.33645</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  25.33645</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  37.91798</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  37.91798</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  37.91798</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  25.33645</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  20.40907</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  14.43069</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  14.43069</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 14.43069</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  21.81773</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  21.81773</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  14.86550</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  14.86550</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 14.86550</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># Extract the results</span></span>
 <span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">$</span><span class="va">results</span></span>
@@ -243,13 +243,13 @@ Data to predict on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.03237  0  2.18    0 0.458 6.998 45.8 6.0622   3 222    18.7 394.63  2.94</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.06905  0  2.18    0 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.02985  0  2.18    0 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .node                         .path   .y.hat .y.hat.tree</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3 lstat &lt;= 9.71 &amp;\n rm &lt;= 6.939 24.73690    25.33645</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     3 lstat &lt;= 9.71 &amp;\n rm &lt;= 6.939 22.34503    25.33645</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     4  lstat &lt;= 9.71 &amp;\n rm &gt; 6.939 34.51223    37.91798</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     4  lstat &lt;= 9.71 &amp;\n rm &gt; 6.939 33.56260    37.91798</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     4  lstat &lt;= 9.71 &amp;\n rm &gt; 6.939 35.00110    37.91798</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6     3 lstat &lt;= 9.71 &amp;\n rm &lt;= 6.939 28.14110    25.33645</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .node                           .path   .y.hat .y.hat.tree</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 26.51233    28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     6 lstat &gt; 7.85 &amp;\n lstat &lt;= 14.98 22.15673    21.81773</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.79040    28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.23020    28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 35.15040    28.34620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 27.83743    28.34620</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># It also works for classification</span></span>
 <span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
@@ -271,17 +271,17 @@ Data to predict on.</p></dd>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">iris.sample</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>, <span class="op">]</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           setosa  versicolor  virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 49  0.9985714286 0.001428571 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 65  0.0007407407 0.912222222 0.08703704</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 74  0.0007407407 0.912222222 0.08703704</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 146 0.0000000000 0.029565217 0.97043478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 122 0.0000000000 0.029565217 0.97043478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 150 0.0000000000 0.029565217 0.97043478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 128 0.0000000000 0.029565217 0.97043478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 47  0.9985714286 0.001428571 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24  0.9985714286 0.001428571 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 71  0.0000000000 0.029565217 0.97043478</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          setosa versicolor  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49  1.000000000 0.00000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 65  0.001851852 0.89962963 0.09851852</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 74  0.001851852 0.89962963 0.09851852</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 146 0.000000000 0.02652174 0.97347826</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 122 0.000000000 0.02652174 0.97347826</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 150 0.000000000 0.02652174 0.97347826</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 128 0.000000000 0.02652174 0.97347826</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47  1.000000000 0.00000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24  1.000000000 0.00000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 71  0.000000000 0.02652174 0.97347826</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .class</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      setosa</span>
@@ -313,19 +313,19 @@ Data to predict on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  Petal.Length &lt;= 1.9 &amp;\n Sepal.Width &gt; 3             1                 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6  Petal.Length &lt;= 1.9 &amp;\n Sepal.Width &gt; 3             1                 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .y.hat.virginica .y.hat.tree.setosa .y.hat.tree.versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                0          0.9985714            0.001428571</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                0          0.9950000            0.002500000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                0          0.9985714            0.001428571</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                0          0.9985714            0.001428571</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                0          0.9985714            0.001428571</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                0          0.9985714            0.001428571</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                0             0.9975                 0.0025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                0             1.0000                 0.0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .y.hat.tree.virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                0.0025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                0.0000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                     0</span>
 </code></pre></div>
     </div>
   </div>
