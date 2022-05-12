@@ -1,9 +1,5 @@
 <!-- NEWS.md is maintained by https://cynkra.github.io/fledge, do not edit -->
 
-# iml 0.11.0.9000
-
-- Same as previous version.
-
 # iml 0.11.0
 
 - Fix possible future issue with `data.table::melt()` (#182)
