@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0</span>
       </span>
     </div>
 
@@ -62,13 +62,21 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.11.0" id="iml-0110">iml 0.11.0<small>2022-05-12</small><a class="anchor" aria-label="anchor" href="#iml-0110"></a></h2>
-<ul><li>Allow computation of importance for groups of features (FeatureImp)</li>
-<li>FeatureEffect can now be computed with user provided grid points. Works for ice, ale and pdp</li>
-<li>Fix possible future issue with data.table::melt()</li>
+<ul><li>Fix possible future issue with <code><a href="https://Rdatatable.gitlab.io/data.table/reference/melt.data.table.html" class="external-link">data.table::melt()</a></code> (<a href="https://github.com/christophM/iml/issues/182" class="external-link">#182</a>)</li>
+<li>Account for R 4.2.0 changes (<a href="https://github.com/christophM/iml/issues/189" class="external-link">#189</a>)</li>
+<li>Add {bit64} to suggests because of {data.table} (<a href="https://github.com/christophM/iml/issues/190" class="external-link">#190</a>)</li>
+<li>Test optimizations (<a href="https://github.com/christophM/iml/issues/190" class="external-link">#190</a>)</li>
+<li>Enhance documentation for LocalModel (<a href="https://github.com/christophM/iml/issues/187" class="external-link">#187</a>, <a href="https://github.com/mirka-henninger" class="external-link">@mirka-henninger</a>)</li>
+<li>Move {keras} from imports to suggests</li>
+<li>Run tests in parallel</li>
+<li>Fix off-by-one error in euclidean distance computation (<a href="https://github.com/christophM/iml/issues/163" class="external-link">#163</a>, <a href="https://github.com/mirka-henninger" class="external-link">@mirka-henninger</a>)</li>
+<li>Fix <code>FeatureEffect</code> handling of empty levels (<a href="https://github.com/christophM/iml/issues/160" class="external-link">#160</a>, <a href="https://github.com/grantirv" class="external-link">@grantirv</a>)</li>
+<li>Allow computation of importance for groups of features (<code>FeatureImp</code>) (<a href="https://github.com/christophM/iml/issues/158" class="external-link">#158</a>)</li>
+<li>
+<code>FeatureEffect</code> can now be computed with user provided grid points. Works for ice, ale and pdp.</li>
+<li>
+<code>FeatureImp</code> gets new argument <code>features</code> which allows to calculate feature importance for a subset of features. If a list of characters is provided, the joint feature importance per group is calculated (<a href="https://github.com/christophM/iml/issues/156" class="external-link">#156</a>, <a href="https://github.com/grantirv" class="external-link">@grantirv</a>)</li>
 </ul></div>
-    <div class="section level2">
-<h2 class="page-header" data-toc-text="0.10.1.9000" id="iml-01019000">iml 0.10.1.9000<a class="anchor" aria-label="anchor" href="#iml-01019000"></a></h2>
-<ul><li>Internal changes only.</li></ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.10.1" id="iml-0101">iml 0.10.1<small>2020-09-24</small><a class="anchor" aria-label="anchor" href="#iml-0101"></a></h2>
 <ul><li>Ensure that the <code>data</code> argument in <code>Predictor$new()</code> is always a data.frame (<a href="https://github.com/christophM/iml/issues/126" class="external-link">#126</a>)</li>
