@@ -78,17 +78,26 @@ its internal <code>$predict()</code> method.</p>
     <h2>Arguments</h2>
     <dl><dt>object</dt>
 <dd><p>The surrogate tree. A <a href="TreeSurrogate.html">TreeSurrogate</a> object.</p></dd>
+
+
 <dt>newdata</dt>
 <dd><p>A <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> for which to predict.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>Either "prob" or "class". Ignored if the surrogate tree does
 regression.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Further arguments for <code>predict_party</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A data.frame with the predicted outcome.
+    
+
+<p>A data.frame with the predicted outcome.
 In case of regression it is the predicted \(\hat{y}\). In case of
 classification it is either the class probabilities (for type "prob") or the
 class label (type "class")</p>
@@ -634,7 +643,7 @@ class label (type "class")</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
