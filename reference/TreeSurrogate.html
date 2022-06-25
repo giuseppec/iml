@@ -129,7 +129,7 @@ multi-class case, r.squared contains one measure per class.</p></dd>
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a TreeSurrogate object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va"><a href="../reference/TreeSurrogate.html">TreeSurrogate</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, maxdepth <span class="op">=</span> <span class="fl">2</span>, tree.args <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/TreeSurrogate.html">TreeSurrogate</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, maxdepth <span class="op">=</span> <span class="fl">2</span>, tree.args <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -158,7 +158,7 @@ Further arguments for <code><a href="https://rdrr.io/pkg/party/man/ctree.html" c
 <p>Predict new data with the tree.
 See also <a href="predict.TreeSurrogate.html">predict.TreeSurrogate</a></p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">newdata</span>, type <span class="op">=</span> <span class="st">"prob"</span>, <span class="va">...</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">newdata</span>, type <span class="op">=</span> <span class="st">"prob"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -183,7 +183,7 @@ Data to predict on.</p></dd>
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -201,41 +201,41 @@ Data to predict on.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="co"># Fit a Random Forest on the Boston housing data set</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span class="r-in"><span class="co"># Create a model object</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">Boston</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">Boston</span><span class="op">)</span> <span class="op">==</span> <span class="st">"medv"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Fit a decision tree as a surrogate for the whole random forest</span></span>
-<span class="r-in"><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Fit a Random Forest on the Boston housing data set</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Create a model object</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">Boston</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">Boston</span><span class="op">)</span> <span class="op">==</span> <span class="st">"medv"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fit a decision tree as a surrogate for the whole random forest</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: partykit</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: libcoin</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: mvtnorm</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Plot the resulting leaf nodes</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plot the resulting leaf nodes</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="TreeSurrogate-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Use the tree to predict new data</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">Boston</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use the tree to predict new data</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">Boston</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Dropping additional columns: medv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .y.hat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  21.77377</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  21.77377</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  14.84058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  14.84058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 14.84058</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Extract the results</span></span>
-<span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">$</span><span class="va">results</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  21.81618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  21.81618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  14.81544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  14.81544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 14.81544</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Extract the results</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">$</span><span class="va">results</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      crim zn indus chas   nox    rm  age    dis rad tax ptratio  black lstat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00632 18  2.31    0 0.538 6.575 65.2 4.0900   1 296    15.3 396.90  4.98</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02731  0  7.07    0 0.469 6.421 78.9 4.9671   2 242    17.8 396.90  9.14</span>
@@ -244,45 +244,45 @@ Data to predict on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.06905  0  2.18    0 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.02985  0  2.18    0 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .node                           .path   .y.hat .y.hat.tree</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 25.68017    28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     6 lstat &gt; 7.85 &amp;\n lstat &lt;= 14.98 22.39343    21.77377</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.35963    28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.65847    28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 35.41220    28.33864</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 28.23350    28.33864</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># It also works for classification</span></span>
-<span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span> <span class="op">==</span> <span class="st">"Species"</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">X</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Fit a decision tree as a surrogate for the whole random forest</span></span>
-<span class="r-in"><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, maxdepth <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Plot the resulting leaf nodes</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 26.47223    28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     6 lstat &gt; 7.85 &amp;\n lstat &lt;= 14.98 21.96357    21.81618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 35.59580    28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.17597    28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 35.21960    28.30068</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 27.17857    28.30068</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># It also works for classification</span></span></span>
+<span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span> <span class="op">==</span> <span class="st">"Species"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">X</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fit a decision tree as a surrogate for the whole random forest</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="va">TreeSurrogate</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, maxdepth <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Plot the resulting leaf nodes</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="TreeSurrogate-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># If you want to visualize the tree directly:</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dt</span><span class="op">$</span><span class="va">tree</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># If you want to visualize the tree directly:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dt</span><span class="op">$</span><span class="va">tree</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="TreeSurrogate-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Use the tree to predict new data</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">iris.sample</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>, <span class="op">]</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           setosa   versicolor  virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 49  0.9995238095 0.0004761905 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 65  0.0003703704 0.9070370370 0.09259259</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 74  0.0003703704 0.9070370370 0.09259259</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 146 0.0000000000 0.0269565217 0.97304348</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 122 0.0000000000 0.0269565217 0.97304348</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 150 0.0000000000 0.0269565217 0.97304348</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 128 0.0000000000 0.0269565217 0.97304348</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 47  0.9995238095 0.0004761905 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24  0.9995238095 0.0004761905 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 71  0.0000000000 0.0269565217 0.97304348</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use the tree to predict new data</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">iris.sample</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     setosa versicolor  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 49       1  0.0000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 65       0  0.9118519 0.08814815</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 74       0  0.9118519 0.08814815</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 146      0  0.0273913 0.97260870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 122      0  0.0273913 0.97260870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 150      0  0.0273913 0.97260870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 128      0  0.0273913 0.97260870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 47       1  0.0000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24       1  0.0000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 71       0  0.0273913 0.97260870</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .class</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      setosa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2  versicolor</span>
@@ -294,10 +294,10 @@ Data to predict on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8      setosa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9      setosa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10  virginica</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Extract the dataset</span></span>
-<span class="r-in"><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">$</span><span class="va">results</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Extract the dataset</span></span></span>
+<span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">$</span><span class="va">results</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Sepal.Length Sepal.Width Petal.Length Petal.Width .node</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1          5.1         3.5          1.4         0.2     4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2          4.9         3.0          1.4         0.2     3</span>
@@ -313,12 +313,12 @@ Data to predict on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  Petal.Length &lt;= 1.9 &amp;\n Sepal.Width &gt; 3             1                 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6  Petal.Length &lt;= 1.9 &amp;\n Sepal.Width &gt; 3             1                 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .y.hat.virginica .y.hat.tree.setosa .y.hat.tree.versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                0          0.9995238           0.0004761905</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                0          0.9925000           0.0075000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                0          0.9995238           0.0004761905</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                0          0.9995238           0.0004761905</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                0          0.9995238           0.0004761905</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                0          0.9995238           0.0004761905</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                0             0.9975                 0.0025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                0             1.0000                 0.0000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                0             1.0000                 0.0000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .y.hat.tree.virginica</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1                     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2                     0</span>

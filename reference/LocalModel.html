@@ -161,14 +161,14 @@ The index of the best glmnet fit.</p></dd>
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a Local Model object.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va"><a href="../reference/LocalModel.html">LocalModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>
-  <span class="va">predictor</span>,
-  <span class="va">x.interest</span>,
-  dist.fun <span class="op">=</span> <span class="st">"gower"</span>,
-  gower.power <span class="op">=</span> <span class="fl">1</span>,
-  kernel.width <span class="op">=</span> <span class="cn">NULL</span>,
-  k <span class="op">=</span> <span class="fl">3</span>
-<span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/LocalModel.html">LocalModel</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="va">predictor</span>,</span>
+<span>  <span class="va">x.interest</span>,</span>
+<span>  dist.fun <span class="op">=</span> <span class="st">"gower"</span>,</span>
+<span>  gower.power <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  kernel.width <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  k <span class="op">=</span> <span class="fl">3</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -223,7 +223,7 @@ prediction.</p>
 <p>Method to predict new data with the local model See also
 <a href="predict.LocalModel.html">predict.LocalModel</a>.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">LocalModel</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span>newdata <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LocalModel</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span>newdata <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -244,7 +244,7 @@ Data to predict on.</p></dd>
 <h3 id="method-explain-">Method <code>explain()</code><a class="anchor" aria-label="anchor" href="#method-explain-"></a></h3>
 <p>Set a new data point to explain.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">LocalModel</span><span class="op">$</span><span class="fu">explain</span><span class="op">(</span><span class="va">x.interest</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LocalModel</span><span class="op">$</span><span class="fu">explain</span><span class="op">(</span><span class="va">x.interest</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -261,7 +261,7 @@ Single row with the instance to be explained.</p></dd>
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">LocalModel</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">LocalModel</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -279,21 +279,21 @@ Single row with the instance to be explained.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="co"># First we fit a machine learning model on the Boston housing data</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">Boston</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">Boston</span><span class="op">)</span> <span class="op">==</span> <span class="st">"medv"</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">X</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Explain the first instance of the dataset with the LocalModel method:</span></span>
-<span class="r-in"><span class="va">x.interest</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
-<span class="r-in"><span class="va">lemon</span> <span class="op">&lt;-</span> <span class="va">LocalModel</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, x.interest <span class="op">=</span> <span class="va">x.interest</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># First we fit a machine learning model on the Boston housing data</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">Boston</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">Boston</span><span class="op">)</span> <span class="op">==</span> <span class="st">"medv"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">X</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Explain the first instance of the dataset with the LocalModel method:</span></span></span>
+<span class="r-in"><span><span class="va">x.interest</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">lemon</span> <span class="op">&lt;-</span> <span class="va">LocalModel</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, x.interest <span class="op">=</span> <span class="va">x.interest</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: glmnet</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: Matrix</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loaded glmnet 4.1-4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: gower</span>
-<span class="r-in"><span class="va">lemon</span></span>
+<span class="r-in"><span><span class="va">lemon</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interpretation method:  LocalModel </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -306,45 +306,45 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Head of results:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded   effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0552637     6.575 20.08836      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2999698     4.980 -1.49385       4.98   lstat    lstat=4.98</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Look at the results in a table</span></span>
-<span class="r-in"><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded   effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0552637     6.575 20.08836      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2999698     4.980 -1.49385       4.98   lstat    lstat=4.98</span>
-<span class="r-in"><span class="co"># Or as a plot</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0331551     6.575 19.942995      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2972356     4.980 -1.480233       4.98   lstat    lstat=4.98</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Look at the results in a table</span></span></span>
+<span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0331551     6.575 19.942995      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2972356     4.980 -1.480233       4.98   lstat    lstat=4.98</span>
+<span class="r-in"><span><span class="co"># Or as a plot</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="LocalModel-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Reuse the object with a new instance to explain</span></span>
-<span class="r-in"><span class="va">lemon</span><span class="op">$</span><span class="va">x.interest</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Reuse the object with a new instance to explain</span></span></span>
+<span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">x.interest</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      crim zn indus chas   nox    rm  age  dis rad tax ptratio black lstat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.00632 18  2.31    0 0.538 6.575 65.2 4.09   1 296    15.3 396.9  4.98</span>
-<span class="r-in"><span class="va">lemon</span><span class="op">$</span><span class="fu">explain</span><span class="op">(</span><span class="va">X</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">lemon</span><span class="op">$</span><span class="va">x.interest</span></span>
+<span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="fu">explain</span><span class="op">(</span><span class="va">X</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">x.interest</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      crim zn indus chas   nox    rm  age    dis rad tax ptratio black lstat</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.02731  0  7.07    0 0.469 6.421 78.9 4.9671   2 242    17.8 396.9  9.14</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="LocalModel-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># LocalModel also works with multiclass classification</span></span>
-<span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span> <span class="op">==</span> <span class="st">"Species"</span><span class="op">)</span><span class="op">]</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">X</span>, type <span class="op">=</span> <span class="st">"prob"</span>, class <span class="op">=</span> <span class="st">"setosa"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Then we explain the first instance of the dataset with the LocalModel method:</span></span>
-<span class="r-in"><span class="va">lemon</span> <span class="op">&lt;-</span> <span class="va">LocalModel</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, x.interest <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># LocalModel also works with multiclass classification</span></span></span>
+<span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span> <span class="op">==</span> <span class="st">"Species"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">X</span>, type <span class="op">=</span> <span class="st">"prob"</span>, class <span class="op">=</span> <span class="st">"setosa"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Then we explain the first instance of the dataset with the LocalModel method:</span></span></span>
+<span class="r-in"><span><span class="va">lemon</span> <span class="op">&lt;-</span> <span class="va">LocalModel</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, x.interest <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    beta x.recoded     effect x.original      feature</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1787401       3.5  0.6255905        3.5  Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2155931       1.4 -0.3018304        1.4 Petal.Length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1775826       3.5  0.6215391        3.5  Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2157503       1.4 -0.3020505        1.4 Petal.Length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 feature.value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   Sepal.Width=3.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length Petal.Length=1.4</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="LocalModel-3.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

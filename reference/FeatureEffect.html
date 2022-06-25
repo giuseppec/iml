@@ -166,14 +166,14 @@ features.</p></dd>
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a FeatureEffect object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va"><a href="../reference/FeatureEffect.html">FeatureEffect</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>
-  <span class="va">predictor</span>,
-  <span class="va">feature</span>,
-  method <span class="op">=</span> <span class="st">"ale"</span>,
-  center.at <span class="op">=</span> <span class="cn">NULL</span>,
-  grid.size <span class="op">=</span> <span class="fl">20</span>,
-  grid.points <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/FeatureEffect.html">FeatureEffect</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  <span class="va">predictor</span>,</span>
+<span>  <span class="va">feature</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"ale"</span>,</span>
+<span>  center.at <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  grid.size <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  grid.points <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -225,7 +225,7 @@ with a user-defined grid.</p></dd>
 <h3 id="method-set-feature-">Method <code>set.feature()</code><a class="anchor" aria-label="anchor" href="#method-set-feature-"></a></h3>
 <p>Get/set feature(s) (by index) for which to compute PDP.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">set.feature</span><span class="op">(</span><span class="va">feature</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">set.feature</span><span class="op">(</span><span class="va">feature</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -242,7 +242,7 @@ Feature name.</p></dd>
 <h3 id="method-center-">Method <code>center()</code><a class="anchor" aria-label="anchor" href="#method-center-"></a></h3>
 <p>Set the value at which the ice computations are centered.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">center</span><span class="op">(</span><span class="va">center.at</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">center</span><span class="op">(</span><span class="va">center.at</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -260,7 +260,7 @@ features.</p></dd>
 <h3 id="method-predict-">Method <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code><a class="anchor" aria-label="anchor" href="#method-predict-"></a></h3>
 <p>Predict the marginal outcome given a feature.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">data</span>, extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">data</span>, extrapolate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -288,7 +288,7 @@ Ignored for categorical features</p></dd>
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -306,40 +306,40 @@ Ignored for categorical features</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co"># We train a random forest on the Boston dataset:</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/bethatkinson/rpart" class="external-link">"rpart"</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rpart/man/rpart.html" class="external-link">rpart</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">Boston</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Compute the accumulated local effects for the first feature</span></span>
-<span class="r-in"><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"rm"</span>, grid.size <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># We train a random forest on the Boston dataset:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/bethatkinson/rpart" class="external-link">"rpart"</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rpart/man/rpart.html" class="external-link">rpart</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">Boston</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Compute the accumulated local effects for the first feature</span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"rm"</span>, grid.size <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Again, but this time with a partial dependence plot and ice curves</span></span>
-<span class="r-in"><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>,</span>
-<span class="r-in">  feature <span class="op">=</span> <span class="st">"rm"</span>, method <span class="op">=</span> <span class="st">"pdp+ice"</span>,</span>
-<span class="r-in">  grid.size <span class="op">=</span> <span class="fl">30</span></span>
-<span class="r-in"><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Again, but this time with a partial dependence plot and ice curves</span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>,</span></span>
+<span class="r-in"><span>  feature <span class="op">=</span> <span class="st">"rm"</span>, method <span class="op">=</span> <span class="st">"pdp+ice"</span>,</span></span>
+<span class="r-in"><span>  grid.size <span class="op">=</span> <span class="fl">30</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Since the result is a ggplot object, you can extend it:</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in">  <span class="co"># Adds a title</span></span>
-<span class="r-in">  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Partial dependence"</span><span class="op">)</span> <span class="op">+</span></span>
-<span class="r-in">  <span class="co"># Adds original predictions</span></span>
-<span class="r-in">  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span>
-<span class="r-in">    data <span class="op">=</span> <span class="va">Boston</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">Boston</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, x <span class="op">=</span> <span class="va">rm</span><span class="op">)</span>,</span>
-<span class="r-in">    color <span class="op">=</span> <span class="st">"pink"</span>, size <span class="op">=</span> <span class="fl">0.5</span></span>
-<span class="r-in">  <span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Since the result is a ggplot object, you can extend it:</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="co"># Adds a title</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Partial dependence"</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="co"># Adds original predictions</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    data <span class="op">=</span> <span class="va">Boston</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">Boston</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, x <span class="op">=</span> <span class="va">rm</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    color <span class="op">=</span> <span class="st">"pink"</span>, size <span class="op">=</span> <span class="fl">0.5</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># If you want to do your own thing, just extract the data:</span></span>
-<span class="r-in"><span class="va">eff.dat</span> <span class="op">&lt;-</span> <span class="va">eff</span><span class="op">$</span><span class="va">results</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">eff.dat</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># If you want to do your own thing, just extract the data:</span></span></span>
+<span class="r-in"><span><span class="va">eff.dat</span> <span class="op">&lt;-</span> <span class="va">eff</span><span class="op">$</span><span class="va">results</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">eff.dat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         rm   .value .type .id</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 3.561000 19.58263   pdp  NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 3.740966 19.58263   pdp  NA</span>
@@ -347,57 +347,57 @@ Ignored for categorical features</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 4.100897 19.58263   pdp  NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 4.280862 19.58263   pdp  NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 4.460828 19.58263   pdp  NA</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># You can also use the object to "predict" the marginal values.</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">Boston</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># You can also use the object to "predict" the marginal values.</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">Boston</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 22.30267 19.58263 27.44788</span>
-<span class="r-in"><span class="co"># Instead of the entire data.frame, you can also use feature values:</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="co"># Instead of the entire data.frame, you can also use feature values:</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 19.58263 19.58263 27.44788</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># You can reuse the pdp object for other features:</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">set.feature</span><span class="op">(</span><span class="st">"lstat"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># You can reuse the pdp object for other features:</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">set.feature</span><span class="op">(</span><span class="st">"lstat"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-4.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Only plotting the aggregated partial dependence:</span></span>
-<span class="r-in"><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"crim"</span>, method <span class="op">=</span> <span class="st">"pdp"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Only plotting the aggregated partial dependence:</span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"crim"</span>, method <span class="op">=</span> <span class="st">"pdp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-5.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Only plotting the individual conditional expectation:</span></span>
-<span class="r-in"><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"crim"</span>, method <span class="op">=</span> <span class="st">"ice"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Only plotting the individual conditional expectation:</span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"crim"</span>, method <span class="op">=</span> <span class="st">"ice"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-6.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Accumulated local effects and partial dependence plots support up to two</span></span>
-<span class="r-in"><span class="co"># features:</span></span>
-<span class="r-in"><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"crim"</span>, <span class="st">"lstat"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Accumulated local effects and partial dependence plots support up to two</span></span></span>
+<span class="r-in"><span><span class="co"># features:</span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"crim"</span>, <span class="st">"lstat"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required namespace: yaImpute</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-7.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># FeatureEffect plots also works with multiclass classification</span></span>
-<span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rpart/man/rpart.html" class="external-link">rpart</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># For some models we have to specify additional arguments for the predict</span></span>
-<span class="r-in"><span class="co"># function</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># FeatureEffect plots also works with multiclass classification</span></span></span>
+<span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/rpart/man/rpart.html" class="external-link">rpart</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># For some models we have to specify additional arguments for the predict</span></span></span>
+<span class="r-in"><span><span class="co"># function</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-8.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># FeatureEffect plots support up to two features:</span></span>
-<span class="r-in"><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Length"</span>, <span class="st">"Petal.Length"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># FeatureEffect plots support up to two features:</span></span></span>
+<span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Length"</span>, <span class="st">"Petal.Length"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-9.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># show where the actual data lies</span></span>
-<span class="r-in"><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>show.data <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># show where the actual data lies</span></span></span>
+<span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span>show.data <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-10.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># For multiclass classification models, you can choose to only show one class:</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"prob"</span>, class <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"Sepal.Length"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># For multiclass classification models, you can choose to only show one class:</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va"><a href="Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"prob"</span>, class <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="st">"Sepal.Length"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-11.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>

@@ -132,15 +132,15 @@ The inferred prediction task: <code>"classification"</code> or <code>"regression
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a Predictor object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va"><a href="../reference/Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>
-  model <span class="op">=</span> <span class="cn">NULL</span>,
-  data <span class="op">=</span> <span class="cn">NULL</span>,
-  predict.function <span class="op">=</span> <span class="cn">NULL</span>,
-  y <span class="op">=</span> <span class="cn">NULL</span>,
-  class <span class="op">=</span> <span class="cn">NULL</span>,
-  type <span class="op">=</span> <span class="cn">NULL</span>,
-  batch.size <span class="op">=</span> <span class="fl">1000</span>
-<span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predict.function <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  class <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  batch.size <span class="op">=</span> <span class="fl">1000</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -207,7 +207,7 @@ Currently only respected for <a href="FeatureImp.html">FeatureImp</a>, <a href="
 <h3 id="method-predict-">Method <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code><a class="anchor" aria-label="anchor" href="#method-predict-"></a></h3>
 <p>Predict new data with the machine learning model.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">Predictor</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Predictor</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -224,7 +224,7 @@ Data to predict on.</p></dd>
 <h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
 <p>Print the Predictor object.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">Predictor</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Predictor</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 
@@ -232,7 +232,7 @@ Data to predict on.</p></dd>
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span class="va">Predictor</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Predictor</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -250,7 +250,7 @@ Data to predict on.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://mlr.mlr-org.com" class="external-link">"mlr"</a></span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://mlr.mlr-org.com" class="external-link">"mlr"</a></span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: ParamHelpers</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Warning message: 'mlr' is in 'maintenance-only' mode since July 2019.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Future development will only happen in 'mlr3'</span>
@@ -264,43 +264,43 @@ Data to predict on.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following object is masked from ‘package:generics’:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     train</span>
-<span class="r-in"><span class="va">task</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/ClassifTask.html" class="external-link">makeClassifTask</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">learner</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/makeLearner.html" class="external-link">makeLearner</a></span><span class="op">(</span><span class="st">"classif.rpart"</span>, minsplit <span class="op">=</span> <span class="fl">7</span>, predict.type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod.mlr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/train.html" class="external-link">train</a></span><span class="op">(</span><span class="va">learner</span>, <span class="va">task</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod.mlr</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">task</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/ClassifTask.html" class="external-link">makeClassifTask</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">learner</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/makeLearner.html" class="external-link">makeLearner</a></span><span class="op">(</span><span class="st">"classif.rpart"</span>, minsplit <span class="op">=</span> <span class="fl">7</span>, predict.type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod.mlr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mlr.mlr-org.com/reference/train.html" class="external-link">train</a></span><span class="op">(</span><span class="va">learner</span>, <span class="va">task</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod.mlr</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   setosa versicolor virginica</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      1          0         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      1          0         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3      1          0         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4      1          0         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      1          0         0</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod.mlr</span>, data <span class="op">=</span> <span class="va">iris</span>, class <span class="op">=</span> <span class="st">"setosa"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod.mlr</span>, data <span class="op">=</span> <span class="va">iris</span>, class <span class="op">=</span> <span class="st">"setosa"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   setosa</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2      1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3      1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4      1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      1</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">50</span><span class="op">:</span><span class="fl">55</span>, <span class="op">]</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">50</span><span class="op">:</span><span class="fl">55</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   setosa versicolor virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1       0.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      0       1.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      0       0.95      0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      0       0.90      0.10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      0       1.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      0       0.95      0.05</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Feature importance needs the target vector, which needs to be supplied:</span></span>
-<span class="r-in"><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Species"</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1        0.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      0        1.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      0        1.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      0        0.9       0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      0        1.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      0        1.0       0.0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Feature importance needs the target vector, which needs to be supplied:</span></span></span>
+<span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Species"</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>
