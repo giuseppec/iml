@@ -19,7 +19,7 @@ model."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/math
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1</span>
       </span>
     </div>
 
@@ -151,13 +151,13 @@ The index of the best glmnet fit.</p></dd>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-new"><code>LocalModel$new()</code></a></p></li>
-<li><p><a href="#method-predict"><code>LocalModel$predict()</code></a></p></li>
-<li><p><a href="#method-explain"><code>LocalModel$explain()</code></a></p></li>
-<li><p><a href="#method-clone"><code>LocalModel$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></p></li>
-<li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></p></li>
-</ul></details></p><hr><a id="method-new"></a><div class="section">
+<ul><li><p><a href="#method-LocalModel-new"><code>LocalModel$new()</code></a></p></li>
+<li><p><a href="#method-LocalModel-predict"><code>LocalModel$predict()</code></a></p></li>
+<li><p><a href="#method-LocalModel-explain"><code>LocalModel$explain()</code></a></p></li>
+<li><p><a href="#method-LocalModel-clone"><code>LocalModel$clone()</code></a></p></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul></details></p><hr><a id="method-LocalModel-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a Local Model object.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -218,7 +218,7 @@ Results with the feature names (<code>feature</code>) and contributions to the
 prediction.</p>
 </div>
 
-</div><p></p><hr><a id="method-predict"></a><div class="section">
+</div><p></p><hr><a id="method-LocalModel-predict"></a><div class="section">
 <h3 id="method-predict-">Method <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code><a class="anchor" aria-label="anchor" href="#method-predict-"></a></h3>
 <p>Method to predict new data with the local model See also
 <a href="predict.LocalModel.html">predict.LocalModel</a>.</p><div class="section">
@@ -240,7 +240,7 @@ Data to predict on.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-explain"></a><div class="section">
+</div><p></p><hr><a id="method-LocalModel-explain"></a><div class="section">
 <h3 id="method-explain-">Method <code>explain()</code><a class="anchor" aria-label="anchor" href="#method-explain-"></a></h3>
 <p>Set a new data point to explain.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
@@ -257,7 +257,7 @@ Single row with the instance to be explained.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-clone"></a><div class="section">
+</div><p></p><hr><a id="method-LocalModel-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
@@ -307,14 +307,14 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Head of results:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0973006     6.575 20.364751      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2934198     4.980 -1.461231       4.98   lstat    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0239035     6.575 19.882166      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2955395     4.980 -1.471787       4.98   lstat    lstat=4.98</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Look at the results in a table</span></span></span>
 <span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0973006     6.575 20.364751      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2934198     4.980 -1.461231       4.98   lstat    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0239035     6.575 19.882166      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2955395     4.980 -1.471787       4.98   lstat    lstat=4.98</span>
 <span class="r-in"><span><span class="co"># Or as a plot</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="LocalModel-1.png" alt="" width="700" height="433"></span>
@@ -339,8 +339,8 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-in"><span><span class="va">lemon</span> <span class="op">&lt;-</span> <span class="va">LocalModel</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, x.interest <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    beta x.recoded     effect x.original      feature</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1771711       3.5  0.6200989        3.5  Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2162379       1.4 -0.3027330        1.4 Petal.Length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1786192       3.5  0.6251673        3.5  Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2157287       1.4 -0.3020202        1.4 Petal.Length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 feature.value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   Sepal.Width=3.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length Petal.Length=1.4</span>

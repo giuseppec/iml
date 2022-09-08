@@ -20,7 +20,7 @@ to be wrapped in a Predictor object."><!-- mathjax --><script src="https://cdnjs
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1</span>
       </span>
     </div>
 
@@ -124,11 +124,11 @@ The inferred prediction task: <code>"classification"</code> or <code>"regression
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-new"><code>Predictor$new()</code></a></p></li>
-<li><p><a href="#method-predict"><code>Predictor$predict()</code></a></p></li>
-<li><p><a href="#method-print"><code>Predictor$print()</code></a></p></li>
-<li><p><a href="#method-clone"><code>Predictor$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-new"></a><div class="section">
+<ul><li><p><a href="#method-Predictor-new"><code>Predictor$new()</code></a></p></li>
+<li><p><a href="#method-Predictor-predict"><code>Predictor$predict()</code></a></p></li>
+<li><p><a href="#method-Predictor-print"><code>Predictor$print()</code></a></p></li>
+<li><p><a href="#method-Predictor-clone"><code>Predictor$clone()</code></a></p></li>
+</ul></div><p></p><hr><a id="method-Predictor-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a Predictor object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -165,8 +165,8 @@ automatically.</p></dd>
 <dd><p><a href="https://rdrr.io/r/base/function.html" class="external-link">function</a><br>
 The function to predict newdata. Only needed if <code>model</code> is not a model
 from <code>mlr</code> or <code>caret</code> package. The first argument of <code>predict.fun</code> has to
-be the model, the second the <code>newdata</code>:</p><div class="sourceCode"><pre><code>function(model, newdata)
-</code></pre></div></dd>
+be the model, the second the <code>newdata</code>:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">function</span>(model, newdata)</span></code></pre><p></p></div></dd>
 
 
 <dt><code>y</code></dt>
@@ -203,7 +203,7 @@ Currently only respected for <a href="FeatureImp.html">FeatureImp</a>, <a href="
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-predict"></a><div class="section">
+</div><p></p><hr><a id="method-Predictor-predict"></a><div class="section">
 <h3 id="method-predict-">Method <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code><a class="anchor" aria-label="anchor" href="#method-predict-"></a></h3>
 <p>Predict new data with the machine learning model.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
@@ -220,7 +220,7 @@ Data to predict on.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-print"></a><div class="section">
+</div><p></p><hr><a id="method-Predictor-print"></a><div class="section">
 <h3 id="method-print-">Method <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code><a class="anchor" aria-label="anchor" href="#method-print-"></a></h3>
 <p>Print the Predictor object.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
@@ -228,7 +228,7 @@ Data to predict on.</p></dd>
 </div>
 
 
-</div><p></p><hr><a id="method-clone"></a><div class="section">
+</div><p></p><hr><a id="method-Predictor-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
@@ -292,12 +292,12 @@ Data to predict on.</p></dd>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mod</span><span class="op">$</span><span class="fu">predict</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">50</span><span class="op">:</span><span class="fl">55</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   setosa versicolor virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1       0.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      0       1.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      0       1.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      0       1.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      0       1.00      0.00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      0       0.95      0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      1        0.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      0        1.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3      0        1.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      0        0.9       0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      0        1.0       0.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      0        1.0       0.0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Feature importance needs the target vector, which needs to be supplied:</span></span></span>
 <span class="r-in"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="va">Predictor</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Species"</span>, type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span></span>

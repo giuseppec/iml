@@ -18,7 +18,7 @@ of prediction models."><!-- mathjax --><script src="https://cdnjs.cloudflare.com
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1</span>
       </span>
     </div>
 
@@ -155,14 +155,14 @@ features.</p></dd>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-new"><code>FeatureEffect$new()</code></a></p></li>
-<li><p><a href="#method-set.feature"><code>FeatureEffect$set.feature()</code></a></p></li>
-<li><p><a href="#method-center"><code>FeatureEffect$center()</code></a></p></li>
-<li><p><a href="#method-predict"><code>FeatureEffect$predict()</code></a></p></li>
-<li><p><a href="#method-clone"><code>FeatureEffect$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></p></li>
-<li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></p></li>
-</ul></details></p><hr><a id="method-new"></a><div class="section">
+<ul><li><p><a href="#method-FeatureEffect-new"><code>FeatureEffect$new()</code></a></p></li>
+<li><p><a href="#method-FeatureEffect-set.feature"><code>FeatureEffect$set.feature()</code></a></p></li>
+<li><p><a href="#method-FeatureEffect-center"><code>FeatureEffect$center()</code></a></p></li>
+<li><p><a href="#method-FeatureEffect-predict"><code>FeatureEffect$predict()</code></a></p></li>
+<li><p><a href="#method-FeatureEffect-clone"><code>FeatureEffect$clone()</code></a></p></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul></details></p><hr><a id="method-FeatureEffect-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a FeatureEffect object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -221,7 +221,7 @@ with a user-defined grid.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-set.feature"></a><div class="section">
+</div><p></p><hr><a id="method-FeatureEffect-set.feature"></a><div class="section">
 <h3 id="method-set-feature-">Method <code>set.feature()</code><a class="anchor" aria-label="anchor" href="#method-set-feature-"></a></h3>
 <p>Get/set feature(s) (by index) for which to compute PDP.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
@@ -238,7 +238,7 @@ Feature name.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-center"></a><div class="section">
+</div><p></p><hr><a id="method-FeatureEffect-center"></a><div class="section">
 <h3 id="method-center-">Method <code>center()</code><a class="anchor" aria-label="anchor" href="#method-center-"></a></h3>
 <p>Set the value at which the ice computations are centered.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
@@ -256,7 +256,7 @@ features.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-predict"></a><div class="section">
+</div><p></p><hr><a id="method-FeatureEffect-predict"></a><div class="section">
 <h3 id="method-predict-">Method <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code><a class="anchor" aria-label="anchor" href="#method-predict-"></a></h3>
 <p>Predict the marginal outcome given a feature.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
@@ -284,7 +284,7 @@ Ignored for categorical features</p></dd>
 <p>Values of the effect curves at the given values.</p>
 </div>
 
-</div><p></p><hr><a id="method-clone"></a><div class="section">
+</div><p></p><hr><a id="method-FeatureEffect-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>

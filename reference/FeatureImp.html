@@ -19,7 +19,7 @@ increases when the feature is shuffled."><!-- mathjax --><script src="https://cd
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1</span>
       </span>
     </div>
 
@@ -84,9 +84,8 @@ importance in detail:
 <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html" class="external-link">https://christophm.github.io/interpretable-ml-book/feature-importance.html</a></p>
 <p>The loss function can be either specified via a string, or by handing a
 function to <code>FeatureImp()</code>. If you want to use your own loss function it
-should have this signature:</p><div class="sourceCode"><pre><code>function(actual, predicted)
-</code></pre></div>
-
+should have this signature:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">function</span>(actual, predicted)</span></code></pre><p></p></div>
 <p>Using the string is
 a shortcut to using loss functions from the <code>Metrics</code> package. Only use
 functions that return a single performance value, not a vector. Allowed
@@ -102,7 +101,8 @@ losses are: <code>"ce"</code>, <code>"f1"</code>, <code>"logLoss"</code>, <code>
 <p>Parallelization is supported via package <a href="https://CRAN.R-project.org/package=future" class="external-link"><span class="pkg">future</span></a>.
 To initialize future-based parallelization, select an appropriate backend and
 specify the amount of workers.
-For example, to use a PSOCK based cluster backend do:</p><div class="sourceCode r"><pre><code>future::plan(multisession, workers = 2)
+For example, to use a PSOCK based cluster backend do:</p>
+<p></p><div class="sourceCode r"><pre><code>future::plan(multisession, workers = 2)
 &lt;iml function here&gt;
 </code></pre><p></p></div>
 <p>Consult the resources of the <a href="https://CRAN.R-project.org/package=future" class="external-link"><span class="pkg">future</span></a> package for more parallel
@@ -157,11 +157,11 @@ specify which feature(s) are to be permuted.</p></dd>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-new"><code>FeatureImp$new()</code></a></p></li>
-<li><p><a href="#method-clone"><code>FeatureImp$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></p></li>
-<li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></p></li>
-</ul></details></p><hr><a id="method-new"></a><div class="section">
+<ul><li><p><a href="#method-FeatureImp-new"><code>FeatureImp$new()</code></a></p></li>
+<li><p><a href="#method-FeatureImp-clone"><code>FeatureImp$clone()</code></a></p></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul></details></p><hr><a id="method-FeatureImp-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a FeatureImp object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -227,7 +227,7 @@ over all repetitions).</p></li>
 plots, the median importance over the repetitions as a point.</p>
 </div>
 
-</div><p></p><hr><a id="method-clone"></a><div class="section">
+</div><p></p><hr><a id="method-FeatureImp-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
@@ -274,10 +274,10 @@ plots, the median importance over the repetitions as a point.</p>
 <span class="r-in"><span><span class="va">imp.dat</span> <span class="op">&lt;-</span> <span class="va">imp</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">imp.dat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature importance.05 importance importance.95 permutation.error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      rm      2.081470   2.154380      2.244841          6.268605</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   lstat      1.874928   1.883025      1.957019          5.479040</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     dis      1.133606   1.164062      1.184486          3.387074</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    crim      1.143228   1.152800      1.161092          3.354304</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      rm      2.091723   2.196205      2.216560          6.390302</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   lstat      1.828104   1.860316      1.922856          5.412964</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     dis      1.156235   1.168736      1.202466          3.400674</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    crim      1.112566   1.147128      1.151833          3.337801</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      zn      1.000000   1.000000      1.000000          2.909702</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   indus      1.000000   1.000000      1.000000          2.909702</span>
 <span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">imp.dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">feature</span>, y <span class="op">=</span> <span class="va">importance</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>

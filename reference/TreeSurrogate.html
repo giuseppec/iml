@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1</span>
       </span>
     </div>
 
@@ -120,12 +120,12 @@ multi-class case, r.squared contains one measure per class.</p></dd>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-new"><code>TreeSurrogate$new()</code></a></p></li>
-<li><p><a href="#method-predict"><code>TreeSurrogate$predict()</code></a></p></li>
-<li><p><a href="#method-clone"><code>TreeSurrogate$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></p></li>
-<li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></p></li>
-</ul></details></p><hr><a id="method-new"></a><div class="section">
+<ul><li><p><a href="#method-TreeSurrogate-new"><code>TreeSurrogate$new()</code></a></p></li>
+<li><p><a href="#method-TreeSurrogate-predict"><code>TreeSurrogate$predict()</code></a></p></li>
+<li><p><a href="#method-TreeSurrogate-clone"><code>TreeSurrogate$clone()</code></a></p></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul></details></p><hr><a id="method-TreeSurrogate-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a TreeSurrogate object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -153,7 +153,7 @@ Further arguments for <code><a href="https://rdrr.io/pkg/party/man/ctree.html" c
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-predict"></a><div class="section">
+</div><p></p><hr><a id="method-TreeSurrogate-predict"></a><div class="section">
 <h3 id="method-predict-">Method <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code><a class="anchor" aria-label="anchor" href="#method-predict-"></a></h3>
 <p>Predict new data with the tree.
 See also <a href="predict.TreeSurrogate.html">predict.TreeSurrogate</a></p><div class="section">
@@ -179,7 +179,7 @@ Data to predict on.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-clone"></a><div class="section">
+</div><p></p><hr><a id="method-TreeSurrogate-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
@@ -222,16 +222,16 @@ Data to predict on.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">Boston</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Dropping additional columns: medv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      .y.hat</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  21.73790</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  21.73790</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  14.76436</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  14.76436</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 14.76436</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  21.79532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  21.79532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  14.86130</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  14.86130</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 14.86130</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract the results</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dt</span><span class="op">$</span><span class="va">results</span></span></span>
@@ -244,12 +244,12 @@ Data to predict on.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.06905  0  2.18    0 0.458 7.147 54.2 6.0622   3 222    18.7 396.90  5.33</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.02985  0  2.18    0 0.458 6.430 58.7 6.0622   3 222    18.7 394.12  5.21</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .node                           .path   .y.hat .y.hat.tree</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 25.21600    28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     6 lstat &gt; 7.85 &amp;\n lstat &lt;= 14.98 22.40237    21.73790</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.74537    28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.17880    28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 34.99703    28.29669</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 27.74650    28.29669</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 25.49933    28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     6 lstat &gt; 7.85 &amp;\n lstat &lt;= 14.98 21.83547    21.79532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 35.12840    28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 33.70407    28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 35.27197    28.28402</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     3    lstat &lt;= 7.85 &amp;\n rm &lt;= 7.42 27.98043    28.28402</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># It also works for classification</span></span></span>
 <span class="r-in"><span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
@@ -273,15 +273,15 @@ Data to predict on.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     setosa versicolor  virginica</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 49       1 0.00000000 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 65       0 0.91185185 0.08814815</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 74       0 0.91185185 0.08814815</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 146      0 0.03130435 0.96869565</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 122      0 0.03130435 0.96869565</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 150      0 0.03130435 0.96869565</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 128      0 0.03130435 0.96869565</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 65       0 0.91074074 0.08925926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 74       0 0.91074074 0.08925926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 146      0 0.02391304 0.97608696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 122      0 0.02391304 0.97608696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 150      0 0.02391304 0.97608696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 128      0 0.02391304 0.97608696</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 47       1 0.00000000 0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24       1 0.00000000 0.00000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 71       0 0.03130435 0.96869565</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 71       0 0.02391304 0.97608696</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">iris.sample</span>, type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        .class</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1      setosa</span>

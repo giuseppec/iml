@@ -21,7 +21,7 @@ average prediction among the features."><!-- mathjax --><script src="https://cdn
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1</span>
       </span>
     </div>
 
@@ -126,12 +126,12 @@ become.</p></dd>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-new"><code>Shapley$new()</code></a></p></li>
-<li><p><a href="#method-explain"><code>Shapley$explain()</code></a></p></li>
-<li><p><a href="#method-clone"><code>Shapley$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></p></li>
-<li><p><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></p></li>
-</ul></details></p><hr><a id="method-new"></a><div class="section">
+<ul><li><p><a href="#method-Shapley-new"><code>Shapley$new()</code></a></p></li>
+<li><p><a href="#method-Shapley-explain"><code>Shapley$explain()</code></a></p></li>
+<li><p><a href="#method-Shapley-clone"><code>Shapley$clone()</code></a></p></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href="InterpretationMethod.html#method-plot"><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href="InterpretationMethod.html#method-print"><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul></details></p><hr><a id="method-Shapley-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 <p>Create a Shapley object</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -163,7 +163,7 @@ The number of Monte Carlo samples for estimating the Shapley value.</p></dd>
 <p><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a><br><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> with the Shapley values (phi) per feature.</p>
 </div>
 
-</div><p></p><hr><a id="method-explain"></a><div class="section">
+</div><p></p><hr><a id="method-Shapley-explain"></a><div class="section">
 <h3 id="method-explain-">Method <code>explain()</code><a class="anchor" aria-label="anchor" href="#method-explain-"></a></h3>
 <p>Set a new data point which to explain.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
@@ -180,7 +180,7 @@ Single row with the instance to be explained.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-clone"></a><div class="section">
+</div><p></p><hr><a id="method-Shapley-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
@@ -231,7 +231,7 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   indus 0.0000000  0.000000    indus=2.31</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4    chas 0.0000000  0.000000        chas=0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5     nox 0.0000000  0.000000     nox=0.538</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      rm 2.3518448 36.742130      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      rm 1.8378771 35.151082      rm=6.575</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Look at the results in a table</span></span></span>
 <span class="r-in"><span><span class="va">shapley</span><span class="op">$</span><span class="va">results</span></span></span>
@@ -241,14 +241,14 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3    indus  0.0000000  0.000000    indus=2.31</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4     chas  0.0000000  0.000000        chas=0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      nox  0.0000000  0.000000     nox=0.538</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       rm  2.3518448 36.742130      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       rm  1.8378771 35.151082      rm=6.575</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7      age  0.0000000  0.000000      age=65.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8      dis -0.4806171  5.852113      dis=4.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8      dis -0.7977989  8.829877      dis=4.09</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9      rad  0.0000000  0.000000         rad=1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10     tax  0.0000000  0.000000       tax=296</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11 ptratio  0.0000000  0.000000  ptratio=15.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12   black  0.0000000  0.000000   black=396.9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13   lstat  2.4383188 33.449485    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13   lstat  3.1810009 26.336562    lstat=4.98</span>
 <span class="r-in"><span><span class="co"># Or as a plot</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">shapley</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Shapley-1.png" alt="" width="700" height="433"></span>
