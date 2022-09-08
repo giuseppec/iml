@@ -88,22 +88,22 @@ become.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Shapley$new()}}
-\item \href{#method-explain}{\code{Shapley$explain()}}
-\item \href{#method-clone}{\code{Shapley$clone()}}
+\item \href{#method-Shapley-new}{\code{Shapley$new()}}
+\item \href{#method-Shapley-explain}{\code{Shapley$explain()}}
+\item \href{#method-Shapley-clone}{\code{Shapley$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-plot'><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-print'><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Shapley-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Shapley-new}{}}}
 \subsection{Method \code{new()}}{
 Create a Shapley object
 \subsection{Usage}{
@@ -131,8 +131,8 @@ The number of Monte Carlo samples for estimating the Shapley value.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-explain"></a>}}
-\if{latex}{\out{\hypertarget{method-explain}{}}}
+\if{html}{\out{<a id="method-Shapley-explain"></a>}}
+\if{latex}{\out{\hypertarget{method-Shapley-explain}{}}}
 \subsection{Method \code{explain()}}{
 Set a new data point which to explain.
 \subsection{Usage}{
@@ -149,8 +149,8 @@ Single row with the instance to be explained.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Shapley-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Shapley-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

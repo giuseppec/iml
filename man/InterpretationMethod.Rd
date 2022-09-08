@@ -19,15 +19,15 @@ The aggregated results of the experiment}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{InterpretationMethod$new()}}
-\item \href{#method-plot}{\code{InterpretationMethod$plot()}}
-\item \href{#method-print}{\code{InterpretationMethod$print()}}
-\item \href{#method-clone}{\code{InterpretationMethod$clone()}}
+\item \href{#method-InterpretationMethod-new}{\code{InterpretationMethod$new()}}
+\item \href{#method-InterpretationMethod-plot}{\code{InterpretationMethod$plot()}}
+\item \href{#method-InterpretationMethod-print}{\code{InterpretationMethod$print()}}
+\item \href{#method-InterpretationMethod-clone}{\code{InterpretationMethod$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-InterpretationMethod-new"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretationMethod-new}{}}}
 \subsection{Method \code{new()}}{
 Create an InterpretationMethod object
 \subsection{Usage}{
@@ -45,8 +45,8 @@ learning model and the data.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-plot"></a>}}
-\if{latex}{\out{\hypertarget{method-plot}{}}}
+\if{html}{\out{<a id="method-InterpretationMethod-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretationMethod-plot}{}}}
 \subsection{Method \code{plot()}}{
 Plot function. Calls \code{private$generatePlot()} of the
 respective subclass.
@@ -63,8 +63,8 @@ respective subclass.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-InterpretationMethod-print"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretationMethod-print}{}}}
 \subsection{Method \code{print()}}{
 Printer for InterpretationMethod objects
 \subsection{Usage}{
@@ -73,8 +73,8 @@ Printer for InterpretationMethod objects
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-InterpretationMethod-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-InterpretationMethod-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

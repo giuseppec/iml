@@ -21,7 +21,9 @@ features, directly use \link{FeatureEffect}.
 Parallelization is supported via package \CRANpkg{future}.
 To initialize future-based parallelization, select an appropriate backend and
 specify the amount of workers.
-For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="sourceCode r">}}\preformatted{future::plan(multisession, workers = 2)
+For example, to use a PSOCK based cluster backend do:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{future::plan(multisession, workers = 2)
 <iml function here>
 }\if{html}{\out{</div>}}
 
@@ -109,21 +111,21 @@ features.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{FeatureEffects$new()}}
-\item \href{#method-clone}{\code{FeatureEffects$clone()}}
+\item \href{#method-FeatureEffects-new}{\code{FeatureEffects$new()}}
+\item \href{#method-FeatureEffects-clone}{\code{FeatureEffects$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-plot'><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-print'><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-FeatureEffects-new"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureEffects-new}{}}}
 \subsection{Method \code{new()}}{
 Create a FeatureEffects object
 \subsection{Usage}{
@@ -170,8 +172,8 @@ The feature name or index for which to compute the effects.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-FeatureEffects-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureEffects-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

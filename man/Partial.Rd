@@ -20,24 +20,24 @@ Deprecated, please use \link{FeatureEffect}.
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Partial$new()}}
-\item \href{#method-clone}{\code{Partial$clone()}}
+\item \href{#method-Partial-new}{\code{Partial$new()}}
+\item \href{#method-Partial-clone}{\code{Partial$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="center">}\href{../../iml/html/FeatureEffect.html#method-center}{\code{iml::FeatureEffect$center()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="predict">}\href{../../iml/html/FeatureEffect.html#method-predict}{\code{iml::FeatureEffect$predict()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="set.feature">}\href{../../iml/html/FeatureEffect.html#method-set.feature}{\code{iml::FeatureEffect$set.feature()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-plot'><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-print'><code>iml::InterpretationMethod$print()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="center"><a href='../../iml/html/FeatureEffect.html#method-FeatureEffect-center'><code>iml::FeatureEffect$center()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="predict"><a href='../../iml/html/FeatureEffect.html#method-FeatureEffect-predict'><code>iml::FeatureEffect$predict()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="FeatureEffect" data-id="set.feature"><a href='../../iml/html/FeatureEffect.html#method-FeatureEffect-set.feature'><code>iml::FeatureEffect$set.feature()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Partial-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Partial-new}{}}}
 \subsection{Method \code{new()}}{
 Effect of one or two feature(s) on the model predictions
 \subsection{Usage}{
@@ -80,8 +80,8 @@ The size of the grid for evaluating the predictions.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Partial-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Partial-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

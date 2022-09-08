@@ -66,15 +66,15 @@ The inferred prediction task: \code{"classification"} or \code{"regression"}.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Predictor$new()}}
-\item \href{#method-predict}{\code{Predictor$predict()}}
-\item \href{#method-print}{\code{Predictor$print()}}
-\item \href{#method-clone}{\code{Predictor$clone()}}
+\item \href{#method-Predictor-new}{\code{Predictor$new()}}
+\item \href{#method-Predictor-predict}{\code{Predictor$predict()}}
+\item \href{#method-Predictor-print}{\code{Predictor$print()}}
+\item \href{#method-Predictor-clone}{\code{Predictor$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Predictor-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Predictor-new}{}}}
 \subsection{Method \code{new()}}{
 Create a Predictor object
 \subsection{Usage}{
@@ -107,8 +107,10 @@ automatically.}
 \item{\code{predict.function}}{\link{function}\cr
 The function to predict newdata. Only needed if \code{model} is not a model
 from \code{mlr} or \code{caret} package. The first argument of \code{predict.fun} has to
-be the model, the second the \code{newdata}:\preformatted{function(model, newdata)
-}}
+be the model, the second the \code{newdata}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{function(model, newdata)
+}\if{html}{\out{</div>}}}
 
 \item{\code{y}}{\code{character(1)} | \link{numeric} | \link{factor}\cr The target vector or
 (preferably) the name of the target column in the \code{data} argument.
@@ -137,8 +139,8 @@ Currently only respected for \link{FeatureImp}, \link{Partial} and \link{Interac
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-predict"></a>}}
-\if{latex}{\out{\hypertarget{method-predict}{}}}
+\if{html}{\out{<a id="method-Predictor-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-Predictor-predict}{}}}
 \subsection{Method \code{predict()}}{
 Predict new data with the machine learning model.
 \subsection{Usage}{
@@ -155,8 +157,8 @@ Data to predict on.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-print"></a>}}
-\if{latex}{\out{\hypertarget{method-print}{}}}
+\if{html}{\out{<a id="method-Predictor-print"></a>}}
+\if{latex}{\out{\hypertarget{method-Predictor-print}{}}}
 \subsection{Method \code{print()}}{
 Print the Predictor object.
 \subsection{Usage}{
@@ -165,8 +167,8 @@ Print the Predictor object.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Predictor-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Predictor-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

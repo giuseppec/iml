@@ -1,7 +1,7 @@
 Type: Package
 Package: iml
 Title: Interpretable Machine Learning
-Version: 0.11.0.9000
+Version: 0.11.1
 Authors@R: c(
     person("Christoph", "Molnar", , "christoph.molnar@gmail.com", role = c("aut", "cre")),
     person("Patrick", "Schratz", , "patrick.schratz@gmail.com", role = "aut",
@@ -64,4 +64,4 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1

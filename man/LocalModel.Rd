@@ -120,23 +120,23 @@ The index of the best glmnet fit.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{LocalModel$new()}}
-\item \href{#method-predict}{\code{LocalModel$predict()}}
-\item \href{#method-explain}{\code{LocalModel$explain()}}
-\item \href{#method-clone}{\code{LocalModel$clone()}}
+\item \href{#method-LocalModel-new}{\code{LocalModel$new()}}
+\item \href{#method-LocalModel-predict}{\code{LocalModel$predict()}}
+\item \href{#method-LocalModel-explain}{\code{LocalModel$explain()}}
+\item \href{#method-LocalModel-clone}{\code{LocalModel$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-plot'><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-print'><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-LocalModel-new"></a>}}
+\if{latex}{\out{\hypertarget{method-LocalModel-new}{}}}
 \subsection{Method \code{new()}}{
 Create a Local Model object.
 \subsection{Usage}{
@@ -186,8 +186,8 @@ prediction.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-predict"></a>}}
-\if{latex}{\out{\hypertarget{method-predict}{}}}
+\if{html}{\out{<a id="method-LocalModel-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-LocalModel-predict}{}}}
 \subsection{Method \code{predict()}}{
 Method to predict new data with the local model See also
 \link{predict.LocalModel}.
@@ -207,8 +207,8 @@ Data to predict on.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-explain"></a>}}
-\if{latex}{\out{\hypertarget{method-explain}{}}}
+\if{html}{\out{<a id="method-LocalModel-explain"></a>}}
+\if{latex}{\out{\hypertarget{method-LocalModel-explain}{}}}
 \subsection{Method \code{explain()}}{
 Set a new data point to explain.
 \subsection{Usage}{
@@ -225,8 +225,8 @@ Single row with the instance to be explained.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-LocalModel-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-LocalModel-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

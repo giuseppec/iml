@@ -95,22 +95,22 @@ multi-class case, r.squared contains one measure per class.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{TreeSurrogate$new()}}
-\item \href{#method-predict}{\code{TreeSurrogate$predict()}}
-\item \href{#method-clone}{\code{TreeSurrogate$clone()}}
+\item \href{#method-TreeSurrogate-new}{\code{TreeSurrogate$new()}}
+\item \href{#method-TreeSurrogate-predict}{\code{TreeSurrogate$predict()}}
+\item \href{#method-TreeSurrogate-clone}{\code{TreeSurrogate$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-plot'><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-print'><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-TreeSurrogate-new"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSurrogate-new}{}}}
 \subsection{Method \code{new()}}{
 Create a TreeSurrogate object
 \subsection{Usage}{
@@ -134,8 +134,8 @@ Further arguments for \code{\link[party:ctree]{party::ctree()}}.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-predict"></a>}}
-\if{latex}{\out{\hypertarget{method-predict}{}}}
+\if{html}{\out{<a id="method-TreeSurrogate-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSurrogate-predict}{}}}
 \subsection{Method \code{predict()}}{
 Predict new data with the tree.
 See also \link{predict.TreeSurrogate}
@@ -157,8 +157,8 @@ Data to predict on.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-TreeSurrogate-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-TreeSurrogate-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

@@ -162,24 +162,24 @@ features.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{FeatureEffect$new()}}
-\item \href{#method-set.feature}{\code{FeatureEffect$set.feature()}}
-\item \href{#method-center}{\code{FeatureEffect$center()}}
-\item \href{#method-predict}{\code{FeatureEffect$predict()}}
-\item \href{#method-clone}{\code{FeatureEffect$clone()}}
+\item \href{#method-FeatureEffect-new}{\code{FeatureEffect$new()}}
+\item \href{#method-FeatureEffect-set.feature}{\code{FeatureEffect$set.feature()}}
+\item \href{#method-FeatureEffect-center}{\code{FeatureEffect$center()}}
+\item \href{#method-FeatureEffect-predict}{\code{FeatureEffect$predict()}}
+\item \href{#method-FeatureEffect-clone}{\code{FeatureEffect$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-plot'><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-print'><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-FeatureEffect-new"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureEffect-new}{}}}
 \subsection{Method \code{new()}}{
 Create a FeatureEffect object
 \subsection{Usage}{
@@ -230,8 +230,8 @@ with a user-defined grid.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-set.feature"></a>}}
-\if{latex}{\out{\hypertarget{method-set.feature}{}}}
+\if{html}{\out{<a id="method-FeatureEffect-set.feature"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureEffect-set.feature}{}}}
 \subsection{Method \code{set.feature()}}{
 Get/set feature(s) (by index) for which to compute PDP.
 \subsection{Usage}{
@@ -248,8 +248,8 @@ Feature name.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-center"></a>}}
-\if{latex}{\out{\hypertarget{method-center}{}}}
+\if{html}{\out{<a id="method-FeatureEffect-center"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureEffect-center}{}}}
 \subsection{Method \code{center()}}{
 Set the value at which the ice computations are centered.
 \subsection{Usage}{
@@ -267,8 +267,8 @@ features.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-predict"></a>}}
-\if{latex}{\out{\hypertarget{method-predict}{}}}
+\if{html}{\out{<a id="method-FeatureEffect-predict"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureEffect-predict}{}}}
 \subsection{Method \code{predict()}}{
 Predict the marginal outcome given a feature.
 \subsection{Usage}{
@@ -293,8 +293,8 @@ Values of the effect curves at the given values.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-FeatureEffect-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-FeatureEffect-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

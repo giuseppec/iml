@@ -37,7 +37,9 @@ To learn more about interaction effects, read the Interpretable Machine Learning
 Parallelization is supported via package \CRANpkg{future}.
 To initialize future-based parallelization, select an appropriate backend and
 specify the amount of workers.
-For example, to use a PSOCK based cluster backend do:\if{html}{\out{<div class="sourceCode r">}}\preformatted{future::plan(multisession, workers = 2)
+For example, to use a PSOCK based cluster backend do:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{future::plan(multisession, workers = 2)
 <iml function here>
 }\if{html}{\out{</div>}}
 
@@ -100,21 +102,21 @@ interaction strength.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Interaction$new()}}
-\item \href{#method-clone}{\code{Interaction$clone()}}
+\item \href{#method-Interaction-new}{\code{Interaction$new()}}
+\item \href{#method-Interaction-clone}{\code{Interaction$clone()}}
 }
 }
-\if{html}{
-\out{<details open ><summary>Inherited methods</summary>}
-\itemize{
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot">}\href{../../iml/html/InterpretationMethod.html#method-plot}{\code{iml::InterpretationMethod$plot()}}\out{</span>}
-\item \out{<span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print">}\href{../../iml/html/InterpretationMethod.html#method-print}{\code{iml::InterpretationMethod$print()}}\out{</span>}
-}
-\out{</details>}
-}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="plot"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-plot'><code>iml::InterpretationMethod$plot()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="iml" data-topic="InterpretationMethod" data-id="print"><a href='../../iml/html/InterpretationMethod.html#method-InterpretationMethod-print'><code>iml::InterpretationMethod$print()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-Interaction-new"></a>}}
+\if{latex}{\out{\hypertarget{method-Interaction-new}{}}}
 \subsection{Method \code{new()}}{
 Create an Interaction object
 \subsection{Usage}{
@@ -144,8 +146,8 @@ multi-dimensional outcome - per class.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-Interaction-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-Interaction-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
