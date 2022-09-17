@@ -19,7 +19,7 @@ increases when the feature is shuffled."><!-- mathjax --><script src="https://cd
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.1.9000</span>
       </span>
     </div>
 
@@ -274,10 +274,10 @@ plots, the median importance over the repetitions as a point.</p>
 <span class="r-in"><span><span class="va">imp.dat</span> <span class="op">&lt;-</span> <span class="va">imp</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">imp.dat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature importance.05 importance importance.95 permutation.error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      rm      2.169186   2.207978      2.266083          6.424557</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   lstat      1.894344   1.962321      2.041360          5.709770</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     dis      1.157856   1.197166      1.239152          3.483396</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    crim      1.128229   1.148951      1.163143          3.343104</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      rm      2.064294   2.164917      2.194873          6.299263</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   lstat      1.816995   1.884191      1.989363          5.482434</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     dis      1.134737   1.168173      1.170679          3.399036</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    crim      1.126313   1.144360      1.159878          3.329748</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      zn      1.000000   1.000000      1.000000          2.909702</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   indus      1.000000   1.000000      1.000000          2.909702</span>
 <span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">imp.dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">feature</span>, y <span class="op">=</span> <span class="va">importance</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
