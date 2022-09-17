@@ -1,7 +1,7 @@
 Type: Package
 Package: iml
 Title: Interpretable Machine Learning
-Version: 0.11.1
+Version: 0.11.1.9000
 Authors@R: c(
     person("Christoph", "Molnar", , "christoph.molnar@gmail.com", role = c("aut", "cre")),
     person("Patrick", "Schratz", , "patrick.schratz@gmail.com", role = "aut",
