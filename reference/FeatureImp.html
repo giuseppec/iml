@@ -274,10 +274,10 @@ plots, the median importance over the repetitions as a point.</p>
 <span class="r-in"><span><span class="va">imp.dat</span> <span class="op">&lt;-</span> <span class="va">imp</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">imp.dat</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   feature importance.05 importance importance.95 permutation.error</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      rm      2.146412   2.205084      2.269076          6.416136</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   lstat      1.757191   1.909928      1.966795          5.557320</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     dis      1.155606   1.194638      1.224045          3.476041</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    crim      1.130236   1.149056      1.169167          3.343409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1      rm      2.192790   2.208642      2.225086          6.426489</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   lstat      1.849734   1.909977      1.949234          5.557464</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     dis      1.140794   1.155848      1.183372          3.363173</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    crim      1.128756   1.138818      1.159480          3.313621</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5      zn      1.000000   1.000000      1.000000          2.909702</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6   indus      1.000000   1.000000      1.000000          2.909702</span>
 <span class="r-in"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">imp.dat</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">feature</span>, y <span class="op">=</span> <span class="va">importance</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
