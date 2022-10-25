@@ -307,14 +307,14 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Head of results:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0552628     6.575 20.088353      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2961216     4.980 -1.474686       4.98   lstat    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0474850     6.575 20.037214      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2969447     4.980 -1.478785       4.98   lstat    lstat=4.98</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Look at the results in a table</span></span></span>
 <span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             beta x.recoded    effect x.original feature feature.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0552628     6.575 20.088353      6.575      rm      rm=6.575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2961216     4.980 -1.474686       4.98   lstat    lstat=4.98</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> rm     3.0474850     6.575 20.037214      6.575      rm      rm=6.575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lstat -0.2969447     4.980 -1.478785       4.98   lstat    lstat=4.98</span>
 <span class="r-in"><span><span class="co"># Or as a plot</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lemon</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="LocalModel-1.png" alt="" width="700" height="433"></span>
@@ -339,8 +339,8 @@ Single row with the instance to be explained.</p></dd>
 <span class="r-in"><span><span class="va">lemon</span> <span class="op">&lt;-</span> <span class="va">LocalModel</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, x.interest <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lemon</span><span class="op">$</span><span class="va">results</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    beta x.recoded     effect x.original      feature</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1765673       3.5  0.6179854        3.5  Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2161221       1.4 -0.3025710        1.4 Petal.Length</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   0.1781516       3.5  0.6235306        3.5  Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length -0.2159595       1.4 -0.3023433        1.4 Petal.Length</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 feature.value</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width   Sepal.Width=3.5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length Petal.Length=1.4</span>
