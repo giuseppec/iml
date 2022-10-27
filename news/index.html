@@ -62,10 +62,12 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.11.1.9000" id="iml-01119000">iml 0.11.1.9000<a class="anchor" aria-label="anchor" href="#iml-01119000"></a></h2>
-<ul><li>Internal changes only.</li></ul></div>
+<ul><li>Internal changes only.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.11.1" id="iml-0111">iml 0.11.1<small>2022-09-08</small><a class="anchor" aria-label="anchor" href="#iml-0111"></a></h2>
-<ul><li>Update documentation to conform to CRAN HTML5</li></ul></div>
+<ul><li>Update documentation to conform to CRAN HTML5</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.11.0" id="iml-0110">iml 0.11.0<small>2022-05-12</small><a class="anchor" aria-label="anchor" href="#iml-0110"></a></h2>
 <ul><li>Fix possible future issue with <code><a href="https://Rdatatable.gitlab.io/data.table/reference/melt.data.table.html" class="external-link">data.table::melt()</a></code> (<a href="https://github.com/christophM/iml/issues/182" class="external-link">#182</a>)</li>
@@ -90,7 +92,8 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.10.0" id="iml-0100">iml 0.10.0<small>2020-03-26</small><a class="anchor" aria-label="anchor" href="#iml-0100"></a></h2>
-<ul><li>Changes to <code>FeatureEffect$results</code> <code>data.frame</code>:<ul><li>All numeric values are stored in .value (no more <code>.y.hat</code> and <code>.ale</code>)</li>
+<ul><li>Changes to <code>FeatureEffect$results</code> <code>data.frame</code>:
+<ul><li>All numeric values are stored in .value (no more <code>.y.hat</code> and <code>.ale</code>)</li>
 <li>Additional column .type denoting the Feature Effect type</li>
 <li>renamed column .feature to .borders. This column stores the grid borders which were used for computing the FE with respect to the used method</li>
 <li>For ALE type the column containing the feature name was moved to the front (as it is for the other types)</li>
@@ -117,10 +120,12 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.8.1" id="iml-081">iml 0.8.1<small>2019-01-02</small><a class="anchor" aria-label="anchor" href="#iml-081"></a></h2>
-<ul><li>Fix vignette titles</li></ul></div>
+<ul><li>Fix vignette titles</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.8.0" id="iml-080">iml 0.8.0<small>2018-12-20</small><a class="anchor" aria-label="anchor" href="#iml-080"></a></h2>
-<ul><li>Some bigger changes in the feature importance class <code>FeatureImp</code>:<ul><li>The <code>method</code> argument was removed, only shuffling is now possible. This means the cartesian product of all data points with all data points is not an option any longer. It was never really practical to use, except for toy examples.</li>
+<ul><li>Some bigger changes in the feature importance class <code>FeatureImp</code>:
+<ul><li>The <code>method</code> argument was removed, only shuffling is now possible. This means the cartesian product of all data points with all data points is not an option any longer. It was never really practical to use, except for toy examples.</li>
 <li>The importance plot shows the name of the loss function in the x-axis label.</li>
 <li>The importance plot shows the quantiles of importance over the different repetitions.</li>
 <li>Default number of repetitions increased to 5.</li>
@@ -131,7 +136,8 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.7.1" id="iml-071">iml 0.7.1<small>2018-10-03</small><a class="anchor" aria-label="anchor" href="#iml-071"></a></h2>
-<ul><li>Fixes problems with wrong computation of feature importance, features effects and so on for xgboost models.</li></ul></div>
+<ul><li>Fixes problems with wrong computation of feature importance, features effects and so on for xgboost models.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.7.0" id="iml-070">iml 0.7.0<small>2018-09-11</small><a class="anchor" aria-label="anchor" href="#iml-070"></a></h2>
 <ul><li>The <code>Partial</code> class is deprecated and will be removed in future versions. You should use <code>FeatureEffect</code> now. Its usage is similar to <code>Partial</code> but the <code>aggregation</code> and <code>ice</code> argument are now combined in the new <code>method</code> argument, where you can choose between ‘ale’, ‘pdp’, ‘ice’, ‘pdp+ice’.</li>
@@ -173,7 +179,8 @@
 <h2 class="page-header" data-toc-text="0.3.0" id="iml-030">iml 0.3.0<small>2018-04-10</small><a class="anchor" aria-label="anchor" href="#iml-030"></a></h2>
 <ul><li>FeatureImp$results column permutationError renamed to permutation.error</li>
 <li>Allow setting distance function in LocalModel</li>
-<li>Merge the classes Ice and PartialDependence into Partial<ul><li>The newly introduced Partial class can plot ice and pd curves, also in the same plot</li>
+<li>Merge the classes Ice and PartialDependence into Partial
+<ul><li>The newly introduced Partial class can plot ice and pd curves, also in the same plot</li>
 <li>It is now possible to center partial dependence plots</li>
 <li>In obj$results has a new column “type” which contains either “ice” or “pdp”. The column ..individual was renamed to “..id” and “y.hat” has been renamed to “..y.hat”.</li>
 <li>Ice and PartialDependence will be deprecated starting from 0.4.x</li>
@@ -182,7 +189,8 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2" id="iml-02">iml 0.2<a class="anchor" aria-label="anchor" href="#iml-02"></a></h2>
-<ul><li>The API has been reworked:<ul><li>User directly interacts with R6 classes (<code>pdp()</code> is now <code>PartialDependence$new()</code>).</li>
+<ul><li>The API has been reworked:
+<ul><li>User directly interacts with R6 classes (<code>pdp()</code> is now <code>PartialDependence$new()</code>).</li>
 <li>User has to wrap the machine learning model with <code>Predictor$new()</code>.</li>
 <li>New data points in <code>Shapley</code> and <code>LocalModel</code> can be set with <code>$explain()</code>.</li>
 <li>
