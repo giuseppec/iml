@@ -1,5 +1,5 @@
 ## tic GitHub Actions template: custom-deploy
-## revision date: 2022-11-23
+## revision date: 2023-05-22
 # [Custom header]
 on:
   workflow_dispatch:
@@ -92,7 +92,7 @@ jobs:
 
       - name: "[Stage] Upload R CMD check artifacts"
         if: failure()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-results
           path: check
