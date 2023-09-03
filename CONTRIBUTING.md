@@ -57,7 +57,7 @@ If you're not familiar with git or GitHub, please start by reading
   Pull requests will be evaluated against the a checklist:
   
 1.  __Motivation__. Your pull request should clearly and concisely motivates the
-need for change. Plesae describe the problem your PR addresses and show
+need for change. Please describe the problem your PR addresses and show
 how your pull request solves it as concisely as possible.
 
     Also include this motivation in `NEWS` so that when a new release of
