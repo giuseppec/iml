@@ -148,7 +148,7 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.6" id="iml-06">iml 0.6<a class="anchor" aria-label="anchor" href="#iml-06"></a></h2>
 <ul><li>Removed losses: f1, logLoss, rmse, mdae, rae, rmse, rmsle, rse, rrse f1 because the implementation used didn’t make sense anyways</li>
-<li>Interaction: The results return as interaction strength now the H-statistic instead of the H-squared-statistic. This makes it more coherent with the gbm pacakge and the interact.gbm function and with what Friedman uses in the plots in the paper. For users of the package this means that an interaction of strength x becomes an interaction of strength sqrt(x).</li>
+<li>Interaction: The results return as interaction strength now the H-statistic instead of the H-squared-statistic. This makes it more coherent with the gbm package and the interact.gbm function and with what Friedman uses in the plots in the paper. For users of the package this means that an interaction of strength x becomes an interaction of strength sqrt(x).</li>
 <li>
 <code>Interaction</code>, <code>FeatureImp</code> and <code>Partial</code> are now computed batch-wise in the background. This prevents this methods from overloading the memory. For that, the <code>Predictor</code> has a new init argument ‘batch.size’ which limits the number of rows send to the model for prediction for the methods <code>Interaction</code>, <code>FeatureImp</code> and <code>Partial</code>.</li>
 <li>
