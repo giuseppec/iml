@@ -373,7 +373,9 @@ Ignored for categorical features</p></dd>
 <span class="r-in"><span><span class="co"># Accumulated local effects and partial dependence plots support up to two</span></span></span>
 <span class="r-in"><span><span class="co"># features:</span></span></span>
 <span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"crim"</span>, <span class="st">"lstat"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown argument 'on' has been passed.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required namespace: yaImpute</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown argument 'on' has been passed.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eff</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -388,6 +390,8 @@ Ignored for categorical features</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># FeatureEffect plots support up to two features:</span></span></span>
 <span class="r-in"><span><span class="va">eff</span> <span class="op">&lt;-</span> <span class="va">FeatureEffect</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">mod</span>, feature <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Length"</span>, <span class="st">"Petal.Length"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown argument 'on' has been passed.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Unknown argument 'on' has been passed.</span>
 <span class="r-in"><span><span class="va">eff</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="FeatureEffect-9.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
