@@ -223,7 +223,7 @@ FeatureEffects <- R6Class("FeatureEffects",
 #' plot.FeatureEffect() plots the results of a FeatureEffect object.
 #'
 #' @details
-#' In contrast to other plot methods in {iml}, for FeatureEffects the returned
+#' In contrast to other plot methods, for FeatureEffects the returned
 #' plot is not a ggplot2 object, but a grid object, a collection of multiple
 #' ggplot2 plots.
 #'
