@@ -56,7 +56,7 @@ set.seed(42)
 library("iml")
 library("randomForest")
 data("Boston", package = "MASS")
-rf <- randomForest(medv ~ ., data = Boston, ntree = 50)
+rf <- randomForest(medv ~ ., data = Boston, ntree = 10)
 ```
 
 ## Using the iml Predictor() container
@@ -91,7 +91,7 @@ ALE shows how the prediction changes locally, when the feature is varied.
 The marks on the x-axis indicates the distribution of the 'lstat' feature, showing how relevant a region is for interpretation (little or no points mean that we should not over-interpret this region).
 
 ```{r}
-ale <- FeatureEffect$new(predictor, feature = "lstat")
+ale <- FeatureEffect$new(predictor, feature = "lstat", grid.size = 10)
 ale$plot()
 ```
 
@@ -110,21 +110,21 @@ The measure is between 0 (no interaction) and 1 (= 100% of variance of $f(x)$ du
 For each feature, we measure how much they interact with any other feature:
 
 ```{r}
-interact <- Interaction$new(predictor)
+interact <- Interaction$new(predictor, grid.size = 15)
 plot(interact)
 ```
 
 We can also specify a feature and measure all it's 2-way interactions with all other features:
 
 ```{r}
-interact <- Interaction$new(predictor, feature = "crim")
+interact <- Interaction$new(predictor, feature = "crim", grid.size = 15)
 plot(interact)
 ```
 
 You can also plot the feature effects for all features at once:
 
 ```{r}
-effs <- FeatureEffects$new(predictor)
+effs <- FeatureEffects$new(predictor, grid.size = 10)
 plot(effs)
 ```
 
@@ -171,7 +171,7 @@ Assume that for one data point, the feature values play a game together, in whic
 The Shapley value tells us how to fairly distribute the payout among the feature values.
 
 ```{r}
-shapley <- Shapley$new(predictor, x.interest = X[1, ])
+shapley <- Shapley$new(predictor, x.interest = X[1, ], sample.size = 50)
 shapley$plot()
 ```
 

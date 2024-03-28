@@ -18,6 +18,7 @@ install.R
 paper
 codemeta.json
 CONTRIBUTING.md
+^tests
 ^\.ccache$
 ^\.github$
 ^clang-.*

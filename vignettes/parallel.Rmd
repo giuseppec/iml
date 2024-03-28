@@ -68,12 +68,12 @@ Parallelization is more useful in the case where the model uses a lot of feature
 ```{r}
 bench::system_time({
   plan(sequential)
-  FeatureImp$new(predictor, loss = "mae", n.repetitions = 20)
+  FeatureImp$new(predictor, loss = "mae", n.repetitions = 10)
 })
 
 bench::system_time({
   plan("callr", workers = 2)
-  FeatureImp$new(predictor, loss = "mae", n.repetitions = 20)
+  FeatureImp$new(predictor, loss = "mae", n.repetitions = 10)
 })
 ```
 
@@ -86,11 +86,11 @@ The parallelization also speeds up the computation of the interaction statistics
 ```{r}
 bench::system_time({
   plan(sequential)
-  Interaction$new(predictor)
+  Interaction$new(predictor, grid.size = 15)
 })
 bench::system_time({
   plan("callr", workers = 2)
-  Interaction$new(predictor)
+  Interaction$new(predictor, grid.size = 15)
 })
 ```
 
