@@ -148,7 +148,7 @@ value:</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://christophm.github.io/iml/" class="external-link">"iml"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span>
-<span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span>, ntree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span>, ntree <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="using-the-iml-predictor-container">Using the iml Predictor() container<a class="anchor" aria-label="anchor" href="#using-the-iml-predictor-container"></a>
@@ -181,19 +181,19 @@ data.frame.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imp</span><span class="op">$</span><span class="va">results</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;    feature importance.05 importance importance.95 permutation.error</span></span>
-<span><span class="co">#&gt; 1    lstat      4.394480   4.459282      4.740041          4.394662</span></span>
-<span><span class="co">#&gt; 2       rm      3.349928   3.620192      3.715445          3.567732</span></span>
-<span><span class="co">#&gt; 3      nox      1.772047   1.796058      1.833039          1.770032</span></span>
-<span><span class="co">#&gt; 4     crim      1.661024   1.703701      1.738660          1.679013</span></span>
-<span><span class="co">#&gt; 5      dis      1.670726   1.690742      1.694655          1.666242</span></span>
-<span><span class="co">#&gt; 6  ptratio      1.423169   1.426636      1.443533          1.405963</span></span>
-<span><span class="co">#&gt; 7    indus      1.399432   1.416183      1.434735          1.395661</span></span>
-<span><span class="co">#&gt; 8      age      1.346887   1.387961      1.423804          1.367848</span></span>
-<span><span class="co">#&gt; 9      tax      1.352382   1.376506      1.384641          1.356559</span></span>
-<span><span class="co">#&gt; 10   black      1.227135   1.234735      1.235719          1.216842</span></span>
-<span><span class="co">#&gt; 11     rad      1.097253   1.109357      1.131675          1.093281</span></span>
-<span><span class="co">#&gt; 12      zn      1.035018   1.042360      1.043935          1.027256</span></span>
-<span><span class="co">#&gt; 13    chas      1.032211   1.035745      1.047224          1.020736</span></span></code></pre>
+<span><span class="co">#&gt; 1    lstat      3.996140   4.135837      4.317803          4.788590</span></span>
+<span><span class="co">#&gt; 2       rm      2.685506   2.715282      2.889989          3.143832</span></span>
+<span><span class="co">#&gt; 3  ptratio      1.666459   1.728166      1.745227          2.000920</span></span>
+<span><span class="co">#&gt; 4      dis      1.612628   1.667092      1.699770          1.930207</span></span>
+<span><span class="co">#&gt; 5      nox      1.504569   1.576274      1.581755          1.825055</span></span>
+<span><span class="co">#&gt; 6     crim      1.509768   1.545514      1.611800          1.789441</span></span>
+<span><span class="co">#&gt; 7    indus      1.297713   1.337473      1.356928          1.548565</span></span>
+<span><span class="co">#&gt; 8      age      1.279583   1.302343      1.346693          1.507890</span></span>
+<span><span class="co">#&gt; 9      tax      1.220118   1.226805      1.256486          1.420430</span></span>
+<span><span class="co">#&gt; 10   black      1.177398   1.209823      1.232926          1.400768</span></span>
+<span><span class="co">#&gt; 11     rad      1.054973   1.065001      1.070641          1.233089</span></span>
+<span><span class="co">#&gt; 12      zn      1.022191   1.034042      1.039069          1.197244</span></span>
+<span><span class="co">#&gt; 13    chas      1.010353   1.014358      1.018517          1.174453</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="feature-effects">Feature effects<a class="anchor" aria-label="anchor" href="#feature-effects"></a>
@@ -209,7 +209,7 @@ distribution of the ‘lstat’ feature, showing how relevant a region is
 for interpretation (little or no points mean that we should not
 over-interpret this region).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ale</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/FeatureEffect.html">FeatureEffect</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, feature <span class="op">=</span> <span class="st">"lstat"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">ale</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/FeatureEffect.html">FeatureEffect</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, feature <span class="op">=</span> <span class="st">"lstat"</span>, grid.size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">ale</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>If we want to compute the partial dependence curves on another
@@ -227,7 +227,7 @@ The interaction measure regards how much of the variance of <span class="math in
 measure is between 0 (no interaction) and 1 (= 100% of variance of <span class="math inline">\(f(x)\)</span> due to interactions). For each
 feature, we measure how much they interact with any other feature:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">interact</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">interact</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, grid.size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Attaching package: 'withr'</span></span></code></pre>
 <pre><code><span><span class="co">#&gt; The following object is masked from 'package:tools':</span></span>
@@ -242,12 +242,12 @@ feature, we measure how much they interact with any other feature:</p>
 <p>We can also specify a feature and measure all it’s 2-way interactions
 with all other features:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">interact</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, feature <span class="op">=</span> <span class="st">"crim"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">interact</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, feature <span class="op">=</span> <span class="st">"crim"</span>, grid.size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">interact</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>You can also plot the feature effects for all features at once:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">effs</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/FeatureEffects.html">FeatureEffects</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">effs</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/FeatureEffects.html">FeatureEffects</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, grid.size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">effs</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;"></p>
 </div>
@@ -275,12 +275,12 @@ interpretable it is.</p>
 <pre><code><span><span class="co">#&gt; Warning in self$predictor$data$match_cols(data.frame(newdata)): Dropping</span></span>
 <span><span class="co">#&gt; additional columns: medv</span></span></code></pre>
 <pre><code><span><span class="co">#&gt;     .y.hat</span></span>
-<span><span class="co">#&gt; 1 27.09989</span></span>
-<span><span class="co">#&gt; 2 27.09989</span></span>
-<span><span class="co">#&gt; 3 27.09989</span></span>
-<span><span class="co">#&gt; 4 27.09989</span></span>
-<span><span class="co">#&gt; 5 27.09989</span></span>
-<span><span class="co">#&gt; 6 27.09989</span></span></code></pre>
+<span><span class="co">#&gt; 1 28.78541</span></span>
+<span><span class="co">#&gt; 2 21.91311</span></span>
+<span><span class="co">#&gt; 3 28.78541</span></span>
+<span><span class="co">#&gt; 4 28.78541</span></span>
+<span><span class="co">#&gt; 5 28.78541</span></span>
+<span><span class="co">#&gt; 6 28.78541</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="explain-single-predictions-with-a-local-model">Explain single predictions with a local model<a class="anchor" aria-label="anchor" href="#explain-single-predictions-with-a-local-model"></a>
@@ -300,9 +300,9 @@ explain the prediction.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lime.explain</span><span class="op">$</span><span class="va">results</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;               beta x.recoded    effect x.original feature feature.value</span></span>
-<span><span class="co">#&gt; rm       4.4836483     6.575 29.479987      6.575      rm      rm=6.575</span></span>
-<span><span class="co">#&gt; ptratio -0.5244767    15.300 -8.024493       15.3 ptratio  ptratio=15.3</span></span>
-<span><span class="co">#&gt; lstat   -0.4348698     4.980 -2.165652       4.98   lstat    lstat=4.98</span></span></code></pre>
+<span><span class="co">#&gt; rm       4.5149417     6.575 29.685741      6.575      rm      rm=6.575</span></span>
+<span><span class="co">#&gt; ptratio -0.5696891    15.300 -8.716243       15.3 ptratio  ptratio=15.3</span></span>
+<span><span class="co">#&gt; lstat   -0.4592951     4.980 -2.287290       4.98   lstat    lstat=4.98</span></span></code></pre>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lime.explain</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;"></p>
@@ -320,7 +320,7 @@ point, the feature values play a game together, in which they get the
 prediction as a payout. The Shapley value tells us how to fairly
 distribute the payout among the feature values.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">shapley</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Shapley.html">Shapley</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, x.interest <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">shapley</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Shapley.html">Shapley</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, x.interest <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, sample.size <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="va">shapley</span><span class="op">$</span><span class="fu">plot</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="intro_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>We can reuse the object to explain other data points:</p>
@@ -332,13 +332,13 @@ distribute the payout among the feature values.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">shapley</span><span class="op">$</span><span class="va">results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;   feature          phi    phi.var feature.value</span></span>
-<span><span class="co">#&gt; 1    crim -0.030772464 0.88726982  crim=0.02731</span></span>
-<span><span class="co">#&gt; 2      zn -0.009163333 0.01266404          zn=0</span></span>
-<span><span class="co">#&gt; 3   indus -0.412309000 0.65608174    indus=7.07</span></span>
-<span><span class="co">#&gt; 4    chas -0.065604772 0.04865024        chas=0</span></span>
-<span><span class="co">#&gt; 5     nox  0.067133048 0.37635155     nox=0.469</span></span>
-<span><span class="co">#&gt; 6      rm -0.354769984 7.26420349      rm=6.421</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;   feature         phi     phi.var feature.value</span></span>
+<span><span class="co">#&gt; 1    crim  0.02236619  1.91975348  crim=0.02731</span></span>
+<span><span class="co">#&gt; 2      zn -0.01757000  0.17093081          zn=0</span></span>
+<span><span class="co">#&gt; 3   indus -0.54826667  2.34293197    indus=7.07</span></span>
+<span><span class="co">#&gt; 4    chas -0.02603333  0.01361733        chas=0</span></span>
+<span><span class="co">#&gt; 5     nox  0.44874333  1.35829579     nox=0.469</span></span>
+<span><span class="co">#&gt; 6      rm -1.54282444 11.60060925      rm=6.421</span></span></code></pre>
 </div>
   </div>
 
