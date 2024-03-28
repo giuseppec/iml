@@ -6,8 +6,6 @@
 #' interpretation methods in the `iml` package need the machine learning model
 #' to be wrapped in a `Predictor` object.
 #'
-#' @importFrom prediction find_data
-#'
 #' @details
 #' A Predictor object is a container for the prediction model and the data.
 #' This ensures that the machine learning model can be analyzed in a robust way.

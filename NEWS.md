@@ -1,5 +1,9 @@
 <!-- NEWS.md is maintained by https://cynkra.github.io/fledge, do not edit -->
 
+# iml 0.11.2
+
+- Replaced `prediction::find_data` function with self-written one
+
 # iml 0.11.1.9000
 
 - Internal changes only.

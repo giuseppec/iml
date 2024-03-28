@@ -1,13 +1,14 @@
 Type: Package
 Package: iml
 Title: Interpretable Machine Learning
-Version: 0.11.1.9000
+Version: 0.11.2
 Authors@R: c(
-    person("Christoph", "Molnar", , "christoph.molnar@gmail.com", role = c("aut", "cre")),
+    person("Giuseppe", "Casalicchio", , "giuseppe.casalicchio@lmu.de", role = c("aut", "cre")),
+    person("Christoph", "Molnar", , "christoph.molnar@gmail.com", role = c("aut")),
     person("Patrick", "Schratz", , "patrick.schratz@gmail.com", role = "aut",
            comment = c(ORCID = "0000-0003-0748-6624"))
   )
-Maintainer: Christoph Molnar <christoph.molnar@gmail.com>
+Maintainer: Giuseppe Casalicchio <giuseppe.casalicchio@lmu.de>
 Description: Interpretability methods to analyze the behavior and
     predictions of any machine learning model.  Implemented methods are:
     Feature importance described by Fisher et al. (2018)
@@ -31,7 +32,6 @@ Imports:
     future.apply,
     ggplot2,
     Metrics,
-    prediction,
     R6
 Suggests:
     ALEPlot,
@@ -64,4 +64,4 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, r6 = TRUE)
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.1
