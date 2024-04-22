@@ -1,7 +1,7 @@
 
 <!-- badges: start -->
 
-[![tic](https://github.com/christophM/iml/workflows/tic/badge.svg?branch=master)](https://github.com/christophM/iml/actions)
+[![tic](https://github.com/giuseppec/iml/workflows/tic/badge.svg?branch=main)](https://github.com/giuseppec/iml/actions)
 [![CRAN Status
 Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN
@@ -47,13 +47,13 @@ version from GitHub:
 install.packages("iml")
 
 # Development version
-remotes::install_github("christophM/iml")
+remotes::install_github("giuseppec/iml")
 ```
 
 ## News
 
 Changes of the packages can be accessed in the [NEWS
-file](https://christophm.github.io/iml/news/index.html).
+file](https://giuseppec.github.io/iml/news/index.html).
 
 ## Quickstart
 
