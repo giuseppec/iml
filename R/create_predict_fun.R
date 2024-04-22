@@ -129,7 +129,9 @@ create_predict_fun.H2OBinomialModel <- function(model, task, predict.fun = NULL,
   function(newdata) {
     # TODO: Include predict.fun and type
     newdata2 <- h2o::as.h2o(newdata)
-    as.data.frame(h2o::h2o.predict(model, newdata = newdata2))[, -1]
+    if (is.null(predict.fun)) 
+      as.data.frame(h2o::h2o.predict(model, newdata = newdata2))[, -1] else
+        sanitizePrediction(predict.fun(model, newdata = newdata))
   }
 }
 

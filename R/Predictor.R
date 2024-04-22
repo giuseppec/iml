@@ -140,6 +140,7 @@ Predictor <- R6Class("Predictor",
         self$task <- inferTaskFromPrediction(prediction)
       }
       if (!is.null(self$class) & ncol(prediction) > 1) {
+        checkmate::assert_subset(x = self$class, choices = colnames(prediction))
         prediction <- prediction[, self$class, drop = FALSE]
       }
       rownames(prediction) <- NULL
