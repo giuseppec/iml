@@ -42,7 +42,7 @@ create_predict_fun.Learner <- function(model, task, predict.fun = NULL, type = N
     }
   } else if (task == "regression") {
     function(newdata) {
-      data.frame(predict(model, newdata = newdata))
+      data.frame(.prediction = predict(model, newdata = newdata))
     }
   } else {
     stop(sprintf("Task type '%s' not supported", task))
