@@ -157,7 +157,7 @@ LocalModel <- R6Class("LocalModel",
           newx = as.matrix(X.recode),
           type = "response"
         )
-        prediction <- data.frame(prediction[, , self$best.fit.index])
+        prediction <- data.frame(prediction[, , self$best.fit.index, drop = FALSE])
         colnames(prediction) <- colnames(private$predictResults)
         prediction
       } else {
