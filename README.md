@@ -47,13 +47,13 @@ version from GitHub:
 install.packages("iml")
 
 # Development version
-remotes::install_github("christophM/iml")
+remotes::install_github("giuseppec/iml")
 ```
 
 ## News
 
 Changes of the packages can be accessed in the [NEWS
-file](https://christophm.github.io/iml/news/index.html).
+file](https://giuseppec.github.io/iml/news/index.html).
 
 ## Quickstart
 
