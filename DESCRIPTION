@@ -22,8 +22,8 @@ Description: Interpretability methods to analyze the behavior and
     <doi:10.1007/s10115-013-0679-x>, feature interactions described by
     Friedman et. al <doi:10.1214/07-AOAS148> and tree surrogate models.
 License: MIT + file LICENSE
-URL: https://christophm.github.io/iml/, https://github.com/christophM/iml/
-BugReports: https://github.com/christophM/iml/issues
+URL: https://giuseppec.github.io/iml/, https://github.com/giuseppec/iml/
+BugReports: https://github.com/giuseppec/iml/issues
 Imports:
     checkmate,
     data.table,
