@@ -1,5 +1,11 @@
 <!-- NEWS.md is maintained by https://cynkra.github.io/fledge, do not edit -->
 
+# iml 0.11.3
+
+- Enhance output of predictions from `Predictor$predict` method for `mlr3::LearnerRegr` objects (#213)
+- Fix error when predicting with `LocalModel` on a `data.frame` with a single row (#204)
+- Fix error for h2o classification models (#195)
+
 # iml 0.11.2
 
 - Replaced `prediction::find_data` function with self-written one
