@@ -1,7 +1,7 @@
 
 <!-- badges: start -->
 
-[![tic](https://github.com/giuseppec/iml/workflows/tic/badge.svg?branch=master)](https://github.com/giuseppec/iml/actions)
+[![tic](https://github.com/giuseppec/iml/workflows/tic/badge.svg?branch=main)](https://github.com/giuseppec/iml/actions)
 [![CRAN Status
 Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN
