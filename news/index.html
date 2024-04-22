@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">iml</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.11.3</span>
       </span>
     </div>
 
@@ -42,7 +42,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/christophM/iml/" class="external-link">
+  <a href="https://github.com/giuseppec/iml/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -57,14 +57,14 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/christophM/iml/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/giuseppec/iml/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.11.3" id="iml-0113">iml 0.11.3<a class="anchor" aria-label="anchor" href="#iml-0113"></a></h2>
-<ul><li>Enhance output of predictions from <code>Predictor$predict</code> method for <code><a href="https://mlr3.mlr-org.com/reference/LearnerRegr.html" class="external-link">mlr3::LearnerRegr</a></code> objects (<a href="https://github.com/christophM/iml/issues/213" class="external-link">#213</a>)</li>
-<li>Fix error when predicting with <code>LocalModel</code> on a <code>data.frame</code> with a single row (<a href="https://github.com/christophM/iml/issues/204" class="external-link">#204</a>)</li>
-<li>Fix error for h2o classification models (<a href="https://github.com/christophM/iml/issues/195" class="external-link">#195</a>)</li>
+<ul><li>Enhance output of predictions from <code>Predictor$predict</code> method for <code><a href="https://mlr3.mlr-org.com/reference/LearnerRegr.html" class="external-link">mlr3::LearnerRegr</a></code> objects (<a href="https://github.com/giuseppec/iml/issues/213" class="external-link">#213</a>)</li>
+<li>Fix error when predicting with <code>LocalModel</code> on a <code>data.frame</code> with a single row (<a href="https://github.com/giuseppec/iml/issues/204" class="external-link">#204</a>)</li>
+<li>Fix error for h2o classification models (<a href="https://github.com/giuseppec/iml/issues/195" class="external-link">#195</a>)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.11.2" id="iml-0112">iml 0.11.2<small>2024-03-29</small><a class="anchor" aria-label="anchor" href="#iml-0112"></a></h2>
@@ -80,24 +80,24 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.11.0" id="iml-0110">iml 0.11.0<small>2022-05-12</small><a class="anchor" aria-label="anchor" href="#iml-0110"></a></h2>
-<ul><li>Fix possible future issue with <code><a href="https://rdatatable.gitlab.io/data.table/reference/melt.data.table.html" class="external-link">data.table::melt()</a></code> (<a href="https://github.com/christophM/iml/issues/182" class="external-link">#182</a>)</li>
-<li>Account for R 4.2.0 changes (<a href="https://github.com/christophM/iml/issues/189" class="external-link">#189</a>)</li>
-<li>Add {bit64} to suggests because of {data.table} (<a href="https://github.com/christophM/iml/issues/190" class="external-link">#190</a>)</li>
-<li>Test optimizations (<a href="https://github.com/christophM/iml/issues/190" class="external-link">#190</a>)</li>
-<li>Enhance documentation for LocalModel (<a href="https://github.com/christophM/iml/issues/187" class="external-link">#187</a>, <a href="https://github.com/mirka-henninger" class="external-link">@mirka-henninger</a>)</li>
+<ul><li>Fix possible future issue with <code><a href="https://rdatatable.gitlab.io/data.table/reference/melt.data.table.html" class="external-link">data.table::melt()</a></code> (<a href="https://github.com/giuseppec/iml/issues/182" class="external-link">#182</a>)</li>
+<li>Account for R 4.2.0 changes (<a href="https://github.com/giuseppec/iml/issues/189" class="external-link">#189</a>)</li>
+<li>Add {bit64} to suggests because of {data.table} (<a href="https://github.com/giuseppec/iml/issues/190" class="external-link">#190</a>)</li>
+<li>Test optimizations (<a href="https://github.com/giuseppec/iml/issues/190" class="external-link">#190</a>)</li>
+<li>Enhance documentation for LocalModel (<a href="https://github.com/giuseppec/iml/issues/187" class="external-link">#187</a>, <a href="https://github.com/mirka-henninger" class="external-link">@mirka-henninger</a>)</li>
 <li>Move {keras} from imports to suggests</li>
 <li>Run tests in parallel</li>
-<li>Fix off-by-one error in euclidean distance computation (<a href="https://github.com/christophM/iml/issues/163" class="external-link">#163</a>, <a href="https://github.com/mirka-henninger" class="external-link">@mirka-henninger</a>)</li>
-<li>Fix <code>FeatureEffect</code> handling of empty levels (<a href="https://github.com/christophM/iml/issues/160" class="external-link">#160</a>, <a href="https://github.com/grantirv" class="external-link">@grantirv</a>)</li>
-<li>Allow computation of importance for groups of features (<code>FeatureImp</code>) (<a href="https://github.com/christophM/iml/issues/158" class="external-link">#158</a>)</li>
+<li>Fix off-by-one error in euclidean distance computation (<a href="https://github.com/giuseppec/iml/issues/163" class="external-link">#163</a>, <a href="https://github.com/mirka-henninger" class="external-link">@mirka-henninger</a>)</li>
+<li>Fix <code>FeatureEffect</code> handling of empty levels (<a href="https://github.com/giuseppec/iml/issues/160" class="external-link">#160</a>, <a href="https://github.com/grantirv" class="external-link">@grantirv</a>)</li>
+<li>Allow computation of importance for groups of features (<code>FeatureImp</code>) (<a href="https://github.com/giuseppec/iml/issues/158" class="external-link">#158</a>)</li>
 <li>
 <code>FeatureEffect</code> can now be computed with user provided grid points. Works for ice, ale and pdp.</li>
 <li>
-<code>FeatureImp</code> gets new argument <code>features</code> which allows to calculate feature importance for a subset of features. If a list of characters is provided, the joint feature importance per group is calculated (<a href="https://github.com/christophM/iml/issues/156" class="external-link">#156</a>, <a href="https://github.com/grantirv" class="external-link">@grantirv</a>)</li>
+<code>FeatureImp</code> gets new argument <code>features</code> which allows to calculate feature importance for a subset of features. If a list of characters is provided, the joint feature importance per group is calculated (<a href="https://github.com/giuseppec/iml/issues/156" class="external-link">#156</a>, <a href="https://github.com/grantirv" class="external-link">@grantirv</a>)</li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.10.1" id="iml-0101">iml 0.10.1<small>2020-09-24</small><a class="anchor" aria-label="anchor" href="#iml-0101"></a></h2>
-<ul><li>Ensure that the <code>data</code> argument in <code>Predictor$new()</code> is always a data.frame (<a href="https://github.com/christophM/iml/issues/126" class="external-link">#126</a>)</li>
+<ul><li>Ensure that the <code>data</code> argument in <code>Predictor$new()</code> is always a data.frame (<a href="https://github.com/giuseppec/iml/issues/126" class="external-link">#126</a>)</li>
 <li>Fix CRAN checks</li>
 </ul></div>
     <div class="section level2">
