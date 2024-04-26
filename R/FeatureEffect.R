@@ -124,7 +124,7 @@
 #' eff$plot(show.data = TRUE)
 #'
 #' # For multiclass classification models, you can choose to only show one class:
-#' mod <- Predictor$new(rf, data = iris, type = "prob", class = 1)
+#' mod <- Predictor$new(rf, data = iris, type = "prob", class = "setosa")
 #' plot(FeatureEffect$new(mod, feature = "Sepal.Length"))
 #' @name FeatureEffect
 #' @seealso [plot.FeatureEffect]
