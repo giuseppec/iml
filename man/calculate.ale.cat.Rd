@@ -4,7 +4,7 @@
 \alias{calculate.ale.cat}
 \title{Compute ALE for 1 categorical feature}
 \usage{
-calculate.ale.cat(dat, run.prediction, feature.name)
+\method{calculate}{ale.cat}(dat, run.prediction, feature.name)
 }
 \arguments{
 \item{dat}{the data.frame with same columns as training data}

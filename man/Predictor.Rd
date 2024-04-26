@@ -116,11 +116,9 @@ be the model, the second the \code{newdata}:
 (preferably) the name of the target column in the \code{data} argument.
 Predictor tries to infer the target automatically from the model.}
 
-\item{\code{class}}{\code{character(1)})\cr
-The class column to be returned in case
-of multiclass output. You can either use numbers, e.g. \code{class=2} would
-take the 2nd column from the predictions, or the column name of the
-predicted class, e.g. \code{class="dog"}.}
+\item{\code{class}}{\code{character(1)}\cr
+The class column to be returned. You should use the column name of the
+predicted class, e.g. \code{class="setosa"}.}
 
 \item{\code{type}}{\code{character(1)})\cr
 This argument is passed to the prediction

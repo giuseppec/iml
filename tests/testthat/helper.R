@@ -40,7 +40,7 @@ predictor1 <- Predictor$new(data = X, y = y, predict.fun = f)
 predictor1.inter <- Predictor$new(data = X, predict.fun = f.inter)
 predict.fun <- function(obj, newdata) obj(newdata, multi = TRUE)
 predictor2 <- Predictor$new(f, data = X, y = y2, predict.fun = predict.fun)
-predictor3 <- Predictor$new(f, data = X, predict.fun = predict.fun, class = 2)
+predictor3 <- Predictor$new(f, data = X, predict.fun = predict.fun, class = "pred2")
 
 
 

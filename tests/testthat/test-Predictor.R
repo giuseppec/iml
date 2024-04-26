@@ -13,7 +13,7 @@ test_that("equivalence", {
 test_that("f works", {
   expect_equal(colnames(prediction.f), c("setosa", "versicolor", "virginica"))
   expect_s3_class(prediction.f, "data.frame")
-  predictor.f.1 <- Predictor$new(predict.fun = mod.f, class = 1, data = iris)
+  predictor.f.1 <- Predictor$new(predict.fun = mod.f, class = "setosa", data = iris)
   expect_equal(prediction.f[, 1], predictor.f.1$predict(iris.test)$setosa)
 })
 
@@ -122,9 +122,9 @@ test_that("Keras classification can get nice column names through custom predict
 # Test single class predictions
 
 # mlr
-predictor.mlr <- Predictor$new(mod.mlr, class = 2, data = iris)
+predictor.mlr <- Predictor$new(mod.mlr, class = "versicolor", data = iris)
 # mlr3
-predictor.mlr3 <- Predictor$new(learner_iris, class = 2, data = iris)
+predictor.mlr3 <- Predictor$new(learner_iris, class = "versicolor", data = iris)
 # mlr3_ check that mlr3 tasks work when supplied as "data" (#115)
 train <- sample(task_iris$nrow, task_iris$nrow * 2 / 3)
 predictor.mlr3_2 <- Predictor$new(learner_iris,
@@ -133,16 +133,16 @@ predictor.mlr3_2 <- Predictor$new(learner_iris,
 )
 # S3 predict
 predictor.S3 <- Predictor$new(mod.S3,
-  class = 2, predict.fun = predict.fun,
+  class = "versicolor", predict.fun = predict.fun,
   data = iris
 )
 # caret
 predictor.caret <- Predictor$new(mod.caret,
-  class = 2, data = iris,
+  class = "versicolor", data = iris,
   type = "prob"
 )
 # function
-predictor.f <- Predictor$new(predict.fun = mod.f, class = 2, data = iris)
+predictor.f <- Predictor$new(predict.fun = mod.f, class = "versicolor", data = iris)
 prediction.f <- predictor.f$predict(iris.test)
 
 test_that("equivalence", {
@@ -220,19 +220,19 @@ test_that("f works", {
 
 
 predictor.mlr <- Predictor$new(mod.mlr,
-  class = 2, data = iris,
+  class = "versicolor", data = iris,
   y = iris$Species
 )
 predictor.mlrb <- Predictor$new(mod.mlr,
-  class = 2, data = iris,
+  class = "versicolor", data = iris,
   y = "Species"
 )
 predictor.mlr3 <- Predictor$new(learner_iris,
-  class = 2, data = iris,
+  class = "versicolor", data = iris,
   y = iris$Species
 )
 predictor.mlr3b <- Predictor$new(learner_iris,
-  class = 2, data = iris,
+  class = "versicolor", data = iris,
   y = "Species"
 )
 

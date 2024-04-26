@@ -126,12 +126,15 @@ create_predict_fun.H2ORegressionModel <- function(model, task, predict.fun = NUL
 
 
 create_predict_fun.H2OBinomialModel <- function(model, task, predict.fun = NULL, type = NULL) {
+  # Use user-specified predict.fun if user has passed one
+  # TODO: this might be useful also for all the other create_predict_fun methods as users might want to do specific things
+  if (!is.null(predict.fun)) {
+    return(function(newdata) sanitizePrediction(predict.fun(model = model, newdata = newdata)))
+  }
   function(newdata) {
     # TODO: Include predict.fun and type
     newdata2 <- h2o::as.h2o(newdata)
-    if (is.null(predict.fun)) 
-      as.data.frame(h2o::h2o.predict(model, newdata = newdata2))[, -1] else
-        sanitizePrediction(predict.fun(model, newdata = newdata))
+    as.data.frame(h2o::h2o.predict(model, newdata = newdata2))[, -1] 
   }
 }
 

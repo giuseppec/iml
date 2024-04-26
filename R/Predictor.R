@@ -52,11 +52,9 @@ Predictor <- R6Class("Predictor",
     #' @param y `character(1)` | [numeric] | [factor]\cr The target vector or
     #'   (preferably) the name of the target column in the `data` argument.
     #'   Predictor tries to infer the target automatically from the model.
-    #' @param class `character(1)`)\cr
-    #'   The class column to be returned in case
-    #'   of multiclass output. You can either use numbers, e.g. `class=2` would
-    #'   take the 2nd column from the predictions, or the column name of the
-    #'   predicted class, e.g. `class="dog"`.
+    #' @param class `character(1)`\cr
+    #'   The class column to be returned. You should use the column name of the
+    #'   predicted class, e.g. `class="setosa"`.
     #' @param predict.function [function]\cr
     #' The function to predict newdata. Only needed if `model` is not a model
     #' from `mlr` or `caret` package. The first argument of `predict.fun` has to
@@ -79,6 +77,8 @@ Predictor <- R6Class("Predictor",
                           y = NULL, class = NULL, type = NULL,
                           batch.size = 1000) {
       assert_number(batch.size, lower = 1)
+      # TODO: Maybe avoid that user can specify both predict.function and class?
+      assert_character(class, null.ok = TRUE)
       if (is.null(model) & is.null(predict.function)) {
         stop("Provide a model, a predict.fun or both!")
       }
@@ -140,7 +140,7 @@ Predictor <- R6Class("Predictor",
         self$task <- inferTaskFromPrediction(prediction)
       }
       if (!is.null(self$class) & ncol(prediction) > 1) {
-        #checkmate::assert_subset(x = self$class, choices = colnames(prediction))
+        checkmate::assert_subset(x = self$class, choices = colnames(prediction))
         prediction <- prediction[, self$class, drop = FALSE]
       }
       rownames(prediction) <- NULL
