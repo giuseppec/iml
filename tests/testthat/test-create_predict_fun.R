@@ -2,6 +2,7 @@ library("mlr")
 library("mlr3")
 library("caret")
 
+levels(iris$Species) = paste0("1 A-$", levels(iris$Species))
 ## mlr
 task <- mlr::makeClassifTask(data = iris, target = "Species")
 lrn <- mlr::makeLearner("classif.rpart", predict.type = "prob")
@@ -54,16 +55,16 @@ test_that("output shape", {
 })
 
 test_that("equivalence", {
-  expect_equal(ignore_attr = TRUE, prediction.f, predictor.caret(iris.test))
-  expect_equal(ignore_attr = TRUE, predictor.mlr(iris.test), data.frame(predictor.S3(iris.test)))
-  expect_equal(ignore_attr = TRUE, predictor.mlr3(iris.test), data.frame(predictor.S3(iris.test)))
+  expect_equal(prediction.f, predictor.caret(iris.test))
+  expect_equal(predictor.mlr(iris.test), predictor.S3(iris.test))
+  expect_equal(ignore_attr = TRUE, predictor.mlr3(iris.test), predictor.S3(iris.test))
 })
 
 test_that("f works", {
-  expect_equal(colnames(prediction.f), c("setosa", "versicolor", "virginica"))
+  expect_equal(colnames(prediction.f), levels(iris$Species))
   expect_s3_class(prediction.f, "data.frame")
   predictor.f.1 <- create_predict_fun(NULL, predict.fun = mod.f, task = "classification")
-  expect_equal(prediction.f[, 1], predictor.f.1(iris.test)$setosa)
+  expect_equal(prediction.f[, 1], predictor.f.1(iris.test)[, 1])
 })
 
 

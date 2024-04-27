@@ -121,7 +121,7 @@ sanitizePrediction <- function(prediction) {
     prediction <- data.frame(..prediction = prediction, fix.empty.names = FALSE)
   } else if (inherits(prediction, "matrix")) {
     cnames <- colnames(prediction)
-    res <- data.frame(prediction)
+    prediction <- data.frame(prediction)
     if (is.null(cnames)) {
       if (ncol(prediction) == 1) {
         colnames(prediction) <- "..prediction"

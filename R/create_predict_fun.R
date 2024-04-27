@@ -1,8 +1,28 @@
 create_predict_fun <- function(model, task, predict.fun = NULL, type = NULL) {
-  UseMethod("create_predict_fun")
+  # Use user-specified predict.fun if user has passed one
+  # TODO: this might be useful also for all the other create_predict_fun methods as users might want to do specific things
+  if (is.null(model)) {
+    return(function(newdata) {
+      pred <- predict.fun(newdata = newdata)
+      if (is_label(pred)) {
+        factor_to_dataframe(pred)
+      }
+      data.frame(pred, check.names = FALSE)
+    })
+  }
+  if (!is.null(predict.fun)) {
+    return(function(newdata) sanitizePrediction(predict.fun(model, newdata = newdata)))
+  }
+  create_predict_fun2(model, task, predict.fun, type)
 }
 
-create_predict_fun.WrappedModel <- function(model, task, predict.fun = NULL, type = NULL) {
+create_predict_fun2 <- function(model, task, predict.fun = NULL, type = NULL) {
+  UseMethod("create_predict_fun2")
+}
+
+
+
+create_predict_fun2.WrappedModel <- function(model, task, predict.fun = NULL, type = NULL) {
   if (!requireNamespace("mlr")) {
     "Please install the mlr package."
   }
@@ -27,7 +47,7 @@ create_predict_fun.WrappedModel <- function(model, task, predict.fun = NULL, typ
 }
 
 
-create_predict_fun.Learner <- function(model, task, predict.fun = NULL, type = NULL) {
+create_predict_fun2.Learner <- function(model, task, predict.fun = NULL, type = NULL) {
   if (!requireNamespace("mlr3")) {
     "Please install the mlr3 package."
   }
@@ -50,7 +70,7 @@ create_predict_fun.Learner <- function(model, task, predict.fun = NULL, type = N
 }
 
 
-create_predict_fun.train <- function(model, task, predict.fun = NULL, type = NULL) {
+create_predict_fun2.train <- function(model, task, predict.fun = NULL, type = NULL) {
   if (task == "classification") {
     function(newdata) {
       if (is.null(type)) {
@@ -77,20 +97,8 @@ create_predict_fun.train <- function(model, task, predict.fun = NULL, type = NUL
   }
 }
 
-
-
-create_predict_fun.NULL <- function(model, task, predict.fun = NULL, type = NULL) {
-  function(newdata) {
-    pred <- predict.fun(newdata = newdata)
-    if (is_label(pred)) {
-      factor_to_dataframe(pred)
-    }
-    data.frame(pred, check.names = FALSE)
-  }
-}
-
 #' @importFrom stats model.matrix
-create_predict_fun.default <- function(model, task, predict.fun = NULL, type = NULL) {
+create_predict_fun2.default <- function(model, task, predict.fun = NULL, type = NULL) {
   if (is.null(predict.fun)) {
     if (is.null(type)) {
       predict.fun <- function(object, newdata) predict(object, newdata)
@@ -107,7 +115,7 @@ create_predict_fun.default <- function(model, task, predict.fun = NULL, type = N
   }
 }
 
-create_predict_fun.keras.engine.training.Model <- function(model, task, predict.fun = NULL, type = NULL) {
+create_predict_fun2.keras.engine.training.Model <- function(model, task, predict.fun = NULL, type = NULL) {
   if (is.null(predict.fun)) {
     predict.fun <- function(object, newdata) predict(object, newdata)
   }
@@ -117,7 +125,7 @@ create_predict_fun.keras.engine.training.Model <- function(model, task, predict.
   }
 }
 
-create_predict_fun.H2ORegressionModel <- function(model, task, predict.fun = NULL, type = NULL) {
+create_predict_fun2.H2ORegressionModel <- function(model, task, predict.fun = NULL, type = NULL) {
   function(newdata) {
     newdata2 <- h2o::as.h2o(newdata)
     as.data.frame(h2o::h2o.predict(model, newdata = newdata2))
@@ -125,12 +133,7 @@ create_predict_fun.H2ORegressionModel <- function(model, task, predict.fun = NUL
 }
 
 
-create_predict_fun.H2OBinomialModel <- function(model, task, predict.fun = NULL, type = NULL) {
-  # Use user-specified predict.fun if user has passed one
-  # TODO: this might be useful also for all the other create_predict_fun methods as users might want to do specific things
-  if (!is.null(predict.fun)) {
-    return(function(newdata) sanitizePrediction(predict.fun(model = model, newdata = newdata)))
-  }
+create_predict_fun2.H2OBinomialModel <- function(model, task, predict.fun = NULL, type = NULL) {
   function(newdata) {
     # TODO: Include predict.fun and type
     newdata2 <- h2o::as.h2o(newdata)
@@ -138,7 +141,7 @@ create_predict_fun.H2OBinomialModel <- function(model, task, predict.fun = NULL,
   }
 }
 
-create_predict_fun.H2OMultinomialModel <- function(model, task, predict.fun = NULL, type = NULL) {
+create_predict_fun2.H2OMultinomialModel <- function(model, task, predict.fun = NULL, type = NULL) {
   function(newdata) {
     # TODO: Include predict.fun and type
     newdata2 <- h2o::as.h2o(newdata)
@@ -152,7 +155,7 @@ create_predict_fun.H2OMultinomialModel <- function(model, task, predict.fun = NU
 
 factor_to_dataframe <- function(fac) {
   check_vector(fac)
-  res <- data.frame(model.matrix(~ fac - 1, data.frame(fac = fac), sep = ":"))
-  colnames(res) <- substring(colnames(res), 4)
+  res <- data.frame(model.matrix(~ fac - 1, data.frame(fac = fac), sep = ":"), check.names = FALSE)
+  colnames(res) <- substring(colnames(res), 4) #make.names(levels(fac))#
   res
 }
