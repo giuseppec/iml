@@ -104,9 +104,8 @@ object.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://giuseppec.github.io/iml/" class="external-link">"iml"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://www.stat.berkeley.edu/~breiman/RandomForests/" class="external-link">"randomForest"</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; randomForest 4.7-1.1</span></span>
-<span><span class="co">#&gt; Type rfNews() to see new features/changes/bug fixes.</span></span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Type rfNews() to see new features/changes/bug fixes.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"Boston"</span>, package <span class="op">=</span> <span class="st">"MASS"</span><span class="op">)</span></span>
 <span><span class="va">rf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/randomForest/man/randomForest.html" class="external-link">randomForest</a></span><span class="op">(</span><span class="va">medv</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">Boston</span>, n.trees <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">Boston</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">Boston</span><span class="op">)</span> <span class="op">!=</span> <span class="st">"medv"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">predictor</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/Predictor.html">Predictor</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">rf</span>, data <span class="op">=</span> <span class="va">X</span>, y <span class="op">=</span> <span class="va">Boston</span><span class="op">$</span><span class="va">medv</span><span class="op">)</span></span></code></pre></div>
@@ -116,7 +115,7 @@ object.</p>
 <p>Parallelization is supported via the {future} package. All you need
 to do is to choose a parallel backend via
 <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://future.futureverse.org" class="external-link">"future"</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://future.callr.futureverse.org" class="external-link">"future.callr"</a></span><span class="op">)</span></span>
 <span><span class="co"># Creates a PSOCK cluster with 2 cores</span></span>
@@ -124,52 +123,49 @@ to do is to choose a parallel backend via
 <p>Now we can easily compute feature importance in parallel. This means
 that the computation per feature is distributed among the 2 cores I
 specified earlier.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Attaching package: 'ggplot2'</span></span>
 <span><span class="co">#&gt; The following object is masked from 'package:randomForest':</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     margin</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt;     margin</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="parallel_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;"></p>
 <p>That wasn’t very impressive, let’s actually see how much speed up we
 get by parallelization.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;   1.97s   1.95s</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
+<span><span class="co">#&gt;   1.95s   1.92s</span></span>
+<span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt; 126.2ms    1.9s</span></span></code></pre></div>
+<span><span class="co">#&gt; 131.4ms    1.9s</span></span></code></pre></div>
 <p>A little bit of improvement, but not too impressive. Parallelization
 is more useful in the case where the model uses a lot of features or
 where the feature importance computation is repeated more often to get
 more stable results.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span>, n.repetitions <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;   3.33s   3.28s</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span><span class="co">#&gt;   3.32s   3.27s</span></span>
+<span></span>
 <span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span>, n.repetitions <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  process     real </span></span>
-<span><span class="co">#&gt; 133.63ms    2.79s</span></span></code></pre></div>
+<span><span class="co">#&gt; process    real </span></span>
+<span><span class="co">#&gt; 139.7ms    2.9s</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="interaction">Interaction<a class="anchor" aria-label="anchor" href="#interaction"></a>
 </h3>
@@ -177,39 +173,37 @@ more stable results.</p>
 computation of the feature importance.</p>
 <p>The parallelization also speeds up the computation of the interaction
 statistics:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, grid.size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;   7.12s   7.02s</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
+<span><span class="co">#&gt;   7.13s   7.03s</span></span>
+<span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, grid.size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  process     real </span></span>
-<span><span class="co">#&gt; 118.62ms    4.86s</span></span></code></pre></div>
+<span><span class="co">#&gt; 116.34ms    4.87s</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="feature-effects">Feature Effects<a class="anchor" aria-label="anchor" href="#feature-effects"></a>
 </h3>
 <p>Same for <code>FeatureEffects</code>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureEffects.html">FeatureEffects</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;   706ms   695ms</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
+<span><span class="co">#&gt;   705ms   695ms</span></span>
+<span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureEffects.html">FeatureEffects</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  process     real </span></span>
-<span><span class="co">#&gt; 540.68ms    2.58s</span></span></code></pre></div>
+<span><span class="co">#&gt; 459.47ms    2.59s</span></span></code></pre></div>
 </div>
 </div>
   </div>
