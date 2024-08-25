@@ -141,13 +141,13 @@ get by parallelization.</p>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;   2.01s   1.98s</span></span>
+<span><span class="co">#&gt;   1.95s   1.92s</span></span>
 <span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  process     real </span></span>
-<span><span class="co">#&gt; 146.18ms    2.08s</span></span></code></pre></div>
+<span><span class="co">#&gt; 133.23ms    1.95s</span></span></code></pre></div>
 <p>A little bit of improvement, but not too impressive. Parallelization
 is more useful in the case where the model uses a lot of features or
 where the feature importance computation is repeated more often to get
@@ -158,14 +158,14 @@ more stable results.</p>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span>, n.repetitions <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;    3.4s   3.35s</span></span>
+<span><span class="co">#&gt;   3.32s   3.27s</span></span>
 <span></span>
 <span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureImp.html">FeatureImp</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, loss <span class="op">=</span> <span class="st">"mae"</span>, n.repetitions <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  process     real </span></span>
-<span><span class="co">#&gt; 177.49ms    2.94s</span></span></code></pre></div>
+<span><span class="co">#&gt; process    real </span></span>
+<span><span class="co">#&gt; 135.9ms    2.8s</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="interaction">Interaction<a class="anchor" aria-label="anchor" href="#interaction"></a>
 </h3>
@@ -179,13 +179,13 @@ statistics:</p>
 <span>  <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, grid.size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;   7.46s   7.36s</span></span>
+<span><span class="co">#&gt;   7.16s   7.05s</span></span>
 <span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/Interaction.html">Interaction</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span>, grid.size <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  process     real </span></span>
-<span><span class="co">#&gt; 144.67ms    5.06s</span></span></code></pre></div>
+<span><span class="co">#&gt; 123.55ms    4.85s</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="feature-effects">Feature Effects<a class="anchor" aria-label="anchor" href="#feature-effects"></a>
@@ -197,13 +197,13 @@ statistics:</p>
 <span>  <span class="va"><a href="../reference/FeatureEffects.html">FeatureEffects</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt; process    real </span></span>
-<span><span class="co">#&gt;   736ms   725ms</span></span>
+<span><span class="co">#&gt;   715ms   704ms</span></span>
 <span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="http://bench.r-lib.org/reference/bench_time.html" class="external-link">system_time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"callr"</span>, workers <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="va"><a href="../reference/FeatureEffects.html">FeatureEffects</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">predictor</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  process     real </span></span>
-<span><span class="co">#&gt; 562.02ms    2.72s</span></span></code></pre></div>
+<span><span class="co">#&gt; 478.95ms    2.41s</span></span></code></pre></div>
 </div>
 </div>
   </div>
