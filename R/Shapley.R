@@ -75,6 +75,7 @@ Shapley <- R6Class("Shapley",
     #'   [data.frame] with the Shapley values (phi) per feature.
     initialize = function(predictor, x.interest = NULL, sample.size = 100) {
       checkmate::assert_data_frame(x.interest, null.ok = TRUE)
+      x.interest = as.data.frame(x.interest)
       super$initialize(predictor = predictor)
       x.interest <- x.interest[setdiff(colnames(x.interest), predictor$data$y.names)]
       self$sample.size <- sample.size
