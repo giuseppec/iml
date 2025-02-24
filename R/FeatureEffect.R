@@ -253,7 +253,7 @@ FeatureEffect <- R6Class("FeatureEffect",
       }
       assert_vector(data)
       predictions <- private$predict_inner(data)
-      if (!extrapolate & (self$feature.type == "numerical")) {
+      if (!extrapolate & (self$feature.type %in% c("integer", "numerical"))) {
         predictions[data < min(self$results[[self$feature.name]])] <- NA
         predictions[data > max(self$results[[self$feature.name]])] <- NA
       }
@@ -272,7 +272,7 @@ FeatureEffect <- R6Class("FeatureEffect",
       # create the partial predict function
       if (self$n.features == 1 & !private$multiClass &
         self$method %in% c("ale", "pdp", "pdp+ice")) {
-        if (self$feature.type == "numerical") {
+        if (self$feature.type %in% c("numerical", "integer")) {
           if (self$method == "ale") y <- self$results$.value
           if (self$method %in% c("pdp", "pdp+ice")) {
             y <- self$results$.value[self$results$.type == "pdp"]
@@ -310,7 +310,7 @@ FeatureEffect <- R6Class("FeatureEffect",
       private$dataSample <- private$getData()
       dat <- private$dataSample
       if (self$n.features == 1) {
-        if (self$feature.type == "numerical") { # one numerical feature
+        if (self$feature.type %in% c("numerical", "integer")) { # one numerical feature
           if (is.null(private$grid.points)) {
             grid.dt <- unique(get.grid(dat[, self$feature.name, with = FALSE],
                                        self$grid.size + 1, type = "quantile"))
@@ -329,7 +329,7 @@ FeatureEffect <- R6Class("FeatureEffect",
           )
         }
       } else { # two features
-        if (all(self$feature.type == "numerical")) { # two numerical features
+        if (all(self$feature.type %in% c("numerical", "integer"))) { # two numerical features
           # Create grid for feature 1
           if (is.null(private$grid.points)) {
             grid.dt1 <- unique(get.grid(dat[, self$feature.name[1], with = FALSE],
@@ -648,7 +648,7 @@ FeatureEffect <- R6Class("FeatureEffect",
       }
     },
     set.grid.size.single = function(size, feature.number) {
-      self$grid.size[feature.number] <- ifelse(self$feature.type[feature.number] == "numerical",
+      self$grid.size[feature.number] <- ifelse(self$feature.type[feature.number] %in% c("integer", "numerical"),
         size, length(unique(private$sampler$get.x()[[self$feature.name[feature.number]]]))
       )
     },

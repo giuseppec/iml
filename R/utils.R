@@ -3,7 +3,7 @@ get.feature.type <- function(feature.class) {
 
   feature.types <- c(
     "numeric" = "numerical",
-    "integer" = "numerical",
+    "integer" = "integer",
     "character" = "categorical",
     "factor" = "categorical",
     "ordered" = "categorical"
@@ -173,13 +173,13 @@ get.grid <- function(dat, grid.size, anchor.value = NULL, type = "equidist") {
 
 get.grid.1D <- function(feature, grid.size, feature.type = NULL, type = "equidist") {
   checkmate::assert_vector(feature, all.missing = FALSE, min.len = 2)
-  checkmate::assert_choice(feature.type, c("numerical", "categorical"), null.ok = TRUE)
+  checkmate::assert_choice(feature.type, c("integer", "numerical", "categorical"), null.ok = TRUE)
   checkmate::assert_numeric(grid.size)
   checkmate::assert_choice(type, c("equidist", "quantile"))
 
   if (is.null(feature.type)) feature.type <- get.feature.type(class(feature))
 
-  if (feature.type == "numerical") {
+  if (feature.type %in% c("integer", "numerical")) {
     # remove NaN NA and inf
     feature <- feature[is.finite(feature)]
     if (length(feature) == 0) stop("Feature does not contain any finite values.")
@@ -193,6 +193,9 @@ get.grid.1D <- function(feature, grid.size, feature.type = NULL, type = "equidis
     } else if (type == "quantile") {
       probs <- seq(from = 0, to = 1, length.out = grid.size)
       grid <- quantile(feature, probs = probs, names = FALSE, type = 1)
+    }
+    if (feature.type == "integer") {
+      grid <- round(grid)
     }
   } else if (feature.type == "categorical") {
     grid <- unique(feature)
