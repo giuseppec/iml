@@ -63,3 +63,24 @@ test_that("FeatureEffect (pdp only) works for single output and single feature",
   )
   expect_equal(pdp.obj.a$results, pdp.objs$effects$a$results)
 })
+
+
+test_that("FeatureEffect allow integer columns PR #219", {
+  skip_if_not_installed("mlr3")
+  require(mlr3)
+  
+  task = tsk("boston_housing")
+  learner = lrn("regr.rpart")
+  rr = resample(task, learner, rsmp("cv", folds = 5))
+  
+  target = task$target_names
+  twocols = task$feature_names[1:2]
+  learner = rr$learner
+  learner$train(task)
+  
+  model = Predictor$new(model = learner,
+    data = task$data()[,.SD, .SDcols = !target],
+    y = task$data()[, ..target])
+  
+  effect = FeatureEffects$new(model, method = "pdp", grid.size = 10)
+})
