@@ -1,9 +1,11 @@
+skip_if_not_installed("randomForest")
 library("randomForest")
 
 rf <- randomForest(Species ~ ., data = iris, ntree = 1)
 f <- function(x) predict(rf, newdata = x)
 
 test_that("classificaton", {
+  skip_if_not_installed("mlr")
   ## use linear discriminant analysis to classify iris data
   task <- mlr::makeClassifTask(data = iris, target = "Species")
   learner <- mlr::makeLearner("classif.lda", method = "mle")
@@ -13,6 +15,7 @@ test_that("classificaton", {
   })
   expect_equal(tsk, "classification")
 
+  skip_if_not_installed("mlr3")
   task <- mlr3::TaskClassif$new(id = "iris", backend = iris, target = "Species")
   learner <- mlr3::lrn("classif.rpart")
   mod <- learner$train(task)
@@ -21,7 +24,8 @@ test_that("classificaton", {
 
   TrainData <- iris[, 1:4]
   TrainClasses <- iris[, 5]
-
+  
+  skip_if_not_installed("caret")
   knnFit1 <- caret::train(TrainData, TrainClasses,
     method = "knn",
     preProcess = c("center", "scale"),
@@ -39,14 +43,14 @@ test_that("classificaton", {
 })
 
 test_that("regression", {
-
+  skip_if_not_installed("mlr")
   ## use linear discriminant analysis to classify iris data
   task <- mlr::makeRegrTask(data = cars, target = "dist")
   learner <- mlr::makeLearner("regr.lm")
   mod <- mlr::train(learner, task)
   expect_equal(inferTaskFromModel(mod), "regression")
 
-
+  skip_if_not_installed("caret")
   lmFit <- caret::train(dist ~ .,
     data = cars,
     method = "lm"

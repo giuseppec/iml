@@ -158,6 +158,7 @@ test_that("equivalence", {
 })
 
 test_that("Missing predict.type for mlr gives warning", {
+  skip_if_not_installed("mlr")
   task <- mlr::makeClassifTask(data = iris, target = "Species")
   lrn <- mlr::makeLearner("classif.randomForest")
   mod.mlr <- mlr::train(lrn, task)
@@ -166,12 +167,14 @@ test_that("Missing predict.type for mlr gives warning", {
 
 # Test numeric predictions
 
+skip_if_not_installed("mlr")
 ## mlr
 task <- mlr::makeRegrTask(data = Boston, target = "medv")
 lrn <- mlr::makeLearner("regr.rpart")
 mod.mlr <- mlr::train(lrn, task)
 predictor.mlr <- Predictor$new(mod.mlr, data = Boston)
 
+skip_if_not_installed("mlr3")
 # mlr3
 task <- TaskRegr$new(id = "bn", backend = Boston, target = "medv")
 learner <- lrn("regr.rpart")
@@ -182,6 +185,7 @@ predictor.mlr3 <- Predictor$new(learner, data = Boston)
 mod.S3 <- mod.mlr$learner.model
 predictor.S3 <- Predictor$new(mod.S3, data = Boston)
 
+skip_if_not_installed("caret")
 # caret
 mod.caret <- caret::train(medv ~ .,
   data = Boston, method = "knn",
@@ -266,6 +270,7 @@ test_that("Predictor errors with data, which includes NAs.", {
 })
 
 test_that("Predictor keeps factor names without X", {
+  skip_if_not_installed("rpart")
   require(rpart)
   dat <- data.frame(
     y = factor(rep(c(1, 2), times = 5)),

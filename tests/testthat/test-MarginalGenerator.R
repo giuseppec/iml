@@ -1,3 +1,4 @@
+# skip_if_not_installed("data.table")
 library(data.table)
 mg.dat <- data.table(
   a = 1:10,

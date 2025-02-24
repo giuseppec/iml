@@ -1,3 +1,7 @@
+skip_if_not_installed("mlr")
+skip_if_not_installed("mlr3")
+skip_if_not_installed("caret")
+
 library("mlr")
 library("mlr3")
 library("caret")

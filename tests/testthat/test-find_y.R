@@ -1,4 +1,5 @@
 test_that("find_y works with mlr", {
+  skip_if_not_installed("mlr")
   require("mlr")
   data(cars, package = "datasets")
 
@@ -10,6 +11,7 @@ test_that("find_y works with mlr", {
 })
 
 test_that("find_y works with caret", {
+  skip_if_not_installed("caret")
   require("caret")
   data(cars, package = "caret")
 
@@ -30,6 +32,7 @@ test_that("find_y works with lm", {
 
 
 test_that("find_y works with rpart", {
+  skip_if_not_installed("rpart")
   require("rpart")
   data(cars, package = "datasets")
 

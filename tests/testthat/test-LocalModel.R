@@ -40,7 +40,8 @@ test_that("LocalModel works for single output and single feature", {
 })
 
 test_that("LocalModel works for multiple output", {
-  library("rpart")
+  skip_if_not_installed("rpart")
+  require("rpart")
   clf <- rpart(Species ~ ., data = iris)
   mod <- Predictor$new(clf, data = iris)
   x.interest <- iris[1, -5]

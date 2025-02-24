@@ -537,6 +537,7 @@ test_that("method='ale' works for 2D numerical", {
 })
 
 test_that("iml::FeatureEffect with method='ale' equal to ALEPLot::ALEPlot", {
+  skip_if_not_installed("ALEPlot")
   require("ALEPlot")
 
   # one numerical feature

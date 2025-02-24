@@ -49,6 +49,7 @@ test_that("FeatureImp with difference", {
 })
 
 test_that("FeatureImp with 0 model error", {
+  skip_if_not_installed("mlr")
   data(iris)
   require("mlr")
   lrn <- mlr::makeLearner("classif.rpart", predict.type = "prob")
@@ -110,8 +111,10 @@ test_that("Works for different repetitions.", {
 
 test_that("Model receives data.frame without additional columns", {
   # https://stackoverflow.com/questions/51980808/r-plotting-importance-feature-using-featureimpnew
-  library(mlr)
-  library(ranger)
+  skip_if_not_installed("mlr")
+  skip_if_not_installed("ranger")
+  require(mlr)
+  require(ranger)
   data("iris")
   tsk <- mlr::makeClassifTask(data = iris, target = "Species")
   lrn <- mlr::makeLearner("classif.ranger", predict.type = "prob")
