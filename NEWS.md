@@ -1,5 +1,9 @@
 <!-- NEWS.md is maintained by https://cynkra.github.io/fledge, do not edit -->
 
+# iml 0.11.4
+
+- Fix bug in FeatureEffect when features are stored as `integer` (PR #219)
+
 # iml 0.11.3
 
 - Enhance output of predictions from `Predictor$predict` method for `mlr3::LearnerRegr` objects (#213)
@@ -14,11 +18,9 @@
 
 - Internal changes only.
 
-
 # iml 0.11.1
 
 - Update documentation to conform to CRAN HTML5
-
 
 # iml 0.11.0
 
