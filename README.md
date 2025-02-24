@@ -1,9 +1,9 @@
 
 <!-- badges: start -->
 
-[![tic](https://github.com/giuseppec/iml/workflows/tic/badge.svg?branch=main)](https://github.com/giuseppec/iml/actions)
+[![r-cmd-check](https://github.com/giuseppec/iml/actions/workflows/r.yml/badge.svg)](https://github.com/giuseppec/iml/actions)
 [![CRAN Status
-Badge](http://www.r-pkg.org/badges/version/iml)](https://CRAN.R-project.org/package=iml)
+Badge](https://www.r-pkg.org/badges/version-ago/iml)](https://CRAN.R-project.org/package=iml)
 [![CRAN
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/iml)](https://CRAN.R-project.org/package=iml)
 [![codecov.io](https://codecov.io/github/christophM/iml/coverage.svg?branch=master)](https://codecov.io/github/christophM/iml?branch=master)
@@ -20,13 +20,13 @@ be used with any machine learning model.
 
 ## Features
 
--   Feature importance
--   Partial dependence plots
--   Individual conditional expectation plots (ICE)
--   Accumulated local effects
--   Tree surrogate
--   LocalModel: Local Interpretable Model-agnostic Explanations
--   Shapley value for explaining single predictions
+- Feature importance
+- Partial dependence plots
+- Individual conditional expectation plots (ICE)
+- Accumulated local effects
+- Tree surrogate
+- LocalModel: Local Interpretable Model-agnostic Explanations
+- Shapley value for explaining single predictions
 
 Read more about the methods in the [Interpretable Machine
 Learning](https://christophm.github.io/interpretable-ml-book/agnostic.html)
@@ -47,13 +47,13 @@ version from GitHub:
 install.packages("iml")
 
 # Development version
-remotes::install_github("giuseppec/iml")
+remotes::install_github("christophM/iml")
 ```
 
 ## News
 
 Changes of the packages can be accessed in the [NEWS
-file](https://giuseppec.github.io/iml/news/index.html).
+file](https://christophm.github.io/iml/news/index.html).
 
 ## Quickstart
 
@@ -100,7 +100,7 @@ BibTeX:
 
 ## License
 
-© 2018 - 2022 [Christoph Molnar](https://christophm.github.io/)
+© 2018 - 2025 [Christoph Molnar](https://christophm.github.io/)
 
 The contents of this repository are distributed under the MIT license.
 See below for details:
